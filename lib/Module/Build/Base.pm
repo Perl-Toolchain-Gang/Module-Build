@@ -255,7 +255,7 @@ sub _general_notes {
 
 sub notes        { shift()->_general_notes('notes', @_) }
 sub build_config { shift()->_general_notes('build_config', @_) }
-sub features     { shift()->_general_notes('features', @_) }
+sub feature      { shift()->_general_notes('features', @_) }
 
 sub add_build_element {
   my $self = shift;
@@ -318,7 +318,7 @@ EOF
   print $fh "__DATA__\n";
 
   local $Data::Dumper::Terse = 1;
-  print $fh Data::Dumper::Dumper([scalar $self->build_config, scalar $self->features]);
+  print $fh Data::Dumper::Dumper([scalar $self->build_config, scalar $self->feature]);
 }
 
 {

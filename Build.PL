@@ -45,7 +45,7 @@ my $build = new Module::Build
 my $failures = $build->prereq_failures();
 
 my $have_yaml = !$failures->{recommends}{YAML};
-$build->features(YAML_support => $have_yaml);
+$build->feature(YAML_support => $have_yaml);
 
 $build->create_build_script;
 $build->notes(foo => 'bar');   # We set this here and verify it in t/notes.t
