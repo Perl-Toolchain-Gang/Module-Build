@@ -65,6 +65,7 @@ chdir 't';
   chdir 'Sample';
   my $m = new Module::Build(module_name => 'Sample');
 
+  $m->add_to_cleanup('save_out');
   # Use uc() so we don't confuse the current test output
   ok uc(stdout_of( sub {$m->dispatch('test', verbose => 1)} )), '/OK 1/';
   ok uc(stdout_of( sub {$m->dispatch('test', verbose => 0)} )), '/\.\.OK/';

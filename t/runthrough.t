@@ -25,6 +25,7 @@ ok $build;
 eval {$build->create_build_script};
 ok $@, '';
 
+$build->add_to_cleanup('save_out');
 my $output = eval {
   stdout_of( sub { $build->dispatch('test', verbose => 1) } )
 };
