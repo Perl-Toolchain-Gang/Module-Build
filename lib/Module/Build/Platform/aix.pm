@@ -15,10 +15,12 @@ sub link_c {
   $file_base =~ tr/"//d; # remove any quotes
   my $perl_inc = File::Spec->catdir($cf->{archlibexp}, 'CORE'); #location of perl.exp
 
-  my $lddlflags = $cf->{lddlflags};
-  $lddlflags =~ s/\Q$(BASEEXT)\E/$file_base/;
-  $lddlflags =~ s/\Q$(PERL_INC)\E/$perl_inc/;
-  $cf->{lddlflags} = $lddlflags;
+  # Massage some very naughty bits in %Config
+  local $cf->{lddlflags} = $cf->{lddlflags};
+  for ($cf->{lddlflags}) {
+    s/\Q$(BASEEXT)\E/$file_base/;
+    s/\Q$(PERL_INC)\E/$perl_inc/;
+  }
 
   return $self->SUPER::link_c($to, $file_base);
 }
