@@ -1183,9 +1183,9 @@ sub find_PL_files {
   return { map {$_, /^(.*)\.PL$/} @{ $self->rscan_dir('lib', qr{\.PL$}) } };
 }
 
-sub find_pm_files { shift->_find_file_by_type('pm') }
-sub find_pod_files { shift->_find_file_by_type('pod') }
-sub find_xs_files { shift->_find_file_by_type('xs') }
+sub find_pm_files  { shift->_find_file_by_type('pm',  'lib') }
+sub find_pod_files { shift->_find_file_by_type('pod', 'lib') }
+sub find_xs_files  { shift->_find_file_by_type('xs',  'lib') }
 
 sub find_script_files {
   my $self = shift;
@@ -1203,7 +1203,7 @@ sub find_script_files {
 
 sub _find_file_by_type {
   my ($self, $type, $dir) = @_;
-  $dir ||= 'lib';
+  
   if (my $files = $self->{properties}{"${type}_files"}) {
     # Always given as a Unix file spec
     return { map $self->localize_file_path($_), %$files };
