@@ -706,12 +706,11 @@ sub print_build_script {
   my ($self, $fh) = @_;
   
   my $build_package = ref($self);
-
-  my ($config_dir, $build_script, $base_dir) = 
-    ($self->{properties}{config_dir}, $self->{properties}{build_script}, $self->base_dir);
+  
+  my %q = map {$_, $self->$_()} qw(config_dir base_dir);
 
   my @myINC = @INC;
-  for ($config_dir, $build_script, $base_dir, @myINC) {
+  for (@myINC, values %q) {
     $_ = File::Spec->rel2abs($_);
     s/([\\\'])/\\$1/g;
   }
@@ -723,7 +722,7 @@ $self->{config}{startperl}
 
 BEGIN {
   \$^W = 1;  # Use warnings
-  my \$start_dir = '$base_dir';
+  my \$start_dir = '$q{base_dir}';
   chdir(\$start_dir) or die "Cannot chdir to \$start_dir: \$!";
   \@INC = 
     (
@@ -736,7 +735,7 @@ use $build_package;
 # This should have just enough arguments to be able to bootstrap the rest.
 my \$build = resume $build_package (
   properties => {
-    config_dir => '$config_dir',
+    config_dir => '$q{config_dir}',
   },
 );
 
