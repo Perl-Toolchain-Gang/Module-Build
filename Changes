@@ -10,10 +10,6 @@ Revision history for Perl extension Module::Build.
    happened because we accidentally call localize_file_path() on empty
    strings in the test suite. [Spotted by Randy Sims on Windows]
 
- - Fixed an warning in make_tarball() that happened because we add
-   directories to the tarball, even though that's not necessary.
-   [Randy Sims again]
-
  - Fixed a problem with creating the distribution tarball in which
    permissions would usually be all read-only.  We now use our own
    file-copying routines rather than those in ExtUtils::Manifest,
