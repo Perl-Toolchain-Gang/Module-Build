@@ -1023,6 +1023,10 @@ Ken Williams, ken@mathforum.org
 Development questions, bug reports, and patches should be sent to the
 Module-Build mailing list at module-build-general@lists.sourceforge.net .
 
+An anonymous CVS repository containing the latest development version
+is available; see http://sourceforge.net/cvs/?group_id=45731 for the
+details of how to access it.
+
 =head1 SEE ALSO
 
 perl(1), ExtUtils::MakeMaker(3), YAML(3)
