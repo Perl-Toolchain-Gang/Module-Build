@@ -1543,6 +1543,8 @@ sub htmlify_pods {
 sub _htmlify_pod {
   my ($self, %args) = @_;
   require Pod::Html;
+
+  $self->add_to_cleanup('pod2htmd.x~~', 'pod2htmi.x~~');
   
   my ($name, $path) = File::Basename::fileparse($args{rel_path}, qr{\..*});
   my @dirs = File::Spec->splitdir($path);
