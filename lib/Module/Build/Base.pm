@@ -1272,7 +1272,7 @@ sub read_args {
       push @argv, $_;
     }
   }
-  $args{ARGV} = \@argv if @argv;
+  $args{ARGV} = \@argv;
 
   # Hashify these parameters
   for ($self->hash_properties) {
