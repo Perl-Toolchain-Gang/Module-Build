@@ -25,6 +25,10 @@ Revision history for Perl extension Module::Build.
  - Documented the 'tar' and 'gzip' parameters to the 'dist' and
    'ppmdist' actions.
 
+ - The generation of HTML documentation now works (it was accidentally
+   partially implemented with an itchy patch-application finger in
+   0.24).  [Randy Kobes]
+
  - Fixed some incorrect error messages that occurred when
    compiling/linking C sources went awry.
 
