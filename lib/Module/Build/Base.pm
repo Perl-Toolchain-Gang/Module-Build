@@ -285,14 +285,15 @@ sub dist_author {
   return unless $p->{dist_version_from};
   my $fh = IO::File->new($p->{dist_version_from}) or return;
   
-  <$fh> until /^=head1\s+AUTHOR/;
-  my $author = '';
+  my @author;
   while (<$fh>) {
-    last if /^=/;
-    $author .= $_;
+    next unless /^=head1\s+AUTHOR/ ... /^=/;
+    push @author, $_;
   }
+  return unless @author;
   
-  $author =~ /^\s+|\s+$/gs;
+  my $author = join '', @author[1..$#author-1];
+  $author =~ s/^\s+|\s+$//g;
   return $p->{dist_author} = $author;
 }
 
@@ -307,11 +308,9 @@ sub dist_abstract {
   
   (my $package = $self->dist_name) =~ s/-/::/g;
   
-  my $inpod = 0;
+  my $result;
   while (<$fh>) {
-    $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
-    next unless $inpod;
-    
+    next unless /^=(?!cut)/ .. /^cut/;  # in POD
     last if ($result) = /^(?:$package\s-\s)(.*)/;
   }
   
