@@ -1,5 +1,12 @@
 Revision history for Perl extension Module::Build.
 
+0.21_01
+
+ - On some platforms it's common to have a $Config{make} defined, but
+   no 'make' utility available.  We now detect this and skip some
+   'make' compatibility tests. [Randy Sims]
+
+
 0.21  Wed Oct 15 20:47:05 CDT 2003
 
  - Added a have_c_compiler() method.
