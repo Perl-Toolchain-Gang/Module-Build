@@ -1,5 +1,33 @@
 Revision history for Perl extension Module::Build.
 
+0.12  Thu Nov 14 18:31:47 AEST 2002
+
+  - The META.yaml file was erroneously looking for 'build_depends'
+    instead of 'build_requires'. [spotted by Iain Truskett]
+
+  - Add prompt() and yorn() methods for use in Build.PLs
+
+  - Do more to work with all versions of Test::Harness when setting
+    the TEST_VERBOSE flag and running under the debugger [patch by
+    Dave Rolsky]
+
+  - Include a test for verbosity handling
+
+  - Make sure the blib/ directory is always cleaned up with the
+    'clean' or 'realclean' action.
+
+  - In a pass-through Makefile.PL, inform 'make' that 'install' is a
+    "fake target", so that it works properly on case-insensitive
+    filesystems like HFS+ with distributions that contain an INSTALL
+    file. [patch by Brian Ingerson]
+
+  - In Module::Build::Compat, show an example Makefile.PL that can
+    install Module::Build and re-invoke itself in one fell swoop [Dave
+    Rolsky and Autrijus Tang]
+
+  - Improve the formatting of the Module::Build and
+    Module::Build::Compat documentation.
+
 0.11  Fri Aug 23 18:50:46 AEST 2002
 
   - 'module_version' and 'module_version_from' have been replaced by

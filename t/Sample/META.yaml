@@ -1,4 +1,5 @@
 --- #YAML:1.0
+build_requires: {}
 conflicts: {}
 distribution_type: module
 dynamic_config: 0

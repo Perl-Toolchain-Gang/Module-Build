@@ -1,0 +1,9 @@
+-------------------------- TO DO: --------------------------------
+
+-------------------------- DONE: ---------------------------------
+
+* Create a prompt() method similar to ExtUtils::MakeMaker::prompt().
+
+* Create a yorn() method that loops prompt() until it gets a yes/no
+answer.
+

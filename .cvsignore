@@ -1,0 +1,6 @@
+CPANTEST.RPT
+META.yaml
+Module-Build-*
+_build
+blib
+Build
