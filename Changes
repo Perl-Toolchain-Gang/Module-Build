@@ -14,6 +14,10 @@ Revision history for Perl extension Module::Build.
  - Added an 'add_to_cleanup' parameter to new() that calls
    add_to_cleanup() immediately for the given files.
 
+ - Added experimental code to build a .ppd file, in support of
+   ActiveState's "Perl Package Manager". [original patch by Dave
+   Rolsky]
+
  - The $Config{cc} entry on some people's systems is something like
    'ccache gcc', so we now split that string using split_like_shell().
    [Richard Clamp]
