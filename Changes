@@ -2,6 +2,16 @@ Revision history for Perl extension Module::Build.
 
 0.25_01
 
+ - Removed some language from the Module::Build::Compat documentation
+   that encouraged people to include a Build.PL without a Makefile.PL.
+   Also changed "a replacement for MakeMaker" to "an alternative to
+   MakeMaker" in the main documentation, which is basically what I
+   meant all along (i.e. a replacement for MakeMaker in your
+   particular build process - MakeMaker is never going to be fully
+   replaced in the perl world at large, of course), but some people
+   got the impression I was a little more truculent toward MakeMaker
+   than I really am.
+
  - Fixed a fatal error that would occur on perl 5.005 when building
    HTML documentation, because its version of Pod::Html was old and
    didn't like some of the parameters we fed it. [Spotted by Blair
