@@ -10,7 +10,7 @@ Revision history for Perl extension Module::Build.
    "shadowing" the stuff you're installing from a different location,
    just like MakeMaker's "make install UNINST=1" command will do.
 
- - Made changes to the generated Makefile (from Module::Build::Compat)
+ - Made changes to the generated Makefile in Module::Build::Compat
    that much better support Windows platforms [after suggestions by
    James Freeman]
 
