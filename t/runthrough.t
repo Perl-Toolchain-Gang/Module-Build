@@ -1,4 +1,4 @@
-use Test;
+use Test; 
 BEGIN { plan tests => 13 }
 use Module::Build;
 use File::Spec;
