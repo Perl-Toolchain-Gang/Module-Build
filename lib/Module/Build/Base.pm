@@ -891,7 +891,7 @@ sub set_autofeatures {
       }
       $self->feature($name => 0);
     } else {
-      $self->info("Feature '$name' enabled.\n\n");
+      $self->log_info("Feature '$name' enabled.\n\n");
       $self->feature($name => 1);
     }
   }
