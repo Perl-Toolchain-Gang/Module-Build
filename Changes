@@ -1,5 +1,21 @@
 Revision history for Perl extension Module::Build.
 
+0.10
+  - Recommend YAML 0.35 instead of 0.30.
+
+  - Don't die during 'Build disttest' if YAML isn't installed.  This
+    fixes tests 5-10 in runthrough.t if YAML isn't installed.
+
+  - Die if an unknown license type is used, but still default to
+    'unknown' if no license is specified.
+
+  - Use YAML::DumpFile() if we're using a recent YAML,
+    YAML::StoreFile() otherwise.
+
+  - Show specific error messages in runthrough.t.
+
+  - Add a generated_by entry to the META.yaml file.
+
 0.09  Fri Jun 28 11:07:08 EST 2002
 
   - The 'distdir' action wasn't deleting the distribution directory
