@@ -10,8 +10,8 @@ use Config;
 ok(1);
 ok $INC{'Module/Build.pm'}, '/blib/', "Make sure version from blib/ is loaded";
 
-
-require File::Spec->catfile('t', 'common.pl');
+my $common_pl = File::Spec->catfile('t', 'common.pl');
+require $common_pl;
 
 ######################### End of black magic.
 

@@ -9,7 +9,8 @@ use File::Spec;
 print("1..0 # Skipped: no compiler found\n"), exit(0) unless Module::Build->current->have_c_compiler;
 plan tests => 12;
 
-require File::Spec->catfile('t', 'common.pl');
+my $common_pl = File::Spec->catfile('t', 'common.pl');
+require $common_pl;
 
 ######################### End of black magic.
 

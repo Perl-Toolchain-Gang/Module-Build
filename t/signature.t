@@ -2,7 +2,9 @@
 use strict;
 use Test;
 use File::Spec;
-require File::Spec->catfile('t', 'common.pl');
+
+my $common_pl = File::Spec->catfile('t', 'common.pl');
+require $common_pl;
 
 use Module::Build;
 skip_test("Skipping unless \$ENV{TEST_SIGNATURE} is true") unless $ENV{TEST_SIGNATURE};

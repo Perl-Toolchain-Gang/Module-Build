@@ -1,14 +1,14 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 29 }
+BEGIN { plan tests => 28 }
 use Module::Build;
 use File::Spec;
 use File::Path;
 use Config;
 
-ok(1);
-require File::Spec->catfile('t', 'common.pl');
+my $common_pl = File::Spec->catfile('t', 'common.pl');
+require $common_pl;
 
 my $start_dir = Module::Build->cwd;
 

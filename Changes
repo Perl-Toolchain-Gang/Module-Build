@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.2608  Tue Jan  4 21:44:57 CST 2005
 
+ - Add workaround for test files because Devel::Cover causes
+   require to fail when the argument to require is an expression
+   involving File::Spec. We now assign the result of the File::Spec
+   call to a variable and then call require with that variable.
+
  - Tilde-expansion is now performed on arguments passed to a
    compatibility-Makefile.PL [Spotted by Sam Vilain]
 
