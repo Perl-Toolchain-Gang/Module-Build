@@ -23,6 +23,10 @@ Revision history for Perl extension Module::Build.
  - Improved the formatting of the 'traditional' Makefile.PL generated
    by Module::Build::Compat->create_makefile_pl. [Michael Schwern]
 
+ - The 'traditional' Makefile.PL will now use the 'module_name'
+   parameter (as NAME) if it's available, otherwise it will continue
+   to use the 'dist_name' (as DISTNAME). [Michael Schwern]
+
 0.19_04
 
  - Fixed yet another bug with installation directories, in which the
