@@ -42,10 +42,13 @@ sub resume {
 	 "   but we are now using '$perl'.\n");
   }
   
+  # Use ->VERSION() for both thingies here, since version.pm may or
+  # may not be loaded
+  my $former_version = do {local $Foo::VERSION = $self->{properties}{mb_version}; Foo->VERSION};
   my $mb_version = Module::Build->VERSION;
-  die(" * ERROR: Configuration was initially created with Module::Build version '$self->{properties}{mb_version}',\n".
+  die(" * ERROR: Configuration was initially created with Module::Build version '$former_version',\n".
       "   but we are now using version '$mb_version'.  Please re-run the Build.PL or Makefile.PL script.\n")
-    unless $mb_version eq $self->{properties}{mb_version};
+    unless $mb_version eq $former_version;
   
   $self->cull_args(@ARGV);
   $self->{action} ||= 'build';
