@@ -192,6 +192,7 @@ sub resume {
        c_source
        autosplit
        create_makefile_pl
+       pollute
       );
 
   sub valid_property { exists $valid_properties{$_[1]} }
@@ -1271,7 +1272,9 @@ sub compile_c {
   
   my $coredir = File::Spec->catdir($cf->{archlib}, 'CORE');
   my @include_dirs = $self->{include_dirs} ? map {"-I$_"} @{$self->{include_dirs}} : ();
+  push @include_dirs, $self->split_like_shell($self->{args}{inc}) if $self->{args}{inc};
   my @ccflags = $self->split_like_shell($cf->{ccflags});
+  push @ccflags, '-DPERL_POLLUTE' if $self->{properties}{pollute} || $self->{args}{pollute};
   my @optimize = $self->split_like_shell($cf->{optimize});
   $self->do_system($cf->{cc}, @include_dirs, '-c', @ccflags, @optimize, "-I$coredir", '-o', $obj_file, $file)
     or die "error building $cf->{dlext} file from '$file'";
