@@ -683,7 +683,8 @@ sub prereq_failures {
   my $out;
 
   foreach my $type (@types) {
-    while ( my ($modname, $spec) = each %{$info->{$type}} ) {
+    my $prereqs = $info->$type();
+    while ( my ($modname, $spec) = each %$prereqs ) {
       my $status = $self->check_installed_status($modname, $spec);
       
       if ($type eq 'conflicts') {
