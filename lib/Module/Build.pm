@@ -742,6 +742,9 @@ in the new location).  By default the entire directory structure of
 C<from> will be copied into C<to_dir>; an optional C<flatten>
 parameter will copy into C<to_dir> without doing so.
 
+Returns the path to the destination file, or C<undef> if nothing
+needed to be copied.
+
 Any directories that need to be created in order to perform the
 copying will be automatically created.
 
