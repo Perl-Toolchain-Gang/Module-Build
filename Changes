@@ -1,5 +1,16 @@
 Revision history for Perl extension Module::Build.
 
+0.2609
+
+ - On some Unix platforms (BSD derivatives, mostly) perl's $^X
+   variable isn't set to the full path of the perl executable, just
+   'perl', when the 'Build' script is run as './Build' and not 'perl
+   ./Build'.  This can lead to some other modules (maybe
+   Test::Harness, maybe IO::File, I dunno...) getting very confused
+   about where they are, and they try to load stuff from the wrong
+   perl lib, and big trouble ensues.  To fix this, we now set $^X to
+   the value of Module::Build->find_perl_interpreter().
+
 0.2608  Wed Jan 26 19:46:09 CST 2005
 
  - Add workaround for test files because Devel::Cover causes
