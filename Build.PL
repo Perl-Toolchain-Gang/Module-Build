@@ -4,11 +4,15 @@ use strict;
 # find the local "lib" directory, so we use File::Spec to do it properly.
 use File::Spec;
 use lib File::Spec->catdir('lib');
+use lib File::Spec->catdir('inc');
 
 # We use Module::Build to test & install itself.
 use Module::Build;
 
-my $build = new Module::Build
+# A custom builder that does some special stuff during the 'dist' phase
+use ModuleBuildBuilder;
+
+my $build = new ModuleBuildBuilder
   (
    module_name => 'Module::Build',   
    license => 'perl',
