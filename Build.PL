@@ -39,3 +39,4 @@ my $build = new Module::Build
   );
 
 $build->create_build_script;
+$build->notes(foo => 'bar');
