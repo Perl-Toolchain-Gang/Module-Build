@@ -20,7 +20,7 @@ Revision history for Perl extension Module::Build.
    Award.  Work around a few of its nits when setting harness
    switches. [Spotted by Diab Jerius]
 
- - Changed the manpage separator on OS/2 to '.'. [Randy Sims]
+ - Changed the manpage separator on OS/2 to '.'. [Ilya Zakharevich]
 
  - Now the Build script will die() if we're run from the wrong
    directory, rather than trying to chdir() to the right directory and
