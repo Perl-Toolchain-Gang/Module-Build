@@ -1633,11 +1633,7 @@ sub ACTION_distmeta {
     $node->{$_} = $p->{$_} if exists $p->{$_};
   }
   
-  $node->{provides} = $self->find_dist_packages
-    or do {
-      warn "Module::Info was not available, no 'provides' will be created in $self->{metafile}";
-      delete $node->{provides};
-    };
+  $node->{provides} = $self->find_dist_packages;
 
   $node->{generated_by} = "Module::Build version " . Module::Build->VERSION;
   
