@@ -786,23 +786,15 @@ sub ACTION_fakeinstall {
 
 sub ACTION_versioninstall {
   my ($self) = @_;
-
-  die "You must have only.pm installed for this operation\n"
-    unless eval { require only; 1 };
   
-  if (defined $self->{args}{versionlib}) {
-    $only::config::versionlib = $self->{args}{versionlib};
-    $only::config::versionarch = 
-      File::Spec->catdir($self->{args}{versionlib},
-                         $self->{config}{archname});
-  }
-  my @args = ();
-  if (defined $self->{args}{version}) {
-    push @args, $self->{args}{version};
-  }
+  die "You must have only.pm 0.25 or greater installed for this operation: $@\n"
+    unless eval { require only; 'only'->VERSION(0.25); 1 };
+  
   $self->depends_on('build');
-  local @ARGV = @args;
-  only::install();
+  
+  my %onlyargs = map {exists($self->{args}{$_}) ? ($_ => $self->{args}{$_}) : ()}
+    qw(version versionlib);
+  only::install::install(%onlyargs);
 }
 
 sub ACTION_clean {
