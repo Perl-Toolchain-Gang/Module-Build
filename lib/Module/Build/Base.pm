@@ -1767,9 +1767,56 @@ sub ACTION_disttest {
   chdir $start_dir;
 }
 
+sub _write_default_maniskip {
+  my $self = shift;
+  my $file = shift || 'MANIFEST.SKIP';
+  my $fh = IO::File->new("> $file")
+    or die "Can't open $file: $!";
+
+  # This is pretty much straight out of
+  # MakeMakers default MANIFEST.SKIP file
+  print $fh <<'EOF';
+# Avoid version control files.
+\bRCS\b
+\bCVS\b
+,v$
+\B\.svn\b
+
+# Avoid Makemaker generated and utility files.
+\bMakefile$
+\bblib
+\bMakeMaker-\d
+\bpm_to_blib$
+\bblibdirs$
+^MANIFEST\.SKIP$
+
+# Avoid Module::Build generated and utility files.
+\bBuild$
+\b_build
+
+# Avoid temp and backup files.
+~$
+\.old$
+\.bak$
+\#$
+\b\.#
+EOF
+
+  $fh->close();
+}
+
 sub ACTION_manifest {
   my ($self) = @_;
-  
+
+  my $metafile = $self->{metafile} || 'META.yml';
+  $self->depends_on('distmeta') unless -e $metafile;
+
+  my $maniskip = 'MANIFEST.SKIP';
+  unless ( -e 'MANIFEST' || -e $maniskip ) {
+    warn "File '$maniskip' does not exist: Creating a default '$maniskip'\n";
+    $self->_write_default_maniskip($maniskip);
+  }
+
   require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
   local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
   ExtUtils::Manifest::mkmanifest();
@@ -1808,10 +1855,11 @@ sub _write_minimal_metadata {
   my $self = shift;
   my $p = $self->{properties};
 
-  open META, "> $self->{metafile}"
-    or die "Can't write $self->{metafile}: $!\n";
+  my $file = $self->{metafile};
+  my $fh = IO::File->new("> $file")
+    or die "Can't open $file: $!";
 
-  print META <<"END_OF_META";
+  print $fh <<"END_OF_META";
 --- #YAML:1.0
 name: $p->{dist_name}
 version: $p->{dist_version}
@@ -1822,7 +1870,7 @@ license: $p->{license}
 generated_by: Module::Build version @{[ Module::Build->VERSION ]}, without YAML.pm
 END_OF_META
 
-  close META;
+  $fh->close();
 }
 
 sub ACTION_distmeta {
