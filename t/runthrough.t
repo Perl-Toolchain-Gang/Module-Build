@@ -99,16 +99,24 @@ if ($HAVE_YAML) {
   eval {$build->dispatch('install', destdir => $destdir)};
   ok $@, '';
   
-  my $install_to = File::Spec->catfile($destdir, $build->install_destination('lib'), 'Sample.pm');
-  print "Should have installed to $install_to\n";
+  my $libdir = strip_volume( $build->install_destination('lib') );
+  my $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
+  print "Should have installed module as $install_to\n";
   ok -e $install_to;
 
   eval {$build->dispatch('install', installdirs => 'core', destdir => $destdir)};
   ok $@, '';
   
-  $install_to = File::Spec->catfile($destdir, $Config{installprivlib}, 'Sample.pm');
-  print "Should have installed to $install_to\n";
+  $libdir = strip_volume( $Config{installprivlib} );
+  $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
+  print "Should have installed module as $install_to\n";
   ok -e $install_to;
+}
+
+sub strip_volume {
+  my $dir = shift;
+  (undef, $dir) = File::Spec->splitpath( $dir, 1 );
+  return $dir;
 }
 
 {

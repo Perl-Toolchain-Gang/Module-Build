@@ -1375,7 +1375,12 @@ sub install_map {
   }
 
   if (length(my $destdir = $self->{properties}{destdir} || '')) {
-    $map{$_} = File::Spec->catdir($destdir, $map{$_}) foreach keys %map;
+    foreach (keys %map) {
+      # Need to remove volume from $map{$_} using splitpath, or else
+      # we'll create something crazy like C:\Foo\Bar\E:\Baz\Quux
+      my ($volume, $path) = File::Spec->splitpath( $map{$_}, 1 );
+      $map{$_} = File::Spec->catdir($destdir, $path);
+    }
   }
   
   $map{read} = '';  # To keep ExtUtils::Install quiet
