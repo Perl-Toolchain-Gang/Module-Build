@@ -1899,8 +1899,9 @@ sub run_perl_script {
   foreach ($preargs, $postargs) {
     $_ = [ $self->split_like_shell($_) ] unless ref();
   }
+  my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
   
-  return $self->do_system($self->{properties}{perl}, @$preargs, $script, @$postargs);
+  return $self->do_system($perl, @$preargs, $script, @$postargs);
 }
 
 # A lot of this looks Unixy, but actually it may work fine on Windows.
