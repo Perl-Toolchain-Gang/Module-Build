@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-BEGIN { plan tests => 37 }
+BEGIN { plan tests => 41 }
 use Module::Build;
 ok(1);
 
@@ -18,12 +18,15 @@ chdir 't';
 
 # Test object creation
 {
-  my $build = new Module::Build
-    (
-     module_name => 'ModuleBuildOne',
-    );
+  my $build = new Module::Build( module_name => 'ModuleBuildOne' );
   ok $build;
   ok $build->module_name, 'ModuleBuildOne';
+  ok $build->dist_name, 'ModuleBuildOne';
+  
+  $build = Module::Build->new( dist_name => 'ModuleBuildOne', dist_version => 7 );
+  ok $build;
+  ok $build->module_name, '';  # Make sure it's defined
+  ok $build->dist_name, 'ModuleBuildOne';
 }
 
 # Make sure actions are defined, and known_actions works as class method

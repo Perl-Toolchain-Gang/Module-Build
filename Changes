@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+0.2604
+
+ - module_name() will now return '' instead of undef when module_name
+   is not set.  This eliminates a couple uninitialized-value
+   warnings. [Suggested by Michael Schwern]
+
 0.2603 (Bug fix for 0.26)   Mon Nov 15 10:28:00 CST 2004
 
  - Added documentation for the new_from_context() method.
