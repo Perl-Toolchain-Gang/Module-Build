@@ -12,6 +12,7 @@ use File::Compare ();
 use Data::Dumper ();
 use IO::File ();
 
+#################### Constructors ###########################
 sub new {
   my $package = shift;
   my %input = @_;
@@ -75,6 +76,25 @@ sub new {
 
   return $self;
 }
+
+sub resume {
+  my $package = shift;
+  my $self = bless {@_}, $package;
+  
+  $self->read_config;
+  
+  my $perl = $self->find_perl_interpreter;
+  warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
+       "   but we are now using '$perl'.\n")
+    unless $perl eq $self->{properties}{perl};
+  
+  $self->cull_args(@ARGV);
+  $self->{action} ||= 'build';
+  
+  return $self;
+}
+
+################## End constructors #########################
 
 sub _set_install_paths {
   my $self = shift;
@@ -177,23 +197,6 @@ sub notes {
   
   my $value = shift;
   return $self->_persistent_hash_write('notes', { $key => $value });
-}
-
-sub resume {
-  my $package = shift;
-  my $self = bless {@_}, $package;
-  
-  $self->read_config;
-  
-  my $perl = $self->find_perl_interpreter;
-  warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
-       "   but we are now using '$perl'.\n")
-    unless $perl eq $self->{properties}{perl};
-  
-  $self->cull_args(@ARGV);
-  $self->{action} ||= 'build';
-  
-  return $self;
 }
 
 {
@@ -1130,7 +1133,6 @@ sub ACTION_builddocs {
   require Pod::Man;
   $self->manify_bin_pods();
   $self->manify_lib_pods();
-  return $self;
 }
 
 sub manify_bin_pods {
@@ -1149,8 +1151,6 @@ sub manify_bin_pods {
     $parser->parse_from_file( $file, $outfile );
     $files->{$file} = $outfile;
   }
-
-  return $self;
 }
 
 sub manify_lib_pods {
@@ -1169,8 +1169,6 @@ sub manify_lib_pods {
     $parser->parse_from_file( $file, $outfile );
     $files->{$file} = $outfile;
   }
-
-  return $self;
 }
 
 sub _find_pods {
