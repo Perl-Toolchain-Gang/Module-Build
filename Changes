@@ -28,8 +28,9 @@ Revision history for Perl extension Module::Build.
    [David Wheeler]
 
  - Added a 'testpod' action, which checks the syntactic validity of
-   all POD files in the distribution using Test::Pod. [Initial patch
-   by Mark Stosberg]
+   all POD files in the distribution using Test::Pod.  This eliminates
+   the need for doing so in a regression test. [Initial patch by Mark
+   Stosberg]
 
  - During 'distdir' and 'distmeta' actions, die a bit more gracefully
    if there's no MANIFEST (i.e. explicitly say that a MANIFEST is
