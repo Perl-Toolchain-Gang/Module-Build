@@ -45,7 +45,7 @@ Revision history for Perl extension Module::Build.
    creating an empty word, manifesting as something like "gcc - no
    such file or directory" during tests. [Spotted by Warren L. Dodge]
 
-0.26 Sat Oct  9 17:51:01 CDT 2004
+0.26  Sat Oct  9 17:51:01 CDT 2004
 
  - Removed some language from the Module::Build::Compat documentation
    that encouraged people to include a Build.PL without a Makefile.PL.
