@@ -65,6 +65,10 @@ Revision history for Perl extension Module::Build.
    create_build_script() was called would get lost unless more notes()
    were also set afterwards. [Spotted by Dave Rolsky]
 
+ - The process of building elements of the distribution is now driven
+   by a list of build elements, paving the way for letting people add
+   their own types of build elements.
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
