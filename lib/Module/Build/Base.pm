@@ -1669,6 +1669,10 @@ sub ACTION_diff {
   $self->depends_on('build');
   my $local_lib = File::Spec->rel2abs('lib');
   my @myINC = grep {$_ ne $local_lib} @INC;
+
+  # The actual install destination might not be in @INC, so check there too.
+  push @myINC, map $self->install_destination($_), qw(lib arch);
+
   my @flags = @{$self->{args}{ARGV}};
   @flags = $self->split_like_shell($self->{args}{flags} || '') unless @flags;
   
