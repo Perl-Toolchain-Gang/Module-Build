@@ -57,7 +57,6 @@ sub new {
 				   %input,
 				   %$cmd_properties,
 				  },
-		    new_cleanup => {},
 		   }, $package;
   my $p = $self->{properties};
 
@@ -699,7 +698,7 @@ sub ACTION_fakeinstall {
 
 sub ACTION_clean {
   my ($self) = @_;
-  foreach my $item (keys %{$self->{cleanup}}, keys %{$self->{new_cleanup}}) {
+  foreach my $item (keys %{$self->{cleanup}}) {
     $self->delete_filetree($item);
   }
 }
@@ -707,6 +706,12 @@ sub ACTION_clean {
 sub ACTION_realclean {
   my ($self) = @_;
   $self->depends_on('clean');
+  if ($self->{cleanup_fh}) {
+    # On Windows, you can't delete a directory with files open inside,
+    # so we close the cleanup file.
+    close $self->{cleanup_fh};
+    delete $self->{cleanup_fh};
+  }
   $self->delete_filetree($self->{properties}{config_dir}, $self->{properties}{build_script});
 }
 
