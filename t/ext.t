@@ -55,7 +55,7 @@ my @win_splits =
    { 'a " b " c'            => [ 'a', ' b ', 'c' ] },
 );
 
-plan tests => 13 + 2*@unix_splits + 2*@win_splits;
+plan tests => 15 + 2*@unix_splits + 2*@win_splits;
 
 use Module::Build;
 ok(1);
@@ -89,6 +89,14 @@ foreach my $test (@win_splits) {
   ok $args->{food}, 'bard';
   ok exists $args->{ARGV}, 1;
   ok @{$args->{ARGV}}, 0;
+}
+
+{
+  # Make sure data can make a round-trip through unparse_args() and read_args()
+  my %args = (foo => 'bar', food => 'bard');
+  my ($args) = Module::Build->read_args( Module::Build->unparse_args(\%args) );
+  ok $args->{foo}, $args{foo};
+  ok $args->{food}, $args{food};
 }
 
 {
