@@ -312,6 +312,9 @@ sub write_config {
   my @items = qw(requires build_requires conflicts recommends);
   print $fh Data::Dumper::Dumper( { map {$_,$self->{properties}{$_}} @items } );
   close $fh;
+
+  $self->add_to_cleanup('blib');
+  $self->write_cleanup;
 }
 
 sub prereq_failures {
@@ -671,7 +674,6 @@ sub ACTION_build {
 
   my $files = $self->rscan_dir('lib', qr{\.(pm|pod|xs)$});
   $self->lib_to_blib($files, 'blib');
-  $self->add_to_cleanup('blib');
 }
 
 sub process_PL_files {
