@@ -49,6 +49,10 @@ Revision history for Perl extension Module::Build.
    should avoid adding things like pod2htmi.tmp to the MANIFEST [Ron
    Savage]
 
+ - Backup files from Emacs, containing the string '.#' in their names,
+   should no longer find their way into the blib/ directory (and from
+   there into installation directories).
+
  - Fixed a problem in htmlify_pods() that would produce test failures
    on Cygwin (and probably elsewhere).  [Yitzchak Scott-Thoennes]
 
