@@ -634,8 +634,8 @@ sub ACTION_skipcheck {
 sub ACTION_distclean {
   my ($self) = @_;
   
-  $self->depends('realclean');
-  $self->depends('distcheck');
+  $self->depends_on('realclean');
+  $self->depends_on('distcheck');
 }
 
 sub ACTION_distdir {
@@ -810,6 +810,20 @@ sub compile_c {
   return $obj_file;
 }
 
+sub link_c {
+  my ($self, $archdir, $file_base) = @_;
+  my $cf = $self->{config}; # For convenience
+
+  my $lib_file = File::Spec->catfile($archdir, File::Basename::basename("$file_base.$cf->{dlext}"));
+  unless ($self->up_to_date("$file_base$cf->{obj_ext}", $lib_file)) {
+    my $linker_flags = $cf->{extra_linker_flags} || '';
+    my $objects = $self->{objects} || [];
+    $self->do_system("$cf->{shrpenv} $cf->{cc} $cf->{lddlflags} -o $lib_file ".
+		     "$file_base$cf->{obj_ext} @$objects $linker_flags")
+      or die "error building $file_base$cf->{obj_ext} from '$file_base.$cf->{dlext}'";
+  }
+}
+
 sub run_perl_script {
   my ($self, $script, $preargs, $postargs) = @_;
   $preargs ||= '';   $postargs ||= '';
@@ -861,14 +875,7 @@ sub process_xs {
   $self->copy_if_modified("$file_base.bs", $archdir, 1);
   
   # .o -> .(a|bundle)
-  my $lib_file = File::Spec->catfile($archdir, File::Basename::basename("$file_base.$cf->{dlext}"));
-  unless ($self->up_to_date("$file_base$cf->{obj_ext}", $lib_file)) {
-    my $linker_flags = $cf->{extra_linker_flags} || '';
-    my $objects = $self->{objects} || [];
-    $self->do_system("$cf->{shrpenv} $cf->{cc} $cf->{lddlflags} -o $lib_file ".
-		     "$file_base$cf->{obj_ext} @$objects $linker_flags")
-      or die "error building $file_base$cf->{obj_ext} from '$file_base.$cf->{dlext}'";
-  }
+  $self->link_c($archdir, $file_base);
 }
 
 sub do_system {
