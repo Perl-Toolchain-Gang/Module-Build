@@ -81,9 +81,8 @@ if ($have_yaml) {
   # Make sure all of the above was done by the new version of Module::Build
   my $fh = IO::File->new(File::Spec->catfile($goto, 'META.yml'));
   my $contents = do {local $/; <$fh>};
-
   $contents =~ /Module::Build version ([0-9_.]+)/m;
-  ok $1, $build->VERSION, "Got $1, expected ". $build->VERSION;
+  ok $1, $build->VERSION, "Check version used to create META.yml";;
   
   if ($build->check_installed_status('Archive::Tar', 0)
       or $build->isa('Module::Build::Platform::Unix')) {
