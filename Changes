@@ -40,6 +40,10 @@ Revision history for Perl extension Module::Build.
  - Fixed minor error in the POD structure of Module::Build and
    Module::Build::Platform::VMS docs.
 
+ - The install_types() method will now also return any additional
+   types given as 'install_path' arguments, which makes it easier to
+   add new types of installable objects to the mix.
+
 0.24  Wed Feb 25 15:57:00 CST 2004
 
  - Fixed a problem with incude_dirs not being propagated to the 'ccs'
