@@ -1094,7 +1094,10 @@ sub process_xs_files {
   my $self = shift;
   my $files = $self->find_xs_files;
   while (my ($from, $to) = each %$files) {
-    $self->copy_if_modified( from => $from, to => $to ) unless $from eq $to;
+    unless ($from eq $to) {
+      $self->add_to_cleanup($to);
+      $self->copy_if_modified( from => $from, to => $to );
+    }
     $self->process_xs($to);
   }
 }
