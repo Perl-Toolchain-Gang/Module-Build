@@ -324,6 +324,15 @@ packaging, and convenience improvements.
 
 =back
 
+=head2 $m->create_build_script
+
+Creates an executable script called C<Build> in the current directory
+that will be used to execute further user actions.  This script is
+roughly analogous (in function, not in form) to the Makefile created
+by C<ExtUtils::MakeMaker>.  This method also creates some temporary
+data in a directory called C<_build/>.  Both of these will be removed
+when the C<realclean> action is performed.
+
 =head2 $m->add_to_cleanup
 
 A C<Module::Build> method may call C<< $self->add_to_cleanup(@files) >>
