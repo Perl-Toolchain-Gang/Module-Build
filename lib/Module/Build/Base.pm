@@ -77,17 +77,10 @@ sub new {
   $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
   $p->{script_files} = delete $p->{scripts} if exists $p->{scripts};
 
-  # Shortcuts
-  if (exists $p->{module_name}) {
-    ($p->{dist_name} = $p->{module_name}) =~ s/::/-/g
-      unless exists $p->{dist_name};
-    $p->{dist_version_from} = join( '/', 'lib', split '::', $p->{module_name} ) . '.pm'
-      unless exists $p->{dist_version_from} or exists $p->{dist_version};
-  }
-
+  $self->dist_name;
   $self->check_manifest;
   $self->check_prereq;
-  $self->find_version;
+  $self->dist_version;
   
   return $self;
 }
@@ -241,21 +234,36 @@ EOF
   return $opts{class};
 }
 
-sub find_version {
+sub dist_name {
+  my $self = shift;
+  my $p = $self->{properties};
+  return $p->{dist_name} if exists $p->{dist_name};
+  
+  die "Can't determine distribution name, must supply either 'dist_name' or 'module_name' parameter"
+    unless $p->{module_name};
+  
+  ($p->{dist_name} = $p->{module_name}) =~ s/::/-/g;
+  
+  return $p->{dist_name};
+}
+
+sub dist_version {
   my ($self) = @_;
   my $p = $self->{properties};
-
-  return if exists $p->{dist_version};
   
-  my $version_from;
-  if (exists $p->{dist_version_from}) {
-    # dist_version_from is always a Unix-style path
-    $version_from = File::Spec->catfile( split '/', $p->{dist_version_from} );
-  } else {
-    die "Must supply either 'dist_version', 'dist_version_from', or 'module_name' parameter";
+  return $p->{dist_version} if exists $p->{dist_version};
+  
+  if (exists $p->{module_name}) {
+    $p->{dist_version_from} ||= join( '/', 'lib', split '::', $p->{module_name} ) . '.pm';
   }
-
-  $p->{dist_version} = $self->version_from_file($version_from);
+  
+  die ("Can't determine distribution version, must supply either 'dist_version',\n".
+       "'dist_version_from', or 'module_name' parameter")
+    unless $p->{dist_version_from};
+  
+  my $version_from = File::Spec->catfile( split '/', $p->{dist_version_from} );
+  
+  return $p->{dist_version} = $self->version_from_file($version_from);
 }
 
 sub find_module_by_name {
@@ -374,11 +382,16 @@ sub write_config {
   $file = $self->config_file('prereqs');
   open $fh, "> $file" or die "Can't create '$file': $!";
   my @items = qw(requires build_requires conflicts recommends);
-  print $fh Data::Dumper::Dumper( { map {$_,$self->{properties}{$_}} @items } );
+  print $fh Data::Dumper::Dumper( { map { $_, $self->$_() } @items } );
   close $fh;
   
   $self->_write_cleanup;
 }
+
+sub requires       { shift()->{properties}{requires} }
+sub recommends     { shift()->{properties}{recommends} }
+sub build_requires { shift()->{properties}{build_requires} }
+sub conflicts      { shift()->{properties}{conflicts} }
 
 sub prereq_failures {
   my $self = shift;
@@ -387,7 +400,7 @@ sub prereq_failures {
   my $out;
 
   foreach my $type (@types) {
-    while (my ($modname, $spec) = each %{$self->{properties}{$type}}) {
+    while ( my ($modname, $spec) = each %{$self->$type()} ) {
       my $status = $self->check_installed_status($modname, $spec);
       
       if ($type eq 'conflicts') {
@@ -1039,6 +1052,11 @@ sub ACTION_distdir {
   $self->write_metadata($metafile);
 
   my $dist_dir = $self->dist_dir;
+
+  if ($self->{properties}{create_makefile_pl}) {
+    require Module::Build::Compat;
+    Module::Build::Compat->create_makefile_pl($self->{properties}{create_makefile_pl}, $self);
+  }
   
   require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
   local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
