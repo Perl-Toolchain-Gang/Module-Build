@@ -115,12 +115,13 @@ sub link_c {
   my ($self, $to, $file_base) = @_;
   my ($cf, $p) = ($self->{config}, $self->{properties});
 
-  my $mylib = File::Spec->catfile(
-    $to, File::Basename::basename("$file_base.$cf->{dlext}") );
+  my $basename = File::Basename::basename( $file_base );
+  my $mylib = File::Spec->catfile( $to, "$basename.$cf->{dlext}" );
 
   my %spec = (
     srcdir        => File::Basename::dirname($file_base),
     builddir      => $to,
+    basename      => $basename,
     startup       => [ ],
     objects       => [ "$file_base$cf->{obj_ext}", @{$p->{objects} || []} ],
     libs          => [ ],
@@ -133,10 +134,6 @@ sub link_c {
     other_ldflags => [ $self->split_like_shell($self->{properties}{extra_linker_flags} || '') ],
     use_scripts   => 1, # XXX provide user option to change this???
   );
-
-  unless ( $spec{basename} ) {
-    ($spec{basename} = $self->{properties}{module_name}) =~ s/.*:://;
-  }
 
   $spec{srcdir}   = File::Spec->canonpath( $spec{srcdir}   );
   $spec{builddir} = File::Spec->canonpath( $spec{builddir} );
