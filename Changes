@@ -2,8 +2,6 @@ Revision history for Perl extension Module::Build.
 
 0.26 (pending, still in beta)
 
- - (need to finish the build_config script)
-
  - Removed some language from the Module::Build::Compat documentation
    that encouraged people to include a Build.PL without a Makefile.PL.
    Also changed "a replacement for MakeMaker" to "an alternative to

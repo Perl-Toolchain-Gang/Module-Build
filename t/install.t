@@ -69,37 +69,37 @@ $build->add_to_cleanup($destdir);
 }
 
 {
-  $build->build_config(foo => 'bar');
+  $build->config_data(foo => 'bar');
   $build->feature(baz => 1);
   eval {$build->dispatch('install', destdir => $destdir)};
   ok $@, '';
   
   my $libdir = strip_volume( $build->install_destination('lib') );
   local @INC = (@INC, File::Spec->catdir($destdir, $libdir));
-  eval {require Sample::BuildConfig};
+  eval {require Sample::ConfigData};
   
   if ($@) {
     ok $@, '';  # Show what the failure was
-    skip_subtest("Couldn't reload BuildConfig") for 1..3;
+    skip_subtest("Couldn't reload ConfigData") for 1..3;
 
   } else {
 
     # Make sure the values are present
-    ok( Sample::BuildConfig->config('foo'), 'bar' );
-    ok( Sample::BuildConfig->feature('baz') );
+    ok( Sample::ConfigData->config('foo'), 'bar' );
+    ok( Sample::ConfigData->feature('baz') );
 
     # Add a new value to the config set
-    Sample::BuildConfig->set_config(floo => 'bhlar');
-    ok( Sample::BuildConfig->config('floo'), 'bhlar' );
+    Sample::ConfigData->set_config(floo => 'bhlar');
+    ok( Sample::ConfigData->config('floo'), 'bhlar' );
 
     # Make sure it actually got written
-    Sample::BuildConfig->write;
-    delete $INC{'Sample/BuildConfig.pm'};
+    Sample::ConfigData->write;
+    delete $INC{'Sample/ConfigData.pm'};
     {
       local $^W;  # Avoid warnings for subroutine redefinitions
-      require Sample::BuildConfig;
+      require Sample::ConfigData;
     }
-    ok( Sample::BuildConfig->config('floo'), 'bhlar' );
+    ok( Sample::ConfigData->config('floo'), 'bhlar' );
   }
 }
 

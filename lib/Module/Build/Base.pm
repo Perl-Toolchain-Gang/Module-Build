@@ -252,12 +252,12 @@ sub _general_notes {
   return $self->_persistent_hash_read($type, $key) unless @_;
   
   my $value = shift;
-  $self->has_build_config(1) if $type =~ /^(build_config|features)$/;
+  $self->has_config_data(1) if $type =~ /^(config_data|features)$/;
   return $self->_persistent_hash_write($type, { $key => $value });
 }
 
 sub notes        { shift()->_general_notes('notes', @_) }
-sub build_config { shift()->_general_notes('build_config', @_) }
+sub config_data { shift()->_general_notes('config_data', @_) }
 sub feature      { shift()->_general_notes('features', @_) }
 
 sub add_build_element {
@@ -265,16 +265,16 @@ sub add_build_element {
   push @{$self->build_elements}, shift;
 }
 
-sub ACTION_build_config {
+sub ACTION_config_data {
   my $self = shift;
-  return unless $self->has_build_config;
+  return unless $self->has_config_data;
   
   my $module_name = $self->module_name
-    or die "The build_config feature requires that 'module_name' be set";
-  my $notes_name = $module_name . '::BuildConfig';
+    or die "The config_data feature requires that 'module_name' be set";
+  my $notes_name = $module_name . '::ConfigData';
   my $notes_pm = File::Spec->catfile($self->blib, 'lib', split /::/, "$notes_name.pm");
 
-  return if $self->up_to_date([$self->config_file('build_config'), $self->config_file('features')], $notes_pm);
+  return if $self->up_to_date([$self->config_file('config_data'), $self->config_file('features')], $notes_pm);
 
   print "Writing config notes to $notes_pm\n";
   File::Path::mkpath(File::Basename::dirname($notes_pm));
@@ -284,7 +284,7 @@ sub ACTION_build_config {
 package %s;
 use strict;
 my $arrayref = eval do {local $/; <DATA>}
-  or die "Couldn't load BuildConfig data: $@";
+  or die "Couldn't load ConfigData data: $@";
 close DATA;
 my ($config, $features) = @$arrayref;
 
@@ -408,7 +408,7 @@ __DATA__
 EOF
 
   local $Data::Dumper::Terse = 1;
-  print $fh Data::Dumper::Dumper([scalar $self->build_config, scalar $self->feature]);
+  print $fh Data::Dumper::Dumper([scalar $self->config_data, scalar $self->feature]);
 }
 
 {
@@ -435,7 +435,7 @@ EOF
        perl
        config_dir
        blib
-       has_build_config
+       has_config_data
        build_script
        build_elements
        install_sets
@@ -712,7 +712,7 @@ sub read_config {
   ($self->{args}, $self->{config}, $self->{properties}) = @$ref;
   close $fh;
 
-  for ('cleanup', 'notes', 'features', 'build_config') {
+  for ('cleanup', 'notes', 'features', 'config_data') {
     next unless -e $self->config_file($_);
     $self->_persistent_hash_restore($_);
   }
@@ -737,7 +737,7 @@ sub write_config {
   $self->_write_dumper('prereqs', { map { $_, $self->$_() } @items });
   $self->_write_dumper('build_params', [$self->{args}, $self->{config}, $self->{properties}]);
 
-  $self->_persistent_hash_write($_) foreach qw(notes cleanup features build_config);
+  $self->_persistent_hash_write($_) foreach qw(notes cleanup features config_data);
 }
 
 sub config         { shift()->{config} }
@@ -1390,7 +1390,7 @@ sub ACTION_code {
     $self->$method();
   }
 
-  $self->depends_on('build_config');
+  $self->depends_on('config_data');
 }
 
 sub ACTION_build {
@@ -2185,10 +2185,10 @@ sub ACTION_distmeta {
   $self->delete_filetree($self->{metafile});
 
   # Since we're building ourself, we have to do some special stuff
-  # here: the BuildConfig module is found in blib/lib.
+  # here: the ConfigData module is found in blib/lib.
   local @INC = (@INC, File::Spec->catdir($self->blib, 'lib'));
-  require Module::Build::BuildConfig;  # Only works after the 'build'
-  unless (Module::Build::BuildConfig->feature('YAML_support')) {
+  require Module::Build::ConfigData;  # Only works after the 'build'
+  unless (Module::Build::ConfigData->feature('YAML_support')) {
     warn <<EOM;
 \nCouldn't load YAML.pm, generating a minimal META.yml without it.
 Please check and edit the generated metadata, or consider installing YAML.pm.\n
