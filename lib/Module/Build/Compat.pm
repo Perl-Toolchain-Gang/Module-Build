@@ -140,12 +140,12 @@ sub makefile_to_build_args {
 
     if (exists $makefile_to_build{$key}) {
       my $trans = $makefile_to_build{$key};
-      push @out, ref($trans) ? $trans->($val) : "$trans=$val";
+      push @out, ref($trans) ? $trans->($val) : ("--$trans", $val);
     } elsif (exists $Config{lc($key)}) {
-      push @out, 'config=' . lc($key) . "=$val";
+      push @out, '--config', lc($key) . "=$val";
     } else {
       # Assume M::B can handle it in lowercase form
-      push @out, "\L$key\E=$val";
+      push @out, "--\L$key", $val;
     }
   }
   return @out;
