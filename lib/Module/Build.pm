@@ -556,9 +556,6 @@ Please contact me if you have any questions or ideas.
 
 =head1 TO DO
 
-Need to implement a prerequisite mechanism, similar to MakeMaker's
-C<PREREQ_PM> stuff.
-
 There will also be a subclassing mechanism that doesn't require as
 much module infrastructure to use.  Something like this:
 
