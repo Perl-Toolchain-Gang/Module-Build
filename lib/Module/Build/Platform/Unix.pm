@@ -28,8 +28,8 @@ sub link_c {
 
 sub make_tarball {
   my $self = shift;
-  $self->{args}{tar}  ||= 'tar';
-  $self->{args}{gzip} ||= 'gzip';
+  $self->{args}{tar}  ||= ['tar'];
+  $self->{args}{gzip} ||= ['gzip'];
   $self->SUPER::make_tarball(@_);
 }
 
