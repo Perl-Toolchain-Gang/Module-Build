@@ -3,6 +3,11 @@ Revision history for Perl extension Module::Build.
 
 0.27_01 (Beta for 0.28)
 
+ - Extend prerequisite specifications to apply to all actions. It is
+   now a fatal error if 'requires' or 'conflicts' for a given action
+   are not satisfied, except where necessary for backwards compatability.
+   Also, added options to ignore the fatal errors.
+
  - new_from_context() was losing its arguments in some cases (and not
    because of inadequate training in debate) - we now pass its
    arguments directly to the Build.PL script rather than merging them

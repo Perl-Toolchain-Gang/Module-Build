@@ -27,13 +27,13 @@ sub new {
   die "Too early to specify a build action '$self->{action}'.  Do 'Build $self->{action}' instead.\n"
     if $self->{action};
 
-  $self->_set_install_paths;
-  $self->_find_nested_builds;
   $self->dist_name;
+  $self->dist_version;
   $self->check_manifest;
   $self->check_prereq;
   $self->set_autofeatures;
-  $self->dist_version;
+  $self->_set_install_paths;
+  $self->_find_nested_builds;
 
   return $self;
 }
@@ -426,16 +426,12 @@ __PACKAGE__->add_property(module_name => '');
 __PACKAGE__->add_property(build_script => 'Build');
 __PACKAGE__->add_property(config_dir => '_build');
 __PACKAGE__->add_property(blib => 'blib');
-__PACKAGE__->add_property(requires => {});
-__PACKAGE__->add_property(recommends => {});
-__PACKAGE__->add_property(build_requires => {});
-__PACKAGE__->add_property(conflicts => {});
 __PACKAGE__->add_property('mb_version');
 __PACKAGE__->add_property(build_elements => [qw(PL support pm xs pod script)]);
 __PACKAGE__->add_property(installdirs => 'site');
 __PACKAGE__->add_property(install_path => {});
 __PACKAGE__->add_property(include_dirs => []);
-__PACKAGE__->add_property('config', {});
+__PACKAGE__->add_property(config => {});
 __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(build_class => 'Module::Build');
 __PACKAGE__->add_property(html_css => ($^O =~ /Win32/) ? 'Active.css' : '');
@@ -473,7 +469,27 @@ __PACKAGE__->add_property($_) for qw(
    libdoc_dirs
    get_options
    quiet
+   ignore_prereq_conflicts
+   ignore_prereq_requires
+   ignore_prereqs
 );
+
+INIT {
+  my @prereq_actions = ( 'Build.PL', __PACKAGE__->known_actions );
+  my @prereq_types   = qw( requires recommends conflicts );
+  __PACKAGE__->add_property(prereq_actions => \@prereq_actions);
+  __PACKAGE__->add_property(prereq_types   => \@prereq_types);
+  my @prereq_action_types;
+  foreach my $action ( @prereq_actions ) {
+    foreach my $type ( @prereq_types   ) {
+      my $req = $action eq 'Build.PL' ? '' : $action . '_';
+      $req .= $type;
+      __PACKAGE__->add_property( $req => {} );
+      push( @prereq_action_types, $req );
+    }
+  }
+  __PACKAGE__->add_property(prereq_action_types => \@prereq_action_types);
+}
 
 sub mb_parents {
     # Code borrowed from Class::ISA.
@@ -657,7 +673,7 @@ sub write_config {
   File::Path::mkpath($self->{properties}{config_dir});
   -d $self->{properties}{config_dir} or die "Can't mkdir $self->{properties}{config_dir}: $!";
   
-  my @items = qw(requires build_requires conflicts recommends);
+  my @items = @{ $self->prereq_action_types };
   $self->_write_dumper('prereqs', { map { $_, $self->$_() } @items });
   $self->_write_dumper('build_params', [$self->{args}, $self->{config}, $self->{properties}]);
 
@@ -680,7 +696,7 @@ sub set_autofeatures {
     my $failures = $self->prereq_failures($info);
     if ($failures) {
       $self->log_warn("Feature '$name' disabled because of the following prerequisite failures:\n");
-      foreach my $type (qw(requires build_requires conflicts recommends)) {
+      foreach my $type ( @{$self->prereq_action_types} ) {
 	next unless $failures->{$type};
 	while (my ($module, $status) = each %{$failures->{$type}}) {
 	  $self->log_warn(" * $status->{message}\n");
@@ -697,7 +713,7 @@ sub set_autofeatures {
 
 sub prereq_failures {
   my ($self, $info) = @_;
-  my @types = qw(requires recommends build_requires conflicts);
+  my @types = @{ $self->prereq_action_types };
 
   $info ||= {map {$_, $self->$_()} @types};
 
@@ -708,12 +724,12 @@ sub prereq_failures {
     while ( my ($modname, $spec) = each %$prereqs ) {
       my $status = $self->check_installed_status($modname, $spec);
       
-      if ($type eq 'conflicts') {
+      if ($type =~ /conflicts$/) {
 	next if !$status->{ok};
 	$status->{conflicts} = delete $status->{need};
 	$status->{message} = "Installed version '$status->{have}' of $modname conflicts with this distribution";
 
-      } elsif ($type eq 'recommends') {
+      } elsif ($type =~ /recommends$/) {
 	next if $status->{ok};
 	$status->{message} = ($status->{have} eq '<none>'
 			      ? "Optional prerequisite $modname isn't installed"
@@ -735,9 +751,9 @@ sub check_prereq {
   my $failures = $self->prereq_failures;
   return 1 unless $failures;
   
-  foreach my $type (qw(requires build_requires conflicts recommends)) {
+  foreach my $type ( @{$self->prereq_action_types} ) {
     next unless $failures->{$type};
-    my $prefix = $type eq 'recommends' ? '' : 'ERROR: ';
+    my $prefix = $type =~ /recommends$/ ? '' : 'ERROR: ';
     while (my ($module, $status) = each %{$failures->{$type}}) {
       $self->log_warn(" * $prefix$status->{message}\n");
     }
@@ -1007,10 +1023,52 @@ sub dispatch {
 sub _call_action {
   my ($self, $action) = @_;
   return if $self->{_completed_actions}{$action}++;
+
+  $self->validate_action_prereqs( $action );
+
   local $self->{action} = $action;
   my $method = "ACTION_$action";
   die "No action '$action' defined, try running the 'help' action.\n" unless $self->can($method);
   return $self->$method();
+}
+
+sub validate_action_prereqs {
+  my $self = shift;
+  my $action = shift;
+
+  return if $self->ignore_prereqs;
+
+  my $failures = $self->prereq_failures;
+  my $fail_msg;
+  if ( !$self->ignore_prereq_requires && $failures->{"${action}_requires"} ) {
+    $fail_msg .= "Missing prerequisite module versions for action '$action':\n";
+    foreach my $module ( keys( %{$failures->{"${action}_requires"}} ) ) {
+      my $fail_info = $failures->{"${action}_requires"}{$module};
+      $fail_msg .= sprintf( "  Requested module '%s %s%s' but found %s\n",
+			    $module,
+			    $fail_info->{need} !~ /^\s*[!=<>]/ ? '> ' : '',
+			    $fail_info->{need},
+			    $fail_info->{have} );
+    }
+    if ( $action eq 'build' ) { # Backwards compatability
+      $self->log_warn( "$fail_msg\n" .
+		       "Ignoring for backwards compatability.\n" .
+		       "This will be a fatal error in future versions of Module::Build.\n\n" );
+      $fail_msg = undef;
+    }
+  }
+  if ( !$self->ignore_prereq_conflicts && $failures->{"${action}_conflicts"} ) {
+    $fail_msg .= "Found conflicting module requirements for action '$action':\n";
+    foreach my $module ( keys( %{$failures->{"${action}_conflicts"}} ) ) {
+      my $fail_info = $failures->{"${action}_conflicts"}{$module};
+      $fail_msg .= sprintf( "  Requested module '%s %s%s' conflicts with installed version %s\n",
+	       $module,
+	       $fail_info->{conflicts} !~ /^\s*[!=<>]/ ? '> ' : '',
+	       $fail_info->{conflicts},
+	       $fail_info->{have} );
+    }
+  }
+  die "Aborting '$action' action.\n$fail_msg" if $fail_msg;
 }
 
 sub cull_options {
@@ -2239,7 +2297,7 @@ sub prepare_metadata {
     $node->{$name} = $self->$_();
   }
 
-  foreach (qw(requires recommends build_requires conflicts)) {
+  foreach ( @{$self->prereq_action_types} ) {
     $node->{$_} = $p->{$_} if exists $p->{$_} and keys %{ $p->{$_} };
   }
 
