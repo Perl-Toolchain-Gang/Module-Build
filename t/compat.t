@@ -7,7 +7,7 @@ use Config;
 require File::Spec->catfile('t', 'common.pl');
 
 skip_test("Don't know how to invoke 'make'") unless $Config{make};
-plan tests => 23;
+plan tests => 2 + 3*9;
 ok(1);  # Loaded
 
 my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
@@ -41,6 +41,12 @@ foreach my $type (qw(small passthrough traditional)) {
   ok uc $output, qr{DONE\.|SUCCESS};
   
   ok $build->do_system(@make, 'realclean');
+
+  # Try again with some Makefile.PL arguments
+  my $result = $build->run_perl_script('Makefile.PL', [], 'verbose');
+  ok $result;
+  ok -e 'Makefile', 1, "Makefile exists";
+
   $build->dispatch('realclean');
   ok not -e 'Makefile.PL';
 }
