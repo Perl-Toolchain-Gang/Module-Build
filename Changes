@@ -11,6 +11,9 @@ Revision history for Perl extension Module::Build.
  - Added tests to t/runthrough.t that check to see installation is
    happening correctly.
 
+ - Added an 'add_to_cleanup' parameter to new() that calls
+   add_to_cleanup() immediately for the given files.
+
  - The $Config{cc} entry on some people's systems is something like
    'ccache gcc', so we now split that string using split_like_shell().
    [Richard Clamp]
