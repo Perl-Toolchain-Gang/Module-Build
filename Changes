@@ -11,6 +11,9 @@ Revision history for Perl extension Module::Build.
    perl lib, and big trouble ensues.  To fix this, we now set $^X to
    the value of Module::Build->find_perl_interpreter().
 
+ - The 'distcheck' action will now die() if it finds an error in the
+   MANIFEST, rather than just printing on STDOUT. [David Golden]
+
 0.2608  Wed Jan 26 19:46:09 CST 2005
 
  - Add workaround for test files because Devel::Cover causes
