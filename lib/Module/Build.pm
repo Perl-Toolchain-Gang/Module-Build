@@ -975,8 +975,8 @@ This action builds your codebase.
 By default it just creates a C<blib/> directory and copies any C<.pm>
 and C<.pod> files from your C<lib/> directory into the C<blib/>
 directory.  It also compiles any C<.xs> files from C<lib/> and places
-them in C<blib/>.  Of course, you need a working C compiler
-(probably the same one that built perl itself) for this to work
+them in C<blib/>.  Of course, you need a working C compiler (probably
+the same one that built perl itself) for the compilation to work
 properly.
 
 The C<build> action also runs any C<.PL> files in your F<lib/>
