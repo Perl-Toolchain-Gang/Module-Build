@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.19
 
+ - When constructing the list in META.yml of packages provided by this
+   distribution, we now use the same rules as the PAUSE scanner does
+   when a single .pm file contains multiple VERSIONs.  [Andreas Koenig]
+
  - check_installed_status() now works as both a class method and an
    object method (and is documented so).  [Spotted by Dave Rolsky]
 
