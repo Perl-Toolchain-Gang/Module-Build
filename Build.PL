@@ -31,8 +31,9 @@ my $build = new Module::Build
 		  'Archive::Tar' => '1.08',
 		  'ExtUtils::Install' => 0.30,
 		  'ExtUtils::ParseXS' => 2.02,
+		  'ExtUtils::CBuilder' => 0.02,
 		  'Pod::Text' => 0,
-		  # 'Module::Signature' => 0.21,  # Our support isn't good enough yet
+		  'Module::Signature' => 0.21,
 		 },
    build_requires => {
 		      Test => 0,
