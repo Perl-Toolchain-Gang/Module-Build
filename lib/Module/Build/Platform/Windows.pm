@@ -14,21 +14,10 @@ use vars qw(@ISA);
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);
-
   my $cf = $self->{config};
 
-  # Check compiler type.
-  if ( $cf->{cc} =~ /cl(\.exe)?$/ ) {
-    $cf->{ccname} = 'MSVC';
-  } elsif ( $cf->{cc} =~ /bcc32(\.exe)?$/ ) {
-    $cf->{ccname} = 'BCC';
-  } else {
-    $cf->{ccname} = 'GCC';
-  }
-
   # Inherit from an appropriate compiler driver class
-  my $cc_driver = "Module::Build::Platform::Windows::$cf->{ccname}";
-  unshift @ISA, $cc_driver;
+  unshift @ISA, "Module::Build::Platform::Windows::" . $self->compiler_type;
 
   # Find 'pl2bat.bat' utility used for installing perl scripts.
   # This search is probably overkill, as I've never met a MSWin32 perl
@@ -47,6 +36,25 @@ sub new {
 
   return $self;
 }
+
+sub resume {
+  my $class = shift;
+  my $self = $class->SUPER::resume(@_);
+
+  # Inherit from an appropriate compiler driver class
+  unshift @ISA, "Module::Build::Platform::Windows::" . $self->compiler_type;
+  return $self;
+}
+
+sub compiler_type {
+  my $self = shift;
+  my $cc = $self->{config}{cc};
+
+  return (  $cc =~ /cl(\.exe)?$/ ? 'MSVC'
+	  : $cc =~ /bcc32(\.exe)?$/ ? 'BCC'
+	  : 'GCC');
+}
+
 
 sub compile_c {
   my ($self, $file) = @_;
