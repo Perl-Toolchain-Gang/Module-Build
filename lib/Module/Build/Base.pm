@@ -48,7 +48,6 @@ sub resume {
   
   $self->cull_args(@ARGV);
   $self->{action} ||= 'build';
-  $self->_set_install_paths;
   
   return $self;
 }
@@ -828,21 +827,22 @@ EOF
 
 sub create_build_script {
   my ($self) = @_;
-  my $p = $self->{properties};
-  
   $self->write_config;
   
-  if ( $self->delete_filetree($p->{build_script}) ) {
-    print "Removed previous script '$p->{build_script}'\n";
+  my ($build_script, $dist_name, $dist_version)
+    = map $self->$_(), qw(build_script dist_name dist_version);
+  
+  if ( $self->delete_filetree($build_script) ) {
+    print "Removed previous script '$build_script'\n";
   }
 
-  print("Creating new '$p->{build_script}' script for ",
-	"'$p->{dist_name}' version '$p->{dist_version}'\n");
-  my $fh = IO::File->new(">$p->{build_script}") or die "Can't create '$p->{build_script}': $!";
+  print("Creating new '$build_script' script for ",
+	"'$dist_name' version '$dist_version'\n");
+  my $fh = IO::File->new(">$build_script") or die "Can't create '$build_script': $!";
   $self->print_build_script($fh);
   close $fh;
   
-  $self->make_executable($p->{build_script});
+  $self->make_executable($build_script);
 
   return 1;
 }
@@ -1506,7 +1506,7 @@ sub _htmlify_pod {
     
   my $path2root = "../" x (@rootdirs+@dirs-1);
   my $htmlroot = File::Spec::Unix->catdir($path2root, 'site');
-  my $podpath = join ":" => ($isbin ? qw(bin lib) : qw(lib));
+  my $podpath = join ":" => ($isbin ? qw(script lib) : qw(lib));
   my $title = join('::', @dirs) . $name;
     
   {
