@@ -6,6 +6,9 @@ Revision history for Perl extension Module::Build.
    to Makefile.PL [spotted by Soren Andersen, fixed by Michael
    Schwern]
 
+ - The Module::Build distribution now has a cryptographic 'SIGNATURE'
+   file created by Module::Signature.
+
 0.20  Tue Aug 26 14:34:07 CDT 2003
 
  - Separated the 'build' action into two separate actions, 'code' and
