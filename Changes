@@ -1,5 +1,16 @@
 Revision history for Perl extension Module::Build.
 
+0.17
+
+ - Created a find_perl_interpreter() method that tries to locate the
+   currently executing perl interpreter.  Following a suggestion from
+   Nicholas Clark <nick@ccl4.org> for Inline, we prefer an absolute
+   path in $^X, then an existent path in $Config{perlpath}, then
+   whatever's in $^X.
+
+ - Use the aforementioned perl to run scripts in run_perl_script().
+
+
 0.16  Mon Feb 24 13:06:47 CST 2003
 
  - All three C compilers that perl supports on Windows environments
