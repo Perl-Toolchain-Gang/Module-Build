@@ -39,6 +39,17 @@ Revision history for Perl extension Module::Build.
    files.  This allows authors to do last-minute alterations of the
    files without affecting the originals. [Dave Rolsky]
 
+ - The 'builddocs' action from the last beta release has been renamed
+   to 'docs'.
+
+ - The location of the 'blib' directory is now a property of the Build
+   object - nobody is likely to notice this change, with any luck, but
+   it makes the design and code cleaner.
+
+ - The 'disttest' and 'distsign' methods now chdir() back to the
+   directory where they started, rather than to the base_dir of the
+   build.
+
 0.19_04
 
  - Fixed yet another bug with installation directories, in which the
