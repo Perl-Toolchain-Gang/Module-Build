@@ -13,6 +13,10 @@ Revision history for Perl extension Module::Build.
    it just ignored it and blindly tried to install to the wrong place.
    This is now fixed.  [Spotted by Jesse Erlbaum]
 
+ - In Makefile compatibility mode, some arguments (like UNINST,
+   TEST_VERBOSE, etc.) given to 'make' are now recognized and passed
+   through to Module::Build. [Randy Sims]
+
  - The regression tests now make sure that several pass-through
    Makefile.PL parameters are dealt with correctly.
 
@@ -29,16 +33,22 @@ Revision history for Perl extension Module::Build.
    partially implemented with an itchy patch-application finger in
    0.24).  [Randy Kobes]
 
+ - Fixed a fatal bug when building META.yml with YAML.pm and
+   'dynamic_config' is set. [Reported by Jaap Karssenberg]
+
  - Fixed some incorrect error messages that occurred when
    compiling/linking C sources went awry.
 
  - If the author uses a custom builder subclass, that subclass will
-   now be loaded in the passthrough Makefile.PL if the author uses the
-   'small' or 'passthrough' Makefile.PL options in
+   now be loaded correctly in the passthrough Makefile.PL if the
+   author uses the 'small' or 'passthrough' Makefile.PL options in
    Module::Build::Compat. [Martyn Peck and Jaap Karssenberg]
 
- - Fixed minor error in the POD structure of Module::Build and
-   Module::Build::Platform::VMS docs.
+ - If the author uses a custom builder subclass created dynamically
+   through the subclass() method, passthrough Makefile.PLs (of type
+   'passthrough' or 'small') didn't work properly, because the custom
+   builder module wouldn't be loaded at the right time.  This has been
+   fixed.  [Reported by Toby Ovod-Everett]
 
  - The install_types() method will now return any additional types
    given as 'install_path' arguments, as well as all elements of the
@@ -49,22 +59,12 @@ Revision history for Perl extension Module::Build.
    need to have an explicit 'install_types' data member, so it has
    been removed.
 
- - If the author uses a custom builder subclass created dynamically
-   through the subclass() method, passthrough Makefile.PLs (of type
-   'passthrough' or 'small') didn't work properly, because the custom
-   builder module wouldn't be loaded at the right time.  This has been
-   fixed.  [Reported by Toby Ovod-Everett]
-
- - Fixed a fatal bug when building META.yml with YAML.pm and
-   'dynamic_config' is set. [Reported by Jaap Karssenberg]
-
  - In the second example code for the Module::Build->subclass()
    method, the Module::Build module needed to be loaded before calling
    its methods. [John Peacock]
 
- - In Makefile compatibility mode, some arguments (like UNINST,
-   TEST_VERBOSE, etc.) given to 'make' are now recognized and passed
-   through to Module::Build. [Randy Sims]
+ - Fixed minor error in the POD structure of Module::Build and
+   Module::Build::Platform::VMS docs.
 
 
 0.24  Wed Feb 25 15:57:00 CST 2004
