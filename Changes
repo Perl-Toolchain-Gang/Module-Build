@@ -62,6 +62,10 @@ Revision history for Perl extension Module::Build.
    method, the Module::Build module needed to be loaded before calling
    its methods. [John Peacock]
 
+ - In Makefile compatibility mode, some arguments (like UNINST,
+   TEST_VERBOSE, etc.) given to 'make' are now recognized and passed
+   through to Module::Build. [Randy Sims]
+
 
 0.24  Wed Feb 25 15:57:00 CST 2004
 
