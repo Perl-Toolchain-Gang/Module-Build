@@ -1513,6 +1513,7 @@ creating a separate file for your module:
   ------ in Build.PL: ----------
   #!/usr/bin/perl
   
+  use Module::Build;
   my $class = Module::Build->subclass
     (
      class => 'My::Builder',
