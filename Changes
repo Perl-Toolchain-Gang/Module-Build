@@ -9,6 +9,15 @@ Revision history for Perl extension Module::Build.
   - check_installed_version() now uses check_installed_status()
     internally
 
+  - Documented the create_build_script() method, which had escaped
+    documentation.
+
+  - create_build_script() now writes prerequisite information to the
+    _build/ directory, for use by Module::Build::Compat.
+
+  - Module::Build::Compat has documentation for a safer way to write a
+    dummy Makefile.PL.
+
 0.10  Wed Aug  7 19:36 2002
   - Recommend YAML 0.35 instead of 0.30.
 
