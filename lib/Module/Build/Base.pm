@@ -1421,11 +1421,11 @@ sub ACTION_diff {
   my $text_suffix = qr{\.(pm|pod)$};
 
   while (my $localdir = each %$installmap) {
+    my @localparts = File::Spec->splitdir($localdir);
     my $files = $self->rscan_dir($localdir, sub {-f});
     
     foreach my $file (@$files) {
       my @parts = File::Spec->splitdir($file);
-      my @localparts = File::Spec->splitdir($localdir);
       @parts = @parts[@localparts .. $#parts]; # Get rid of blib/lib or similar
       
       my $installed = $self->find_module_by_name(join('::', @parts), \@myINC);
@@ -1500,7 +1500,7 @@ sub ACTION_ppmdist {
   
   $self->depends_on('build', 'ppd');
   $self->add_to_cleanup($self->ppm_name);
-  $self->make_tarball($self->{properties}{blib}, $self->ppm_name);
+  $self->make_tarball($self->blib, $self->ppm_name);
 }
 
 sub ACTION_dist {
