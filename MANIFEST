@@ -43,6 +43,7 @@ t/compat.t
 t/install.t
 t/lib/ModuleBuildOne.pm
 t/manifypods.t
+t/notes.t
 t/runthrough.t
 t/signature.t
 t/versions.t
