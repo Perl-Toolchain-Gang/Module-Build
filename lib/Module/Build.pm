@@ -359,6 +359,11 @@ files in the directory will be compiled to object files.  The
 directory will be added to the search path during the compilation and
 linking phases of any C or XS files.
 
+=item scripts
+
+An array reference containing a list of files that should be installed
+as perl scripts when the module is installed.
+
 =item autosplit
 
 An optional C<autosplit> argument specifies a file which should be run
@@ -561,6 +566,13 @@ Note that the default is specified as a string like C<"y"> or C<"n">,
 and the return value is a Perl boolean value like 1 or 0.  I thought
 about this for a while and this seemed like the most useful way to do
 it.
+
+=item scripts()
+
+Returns an array reference specifying the perl script files to be
+installed.  This corresponds to the C<scripts> parameter to the
+C<new()> method.  With an optional argument, this parameter may be set
+dynamically.
 
 =item base_dir()
 
