@@ -41,12 +41,12 @@ sub _myparse_from_filehandle {
   while (<$fh>) {
     next unless /^=head1\s+AUTHOR/ ... /^=/;
     next if /^=/;
-    push @author, $_;
+    push @author, $_ if /\S/;
   }
   return unless @author;
+  s/^\s+|\s+$//g foreach @author;
   
-  $self->{author} = join '', @author;
-  $self->{author} =~ s/^\s+|\s+$//g;
+  $self->{author} = \@author;
   
   return;
 }
@@ -65,6 +65,8 @@ sub get_author {
   return $self->{author} if defined $self->{author};
   
   $self->parse_from_filehandle($self->{fh});
+
+  $self->{author} = $self->{author}[0] if @{$self->{author}} <= 1;
 
   return $self->{author};  
 }
@@ -94,9 +96,8 @@ sub textblock {
     my ($name, $abstract) = split( /\s+-\s+/, $text, 2 );
     $self->{abstract} = $abstract;
   } elsif ($self->{_head} eq 'AUTHOR') {
-    $self->{author} = $text;
+    push @{$self->{author}}, $text if $text =~ /\S/;
   }
-  $self->{_head} = '';
 }
 
 sub verbatim {}
