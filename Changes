@@ -1,5 +1,12 @@
 Revision history for Perl extension Module::Build.
 
+0.19_06
+
+ - The 'distdir' action now copies files to the distribution
+   directory, rather than making them hard links to the original
+   files.  This allows authors to do last-minute alterations of the
+   files without affecting the originals. [Dave Rolsky]
+
 0.19_05
 
  - Changed the way the depends_on() method works inside action
