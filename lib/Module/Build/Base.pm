@@ -991,7 +991,7 @@ sub ACTION_test {
 
   if (@$tests) {
     # Work around a Test::Harness bug that loses the particular perl we're running under
-    local $^X = $self->{config}{perlpath} unless $Test::Harness::VERSION gt '2.01';
+    local $^X = $p->{perl} unless $Test::Harness::VERSION gt '2.01';
     Test::Harness::runtests(@$tests);
   } else {
     print("No tests defined.\n");
@@ -1822,8 +1822,9 @@ sub compile_xs {
     
     my $typemap =  $self->find_module_by_name('ExtUtils::typemap', \@INC);
     my $cf = $self->{config};
+    my $perl = $self->{properties}{perl};
     
-    my $command = (qq{$^X "-I$cf->{installarchlib}" "-I$cf->{installprivlib}" "$xsubpp" -noprototypes } .
+    my $command = (qq{$perl "-I$cf->{installarchlib}" "-I$cf->{installprivlib}" "$xsubpp" -noprototypes } .
 		   qq{-typemap "$typemap" "$file"});
     
     print $command;
