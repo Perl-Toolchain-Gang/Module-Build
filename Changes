@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.19_03
+
+ - Added a notes() feature, which helps share data transparently
+   between the Build.PL and t/*.t scripts.  (XXX needs documentation)
+
 0.19_02
 
  - The installation process will now create man(1) and man(3) pages
