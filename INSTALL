@@ -17,4 +17,7 @@ Build.PL option under the surface with a pass-through Makefile.
 
 I recommend using the Build.PL option.
 
+There's heaps more information in the README and in the documentation
+of the various packages in this distribution.
+
  -Ken
