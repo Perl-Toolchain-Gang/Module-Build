@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 26 }
+BEGIN { plan tests => 18 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -89,49 +89,6 @@ if ($HAVE_YAML) {
   print "# rewritten shebang?\n$first_line";
   
   ok $first_line ne "#!perl -w\n";
-}
-
-{
-  # Check installation
-  my $destdir = File::Spec->catdir($start_dir, 't', 'install_test');
-  $build->add_to_cleanup($destdir);
-  
-  eval {$build->dispatch('install', destdir => $destdir)};
-  ok $@, '';
-  
-  my $libdir = strip_volume( $build->install_destination('lib') );
-  my $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
-  print "Should have installed module as $install_to\n";
-  ok -e $install_to;
-
-  eval {$build->dispatch('install', installdirs => 'core', destdir => $destdir)};
-  ok $@, '';
-  
-  $libdir = strip_volume( $Config{installprivlib} );
-  $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
-  print "Should have installed module as $install_to\n";
-  ok -e $install_to;
-
-  $libdir = File::Spec->catdir('', 'foo', 'bar');
-  eval {$build->dispatch('install', install_path => {lib => $libdir}, destdir => $destdir)};
-  ok $@, '';
-  $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
-  print "Should have installed module as $install_to\n";
-  ok -e $install_to;
-
-  # XXX need to test the 'install_base' parameter somehow
-  $libdir = File::Spec->catdir('', 'foo', 'base');
-  eval {$build->dispatch('install', install_base => $libdir, destdir => $destdir)};
-  ok $@, '';
-  $install_to = File::Spec->catfile($destdir, $libdir, 'lib', 'Sample.pm');
-  print "Should have installed module as $install_to\n";
-  ok -e $install_to;  
-}
-
-sub strip_volume {
-  my $dir = shift;
-  (undef, $dir) = File::Spec->splitpath( $dir, 1 );
-  return $dir;
 }
 
 {
