@@ -721,7 +721,7 @@ sub cull_args {
 
 sub super_classes {
   my ($self, $class, $seen) = @_;
-  $class ||= ref($self);
+  $class ||= ref($self) || $self;
   $seen  ||= {};
   
   no strict 'refs';
