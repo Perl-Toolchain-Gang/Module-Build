@@ -1,9 +1,10 @@
 use Test;
-BEGIN { plan tests => 11 }
+BEGIN { plan tests => 13 }
 use Module::Build;
 use File::Spec;
 use File::Path;
 my $HAVE_YAML = eval {require YAML; 1};
+my $HAVE_SIGNATURE = eval {require Module::Signature; 1};
 
 ok(1);
 require File::Spec->catfile('t', 'common.pl');
@@ -60,6 +61,15 @@ if ($HAVE_YAML) {
   
 } else {
   skip "skip YAML.pm is not installed", 1 for 1..6;
+}
+
+if ($HAVE_SIGNATURE) {
+  eval {$build->dispatch('distsign')};
+  ok $@, '';
+  
+  ok -e File::Spec->catdir('Sample-0.01', 'SIGNATURE');
+} else {
+  skip "skip Module::Signature is not installed", 1 for 1..2;
 }
 
 eval {$build->dispatch('realclean')};
