@@ -3,6 +3,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_01 (Beta for 0.28)
 
+ - Refactored methods relating to parsing perl module files for package,
+   version, and pod data into a new class: Module::Build::ModuleInfo.
+
  - Split documentation into two sections. The user level documentation
    and overview remains in 'Module/Build.pm', while a new document,
    'Module/Build/Authoring.pod', has been created for module authors.
