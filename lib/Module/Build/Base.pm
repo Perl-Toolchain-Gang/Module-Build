@@ -1253,7 +1253,7 @@ sub install_map {
   }
 
   if (length(my $destdir = $self->{properties}{destdir} || '')) {
-    $_ = File::Spec->catdir($destdir, $_) foreach values %map;
+    $map{$_} = File::Spec->catdir($destdir, $map{$_}) foreach keys %map;
   }
   
   $map{read} = '';  # To keep ExtUtils::Install quiet
