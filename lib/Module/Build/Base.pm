@@ -854,11 +854,12 @@ sub cull_args {
   $args{ARGV} = \@argv;
 
   # 'config' and 'install_path' are additive by hash key
-  my %additive = (config => 1,
-		  install_path => 1);
+  my %additive = (config => $self->{config},
+		  install_path => $self->{properties}{install_path} ||= {});
 
   # Hashify these parameters
   for (keys %additive) {
+    next unless exists $args{$_};
     my %hash;
     $args{$_} ||= [];
     $args{$_} = [ $args{$_} ] unless ref $args{$_};
@@ -874,13 +875,15 @@ sub cull_args {
   $self->{action} = $action if defined $action;
 
   # Extract our 'properties' from $cmd_args, the rest are put in 'args'.
-  foreach my $key (keys %args) {
-    my $add_to = $self->valid_property($key) ? $self->{properties} : $self->{args};
+  while (my ($key, $val) = each %args) {
+    my $add_to = ($additive{$key} ? $additive{$key}
+		  : $self->valid_property($key) ? $self->{properties}
+		  : $self->{args});
 
     if ($additive{$key}) {
-      $add_to->{$key}{$_} = $args{$key}{$_} foreach keys %{$args{$key}};
+      $add_to->{$_} = $val->{$_} foreach keys %$val;
     } else {
-      $add_to->{$key} = $args{$key};
+      $add_to->{$key} = $val;
     }
   }
 
