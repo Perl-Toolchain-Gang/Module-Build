@@ -17,7 +17,7 @@ documentation.  It's best to get familiar with that too.
 
 =head1 BASIC RECIPES
 
-=head2 Installing modules that use Module::Build
+=head2 The basic installation recipe for modules that use Module::Build
 
 In most cases, you can just issue the following commands from your
 shell:
@@ -27,23 +27,43 @@ shell:
  Build test
  Build install
 
-That may vary a bit depending on how you invoke perl scripts on your
-system.  For instance, if you have multiple versions of perl
-installed, you can install to its library directories like so:
+There's nothing complicated here - first you're running a script
+called F<Build.PL>, then you're running a (newly-generated) script
+called F<Build> and passing it various arguments.  If you know how to
+do that on your system, you can get installation working.
+
+The exact commands may vary a bit depending on how you invoke perl
+scripts on your system.  For instance, if you have multiple versions
+of perl installed, you can install to one particular perl's library
+directories like so:
 
  /usr/bin/perl5.8.1 Build.PL
  Build
  Build test
  Build install
 
-Notice that the F<Build> script knows what perl was used to run
-C<Build.PL>.
+The F<Build> script knows what perl was used to run C<Build.PL>, so
+you don't need to reinvoke the F<Build> script with the complete perl
+path each time.  If you invoke it with the I<wrong> perl path, you'll
+get a warning.
 
-XXX - F<Build> may not be in the path, do F<./Build> or C<perl Build foo>
+If the current directory (usually called '.') isn't in your path, you
+can do C<./Build> or C<perl Build> to run the script:
+
+ /usr/bin/perl Build.PL
+ ./Build
+ ./Build test
+ ./Build install
 
 
+=head2 Installing modules using the programmatic interface
 
-=head2 Install modules using the programmatic interface:
+If you need to build, test, and/or install modules from within some
+other perl code (as opposed to having the user type installation
+commands at the shell), you can use the programmatic interface.
+Create a Module::Build object (or an object of a custom Module::Build
+subclass) and then invoke its C<dispatch()> method to run various
+actions.
 
  my $b = Module::Build->new(
    module_name => 'Foo::Bar',
@@ -51,8 +71,24 @@ XXX - F<Build> may not be in the path, do F<./Build> or C<perl Build foo>
    requires => { 'Some::Module'   => '1.23' },
  );
  $b->dispatch('build');
- $b->dispatch('test');
+ $b->dispatch('test', verbose => 1);
  $b->dispatch('install);
+
+The first argument to C<dispatch()> is the name of the action, and any
+following arguments are named parameters.
+
+This is the interface we use to test Module::Build itself in the
+regression tests.
+
+=head2 Installing to a temporary directory
+
+To create packages for package managers like RedHat's C<rpm> or
+Debian's C<deb>, you may need to install to a temporary directory
+first and then create the package from that temporary installation.
+To do this, specify the C<destdir> parameter to the C<install> action:
+
+ Build install destdir=/tmp/my-package-1.003
+
 
 =head1 AUTHOR
 
