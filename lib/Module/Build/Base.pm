@@ -440,11 +440,8 @@ sub _persistent_hash_write {
   if (my $file = $self->config_file($name)) {
     return if -e $file and !keys %{ $ph->{new} };  # Nothing to do
     
-    local $Data::Dumper::Terse = 1;
-    my $fh = IO::File->new("> $file") or die "Can't write to $file: $!";
     @{$ph->{disk}}{ keys %{$ph->{new}} } = values %{$ph->{new}};  # Merge
-    print $fh Data::Dumper::Dumper($ph->{disk});
-    close $fh;
+    $self->_write_dumper($name, $ph->{disk});
     
     $ph->{new} = {};
   }
@@ -515,24 +512,24 @@ sub read_config {
   }
 }
 
+sub _write_dumper {
+  my ($self, $filename, $data) = @_;
+  
+  my $file = $self->config_file($filename);
+  my $fh = IO::File->new("> $file") or die "Can't create '$file': $!";
+  local $Data::Dumper::Terse = 1;
+  print $fh Data::Dumper::Dumper($data);
+}
+
 sub write_config {
   my ($self) = @_;
   
   File::Path::mkpath($self->{properties}{config_dir});
   -d $self->{properties}{config_dir} or die "Can't mkdir $self->{properties}{config_dir}: $!";
   
-  local $Data::Dumper::Terse = 1;
-
-  my $file = $self->config_file('build_params');
-  my $fh = IO::File->new("> $file") or die "Can't create '$file': $!";
-  print $fh Data::Dumper::Dumper([$self->{args}, $self->{config}, $self->{properties}]);
-  close $fh;
-
-  $file = $self->config_file('prereqs');
-  open $fh, "> $file" or die "Can't create '$file': $!";
   my @items = qw(requires build_requires conflicts recommends);
-  print $fh Data::Dumper::Dumper( { map { $_, $self->$_() } @items } );
-  close $fh;
+  $self->_write_dumper('prereqs', { map { $_, $self->$_() } @items });
+  $self->_write_dumper('build_params', [$self->{args}, $self->{config}, $self->{properties}]);
 
   $self->_persistent_hash_write('cleanup');
 }
