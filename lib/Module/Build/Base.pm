@@ -686,22 +686,6 @@ sub ACTION_testdb {
   $self->depends_on('test');
 }
 
-sub compile_support_files {
-  my $self = shift;
-
-  if ($self->{properties}{c_source}) {
-    $self->process_PL_files($self->{properties}{c_source}); # XXX this doesn't work anymore
-    
-    my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.c(pp)?$});
-    
-    push @{$self->{include_dirs}}, $self->{properties}{c_source};
-
-    foreach my $file (@$files) {
-      push @{$self->{objects}}, $self->compile_c($file);
-    }
-  }
-}
-
 sub ACTION_build {
   my ($self) = @_;
 
@@ -717,6 +701,22 @@ sub ACTION_build {
   $self->process_xs_files;
   $self->process_pod_files;
   $self->process_script_files;
+}
+
+sub compile_support_files {
+  my $self = shift;
+
+  if ($self->{properties}{c_source}) {
+    $self->process_PL_files($self->{properties}{c_source}); # XXX this doesn't work anymore
+    
+    my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.c(pp)?$});
+    
+    push @{$self->{include_dirs}}, $self->{properties}{c_source};
+
+    foreach my $file (@$files) {
+      push @{$self->{objects}}, $self->compile_c($file);
+    }
+  }
 }
 
 sub process_xs_files {
