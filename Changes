@@ -37,6 +37,10 @@ Revision history for Perl extension Module::Build.
  - Fixed a typo & improved the docs in the SUBCLASSING section. [Ron
    Savage]
 
+ - Added the '.tmp' suffix to the default MANIFEST.SKIP file, which
+   should avoid adding things like pod2htmi.tmp to the MANIFEST [Ron
+   Savage]
+
  - Fixed a problem in htmlify_pods() that would produce test failures
    on Cygwin (and probably elsewhere).  [Yitzchak Scott-Thoennes]
 
