@@ -514,7 +514,8 @@ EOF
         my $self = shift;
         my $class = $self->_prop_class;
 	# Set the build class.
-	$self->{build_properties}{build_class} ||= ref $self;
+	$self->{properties}{build_class} ||= ref $self;
+
         for my $prop ($self->valid_properties) {
             $self->{properties}{$prop} = $valid_properties{$class}->{$prop}
               unless exists $self->{properties}{$prop};
