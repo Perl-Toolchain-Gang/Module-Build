@@ -1,0 +1,26 @@
+ChangeLog
+MANIFEST			This file
+MANIFEST.SKIP
+Makefile.PL			Makefile generator
+README				Module description
+lib/SQL/Eval.pm			Perl module for deriving SQL engines
+lib/SQL/Statement.pm		Perl part of the module
+lib/SQL/Statement.xs		XS part of the module
+lib/SQL/Statement/Hash.pm	Fragment of a hash based SQL engine
+doc/sql-92.bnf			BNF grammar of ANSI SQL
+doc/sql-92.unimplemented        Unimplemented parts of the above grammar
+source/ppport.h
+source/sql_data.c		C part of the module
+source/sql_data.h
+source/sql_op.c
+source/sql_yacc.c
+source/sql_yacc.h
+source/sql_yacc.y		Bison parser
+t/10base.t			Base test (loads modules)
+t/20parser.t			Parser test
+t/30features.t			Feature test
+t/40where.t			WHERE clause evaluation test
+t/50eval.t			Statement evaluation test
+t/60hash.t			Tests for SQL::Statement::Hash
+t/70limit.t			Tests for the LIMIT clause
+visual.pl			Benchmark script

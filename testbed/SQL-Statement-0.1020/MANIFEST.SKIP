@@ -1,0 +1,10 @@
+\bCVS\b
+^blib/
+~$
+^Makefile(.old)?$
+^Statement.(bs|c|o)$
+^pm_to_blib$
+^sql_data.o$
+^sql_op.o$
+^sql_yacc.o$
+
