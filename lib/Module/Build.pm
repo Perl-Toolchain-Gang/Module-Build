@@ -8,7 +8,7 @@ package Module::Build;
 
 use strict;
 use vars qw($VERSION @ISA);
-$VERSION = '0.03_1';
+$VERSION = '0.03_2';
 
 # Okay, this is the brute-force method of finding out what kind of
 # platform we're on.  I don't know of a systematic way.  These values
@@ -53,26 +53,30 @@ my %OSTYPES = qw(
 		 mpeix     MPEiX
 		);
 
-eval "use Module::Build::Platform::$^O";
-if (!$@) {
-  @ISA = ("Module::Build::Platform::$^O");
-  #warn "Using Module::Build::Platform::$^O";
+use File::Spec;
+
+# We only use this once - don't waste a symbol table entry on it.
+# More importantly, don't make it an inheritable method.
+my $load = sub {
+  my $mod = shift;
+  #warn "Using $mod";
+  eval "use $mod";
+  die $@ if $@;
+  @ISA = ($mod);
+};
+
+if (grep {-e File::Spec->catfile($_, qw(Module Build Platform), $^O) . '.pm'} @INC) {
+  $load->("Module::Build::Platform::$^O");
 
 } elsif (exists $OSTYPES{$^O}) {
-  eval "use Module::Build::Platform::$OSTYPES{$^O}";
-  die $@ if $@;
-  @ISA = ("Module::Build::Platform::$OSTYPES{$^O}");
-  #warn "Using Module::Build::Platform::$OSTYPES{$^O}";
+  $load->("Module::Build::Platform::$OSTYPES{$^O}");
 
 } else {
   warn "Unknown OS type '$^O' - using default settings\n";
-  eval "use Module::Build::Platform::Default";
-  die $@ if $@;
-  @ISA = qw(Module::Build::Platform::Default);
-  #warn "Using Module::Build::Platform::Default";
-
+  $load->("Module::Build::Platform::Default");
 }
 
+sub os_type { $OSTYPES{$^O} }
 
 1;
 __END__
@@ -87,21 +91,13 @@ Module::Build - Build and install Perl modules
  Standard process for building & installing modules:
  
    perl Build.PL
-   ./Build             # this script created by 'perl Build.PL'
+   ./Build
    ./Build test
    ./Build install
- 
- Other actions:
- 
-   ./Build clean
-   ./Build realclean
-   ./Build fakeinstall
-   ./Build dist
-   ./Build help
 
 =head1 DESCRIPTION
 
-This is a very alpha version of a new module set I've been working on,
+This is a beta version of a new module set I've been working on,
 C<Module::Build>.  It is meant to be a replacement for
 C<ExtUtils::MakeMaker>.
 
@@ -109,7 +105,7 @@ To install C<Module::Build>, and any other module that uses
 C<Module::Build> for its installation process, do the following:
 
    perl Build.PL
-   ./Build
+   ./Build             # this script is created by 'perl Build.PL'
    ./Build test
    ./Build install
 
@@ -121,8 +117,8 @@ Other actions so far include:
    ./Build dist
    ./Build help
 
-It's like the C<MakeMaker> metaphor, except that C<Build> is a
-Perl script, not a Makefile.  State is stored in a directory called
+It's like the C<MakeMaker> metaphor, except that C<Build> is a short
+Perl script, not a long Makefile.  State is stored in a directory called
 C<_build/>.
 
 Any customization can be done simply by subclassing C<Module::Build> and
@@ -185,6 +181,17 @@ Currently (though this may change), an action C<foo> will invoke the
 C<ACTION_foo> method.  All arguments (including everything mentioned
 in L<ACTIONS> below) are contained in the C<< $self->{args} >> hash
 reference.
+
+=item * os_type
+
+If you're subclassing Module::Build and some code needs to alter its
+behavior based on the current platform, you may only need to know
+whether you're running on Windows, Unix, MacOS, VMS, etc. and not the
+fine-grained value of Perl's C<$^O> variable.  The C<os_type()> method
+will return a string like C<Windows>, C<Unix>, C<MacOS>, C<VMS>, or
+whatever is appropriate.  If you're running on an unknown platform, it
+will return C<undef> - there shouldn't be many unknown platforms
+though.
 
 =back
 
@@ -285,7 +292,24 @@ actually run the C<install> action.
 
 This action is helpful for module authors who want to package up their
 module for distribution through a medium like CPAN.  It will create a
-tarball and compress it using GZIP compression.
+tarball of the files listed in MANIFEST and compress the tarball using
+GZIP compression.
+
+=item * manifest
+
+This is an action intended for use by module authors, not people
+installing modules.  It will bring the MANIFEST up to date with the
+files currently present in the distribution.  You may use a
+MANIFEST.SKIP file to exclude certain files or directories from
+inclusion in the MANIFEST.  MANIFEST.SKIP should contain a bunch of
+regular expressions, one per line.  If a file in the distribution
+directory matches any of the regular expressions, it won't be included
+in the MANIFEST.
+
+(Note to self: it would be nice to have a 'fake_manifest' action that
+would just go through the motions of adding to MANIFEST but not
+actually do anything.  Currently ExtUtils::Manifest doesn't support
+it, though.)
 
 =item * help
 
@@ -294,6 +318,31 @@ use the build process.  It will show you a list of available build
 actions too.
 
 =back
+
+=head1 AUTOMATION
+
+One advantage of Module::Build is that since it's implemented as Perl
+methods, you can invoke these methods directly if you want to install
+a module non-interactively.  For instance, the following Perl script
+will invoke the entire build/install procedure:
+
+ my $m = new Module::Build (module_name => 'MyModule');
+ $m->dispatch('build');
+ $m->dispatch('test');
+ $m->dispatch('install');
+
+If any of these steps encounters an error, it will throw a fatal
+exception.
+
+You can also pass arguments as part of the build process:
+
+ my $m = new Module::Build (module_name => 'MyModule');
+ $m->dispatch('build');
+ $m->dispatch('test', verbose => 1);
+ $m->dispatch('install', sitelib => '/my/secret/place/');
+
+Building and installing modules in this way skips creating the
+C<Build> script.
 
 =head1 STRUCTURE
 
@@ -389,6 +438,30 @@ one example, at L<http://www.dsmit.com/cons/> .
 
 Please contact me if you have any questions or ideas.
 
+=head1 TO DO
+
+Need to implement a prerequisite mechanism, similar to MakeMaker's
+C<PREREQ_PM> stuff.
+
+There will also be a subclassing mechanism that doesn't require as
+much module infrastructure to use.  Something like this:
+
+ use Module::Build subclass => <<'EOF';
+  sub ACTION_foo {
+    ... implement the 'foo' action ...
+  }
+ EOF
+
+The current method of relying on time stamps to determine whether a
+derived file is out of date isn't likely to scale well, since it
+requires tracing all dependencies backward, it runs into problems on
+NFS, and it's just generally flimsy.  It would be better to use an MD5
+signature or the like, if available.  See C<cons> for an example.
+
+The current dependency-checking for .xs files is prone to errors.  You
+can make 'widowed' files by doing C<Build>, C<perl Build.PL>, and then
+C<Build realclean>.  Should be easy to fix, but it's got me wondering
+whether the dynamic declaration of dependencies is a good idea.
 
 =head1 AUTHOR
 
