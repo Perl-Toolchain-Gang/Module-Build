@@ -15,7 +15,7 @@ require File::Spec->catfile('t', 'common.pl');
 
 ######################### End of black magic.
 
-my $have_yaml = Module::Build->current->features('YAML_support');
+my $have_yaml = Module::Build->current->feature('YAML_support');
 
 my $start_dir = Module::Build->cwd;
 
