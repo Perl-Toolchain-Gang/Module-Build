@@ -290,11 +290,12 @@ sub dist_author {
   my @author;
   while (<$fh>) {
     next unless /^=head1\s+AUTHOR/ ... /^=/;
+    next if /^=/;
     push @author, $_;
   }
   return unless @author;
   
-  my $author = join '', @author[1..$#author-1];
+  my $author = join '', @author;
   $author =~ s/^\s+|\s+$//g;
   return $p->{dist_author} = $author;
 }
@@ -1302,7 +1303,9 @@ sub make_tarball {
 
 sub install_destination {
   my ($self, $type) = @_;
-  return $self->{config}{"site$type"} || $self->{config}{"install$type"};
+  return (   $self->{config}{"installsite$type"}
+	  || $self->{config}{"install$type"}
+	  || $self->{config}{"installsite${type}dir"} );
 }
 
 sub install_types {
