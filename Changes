@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.21_02
 
+ - During testing, if YAML.pm isn't installed, then we won't try
+   making a tarball with Archive::Tar either, since this would invoke
+   YAML to create the META.yml file.
+
  - Fixed a problem with chmod() being called incorrectly on MacOS
    (i.e. MacPerl, not Mac OS X).  [Spotted by Paul Sanford Toney]
 
