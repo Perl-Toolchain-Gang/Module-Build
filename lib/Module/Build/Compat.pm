@@ -207,7 +207,7 @@ $action : force_do_it
 EOF
   }
   
-  $maketext .= "\n.EXPORT : " . join(' ', keys %known_make_macros);
+  $maketext .= "\n.EXPORT : " . join(' ', keys %known_make_macros) . "\n\n";
   
   return $maketext;
 }
