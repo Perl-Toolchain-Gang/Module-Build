@@ -7,6 +7,8 @@ ok(1);
 
 ######################### End of black magic.
 
+chdir 't';
+
 # Test object creation
 {
   my $build = new Module::Build
@@ -18,25 +20,21 @@ ok(1);
 
 # Test prerequisite checking
 {
-  local @INC = (@INC, 't/lib');
+  local @INC = (@INC, 'lib');
   my $flagged = 0;
   local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /ModuleBuildOne/};
-  my $build = new Module::Build
+  new Module::Build
     (
      module_name => 'Module::Build',
      requires => {ModuleBuildOne => 0},
-    );
+    )->dispatch('realclean');
   ok $flagged, 0;
-}
 
-{
-  local @INC = (@INC, 't/lib');
-  my $flagged = 0;
-  local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /ModuleBuildOne/};
-  my $build = new Module::Build
+  $flagged = 0;
+  new Module::Build
     (
      module_name => 'Module::Build',
      requires => {ModuleBuildOne => 3},
-    );
+    )->dispatch('realclean');
   ok $flagged, 1;
 }
