@@ -37,7 +37,7 @@ Home page: http://example.com/~eh/
 EOF
 
 
-my $pp = Module::Build::PodParser->new(fh => *FH);
+my $pp = Module::Build::PodParser->new(fh => \*FH);
 ok $pp;
 
 ok $pp->get_author->[0], 'C<Foo::Bar> was written by Engelbert Humperdinck I<E<lt>eh@example.comE<gt>> in 2004.';
