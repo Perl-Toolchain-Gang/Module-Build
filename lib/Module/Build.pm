@@ -146,19 +146,7 @@ This illustrates initial configuration and the running of three
 'actions'.  In this case the actions run are 'build' (the default
 action), 'test', and 'install'.  Other actions defined so far include:
 
-  build                          fakeinstall 
-  config_data                    help        
-  clean                          html        
-  code                           install     
-  diff                           manifest    
-  dist                           ppd         
-  distcheck                      ppmdist     
-  distclean                      realclean   
-  distdir                        skipcheck   
-  distmeta                       test        
-  distsign                       testcover   
-  disttest                       testdb      
-  docs                           versioninstall
+<action_list>
 
 You can run the 'help' action for a complete list of actions.
 

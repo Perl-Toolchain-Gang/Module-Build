@@ -1413,17 +1413,25 @@ sub ACTION_help {
  
  Actions defined:
 EOF
+  
+  print $self->_action_listing($actions);
+
+  print "\nRun `Build help <action>` for details on an individual action.\n";
+  print "See `perldoc Module::Build` for complete documentation.\n";
+}
+
+sub _action_listing {
+  my ($self, $actions) = @_;
 
   # Flow down columns, not across rows
   my @actions = sort keys %$actions;
   @actions = map $actions[($_ + ($_ % 2) * @actions) / 2],  0..$#actions;
   
+  my $out = '';
   while (my ($one, $two) = splice @actions, 0, 2) {
-    printf("  %-12s                   %-12s\n", $one, $two||'');
+    $out .= sprintf("  %-12s                   %-12s\n", $one, $two||'');
   }
-  
-  print "\nRun `Build help <action>` for details on an individual action.\n";
-  print "See `perldoc Module::Build` for complete documentation.\n";
+  return $out;
 }
 
 sub ACTION_test {

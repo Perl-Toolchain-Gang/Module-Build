@@ -4,13 +4,15 @@ use strict;
 # find the local "lib" directory, so we use File::Spec to do it properly.
 use File::Spec;
 use lib File::Spec->catdir('lib');
-use lib File::Spec->catdir('inc');
 
 # We use Module::Build to test & install itself.
 use Module::Build;
 
+# <remove_me> This code is only present for M::B developers, not on CPAN
+use lib File::Spec->catdir('inc');
 # A custom builder that does some special stuff during the 'dist' phase
 use ModuleBuildBuilder;
+# </remove_me>
 
 my $build = new ModuleBuildBuilder
   (
