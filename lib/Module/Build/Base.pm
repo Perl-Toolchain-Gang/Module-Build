@@ -690,7 +690,7 @@ sub compile_support_files {
   my $self = shift;
 
   if ($self->{properties}{c_source}) {
-    $self->process_PL_files($self->{properties}{c_source});
+    $self->process_PL_files($self->{properties}{c_source}); # XXX this doesn't work anymore
     
     my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.c(pp)?$});
     
@@ -705,32 +705,71 @@ sub compile_support_files {
 sub ACTION_build {
   my ($self) = @_;
 
-  $self->compile_support_files;
-  
-  # What more needs to be done when creating blib/ from lib/?
-  # Currently we handle .pm, .xs, .pod, and .PL files.
-
-  $self->process_PL_files('lib');
-
+  # All installable stuff gets created in blib/
   my $blib = 'blib';
   $self->add_to_cleanup($blib);
   File::Path::mkpath($blib);
   
-  my $files = $self->rscan_dir('lib', qr{\.(pm|pod|xs)$});
-  $self->lib_to_blib($files, $blib);
+  $self->compile_support_files;
   
-  if (@{$self->{properties}{scripts}}) {
-    my $script_dir = File::Spec->catdir($blib, 'script');
-    File::Path::mkpath( $script_dir );
+  $self->process_PL_files;
+  $self->process_pm_files;
+  $self->process_xs_files;
+  $self->process_pod_files;
+  $self->process_script_files;
+}
 
-    foreach my $file (@{$self->{properties}{scripts}}) {
-      my $result = $self->copy_if_modified($file, $script_dir, 'flatten') or next;
-      require ExtUtils::MM;
-      ExtUtils::MM->fixin($result);
-      $self->make_executable($result);
-    }
+sub process_xs_files {
+  my $self = shift;
+  my $files = $self->find_xs_files;
+  $self->lib_to_blib($files);
+}
+
+sub process_pod_files {
+  my $self = shift;
+  my $files = $self->find_pod_files;
+  $self->lib_to_blib($files);
+}
+
+sub process_pm_files {
+  my $self = shift;
+  my $files = $self->find_pm_files;
+  $self->lib_to_blib($files);
+}
+
+sub find_PL_files {
+  my $self = shift;
+  return $self->rscan_dir('lib', qr{\.PL$});
+}
+
+sub find_pm_files {
+  my $self = shift;
+  return $self->rscan_dir('lib', qr{\.pm$});
+}
+
+sub find_pod_files {
+  my $self = shift;
+  return $self->rscan_dir('lib', qr{\.pod$});
+}
+
+sub find_xs_files {
+  my $self = shift;
+  return $self->rscan_dir('lib', qr{\.xs$});
+}
+
+sub process_script_files {
+  my $self = shift;
+  return unless @{$self->{properties}{scripts}};
+
+  my $script_dir = File::Spec->catdir('blib', 'script');
+  File::Path::mkpath( $script_dir );
+  
+  foreach my $file (@{$self->{properties}{scripts}}) {
+    my $result = $self->copy_if_modified($file, $script_dir, 'flatten') or next;
+    require ExtUtils::MM;
+    ExtUtils::MM->fixin($result);
+    $self->make_executable($result);
   }
-
 }
 
 sub ACTION_manifypods {
@@ -786,9 +825,9 @@ sub ACTION_diff {
 }
 
 sub process_PL_files {
-  my ($self, $dir) = @_;
+  my ($self) = @_;
   my $p = $self->{properties}{PL_files};
-  my $files = $self->rscan_dir($dir, qr{\.PL$});
+  my $files = $self->find_PL_files;
   foreach my $file (@$files) {
     my @to = (exists $p->{$file} ?
 	      (ref $p->{$file} ? @{$p->{$file}} : ($p->{$file})) :
@@ -941,6 +980,10 @@ sub scripts {
   return $self->{properties}{scripts};
 }
 
+sub valid_licenses {
+  return { map {$_, 1} qw(perl gpl artistic lgpl bsd open_source unrestricted restrictive unknown) };
+}
+
 sub write_metadata {
   my ($self, $file) = @_;
   my $p = $self->{properties};
@@ -949,7 +992,7 @@ sub write_metadata {
     warn "No license specified, setting license = 'unknown'\n";
     $p->{license} = 'unknown';
   }
-  unless (grep {$p->{license} eq $_} qw(perl gpl restrictive artistic unknown)) {
+  unless ($self->valid_licenses->{ $p->{license} }) {
     die "Unknown license type '$p->{license}";
   }
 
@@ -1042,6 +1085,7 @@ sub delete_filetree {
 
 sub lib_to_blib {
   my ($self, $files, $to) = @_;
+  $to ||= 'blib';
   
   # Create $to/arch to keep blib.pm happy (what a load of hooie!)
   File::Path::mkpath( File::Spec->catdir($to, 'arch') );
