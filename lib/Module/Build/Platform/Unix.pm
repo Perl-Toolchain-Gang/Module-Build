@@ -35,6 +35,19 @@ sub make_tarball {
 
 sub _startperl { "#! " . shift()->perl }
 
+sub _construct {
+  my $self = shift()->SUPER::_construct(@_);
+
+  # perl 5.8.1-RC[1-3] had some broken %Config entries, and
+  # unfortunately Red Hat 9 shipped it like that.  Fix 'em up here.
+  my $c = $self->{config};
+  for (qw(siteman1 siteman3 vendorman1 vendorman3)) {
+    $c->{"install${_}dir"} ||= $c->{"install${_}"};
+  }
+
+  return $self;
+}
+
 1;
 __END__
 
