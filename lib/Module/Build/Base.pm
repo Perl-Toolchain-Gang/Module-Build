@@ -94,14 +94,13 @@ sub resume {
   return $self;
 }
 
-sub instance {
+sub current {
   my $package = shift;
   # hmm, wonder what the right thing to do here is
   local @ARGV;
   return $package->resume(
 			  properties => {
 					 config_dir => '_build',
-					 build_script => 'Build',
 					},
 			 );
 }
@@ -729,7 +728,6 @@ use $build_package;
 my \$build = resume $build_package (
   properties => {
     config_dir => '$config_dir',
-    build_script => '$build_script',
   },
 );
 
