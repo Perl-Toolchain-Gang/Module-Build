@@ -3,7 +3,7 @@ package Module::Build::Base;
 # $Id$
 
 use strict;
-BEGIN { require 5.006 }
+BEGIN { require 5.00503 }
 use Config;
 use File::Copy ();
 use File::Find ();
@@ -12,6 +12,7 @@ use File::Basename ();
 use File::Spec ();
 use File::Compare ();
 use Data::Dumper ();
+use IO::File ();
 
 sub new {
   my $package = shift;
@@ -258,7 +259,7 @@ sub version_from_file {
   my ($self, $file) = @_;
 
   # Some of this code came from the ExtUtils:: hierarchy.
-  open my($fh), $file or die "Can't open '$file' for version: $!";
+  my $fh = IO::File->new($file) or die "Can't open '$file' for version: $!";
   while (<$fh>) {
     if ( my ($sigil, $var) = /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/ ) {
       my $eval = qq{
@@ -283,7 +284,7 @@ sub add_to_cleanup {
   return unless @need_to_write;
   
   if ( my $file = $self->config_file('cleanup') ) {
-    open my($fh), ">> $file" or die "Can't append to $file: $!";
+    my $fh = IO::File->new(">> $file") or die "Can't append to $file: $!";
     print $fh "$_\n" foreach @need_to_write;
   }
   
@@ -300,7 +301,7 @@ sub read_config {
   my ($self) = @_;
   
   my $file = $self->config_file('build_params');
-  open my $fh, $file or die "Can't read '$file': $!";
+  my $fh = IO::File->new($file) or die "Can't read '$file': $!";
   my $ref = eval do {local $/; <$fh>};
   die if $@;
   ($self->{args}, $self->{config}, $self->{properties}) = @$ref;
@@ -309,7 +310,7 @@ sub read_config {
   my $cleanup_file = $self->config_file('cleanup');
   $self->{cleanup} = {};
   if (-e $cleanup_file) {
-    open my $fh, $cleanup_file or die "Can't read '$file': $!";
+    my $fh = IO::File->new($cleanup_file) or die "Can't read '$file': $!";
     my @files = <$fh>;
     chomp @files;
     @{$self->{cleanup}}{@files} = ();
@@ -325,7 +326,7 @@ sub write_config {
   local $Data::Dumper::Terse = 1;
 
   my $file = $self->config_file('build_params');
-  open my $fh, "> $file" or die "Can't create '$file': $!";
+  my $fh = IO::File->new("> $file") or die "Can't create '$file': $!";
   print $fh Data::Dumper::Dumper([$self->{args}, $self->{config}, $self->{properties}]);
   close $fh;
 
@@ -512,7 +513,7 @@ sub create_build_script {
 
   print("Creating new '$p->{build_script}' script for ",
 	"'$p->{dist_name}' version '$p->{dist_version}'\n");
-  open my $fh, ">$p->{build_script}" or die "Can't create '$p->{build_script}': $!";
+  my $fh = IO::File->new(">$p->{build_script}") or die "Can't create '$p->{build_script}': $!";
   $self->print_build_script($fh);
   close $fh;
   
@@ -1235,7 +1236,7 @@ sub process_xs {
     require ExtUtils::Mkbootstrap;
     print "ExtUtils::Mkbootstrap::Mkbootstrap('$file_base')\n";
     ExtUtils::Mkbootstrap::Mkbootstrap($file_base);  # Original had $BSLOADLIBS - what's that?
-    {open my $fh, ">> $file_base.bs"}  # touch
+    {my $fh = IO::File->new(">> $file_base.bs")}  # touch
   }
   $self->copy_if_modified("$file_base.bs", $archdir, 1);
   
