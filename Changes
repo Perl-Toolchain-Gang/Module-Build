@@ -4,6 +4,9 @@ Revision history for Perl extension Module::Build.
 
  - Added documentation for the new_from_context() method.
 
+ - Completely rewrote the split_like_shell() method for the Windows
+   platform so it works like the command.com shell. [Randy Sims]
+
 0.2602 (Bug fix for 0.26)   Thu Nov  4 11:19:29 CST 2004
 
  - The two bug fixes in 0.2601 gnashed against each other incorrectly,
