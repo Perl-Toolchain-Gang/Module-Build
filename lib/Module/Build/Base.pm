@@ -99,7 +99,7 @@ sub _set_install_paths {
 		lib     => $c->{installsitelib},
 		arch    => $c->{installsitearch},
 		bin     => $c->{installsitebin},
-		script  => $c->{installsitescript} || $c->{installsitebin},
+		script  => $c->{installsitescript} || $c->{installsitebin} || $c->{installscript},
 		bindoc  => $c->{installsiteman1dir},
 		libdoc  => $c->{installsiteman3dir},
 	       },
@@ -107,7 +107,7 @@ sub _set_install_paths {
 		lib     => $c->{installvendorlib},
 		arch    => $c->{installvendorarch},
 		bin     => $c->{installvendorbin},
-		script  => $c->{installvendorscript} || $c->{installvendorbin},
+		script  => $c->{installvendorscript} || $c->{installvendorbin} || $c->{installscript},
 		bindoc  => $c->{installvendorman1dir},
 		libdoc  => $c->{installvendorman3dir},
 	       },
@@ -1370,7 +1370,8 @@ sub find_dist_packages {
   foreach my $file (@pm_files) {
     next if $file =~ m{^t/};  # Skip things in t/
     
-    return unless eval {require Module::Info; Module::Info->VERSION(0.19); 1};
+    return unless $] >= 5.006;  # perl 5.6 required for Module::Info
+    return unless eval "use Module::Info 0.19; 1";
     
     my $localfile = File::Spec->catfile( split m{/}, $file );
     my $version = $self->version_from_file( $localfile );
