@@ -38,6 +38,11 @@ Revision history for Perl extension Module::Build.
    the need for doing so in a regression test. [Initial patch by Mark
    Stosberg]
 
+ - Added a process_files_by_extension() method, which generalizes the
+   kind of processing (essentially just copying) that happens for .pm
+   and .pod files, and makes it available to other user-defined types
+   of files.  See the new cookbook entry.
+
  - Improved compatibility with version.pm when authors are using
    version objects as their $VERSION variables.  Now
    version_from_file() can deal with these objects.  Currently we

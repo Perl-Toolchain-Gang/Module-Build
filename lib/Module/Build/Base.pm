@@ -1387,7 +1387,8 @@ sub ACTION_code {
   
   foreach my $element (@{$self->build_elements}) {
     my $method = "process_${element}_files";
-    $self->$method();
+    $method = "process_files_by_extension" unless $self->can($method);
+    $self->$method($element);
   }
 
   $self->depends_on('config_data');
@@ -1397,6 +1398,17 @@ sub ACTION_build {
   my $self = shift;
   $self->depends_on('code');
   $self->depends_on('docs');
+}
+
+sub process_files_by_extension {
+  my ($self, $ext) = @_;
+  
+  my $method = "find_${ext}_files";
+  my $files = $self->can($method) ? $self->$method() : $self->_find_file_by_type($ext,  'lib');
+  
+  while (my ($file, $dest) = each %$files) {
+    $self->copy_if_modified(from => $file, to => File::Spec->catfile($self->blib, $dest) );
+  }
 }
 
 sub process_support_files {
@@ -1437,21 +1449,8 @@ sub process_xs_files {
   }
 }
 
-sub process_pod_files {
-  my $self = shift;
-  my $files = $self->find_pod_files;
-  while (my ($file, $dest) = each %$files) {
-    $self->copy_if_modified(from => $file, to => File::Spec->catfile($self->blib, $dest) );
-  }
-}
-
-sub process_pm_files {
-  my $self = shift;
-  my $files = $self->find_pm_files;
-  while (my ($file, $dest) = each %$files) {
-    $self->copy_if_modified(from => $file, to => File::Spec->catfile($self->blib, $dest) );
-  }
-}
+sub process_pod_files { shift()->process_files_by_extension(shift()) }
+sub process_pm_files  { shift()->process_files_by_extension(shift()) }
 
 sub process_script_files {
   my $self = shift;
