@@ -1,6 +1,9 @@
 Revision history for Perl extension Module::Build.
 
 0.04
+  - Added a 'manifest' action.  It's just like MakeMaker's 'make manifest', it
+    brings your MANIFEST file up to date with your distribution directory.
+
   - Reorganized some of the responsibilities of various methods, which
     allows modules to be built and tested programmatically.
 
@@ -20,11 +23,16 @@ Revision history for Perl extension Module::Build.
   - Created the t/xs.t script, which tests building a module with a
     .xs component.
 
-  - Fixed the loading of $^O-specific modules.
+  - Fixed the loading of $^O-specific modules (there were no such
+    modules before).
 
   - Added a 'darwin' platform module, which removes -flat_namespace
     from $Config{ccflags} while building .xs modules (it's a linker
     flag, not a compiler flag).
+
+  - Now uses $^W instead of the 'warnings' pragma, which apparently
+    provides compatibility with perl 5.005 (I've only tested it with
+    5.6.x myself).
 
 0.03  Sun Nov 11 14:58 CDT 2001
   - The 'perl Build.PL' step will now detect whether the current
