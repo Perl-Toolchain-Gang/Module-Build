@@ -5,6 +5,9 @@ Revision history for Perl extension Module::Build.
  - The final line of the pass-through Makefile was missing its
    trailing newline, which is now fixed. [Chip Salzenberg]
 
+ - Squashed a warning in t/basic.t about '"Foo::Module::VERSION" used
+   only once'. [Blair Zajac]
+
 0.25  Sun Apr 25 11:12:36 CDT 2004
 
  - During the 'distdir' action, if no MANIFEST.SKIP file exists, we
