@@ -1632,7 +1632,6 @@ authored_by:
 @{[ join "\n", map "  - $_", @{$self->dist_author} ]}
 abstract: @{[ $self->dist_abstract ]}
 license: $p->{license}
-distribution_type: module
 generated_by: Module::Build version @{[ Module::Build->VERSION ]}, without YAML.pm
 END_OF_META
 
