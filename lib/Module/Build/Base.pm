@@ -2707,22 +2707,6 @@ sub split_like_shell {
   return Text::ParseWords::shellwords($string);
 }
 
-sub stdout_to_file {
-  my ($self, $coderef, $redirect) = @_;
-  local *SAVE;
-  if ($redirect) {
-    open SAVE, ">&STDOUT" or die "Can't save STDOUT handle: $!";
-    open STDOUT, "> $redirect" or die "Can't create '$redirect': $!";
-  }
-
-  $coderef->();
-
-  if ($redirect) {
-    close STDOUT;
-    open STDOUT, ">&SAVE" or die "Can't restore STDOUT: $!";
-  }
-}
-
 sub run_perl_script {
   my ($self, $script, $preargs, $postargs) = @_;
   foreach ($preargs, $postargs) {
