@@ -17,6 +17,11 @@ sub skip_test {
   exit;
 }
 
+sub skip_subtest {
+  my $msg = @_ ? shift() : '(no reason given)';
+  skip "skip $msg", 1;
+}
+
 sub stdout_of {
   my $subr = shift;
   my $outfile = 'save_out';
