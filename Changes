@@ -13,6 +13,9 @@ Revision history for Perl extension Module::Build.
    a potential warning about the interpreters not matching. [Spotted
    by Ken Y. Clark]
 
+ - The Unix version now uses the safer multi-argument form of system()
+   when building distribution tarballs.
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
