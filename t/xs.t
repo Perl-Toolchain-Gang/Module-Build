@@ -4,7 +4,7 @@ use strict;
 use Test;
 
 print("1..0 # Skipped: no compiler found\n"), exit(0) unless have_compiler();
-plan tests => 8;
+plan tests => 11;
 
 use Config;
 use Module::Build;
@@ -32,7 +32,20 @@ ok $@, '';
 eval {$m->dispatch('build')};
 ok $@, '';
 
-# We can't be verbose in the sub-test, because Test::Harness will think that the output is for the top-level test.
+{
+  # Try again in a subprocess 
+  eval {$m->dispatch('clean')};
+  ok $@, '';
+
+  $m->create_build_script;
+  ok -e 'Build';
+  
+  eval {$m->run_perl_script('Build')};
+  ok $@, '';
+}
+
+# We can't be verbose in the sub-test, because Test::Harness will
+# think that the output is for the top-level test.
 eval {$m->dispatch('test')};
 ok $@, '';
 
