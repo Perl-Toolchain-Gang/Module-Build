@@ -1648,9 +1648,15 @@ sub ACTION_docs {
   my $self = shift;
   $self->depends_on('code');
 
-  require Module::Build::ConfigData;  # Only works after the 'code' action
+  if (($self->module_name || '') eq 'Module::Build') {
+    # Need to load from blib/
+    local @INC = (File::Spec->catdir($self->blib, 'lib'), @INC);
+    require Module::Build::ConfigData;
+  } else {
+    require Module::Build::ConfigData;
+  }
+  
   if (Module::Build::ConfigData->feature('manpage_support')) {
-    
     $self->manify_bin_pods() if $self->install_destination('bindoc');
     $self->manify_lib_pods() if $self->install_destination('libdoc');
   }
