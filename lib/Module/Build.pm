@@ -261,6 +261,33 @@ whatever is appropriate.  If you're running on an unknown platform, it
 will return C<undef> - there shouldn't be many unknown platforms
 though.
 
+=head2 $m->check_installed_version($module, $version)
+
+This method returns true or false, depending on whether (at least)
+version C<$version> of module C<$module> is installed.  The C<$module>
+argument is given as a string like C<"Data::Dumper">, and the
+C<$version> argument can take any of the forms described in L<prereq>
+above.  This allows very fine-grained version checking.
+
+If the check fails, we return false and set C<$@> to an informative
+error message.
+
+If the check succeeds, the return value is the actual version of
+C<$module> installed on the system.  This allows you to do the
+following:
+
+ my $installed = $m->check_installed_version('DBI', '1.15');
+ if ($installed) {
+   print "Congratulations, version $installed of DBI is installed.\n";
+ } else {
+   die "Sorry, you must install DBI.\n";
+ }
+
+If C<$version> is any nontrue value (notably zero) and any version of
+C<$module> is installed, we return true.  In this case, if C<$module>
+doesn't define a version, or if its version is zero, we return the
+special value "0 but true", which is numerically zero, but logically
+true.
 
 =head1 ACTIONS
 

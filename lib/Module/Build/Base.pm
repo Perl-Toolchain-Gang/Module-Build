@@ -172,40 +172,52 @@ sub check_prereq {
 
   my $pass = 1;
   while (my ($modname, $spec) = each %{$self->{prereq}}) {
+    my $thispass = $self->check_installed_version($modname, $spec);
+    warn "WARNING: $@\n" unless $thispass;
+    $pass &&= $thispass;
+  }
 
-    my $file = $self->module_name_to_file($modname);
-    unless ($file) {
-      warn "WARNING: Prerequisite $modname isn't installed\n";
-      $pass = 0;
-      next;
-    }
-
-    my $version = $self->version_from_file($file);
-    if ($spec and !$version) {
-      warn "WARNING: Couldn't find a \$VERSION in prerequisite '$file'\n";
-      $pass = 0;
-      next;
-    }
-
-    my @conditions;
-    if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
-      @conditions = (">= $spec");
-    } else {
-      @conditions = split /\s*,\s*/, $self->{prereq}{$modname};
-    }
-
-    foreach (@conditions) {
-      if ($_ !~ /^\s*  (<=?|>=?|==|!=)  \s*  [\w.]+  \s*$/x) {
-	warn "WARNING: Invalid prerequisite condition for $modname: $_\n";
-	next;
-      }
-      unless (eval "\$version $_") {
-	warn "WARNING: $modname version $version is installed, but we need Version($modname) $_\n";
-	$pass = 0;
-      }
-    }
+  if (!$pass) {
+    warn "ERRORS FOUND IN PREREQUISITES.  You may wish to install the versions ".
+         "of the modules indicated above before proceeding with this installation.\n";
   }
   return $pass;
+}
+
+sub check_installed_version {
+  my ($self, $modname, $spec) = @_;
+
+  my $file = $self->module_name_to_file($modname);
+  unless ($file) {
+    $@ = "Prerequisite $modname isn't installed";
+    return 0;
+  }
+
+  my $version = $self->version_from_file($file);
+  if ($spec and !$version) {
+    $@ = "Couldn't find a \$VERSION in prerequisite '$file'";
+    return 0;
+  }
+
+  my @conditions;
+  if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
+    @conditions = (">= $spec");
+  } else {
+    @conditions = split /\s*,\s*/, $self->{prereq}{$modname};
+  }
+
+  foreach (@conditions) {
+    if ($_ !~ /^\s*  (<=?|>=?|==|!=)  \s*  [\w.]+  \s*$/x) {
+      $@ = "Invalid prerequisite condition for $modname: $_";
+      next;
+    }
+    unless (eval "\$version $_") {
+      $@ = "$modname version $version is installed, but we need version $_";
+      return 0;
+    }
+  }
+
+  return $version ? $version : '0 but true';
 }
 
 sub rm_previous_build_script {
