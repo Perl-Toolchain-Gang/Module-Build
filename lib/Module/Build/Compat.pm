@@ -71,8 +71,9 @@ There are (at least) two good ways to distribute a module that can be
 installed using either C<perl Build.PL; Build; ...> or 
 C<perl Makefile.PL; make; ...>.  For each way, you include both a
 Makefile.PL and a Build.PL script with your distribution.  The
-Makefile.PL can either be a normal ExtUtils::MakeMaker-using script,
-in which case you don't need this module.  However, you'll have to
+difference is in whether the Makefile.PL is a pass-through to
+Module::Build actions, or a normal ExtUtils::MakeMaker-using script.
+If it's the latter, you don't need this module - but you'll have to
 maintain both the Build.PL and Makefile.PL scripts, and things like
 the prerequisite lists and any other customization duplicated in the
 scripts will probably become a pain in the ass.
@@ -100,7 +101,7 @@ would have you believe.
 
 =item 2.  Include a Build.PL script and a "regular" Makefile.PL.  This
 will make things easiest for your users, but hardest for you, as you
-try to maintain two seperate installation scripts.
+try to maintain two separate installation scripts.
 
 =item 3.  Include a Build.PL script and a "pass-through" Makefile.PL
 built using Module::Build::Compat.  This will mean that people can
@@ -147,7 +148,7 @@ C<write_makefile()> accepts the following named parameters:
 
 =item * makefile
 
-The name of the file to write - defaults to C<Makefile>
+The name of the file to write - defaults to the string C<Makefile>.
 
 =back
 
@@ -161,7 +162,7 @@ going to fail until they install it.  Fortunately, if the user is
 using CPAN.pm, we can exploit its prerequisite mechanism in order to
 get Module::Build installed.  Amazingly, CPAN.pm actually reads the
 PREREQ_PM information from a comment in the generated Makefile.
-Therefore, the following Makefile.PL may be useful (make certain to
+Therefore, the following Makefile.PL may be useful (make certain you
 preserve tabs!):
 
  -------------------------------------------------------------
