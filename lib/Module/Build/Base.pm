@@ -605,7 +605,7 @@ sub read_config {
   ($self->{args}, $self->{config}, $self->{properties}) = @$ref;
   close $fh;
 
-  for ('cleanup', 'notes', 'features', 'build_params') {
+  for ('cleanup', 'notes', 'features', 'build_config') {
     next unless -e $self->config_file($_);
     $self->_persistent_hash_restore($_);
   }
