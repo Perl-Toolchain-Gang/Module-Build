@@ -10,6 +10,10 @@ Revision history for Perl extension Module::Build.
   - Now scan the 'c_source' directory for .cpp (C++) files as well as
     .c files, and compiles them.
 
+  - Module::Build::Compat now accepts any known Config.pm key and
+    passes it through to the Build.PL.  Fixes a problem with CPANPLUS,
+    which was passing INSTALLMAN1DIR.
+
   - The file 'META.yaml' has been re-named to 'META.yml' in order to
     cooperate better with systems that can only handle 3 characters
     after the dot.
