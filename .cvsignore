@@ -4,3 +4,4 @@ META.yml
 _build
 blib
 Build
+.lwpcookies

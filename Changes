@@ -14,11 +14,11 @@ Revision history for Perl extension Module::Build.
  - Support for the 'scripts' parameter (which is now 'script_files')
    was broken in 0.17, now it's fixed.  [Richard Clamp]
 
- - Don't use ExtUtils::ParseXS when the perl version is less than 5.6,
-   because it won't work.  This is actually a change in
-   ExtUtils::ParseXS, not Module::Build.  We therefore recommend
-   ExtUtils::ParseXS 2.02 (or to not install it).  [spotted by Dave
-   Rolsky]
+ - We now recommend ExtUtils::ParseXS 2.02, which will fail to load
+   with perl 5.005 or earlier (which is proper, because it doesn't
+   work with those versions).  When it fails to load, we still fall
+   back to using the xsubpp script for XS parsing. [spotted by Dave
+   Rolsky, fix suggested by Richard Clamp]
 
  - Now works on VMS - the Build script's shebang-line-equivalent
    wasn't being formed correctly there - though just about everything
