@@ -368,16 +368,17 @@ Just include a Build.PL script (without a Makefile.PL
 script), and give installation directions in a README or INSTALL
 document explaining how to install the module.  In particular, explain
 that the user must install Module::Build before installing your
-module.  I prefer this method, mainly because I believe that the woes
-and hardships of doing this are far less significant than most people
-would have you believe.  It's also the simplest method, which is nice.
-But anyone with an older version of CPAN or CPANPLUS on their system
-will probably have problems installing your module with it.
+module.  
+
+Note that if you do this, you may make things easier for yourself, but
+harder for people with older versions of CPAN or CPANPLUS on their
+system, because those tools generally only understand the
+F<Makefile.PL>/C<ExtUtils::MakeMaker> way of doing things.
 
 =item 2.
 
 Include a Build.PL script and a "traditional" Makefile.PL,
-created either manually or with create_makefile_pl().  Users won't
+created either manually or with C<create_makefile_pl()>.  Users won't
 ever have to install Module::Build if they use the Makefile.PL, but
 they won't get to take advantage of Module::Build's extra features
 either.
@@ -385,14 +386,18 @@ either.
 If you go this route, make sure you explicitly set C<PL_FILES> in the
 call to C<WriteMakefile()> (probably to an empty hash reference), or
 else MakeMaker will mistakenly run the Build.PL and you'll get an
-error message about "Too early to run Build script" or something.
+error message about "Too early to run Build script" or something.  For
+good measure, of course, test both the F<Makefile.PL> and the
+F<Build.PL> before shipping.
 
 =item 3.
 
 Include a Build.PL script and a "pass-through" Makefile.PL
 built using Module::Build::Compat.  This will mean that people can
 continue to use the "old" installation commands, and they may never
-notice that it's actually doing something else behind the scenes.
+notice that it's actually doing something else behind the scenes.  It
+will also mean that your installation process is compatible with older
+versions of tools like CPAN and CPANPLUS.
 
 =back
 
