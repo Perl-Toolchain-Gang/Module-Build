@@ -657,6 +657,13 @@ With one argument, C<notes($key)> returns the value associated with
 the given key.  With two arguments, C<notes($key, $value)> sets the
 value associated with the given key to C<$value>.
 
+=item config()
+
+Returns a hash reference containing the C<Config.pm> hash, including
+any changes the author or user has specified.  This is a reference to
+the actual internal hash we use, so you probably shouldn't modify
+stuff there.
+
 =item dispatch($action, %args)
 
 This method is also called from the auto-generated C<Build> script.
