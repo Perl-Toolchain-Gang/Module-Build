@@ -44,6 +44,44 @@ sub resume {
   return $self;
 }
 
+# XXX Problem - if Module::Build is loaded from a different directory,
+# it'll look for (and perhaps destroy/create) a _build directory.
+sub subclass {
+  my ($pack, %opts) = @_;
+
+  my $build_dir = '_build'; # XXX The _build directory is ostensibly settable by the user.  Shouldn't hard-code here.
+  $pack->delete_filetree($build_dir) if -e $build_dir;
+
+  die "Must provide 'code' or 'class' option to subclass()\n"
+    unless $opts{code} or $opts{class};
+
+  $opts{code}  ||= '';
+  $opts{class} ||= 'MyModuleBuilder';
+  
+  my $filename = File::Spec->catfile($build_dir, 'lib', split '::', $opts{class}) . '.pm';
+  my $filedir  = File::Basename::dirname($filename);
+  print "Creating custom builder $filename in $filedir\n";
+  
+  File::Path::mkpath($filedir);
+  die "Can't create directory $filedir: $!" unless -d $filedir;
+  
+  open my($fh), ">$filename" or die "Can't create $filename: $!";
+  print $fh <<EOF;
+package $opts{class};
+use Module::Build;
+\@ISA = qw(Module::Build);
+$opts{code}
+1;
+EOF
+  close $fh;
+  
+  push @INC, File::Spec->catdir($build_dir, 'lib');
+  eval "use $opts{class}";
+  die $@ if $@;
+
+  return $opts{class};
+}
+
 sub find_version {
   my ($self) = @_;
   return if exists $self->{args}{module_version};
@@ -146,9 +184,8 @@ sub read_config {
 sub write_config {
   my ($self) = @_;
   
-  $self->delete_filetree($self->{config_dir});
-  mkdir $self->{config_dir}, 0777
-    or die "Can't mkdir $self->{config_dir}: $!";
+  File::Path::mkpath($self->{config_dir});
+  -d $self->{config_dir} or die "Can't mkdir $self->{config_dir}: $!";
   
   my $file = $self->config_file('build_params');
   open my $fh, ">$file" or die "Can't create '$file': $!";
