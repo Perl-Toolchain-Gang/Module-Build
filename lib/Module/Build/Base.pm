@@ -1779,6 +1779,24 @@ sub ACTION_distcheck {
   ExtUtils::Manifest::fullcheck();
 }
 
+sub _add_to_manifest {
+  my ($self, $manifest, $lines) = @_;
+  $lines = [$lines] unless ref $lines;
+
+  my $mode = (stat $manifest)[2];
+  chmod($mode | 0222, $manifest) or die "Can't make $manifest writable: $!";
+  
+  my $fh = IO::File->new("< $manifest") or die "Can't read $manifest: $!";
+  my $has_newline = (<$fh>)[-1] =~ /\n$/;
+  $fh->close;
+
+  $fh = IO::File->new(">> $manifest") or die "Can't write to $manifest: $!";
+  print $fh "\n" unless $has_newline;
+  print $fh map "$_\n", @$lines;
+  close $fh;
+  chmod($mode, $manifest);
+}
+
 sub _sign_dir {
   my ($self, $dir) = @_;
 
@@ -1791,13 +1809,7 @@ sub _sign_dir {
   {
     my $manifest = File::Spec->catfile($dir, 'MANIFEST');
     die "Signing a distribution requires a MANIFEST file" unless -e $manifest;
-    my $mode = (stat $manifest)[2];
-    chmod($mode | 0222, $manifest) or die "Can't make $manifest writable: $!";
-    
-    my $fh = IO::File->new(">> $manifest") or die "Can't add SIGNATURE to $manifest: $!";
-    print $fh "\nSIGNATURE    Added here by Module::Build\n";
-    close $fh;
-    chmod($mode, $manifest);
+    $self->_add_to_manifest($manifest, "SIGNATURE    Added here by Module::Build");
   }
   
   # We protect the signing with an eval{} to make sure we get back to
