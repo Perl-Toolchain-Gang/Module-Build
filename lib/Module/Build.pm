@@ -1059,13 +1059,15 @@ XS, Inline, or similar code.
 
 =item script
 
-Programs written in pure Perl.  Try to make these as small as possible
-- put the code into modules whenever possible.
+Programs written in pure Perl.  In order to improve reuse, try to make
+these as small as possible - put the code into modules whenever
+possible.
 
 =item bin
 
-"Architecture-dependent" programs, i.e. compiled C code or something.
-Pretty rare to see this in a perl distribution, but it happens.
+"Architecture-dependent" executable programs, i.e. compiled C code or
+something.  Pretty rare to see this in a perl distribution, but it
+happens.
 
 =item libdoc
 
