@@ -1372,6 +1372,7 @@ sub ACTION_diff {
   
   my $installmap = $self->install_map;
   delete $installmap->{read};
+  delete $installmap->{write};
 
   my $text_suffix = qr{\.(pm|pod)$};
 
@@ -1393,10 +1394,10 @@ sub ACTION_diff {
       next if $status == 0;  # Files are the same
       die "Can't compare $installed and $file: $!" if $status == -1;
       
-      if ($file !~ /$text_suffix/) {
-	print "Binary files $file and $installed differ\n";
-      } else {
+      if ($file =~ $text_suffix) {
 	$self->do_system('diff', @flags, $installed, $file);
+      } else {
+	print "Binary files $file and $installed differ\n";
       }
     }
   }
