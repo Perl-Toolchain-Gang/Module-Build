@@ -27,6 +27,10 @@ Revision history for Perl extension Module::Build.
    declare certain command-line arguments their Build.PL can accept
    [David Wheeler]
 
+ - Added a 'testpod' action, which checks the syntactic validity of
+   all POD files in the distribution using Test::Pod. [Initial patch
+   by Mark Stosberg]
+
  - During 'distdir' and 'distmeta' actions, die a bit more gracefully
    if there's no MANIFEST (i.e. explicitly say that a MANIFEST is
    required). [Spotted by Adrian Howard]

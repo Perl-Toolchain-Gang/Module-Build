@@ -1505,6 +1505,23 @@ eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
 }
 
 
+sub ACTION_testpod {
+  my $self = shift;
+  $self->depends_on('docs');
+  
+  eval q{use Test::Pod 0.95; 1}
+    or die "The 'testpod' action requires Test::Pod version 0.95";
+
+  my @files = sort keys %{$self->_find_pods($self->libdoc_dirs)},
+		   keys %{$self->_find_pods($self->bindoc_dirs)}
+    or die "Couldn't find any POD files to test\n";
+
+  { package Module::Build::PodTester;  # Don't want to pollute the main namespace
+    Test::Pod->import( tests => scalar @files );
+    pod_file_ok($_) foreach @files;
+  }
+}
+
 sub ACTION_docs {
   my $self = shift;
   $self->depends_on('code');

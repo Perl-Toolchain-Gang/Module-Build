@@ -1276,6 +1276,12 @@ exercised during the tests.
 This is a synonym for the 'test' action with the C<debugger=1>
 argument.
 
+=item testpod
+
+This checks all the files described in the C<docs> action and 
+produces C<Test::Harness>-style output. If you are a module author,
+this is useful to run before creating a new release.
+
 =item clean
 
 This action will clean up any files that the build process may have
