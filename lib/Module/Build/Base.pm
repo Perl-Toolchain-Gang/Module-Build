@@ -269,6 +269,7 @@ sub _general_notes {
 sub notes        { shift()->_general_notes('notes', @_) }
 sub config_data { shift()->_general_notes('config_data', @_) }
 sub feature      { shift()->_general_notes('features', @_) }
+sub runtime_params { shift->_persistent_hash_read('runtime_params', @_ ? shift : ()) }
 
 sub add_build_element {
   my $self = shift;
@@ -832,7 +833,7 @@ sub read_config {
   ($self->{args}, $self->{config}, $self->{properties}) = @$ref;
   close $fh;
 
-  for ('cleanup', 'notes', 'features', 'config_data') {
+  for (qw(cleanup notes features config_data runtime_params)) {
     next unless -e $self->config_file($_);
     $self->_persistent_hash_restore($_);
   }
@@ -857,7 +858,7 @@ sub write_config {
   $self->_write_dumper('prereqs', { map { $_, $self->$_() } @items });
   $self->_write_dumper('build_params', [$self->{args}, $self->{config}, $self->{properties}]);
 
-  $self->_persistent_hash_write($_) foreach qw(notes cleanup features config_data);
+  $self->_persistent_hash_write($_) foreach qw(notes cleanup features config_data runtime_params);
 }
 
 sub config         { shift()->{config} }
@@ -1304,6 +1305,8 @@ sub merge_args {
 
   # Extract our 'properties' from $cmd_args, the rest are put in 'args'.
   while (my ($key, $val) = each %args) {
+    $self->_persistent_hash_write('runtime_params', { $key => $val })
+      if $self->valid_property($key);
     my $add_to = ( $key eq 'config' ? $self->{config}
                   : $additive{$key} ? $self->{properties}{$key}
 		  : $self->valid_property($key) ? $self->{properties}

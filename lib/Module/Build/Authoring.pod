@@ -904,17 +904,40 @@ information about the build, and to share that information among
 different entities involved in the build.  See the example in the
 C<current()> method.
 
-The C<notes()> method is essentally a glorified hash access.  With no
-arguments, C<notes()> returns a reference to the entire hash of notes.
-With one argument, C<notes($key)> returns the value associated with
-the given key.  With two arguments, C<notes($key, $value)> sets the
-value associated with the given key to C<$value>.
+The C<notes()> method is essentally a glorified hash access. With no
+arguments, C<notes()> returns the entire hash of notes. With one argument,
+C<notes($key)> returns the value associated with the given key. With two
+arguments, C<notes($key, $value)> sets the value associated with the given key
+to C<$value>.
 
 The lifetime of the C<notes> data is for "a build" - that is, the
 C<notes> hash is created when C<perl Build.PL> is run (or when the
 C<new()> method is run, if the Module::Build Perl API is being used
 instead of called from a shell), and lasts until C<perl Build.PL> is
 run again or the C<clean> action is run.
+
+=item runtime_params()
+
+=item runtime_params($key)
+
+The C<runtime_params()> method stores the values passed on the command-line
+for valid properties (that is, any command-line options for which
+C<valid_property()> returns a true value). The value on the command-line may
+override the default value for a property, as well as any value specified in a
+call to C<new()>. This allows you to programmatically tell if C<perl Build.PL>
+or any execution of C<./Build> had command-line options specified that
+override valid properties.
+
+The C<runtime_params()> method is essentally a glorified read-only hash. With
+no arguments, C<runtime_params()> returns the entire hash of properties
+specified on the command-line. With one argument, C<runtime_params($key)>
+returns the value associated with the given key.
+
+The lifetime of the C<runtime_params> data is for "a build" - that is, the
+C<runtime_params> hash is created when C<perl Build.PL> is run (or when the
+C<new()> method is called, if the Module::Build Perl API is being used instead
+of called from a shell), and lasts until C<perl Build.PL> is run again or the
+C<clean> action is run.
 
 =item os_type()
 

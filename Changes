@@ -20,6 +20,11 @@ Revision history for Perl extension Module::Build.
    user we're doing so by printing one of the "Added to MANIFEST: ..."
    lines.  [Ron Savage]
 
+ - Added a runtime_params() method, which lets a module author see
+   which parameters were overridden by the user on the command line
+   (or in whatever paradigm the user originally invoked Module::Build
+   from). [David Wheeler]
+
  - A user-specified 'install_path' setting will now take precedence
    over an 'install_base' setting.  This allows the user to use
    'install_base' to set the base for all elements in one go, and then
