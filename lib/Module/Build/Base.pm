@@ -1192,9 +1192,7 @@ sub find_xs_files  { shift->_find_file_by_type('xs',  'lib') }
 
 sub find_script_files {
   my $self = shift;
-  if (my $files = $self->{properties}{"script_files"}) {
-    $files = { map {$_, undef} @$files } if UNIVERSAL::isa($files, 'ARRAY');
-    
+  if (my $files = $self->script_files) {
     # Always given as a Unix file spec.  Values in the hash are
     # meaningless, but we preserve if present.
     return { map {$self->localize_file_path($_), $files->{$_}} keys %$files };
@@ -1642,10 +1640,16 @@ sub ppm_name {
 
 sub script_files {
   my $self = shift;
-  if (@_) {
-    $self->{properties}{script_files} = ref($_[0]) ? $_[0] : [@_];
+  
+  for ($self->{properties}{script_files}) {
+    $_ = shift if @_;
+    return unless $_;
+    
+    # Always coerce into a hash
+    return $_ if UNIVERSAL::isa($_, 'HASH');
+    return $_ = {$_ => 1} unless ref();
+    return { map {$_,1} @{$_[0]} };
   }
-  return $self->{properties}{script_files};
 }
 BEGIN { *scripts = \&script_files; }
 
