@@ -1,19 +1,16 @@
 NAME
-    Module::Build - Perl extension for blah blah blah
+    Module::Build - Build and install Perl modules
 
 SYNOPSIS
+     Standard process for building & installing modules:
+ 
        perl Build.PL
-       ./Build             # this script created by 'perl Build.PL'
+       ./Build
        ./Build test
        ./Build install
 
-     Other actions:
-
-       ./Build clean
-       ./Build realclean
-
 DESCRIPTION
-    This is a very alpha version of a new module set I've been working on,
+    This is a beta version of a new module set I've been working on,
     `Module::Build'. It is meant to be a replacement for
     `ExtUtils::MakeMaker'.
 
@@ -21,19 +18,20 @@ DESCRIPTION
     `Module::Build' for its installation process, do the following:
 
        perl Build.PL
-       ./Build
+       ./Build             # this script is created by 'perl Build.PL'
        ./Build test
        ./Build install
 
-    Other actions so far are:
+    Other actions so far include:
 
        ./Build clean
        ./Build realclean
        ./Build fakeinstall
        ./Build dist
+       ./Build help
 
-    It's very much like the `MakeMaker' metaphor, except that `Build' is a
-    Perl script, not a Makefile. State is stored in a directory called
+    It's like the `MakeMaker' metaphor, except that `Build' is a short Perl
+    script, not a long Makefile. State is stored in a directory called
     `_build/'.
 
     Any customization can be done simply by subclassing `Module::Build' and
@@ -46,12 +44,243 @@ DESCRIPTION
     time, though. In the meantime, I may implement some pass-through
     functionality so that unknown actions are passed to MakeMaker.
 
+METHODS
+    I list here some of the most important methods in the `Module::Build'.
+    As the interface is still very unstable, I must ask that for now, you
+    read the source to get more information on them. Normally you won't need
+    to deal with these methods unless you want to subclass `Module::Build'.
+    But since one of the reasons I created this module in the first place
+    was so that subclassing is possible (and easy), I will certainly write
+    more docs as the interface stabilizes.
+
+    * $m = Module::Build->new(...)
+        Creates a new Module::Build object. The `module_name' argument is
+        required, and should be a string like `'Your::Module''. The
+        `module_version' argument is optional - if not explicitly provided,
+        we'll look for the version string in the module specified by
+        `module_name', parsing it out according to the same rules as
+        `ExtUtils::MakeMaker' and `CPAN.pm'.
+
+        An optional `c_source' argument specifies a directory which contains
+        C source files that the rest of the build may depend on. Any `.c'
+        files in the directory will be compiled to object files. The
+        directory will be added to the search path during the compilation
+        and linking phases of any C or XS files.
+
+        An optional `autosplit' argument specifies a file which should be
+        run through the `Autosplit::autosplit()' function. In general I
+        don't consider this a great idea, and I may even go so far as to
+        remove this feature later. Let me know if I shouldn't.
+
+    * $m->add_to_cleanup
+        A `Module::Build' method may call `$self->add_to_cleanup(@files)' to
+        tell `Module::Build' that certain files should be removed when the
+        user performs the `Build clean' action. I decided to make this a
+        dynamic method, rather than a static list of files, because these
+        static lists can get difficult to manage. I preferred to keep the
+        responsibility for registering temporary files close to the code
+        that creates them.
+
+    * Module::Build->resume
+        You'll probably never call this method directly, it's only called
+        from the auto-generated `Build' script. The `new()' method is only
+        called once, when the user runs `perl Build.PL'. Thereafter, when
+        the user runs `Build test' or another action, the `Module::Build'
+        object is created using the `resume()' method.
+
+    * $m->dispatch
+        This method is also called from the auto-generated `Build' script.
+        It parses the command-line arguments into an action and an argument
+        list, then calls the appropriate routine to handle the action.
+        Currently (though this may change), an action `foo' will invoke the
+        `ACTION_foo' method. All arguments (including everything mentioned
+        in the ACTIONS manpage below) are contained in the `$self->{args}'
+        hash reference.
+
+    * $m->os_type
+        If you're subclassing Module::Build and some code needs to alter its
+        behavior based on the current platform, you may only need to know
+        whether you're running on Windows, Unix, MacOS, VMS, etc. and not
+        the fine-grained value of Perl's `$^O' variable. The `os_type()'
+        method will return a string like `Windows', `Unix', `MacOS', `VMS',
+        or whatever is appropriate. If you're running on an unknown
+        platform, it will return `undef' - there shouldn't be many unknown
+        platforms though.
+
+ACTIONS
+    There are some general principles at work here. First, each task when
+    building a module is called an "action". These actions are listed above;
+    they correspond to the building, testing, installing, packaging, etc.
+    tasks.
+
+    Second, arguments are processed in a very systematic way. Arguments are
+    always key=value pairs. They may be specified at `perl Build.PL' time
+    (i.e. `perl Build.PL sitelib=/my/secret/place'), in which case their
+    values last for the lifetime of the `Build' script. They may also be
+    specified when executing a particular action (i.e. `Build test
+    verbose=1', in which case their values last only for the lifetime of
+    that command. The build process also relies heavily on the `Config.pm'
+    module, and all the key=value pairs in `Config.pm' are merged into the
+    mix too. The precedence of parameters is, from highest to lowest:
+    per-action parameters, `Build.PL' parameters, and `Config.pm'
+    parameters.
+
+    The following build actions are provided by default.
+
+    * build
+        This is analogous to the MakeMaker 'make' target with no arguments.
+        By default it just creates a `blib/' directory and copies any `.pm'
+        and `.pod' files from your `lib/' directory into the `blib/'
+        directory. It also compiles any `.xs' files from `lib/' and places
+        them in `blib/'. Of course, you need a working C compiler
+        (preferably the same one that built perl itself) for this to work
+        properly.
+
+        Note that in contrast to MakeMaker, this module only (currently)
+        handles `.pm', `.pod', and `.xs' files. They must all be in the
+        `lib/' directory, in the directory structure that they should have
+        when installed.
+
+        If you run the `Build' script without any arguments, it runs the
+        `build' action.
+
+        In future releases of `Module::Build' the `build' action should be
+        able to process `.PL' files. The `.xs' support is currently in
+        alpha. Please let me know if it works for you.
+
+    * test
+        This will use `Test::Harness' to run any regression tests and report
+        their results. Tests can be defined in the standard places: a file
+        called `test.pl' in the top-level directory, or several files ending
+        with `.t' in a `t/' directory.
+
+        If you want tests to be 'verbose', i.e. show details of test
+        execution rather than just summary information, pass the argument
+        `verbose=1'.
+
+        In addition, if a file called `visual.pl' exists in the top-level
+        directory, this file will be executed as a Perl script and its
+        output will be shown to the user. This is a good place to put speed
+        tests or other tests that don't use the `Test::Harness' format for
+        output.
+
+    * clean
+        This action will clean up any files that the build process may have
+        created, including the `blib/' directory (but not including the
+        `_build/' directory and the `Build' script itself).
+
+    * realclean
+        This action is just like the `clean' action, but also removes the
+        `_build' directory and the `Build' script. If you run the
+        `realclean' action, you are essentially starting over, so you will
+        have to re-create the `Build' script again.
+
+    * install
+        This action will use `ExtUtils::Install' to install the files from
+        `blib/' into the correct system-wide module directory. The directory
+        is determined from the `sitelib' entry in the `Config.pm' module. To
+        install into a different directory, pass a different value for the
+        `sitelib' parameter, like so:
+
+         Build install sitelib=/my/secret/place/
+
+        Alternatively, you could specify the `sitelib' parameter when you
+        run the `Build.PL' script:
+
+         perl Build.PL sitelib=/my/secret/place/
+
+        Under normal circumstances, you'll need superuser privileges to
+        install into the default `sitelib' directory.
+
+    * fakeinstall
+        This is just like the `install' action, but it won't actually do
+        anything, it will just report what it *would* have done if you had
+        actually run the `install' action.
+
+    * dist
+        This action is helpful for module authors who want to package up
+        their module for distribution through a medium like CPAN. It will
+        create a tarball of the files listed in MANIFEST and compress the
+        tarball using GZIP compression.
+
+    * manifest
+        This is an action intended for use by module authors, not people
+        installing modules. It will bring the MANIFEST up to date with the
+        files currently present in the distribution. You may use a
+        MANIFEST.SKIP file to exclude certain files or directories from
+        inclusion in the MANIFEST. MANIFEST.SKIP should contain a bunch of
+        regular expressions, one per line. If a file in the distribution
+        directory matches any of the regular expressions, it won't be
+        included in the MANIFEST.
+
+        (Note to self: it would be nice to have a 'fake_manifest' action
+        that would just go through the motions of adding to MANIFEST but not
+        actually do anything. Currently ExtUtils::Manifest doesn't support
+        it, though.)
+
+    * help
+        This action will simply print out a message that is meant to help
+        you use the build process. It will show you a list of available
+        build actions too.
+
+AUTOMATION
+    One advantage of Module::Build is that since it's implemented as Perl
+    methods, you can invoke these methods directly if you want to install a
+    module non-interactively. For instance, the following Perl script will
+    invoke the entire build/install procedure:
+
+     my $m = new Module::Build (module_name => 'MyModule');
+     $m->dispatch('build');
+     $m->dispatch('test');
+     $m->dispatch('install');
+
+    If any of these steps encounters an error, it will throw a fatal
+    exception.
+
+    You can also pass arguments as part of the build process:
+
+     my $m = new Module::Build (module_name => 'MyModule');
+     $m->dispatch('build');
+     $m->dispatch('test', verbose => 1);
+     $m->dispatch('install', sitelib => '/my/secret/place/');
+
+    Building and installing modules in this way skips creating the `Build'
+    script.
+
+STRUCTURE
+    Module::Build creates a class hierarchy conducive to customization. Here
+    is the parent-child class hierarchy in classy ASCII art:
+
+       /--------------------\
+       |   Your::Parent     |  (If you subclass Module::Build)
+       \--------------------/
+                |
+                |
+       /--------------------\  (Doesn't define any functionality
+       |   Module::Build    |   of its own - just figures out what
+       \--------------------/   other modules to load.)
+                |
+                |
+       /-----------------------------------\  (Some values of $^O may
+       |   Module::Build::Platform::$^O    |   define specialized functionality.
+       \-----------------------------------/   Otherwise it's ...::Default, a
+                |                              pass-through class.)
+                |
+       /--------------------------\
+       |   Module::Build::Base    |  (Most of the functionality of 
+       \--------------------------/   Module::Build is defined here.)
+
+    Right now, if you want to subclass Module::Build you must do so by
+    including an actual .pm file somewhere in your distribution. There will
+    be much better ways to do this in the future. Can't do everything at
+    once...
+
 MOTIVATIONS
     There are several reasons I wanted to start over, and not just fix what
     I didn't like about MakeMaker:
 
     *   I don't like the core idea of MakeMaker, namely that `make' should
-        be involved in the build process, for these reasons:
+        be involved in the build process. Here are my reasons:
 
         +   When a person is installing a Perl module, what can you assume
             about their environment? Can you assume they have `make'? No,
@@ -88,6 +317,30 @@ MOTIVATIONS
         the http: manpage .
 
     Please contact me if you have any questions or ideas.
+
+TO DO
+    Need to implement a prerequisite mechanism, similar to MakeMaker's
+    `PREREQ_PM' stuff.
+
+    There will also be a subclassing mechanism that doesn't require as much
+    module infrastructure to use. Something like this:
+
+     use Module::Build subclass => <<'EOF';
+      sub ACTION_foo {
+        ... implement the 'foo' action ...
+      }
+     EOF
+
+    The current method of relying on time stamps to determine whether a
+    derived file is out of date isn't likely to scale well, since it
+    requires tracing all dependencies backward, it runs into problems on
+    NFS, and it's just generally flimsy. It would be better to use an MD5
+    signature or the like, if available. See `cons' for an example.
+
+    The current dependency-checking for .xs files is prone to errors. You
+    can make 'widowed' files by doing `Build', `perl Build.PL', and then
+    `Build realclean'. Should be easy to fix, but it's got me wondering
+    whether the dynamic declaration of dependencies is a good idea.
 
 AUTHOR
     Ken Williams, ken@forum.swarthmore.edu
