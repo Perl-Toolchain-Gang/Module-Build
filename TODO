@@ -1,12 +1,9 @@
 -------------------------- TO DO: --------------------------------
 
-* Create a mechanism for really easy data sharing between Build.PL,
-other .PL files, and test scripts.  Probably something like
-$r->notes() from mod_perl would be easy to do.  Even fancier would be
-something like Module::Build->instanc() in order to get a M::B object
-or reasonable facsimile.
-
-* Create man pages to install during 'install' action.
+* Rethink the whole approach to dependencies.  This means making
+  "requires vs. recommends vs. conflicts" orthogonal to "build-time
+  vs. run-time", recording which dependencies the user chooses to
+  fulfill at install time, and so on.  
 
 * Think about how to allow "local policy" configuration, as well as
 "local enhancements" for frequent developers or frequent installers.
@@ -21,6 +18,14 @@ file in a format useful for package managers.  Probably a subtask of
 the above packaging systems task.
 
 -------------------------- DONE: ---------------------------------
+
+* Create a mechanism for really easy data sharing between Build.PL,
+other .PL files, and test scripts.  Probably something like
+$r->notes() from mod_perl would be easy to do.  Even fancier would be
+something like Module::Build->instance() in order to get a M::B object
+or reasonable facsimile.
+
+* Create man pages to install during 'install' action.
 
 * Add a 'distsign' action that uses Module::Signature to provide
 cryptographic authentication to module distributions.
