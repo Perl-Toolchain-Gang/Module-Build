@@ -917,9 +917,9 @@ and unpack it.
 While performing the 'distdir' action, a file containing various bits
 of "metadata" will be created.  The metadata includes the module's
 name, version, dependencies, license, and the C<dynamic_config>
-flag.  This file is created as F<META.yaml> in YAML format, so you
+flag.  This file is created as F<META.yml> in YAML format, so you
 must have the C<YAML> module installed in order to create it.  You
-should also ensure that the F<META.yaml> file is listed in your
+should also ensure that the F<META.yml> file is listed in your
 F<MANIFEST> - if it's not, a warning will be issued.
 
 =item disttest
