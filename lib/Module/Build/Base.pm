@@ -155,6 +155,7 @@ sub resume {
        perl
        config_dir
        build_script
+       destdir
        debugger
        verbose
        c_source
@@ -953,7 +954,7 @@ sub install_map {
     if @{$self->{properties}{scripts}};
   
   if (length(my $destdir = $self->{properties}{destdir} || '')) {
-    s/^/$destdir/ foreach values %map;
+    $_ = File::Spec->catdir($destdir, $_) foreach values %map;
   }
   
   $map{read} = '';  # To keep ExtUtils::Install quiet
