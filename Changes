@@ -1,6 +1,24 @@
 Revision history for Perl extension Module::Build.
 
-0.19_06
+0.20
+
+ - Separated the 'build' action into two separate actions, 'code' and
+   'docs'.  This is similar to MakeMaker's separation of the 'all'
+   target into 'pure_all' and 'manifypods'.  This fixes a permissions
+   hassle in which doing 'sudo Build install' would often create local
+   doc files that needed superuser permissions to delete.
+
+ - Enhanced the 'help' action - 'Build help foo' will now show the POD
+   documentation for the 'foo' action.
+
+ - Added a notes() feature, which helps share data transparently
+   between the Build.PL and t/*.t scripts.
+
+ - The installation process will now create man(1) and man(3) pages
+   from POD in modules & scripts, and install them.  We don't build
+   man pages when there's nowhere to install them, such as on some
+   Win32 or most Mac systems.  [large patch by Steve Purkis, 5.005 fix
+   by Mathieu Arnold]
 
  - The 'distdir' action now copies files to the distribution
    directory, rather than making them hard links to the original
@@ -15,21 +33,18 @@ Revision history for Perl extension Module::Build.
    using $^X or $Config{perlpath} (neither of which are very
    reliable).
 
-0.19_05
+ - Fixed a problem with the 'install_path' parameter given to
+   'Build.PL' being lost in subsequent actions. [Reported by Mathieu
+   Arnold]
+
+ - Fixed yet another bug with installation directories, in which the
+   'install_base' parameter wasn't being respected on the command
+   line.  [Spotted by Jonathan Swartz]
 
  - Changed the way the depends_on() method works inside action
    subroutines - now each action will only run once per dispatch()
    invocation (similar to how perl's require() function works).  This
    helps avoid some difficult problems with dependency loops.
-
- - Separated the 'build' action into two separate actions, 'code' and
-   'docs'.  This is similar to MakeMaker's separation of the 'all'
-   target into 'pure_all' and 'manifypods'.  This fixes a permissions
-   hassle in which doing 'sudo Build install' would often create local
-   doc files that needed superuser permissions to delete.
-
- - Enhanced the 'help' action - 'Build help foo' will now show the POD
-   documentation for the 'foo' action.
 
  - Changed the documentation for the 'autosplit' parameter to give
    reasons why it may not be a good idea to use, but no longer
@@ -49,9 +64,6 @@ Revision history for Perl extension Module::Build.
    (i.e. 't/*.t'), and the corresponding test_files() method is now a
    read/write accessor.
 
- - The 'builddocs' action from the last beta release has been renamed
-   to 'docs'.
-
  - The location of the 'blib' directory is now a property of the Build
    object - nobody is likely to notice this change, with any luck, but
    it makes the design and code cleaner.
@@ -59,15 +71,6 @@ Revision history for Perl extension Module::Build.
  - The 'disttest' and 'distsign' methods now chdir() back to the
    directory where they started, rather than to the base_dir of the
    build.
-
-0.19_04
-
- - Fixed yet another bug with installation directories, in which the
-   'install_base' parameter wasn't being respected on the command
-   line.  [Spotted by Jonathan Swartz]
-
- - Now we don't build man pages when there's nowhere to install them,
-   such as on some Win32 or most Mac systems.
 
  - Improved comparisons of version strings containing underscore
    characters (indicating "beta" status). [Steve Purkis]
@@ -80,18 +83,8 @@ Revision history for Perl extension Module::Build.
    methods. [Dave Rolsky]
 
  - 'traditional' pass-through Makefile.PLs will now contain an
-   INSTALLDIRS parameter matching the Build.PL's.
-
-0.19_03
-
- - Added a notes() feature, which helps share data transparently
-   between the Build.PL and t/*.t scripts.
-
-0.19_02
-
- - The installation process will now create man(1) and man(3) pages
-   from POD in modules & scripts, and install them. [large patch by
-   Steve Purkis, 5.005 fix by Mathieu Arnold]
+   INSTALLDIRS parameter matching the Build.PL's 'installdirs'
+   setting.
 
  - version_from_file() now ignores $VERSION variables that are defined
    in POD or comments.  It can still be tricked by $VERSIONs in string
@@ -103,12 +96,6 @@ Revision history for Perl extension Module::Build.
 
  - The 'disttest' action will now propagate its @INC settings to its
    subprocesses.
-
-0.19_01  Sat Jul 12 10:12:52 CDT 2003
-
- - Fixed a problem with the 'install_path' parameter given to
-   'Build.PL' being lost in subsequent actions. [Reported by Mathieu
-   Arnold]
 
 0.19  Wed Jul  9 22:34:02 CDT 2003
 
