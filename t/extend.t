@@ -2,8 +2,7 @@ use strict;
 
 # Tests various ways to extend Module::Build, e.g. by subclassing.
 
-use Test; 
-BEGIN { plan tests => 45 }
+use Test::More tests => 45;
 use Module::Build;
 ok 1;
 
@@ -21,7 +20,7 @@ my $build = Module::Build->subclass
 ok $build;
 
 $build->dispatch('loop');
-ok $::x, 1;
+is $::x, 1;
 
 $build->dispatch('realclean');
 
@@ -36,9 +35,9 @@ $build->dispatch('realclean');
   # Make sure order is preserved
   $build->test_files('foo', 'bar');
   $files = $build->test_files;
-  ok @$files, 2;
-  ok $files->[0], 'foo';
-  ok $files->[1], 'bar';
+  is @$files, 2;
+  is $files->[0], 'foo';
+  is $files->[1], 'bar';
 }
 
 
@@ -51,7 +50,7 @@ $build->dispatch('realclean');
 
   $build->add_build_element('foo');
   $build->dispatch('build');
-  ok -e File::Spec->catfile($build->blib, 'lib', 'test.foo');
+  is -e File::Spec->catfile($build->blib, 'lib', 'test.foo'), 1;
 
   $build->dispatch('realclean');
 }
@@ -59,7 +58,7 @@ $build->dispatch('realclean');
 
 {
   package MBSub;
-  use Test;
+  use Test::More;
   use vars qw($VERSION @ISA);
   @ISA = qw(Module::Build);
   $VERSION = 0.01;
@@ -74,12 +73,12 @@ $build->dispatch('realclean');
   
   # Catch an exception adding an existing property.
   eval { __PACKAGE__->add_property('module_name')};
-  ok "$@", qr/Property "module_name" already exists/;
+  like "$@", qr/Property "module_name" already exists/;
 }
 
 {
   package MBSub2;
-  use Test;
+  use Test::More;
   use vars qw($VERSION @ISA);
   @ISA = qw(Module::Build);
   $VERSION = 0.01;
@@ -93,25 +92,22 @@ chdir($start_dir) or die "Can't chdir back to $start_dir: $!";
 chdir('t') or die "Can't chdir to t/: $!";
 {
   ok my $build = MBSub->new( module_name => 'ModuleBuildOne' );
-  ok $build->isa('Module::Build');
-  ok $build->isa('MBSub');
+  isa_ok $build, 'Module::Build';
+  isa_ok $build, 'MBSub';
   ok $build->valid_property('foo');
-  # Ppbbbblllltttt! Stupid Test::ok doesn't know that a code reference
-  # is a true value. Duh! Turns out it executes it and checks its return
-  # value, instead. D'oh!  -David Wheeler
-  ok !!$build->can('module_name');
+  can_ok $build, 'module_name';
   
   # Check foo property.
-  ok !!$build->can('foo');
+  can_ok $build, 'foo';
   ok ! $build->foo;
   ok $build->foo(1);
   ok $build->foo;
   
   # Check bar property.
-  ok !!$build->can('bar');
-  ok $build->bar, 'hey';
+  can_ok $build, 'bar';
+  is $build->bar, 'hey';
   ok $build->bar('you');
-  ok $build->bar, 'you';
+  is $build->bar, 'you';
   
   # Check hash property.
   ok $build = MBSub->new(
@@ -119,10 +115,10 @@ chdir('t') or die "Can't chdir to t/: $!";
 			 hash        => { foo => 'bar', bin => 'foo'}
 			);
   
-  ok !!$build->can('hash');
-  ok ref $build->hash, 'HASH';
-  ok $build->hash->{foo}, 'bar';
-  ok $build->hash->{bin}, 'foo';
+  can_ok $build, 'hash';
+  isa_ok $build->hash, 'HASH';
+  is $build->hash->{foo}, 'bar';
+  is $build->hash->{bin}, 'foo';
   
   # Check hash property passed via the command-line.
   {
@@ -135,17 +131,17 @@ chdir('t') or die "Can't chdir to t/: $!";
 			  );
   }
 
-  ok !!$build->can('hash');
-  ok ref $build->hash, 'HASH';
-  ok $build->hash->{foo}, 'bar';
-  ok $build->hash->{bin}, 'foo';
+  can_ok $build, 'hash';
+  isa_ok $build->hash, 'HASH';
+  is $build->hash->{foo}, 'bar';
+  is $build->hash->{bin}, 'foo';
   
   # Make sure that a different subclass with the same named property has a
   # different default.
   ok $build = MBSub2->new( module_name => 'ModuleBuildOne' );
-  ok $build->isa('Module::Build');
-  ok $build->isa('MBSub2');
+  isa_ok $build, 'Module::Build';
+  isa_ok $build, 'MBSub2';
   ok $build->valid_property('bar');
-  ok !!$build->can('bar');
-  ok $build->bar, 'yow';
+  can_ok $build, 'bar';
+  is $build->bar, 'yow';
 }
