@@ -91,7 +91,6 @@ sub _construct {
 				   conflicts       => {},
 				   mb_version      => Module::Build->VERSION,
 				   build_elements  => [qw( PL support pm xs pod script )],
-				   install_types   => [qw( lib arch script bindoc libdoc )],
 				   installdirs     => 'site',
 				   include_dirs    => [],
 				   %input,
@@ -321,7 +320,6 @@ EOF
        has_build_config
        build_script
        build_elements
-       install_types
        install_sets
        install_path
        install_base
@@ -2048,10 +2046,7 @@ sub install_destination {
 sub install_types {
   my $self = shift;
   my $p = $self->{properties};
-  my $sets = $p->{install_sets}{ $p->{installdirs} };
-  my %types = map {$_, 1} (@{$p->{install_types}},
-			   keys %{$p->{install_path}},
-			   keys %$sets);
+  my %types = (%{$p->{install_path}}, %{ $p->{install_sets}{$p->{installdirs}});
   return sort keys %types;
 }
 
