@@ -1,10 +1,11 @@
 use lib qw(lib);  # Use Module::Build to test & install itself
 use Module::Build;
 
-my $build = new Module::Build 
+my $build = new Module::Build
   (
    module_name => 'Module::Build',   
    prereq => {
+	      perl           => '5.6.0',
 	      Config         => 0,
 	      File::Copy     => 0,
 	      File::Find     => 0,
