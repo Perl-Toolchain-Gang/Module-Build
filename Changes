@@ -26,6 +26,10 @@ Revision history for Perl extension Module::Build.
    by checking Config::myconfig() for a match against the current
    perl.  [Reported by Edward Sabol]
 
+ - Fixed a fatal error on Win32 (and any other platform that doesn't
+   define an installation location for Unix-style man pages) during
+   installation.
+
 0.23  Sun Feb  8 22:01:18 CST 2004
 
  - Fixed a compatibility problem in pass-through Makefiles (created by
