@@ -108,10 +108,10 @@ C<ExtUtils::MakeMaker>.
 To install C<Module::Build>, and any other module that uses
 C<Module::Build> for its installation process, do the following:
 
-   perl Build.PL
-   Build             # this script is created by 'perl Build.PL'
-   Build test
-   Build install
+  perl Build.PL       # 'Build.PL' script creates the 'Build' script
+  ./Build             # Need ./ to ensure we're using this "Build" script
+  ./Build test        # and not another one that happens to be in the PATH
+  ./Build install
 
 This illustrates initial configuration and the running of three
 'actions'.  In this case the actions run are 'build' (the default
