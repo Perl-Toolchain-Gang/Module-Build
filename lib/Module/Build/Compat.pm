@@ -98,7 +98,9 @@ EOF
     $MM_Args{PREREQ_PM} = \%prereq;
     
     $MM_Args{INSTALLDIRS} = $build->installdirs eq 'core' ? 'perl' : $build->installdirs;
-
+    
+    $MM_Args{EXE_FILES} = [ sort keys %{$build->script_files} ] if $build->script_files;
+    
     $MM_Args{PL_FILES} = {};
     
     local $Data::Dumper::Terse = 1;
