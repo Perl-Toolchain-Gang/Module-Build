@@ -1,5 +1,5 @@
 use Test; 
-BEGIN { plan tests => 14 }
+BEGIN { plan tests => 16 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -23,14 +23,21 @@ my $build = new Module::Build( module_name => 'Sample', scripts => [ 'script' ],
 			       license => 'perl' );
 ok $build;
 
+# Make sure cleanup files added before create_build_script() get respected
 $build->add_to_cleanup('before_script');
 
 eval {$build->create_build_script};
 ok $@, '';
 
-ok grep $_ eq 'before_script', keys %{$build->{cleanup}};
+# The 'cleanup' file doesn't exist yet
+ok grep $_ eq 'before_script', $build->cleanup;
 
 $build->add_to_cleanup('save_out');
+
+# The 'cleanup' file now exists
+ok grep $_ eq 'before_script', $build->cleanup;
+ok grep $_ eq 'save_out',      $build->cleanup;
+
 my $output = eval {
   stdout_of( sub { $build->dispatch('test', verbose => 1) } )
 };
