@@ -25,6 +25,7 @@ sub new {
   $self->dist_name;
   $self->check_manifest;
   $self->check_prereq;
+  $self->set_autofeatures;
   $self->dist_version;
 
   return $self;
@@ -650,14 +651,38 @@ sub recommends     { shift()->{properties}{recommends} }
 sub build_requires { shift()->{properties}{build_requires} }
 sub conflicts      { shift()->{properties}{conflicts} }
 
+sub set_autofeatures {
+  my ($self) = @_;
+  my $features = delete $self->{properties}{auto_features}
+    or return;
+  
+  while (my ($name, $info) = each %$features) {
+    my $failures = $self->prereq_failures($info);
+    if ($failures) {
+      warn "Feature '$name' disabled because of the following prerequisite failures:\n";
+      foreach my $type (qw(requires build_requires conflicts recommends)) {
+	next unless $failures->{$type};
+	while (my ($module, $status) = each %{$failures->{$type}}) {
+	  warn " * $status->{message}\n";
+	}
+	warn "\n";
+      }
+    } else {
+      warn "Feature '$name' enabled.\n\n";
+      $self->feature($name => 1);
+    }
+  }
+}
+
 sub prereq_failures {
-  my $self = shift;
+  my ($self, $info) = @_;
+  $info ||= $self->{properties};
 
   my @types = qw(requires recommends build_requires conflicts);
   my $out;
 
   foreach my $type (@types) {
-    while ( my ($modname, $spec) = each %{$self->$type()} ) {
+    while ( my ($modname, $spec) = each %{$info->{$type}} ) {
       my $status = $self->check_installed_status($modname, $spec);
       
       if ($type eq 'conflicts') {
