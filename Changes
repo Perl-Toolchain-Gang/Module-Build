@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.15  Fri Jan 17 15:00:24 CST 2003
+0.16
 
  - Added experimental support for creating distribution SIGNATURE
    files via Module::Signature. [Dave Rolsky]
@@ -13,6 +13,8 @@ Revision history for Perl extension Module::Build.
 
  - Fix up the formatting of the error message the user gets when
    prereqs aren't satisfied.
+
+0.15  Fri Jan 17 15:00:24 CST 2003
 
  - In link_c(), extra object files were mistakenly being treated as
    output files, not input files, in the up-to-date check.  Fixed.
