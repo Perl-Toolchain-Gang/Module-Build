@@ -14,7 +14,7 @@ CVS
 ^t/Sample/save_out$
 ^t/Sample/SIGNATURE
 ^\.
-^Makefile$
+Makefile$
 
 ^TODO$
 ^CPANTEST
