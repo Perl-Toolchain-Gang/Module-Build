@@ -25,6 +25,10 @@ Revision history for Perl extension Module::Build.
    contents, and changed the docs so that we encourage the user to use
    the MANIFEST.SKIP.  [Ron Savage]
 
+ - Eliminated a redundant recipe from the Cookbook, now that there are
+   some more extensive recipes on how to add stuff to the
+   build/install sequences.
+
 0.2602 (Bug fix for 0.26)   Thu Nov  4 11:19:29 CST 2004
 
  - The two bug fixes in 0.2601 gnashed against each other incorrectly,

@@ -110,34 +110,6 @@ To do this, specify the C<destdir> parameter to the C<install> action:
 
 =head1 ADVANCED RECIPES
 
-=head2 Adding new elements to the build process
-
-If there's some new type of file (i.e. not a F<.pm> file, or F<.xs>
-file, or one of the other things C<Module::Build> knows how to
-process) that you'd like to handle during the building of your module,
-you can do something like the following in your F<Build.PL> file:
-
-  use Module::Build;
-  
-  my $class = Module::Build->subclass( code => <<'EOC' );
-    sub process_foo_files {
-      my $self = shift;
-      ... locate and process foo files, and create something in blib/
-    }
-  }
-  
-  my $build = $class->new( ... );
-  
-  $build->add_build_element('foo');
-
-
-This creates a custom subclass of C<Module::Build> that knows how to
-build elements of type C<foo>.  It should place the elements in a
-subdirectory of F<blib/> corresponding to items that C<Module::Build>
-knows how to install - to add new capabilities in I<that> arena, see
-L</Adding new types to the install process>.
-
-
 =head2 Changing the order of the build process
 
 The C<build_elements> property specifies the steps C<Module::Build>
@@ -220,14 +192,16 @@ files:
   $build->create_build_script;
 
 If your extra files actually need to be created on the user's machine,
-you'll probably have to override the C<build> action to do so:
+or if they need some other kind of special processing, you'll probably
+want to create a special method to do so, named
+C<process_${kind}_files()>:
 
   use Module::Build;
   my $class = Module::Build->subclass(code => <<'EOF');
-    sub ACTION_build {
+    sub process_dat_files {
       my $self = shift;
-      $self->SUPER::ACTION_build(@_);
-      ... create the .dat files here ...
+      ... locate and process *.dat files,
+      ... and create something in blib/lib/
     }
   EOF
   my $build = $class->new
@@ -239,7 +213,8 @@ you'll probably have to override the C<build> action to do so:
   $build->create_build_script;
 
 If your extra files don't go in F<lib/> but in some other place, see
-L<"Adding new elements to the install process">
+L<"Adding new elements to the install process"> for how to actually
+get them installed.
 
 Please note that these examples use some capabilities of Module::Build
 that first appeared in version 0.26.  Before that it could certainly
@@ -279,6 +254,10 @@ The user may also specify the path on the command line:
 The important part, though, is that I<somehow> the install path needs
 to be set, or else nothing in the F<blib/conf/> directory will get
 installed.
+
+See also L<"Adding new file types to the build process"> for how to
+create the stuff in F<blib/conf/> in the first place.
+
 
 =head1 AUTHOR
 
