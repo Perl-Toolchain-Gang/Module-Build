@@ -191,6 +191,7 @@ sub resume {
        verbose
        c_source
        autosplit
+       create_makefile_pl
       );
 
   sub valid_property { exists $valid_properties{$_[1]} }
