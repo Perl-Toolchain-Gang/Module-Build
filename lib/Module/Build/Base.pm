@@ -1149,6 +1149,7 @@ sub ACTION_distsign {
     return;
   }
   
+  $self->depends_on('distmeta');
   Module::Signature::sign();
 }
 
@@ -1172,8 +1173,7 @@ sub ACTION_distclean {
 sub ACTION_distdir {
   my ($self) = @_;
 
-  my $metafile = 'META.yml';
-  $self->write_metadata($metafile);
+  $self->depends_on('distmeta');
 
   my $dist_dir = $self->dist_dir;
 
@@ -1188,7 +1188,7 @@ sub ACTION_distdir {
   my $dist_files = ExtUtils::Manifest::maniread('MANIFEST');
   $self->delete_filetree($dist_dir);
   ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'best');
-  warn "*** Did you forget to add $metafile to the MANIFEST?\n" unless exists $dist_files->{$metafile};
+  warn "*** Did you forget to add $self->{metafile} to the MANIFEST?\n" unless exists $dist_files->{$self->{metafile}};
 }
 
 sub ACTION_disttest {
@@ -1232,10 +1232,13 @@ sub valid_licenses {
   return { map {$_, 1} qw(perl gpl artistic lgpl bsd open_source unrestricted restrictive unknown) };
 }
 
-sub write_metadata {
-  my ($self, $file) = @_;
+sub ACTION_distmeta {
+  my ($self) = @_;
+  return if $self->{wrote_metadata};
+  
   my $p = $self->{properties};
-
+  $self->{metafile} = 'META.yml';
+  
   unless ($p->{license}) {
     warn "No license specified, setting license = 'unknown'\n";
     $p->{license} = 'unknown';
@@ -1263,14 +1266,15 @@ sub write_metadata {
   
   $node->{provides} = $self->find_dist_packages
     or do {
-      warn "Module::Info was not available, no 'provides' will be created in $file";
+      warn "Module::Info was not available, no 'provides' will be created in $self->{metafile}";
       delete $node->{provides};
     };
 
   $node->{generated_by} = "Module::Build version " . Module::Build->VERSION;
 
-  return YAML::StoreFile($file, $node ) if $YAML::VERSION le '0.30';
-  return YAML::DumpFile( $file, $node );
+  # YAML API changed after version 0.30
+  my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
+  return $self->{wrote_metadata} = $yaml_sub->($self->{metafile}, $node );
 }
 
 sub find_dist_packages {
