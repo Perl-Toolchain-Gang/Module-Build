@@ -1,0 +1,6 @@
+Revision history for Perl extension Module::Build.
+
+0.01  Sun Aug  5 01:23:10 2001
+	- original version; created by h2xs 1.1.1.4 with options
+		-XA -n Module::Build
+
