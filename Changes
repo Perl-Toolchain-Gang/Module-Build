@@ -6,6 +6,10 @@ Revision history for Perl extension Module::Build.
    is not set.  This eliminates a couple uninitialized-value
    warnings. [Suggested by Michael Schwern]
 
+ - The expand_test_dir() method will now skip dotfiles (like ._foo.t,
+   which sometimes gets automatically created on Mac systems) when
+   'recursive_test_files' is in effect. [Tom Insam]
+
 0.2603 (Bug fix for 0.26)   Mon Nov 15 10:28:00 CST 2004
 
  - Added documentation for the new_from_context() method.
