@@ -16,6 +16,7 @@ CVS
 ^t/Sample/SIGNATURE
 ^\.
 Makefile$
+/cover_db/
 
 ^TODO$
 ^CPANTEST

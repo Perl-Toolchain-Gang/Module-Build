@@ -45,6 +45,7 @@ t/Sample/lib/Sample/Script.PL
 t/Sample/MANIFEST
 t/Sample/META.yml
 t/Sample/script
+t/Sample/test.foo
 t/Sample/test.pl
 t/signature.t
 t/versions.t
