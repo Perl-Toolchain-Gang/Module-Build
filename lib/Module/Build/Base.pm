@@ -430,16 +430,7 @@ sub dist_version {
   return $p->{dist_version} = $self->version_from_file($version_from);
 }
 
-sub dist_author {
-  my $self = shift;
-  my $p = $self->{properties};
-  
-  $self->_pod_parse('author');
-  $p->{dist_author} = [ $p->{dist_author} ] unless ref $p->{dist_author};
-
-  return $p->{dist_author};
-}
-
+sub dist_author   { shift->_pod_parse('author')   }
 sub dist_abstract { shift->_pod_parse('abstract') }
 
 sub _pod_parse {

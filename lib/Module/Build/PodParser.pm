@@ -66,8 +66,6 @@ sub get_author {
   
   $self->parse_from_filehandle($self->{fh});
 
-  $self->{author} = $self->{author}[0] if @{$self->{author}} <= 1;
-
   return $self->{author};  
 }
 
