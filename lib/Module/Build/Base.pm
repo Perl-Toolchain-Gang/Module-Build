@@ -239,9 +239,9 @@ sub features     { shift()->_general_notes('features', @_) }
 
 sub ACTION_config_notes {
   my $self = shift;
-  my $notes = $self->config_notes;
-  return unless %$notes;
+  return unless $self->has_config_notes;
   
+  die "The config_notes feature requires that 'module_name' be set" unless $self->module_name;
   my $notes_name = $self->module_name . '::ConfigNotes';
   my $notes_pm = File::Spec->catfile($self->blib, 'lib', split /::/, "$notes_name.pm");
 
@@ -263,7 +263,7 @@ __DATA__
 EOF
 
   local $Data::Dumper::Terse = 1;
-  print $fh Data::Dumper::Dumper([$notes, scalar $self->features]);
+  print $fh Data::Dumper::Dumper([scalar $self->config_notes, scalar $self->features]);
 }
 
 {
@@ -1139,7 +1139,7 @@ sub ACTION_build {
   my $self = shift;
   $self->depends_on('code');
   $self->depends_on('docs');
-  $self->depends_on('config_notes') if $self->has_config_notes;
+  $self->depends_on('config_notes');
 }
 
 sub process_support_files {
