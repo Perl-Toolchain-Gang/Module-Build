@@ -1901,7 +1901,8 @@ sub ACTION_distdir {
   $self->do_create_makefile_pl if $self->create_makefile_pl;
   $self->do_create_readme if $self->create_readme;
   
-  my $dist_files = $self->_read_manifest('MANIFEST');
+  my $dist_files = $self->_read_manifest('MANIFEST')
+    or die "Can't create distdir without a MANIFEST file - run 'manifest' action first";
   delete $dist_files->{SIGNATURE};  # Don't copy, create a fresh one
   die "No files found in MANIFEST - try running 'manifest' action?\n"
     unless ($dist_files and keys %$dist_files);
@@ -2115,10 +2116,13 @@ sub find_dist_packages {
   # Only include things in the MANIFEST, not things in developer's
   # private stock.
 
+  my $manifest = $self->_read_manifest('MANIFEST')
+    or die "Can't find dist packages without a MANIFEST file - run 'manifest' action first";
+
   # Localize
   my %dist_files = (map
 		    {$self->localize_file_path($_) => $_}
-		    keys %{ $self->_read_manifest('MANIFEST') });
+		    keys %$manifest);
 
   my @pm_files = grep {exists $dist_files{$_}} keys %{ $self->find_pm_files };
   
