@@ -60,7 +60,7 @@ sub dispatch {
 
 sub ACTION_realclean {
   my $self = shift;
-  chmod 666, $self->{properties}{build_script};
+  chmod 0666, $self->{properties}{build_script};
   $self->SUPER::ACTION_realclean;
 }
 
