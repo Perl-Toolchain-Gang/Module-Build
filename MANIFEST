@@ -2,7 +2,7 @@ Build.PL
 Changes
 INSTALL
 MANIFEST
-META.yaml
+META.yml
 Makefile.PL
 README
 lib/Module/Build.pm
