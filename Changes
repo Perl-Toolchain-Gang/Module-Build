@@ -11,6 +11,10 @@ Revision history for Perl extension Module::Build.
 
  - Added docs for run_perl_script().
 
+ - The simple get/set accessor methods for all the 'parameters' like
+   verbose(), license(), etc. now have auto-generated documentation in
+   Module/Build.pm.
+
 0.2601
 
  - Fixed some backslash problems with split_like_shell() on
