@@ -24,3 +24,4 @@ Makefile$
 \.yaml$
 ^t/save_out$
 (^|/)\.#
+^website
