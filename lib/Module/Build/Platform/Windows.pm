@@ -113,7 +113,7 @@ sub need_prelink_c { 1 }
 
 sub link_c {
   my ($self, $to, $file_base) = @_;
-  my $cf = $self->{config};
+  my ($cf, $p) = ($self->{config}, $self->{properties});
 
   my $mylib = File::Spec->catfile(
     $to, File::Basename::basename("$file_base.$cf->{dlext}") );
@@ -122,7 +122,7 @@ sub link_c {
     srcdir        => File::Basename::dirname($file_base),
     builddir      => $to,
     startup       => [ ],
-    objects       => [ "$file_base$cf->{obj_ext}", @{$self->{objects} || []} ],
+    objects       => [ "$file_base$cf->{obj_ext}", @{$p->{objects} || []} ],
     libs          => [ ],
     output        => $mylib,
     ld            => $cf->{ld},
