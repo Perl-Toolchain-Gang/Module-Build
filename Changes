@@ -9,7 +9,8 @@ Revision history for Perl extension Module::Build.
    'codebase' parameters to new(), and for the 'ppd' action. [Dave
    Rolsky]
 
- - Added documentation for the up_to_date() method. [Dave Rolsky]
+ - Added documentation for the up_to_date() and contains_pod()
+   methods. [Dave Rolsky]
 
 0.19_03
 
