@@ -438,6 +438,7 @@ sub check_installed_status {
       my ($op, $version) = ($1, $2);
       $_ = "$op " . $self->perl_version_to_float($version);
     }
+    next if $_ eq '>= 0';  # Module doesn't have to actually define a $VERSION
     unless (eval "\$status{have} $_") {
       $status{message} = "Version $status{have} is installed, but we need version $_";
       return \%status;
