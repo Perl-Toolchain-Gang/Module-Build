@@ -29,9 +29,9 @@ Revision history for Perl extension Module::Build.
    declare certain command-line arguments their Build.PL can accept
    [David Wheeler]
 
- - Changed the split_like_shell() method to just call the shellwords()
-   function from Text::ParseWords (a core module since 5.0), which does
-   a much better job than we were doing.
+ - Changed the split_like_shell() method to use the shellwords()
+   function from Text::ParseWords (a core module since 5.0), which
+   does a much better job than the split() we were using.
 
  - Added a 'testpod' action, which checks the syntactic validity of
    all POD files in the distribution using Test::Pod.  This eliminates
