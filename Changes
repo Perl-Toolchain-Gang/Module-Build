@@ -1,6 +1,15 @@
 Revision history for Perl extension Module::Build.
 
+
+(pending checkins)
+
 0.27_01 (Beta for 0.28)
+
+ - The creation of Unix man pages is no longer a strict necessity - it
+   has now been turned into an 'auto-feature' contingent on the
+   presence of Pod::Man, and when distributions are being built we
+   skip building man pages when there's no location specified for them
+   to go.
 
  - When copying files in the 'distdir' action, set permissions to match
    the original files. [Julian Mehnle]
@@ -28,6 +37,8 @@ Revision history for Perl extension Module::Build.
  - Eliminated a redundant recipe from the Cookbook, now that there are
    some more extensive recipes on how to add stuff to the
    build/install sequences.
+
+ - Eliminated an undefined-variable warning when testing under perl 5.005
 
  - Have script_files default to everything in bin.  I believe this is
    the least surprising behavior. [Suggested by Michael Schwern]
