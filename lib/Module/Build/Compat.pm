@@ -4,11 +4,12 @@ $VERSION = '0.02';
 
 use strict;
 use File::Spec;
+use Config;
 
 my %makefile_to_build = 
   (
    PREFIX  => 'prefix',
-   LIB     => 'lib'
+   LIB     => 'lib',
   );
 
 sub makefile_to_build_args {
@@ -16,8 +17,13 @@ sub makefile_to_build_args {
   my @out;
   foreach my $arg (@_) {
     my ($key, $val) = $arg =~ /^(\w+)=(.+)/ or die "Malformed argument '$arg'";
-    die "Unknown key '$key'" unless exists $makefile_to_build{$key};
-    push @out, $makefile_to_build{$key} => $val;
+    if (exists $Config{lc($key)}) {
+      push @out, lc($key) . "=$val";
+    } elsif (exists $makefile_to_build{$key}) {
+      push @out, "$makefile_to_build{$key}=$val";
+    } else {
+      die "Unknown parameter '$key'";
+    }
   }
   return @out;
 }
@@ -26,6 +32,7 @@ sub run_build_pl {
   my ($pack, %in) = @_;
   $in{script} ||= 'Build.PL';
   my @args = $in{args} ? $pack->makefile_to_build_args(@{$in{args}}) : ();
+  print "$^X $in{script} @args\n";
   system($^X, $in{script}, @args) == 0 or die "Couldn't run $in{script}: $!";
 }
 
