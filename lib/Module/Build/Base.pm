@@ -367,6 +367,7 @@ EOF
        include_dirs
        bindoc_dirs
        libdoc_dirs
+       get_options
       );
 
   sub valid_property { exists $valid_properties{$_[1]} }
@@ -930,6 +931,45 @@ sub _call_action {
   return $self->$method();
 }
 
+sub cull_options {
+    my $self = shift;
+    my $specs = $self->get_options or return ({}, @_);
+    require Getopt::Long;
+    # XXX Should we let Getopt::Long handle M::B's options? That would
+    # be easy-ish to add to @specs right here, but wouldn't handle options
+    # passed without "--" as M::B currently allows. We might be able to
+    # get around this by setting the "prefix_pattern" Configure option.
+    my @specs;
+    my $args = {};
+    # Construct the specifications for GetOptions.
+    while (my ($k, $v) = each %$specs) {
+        # Throw an error if specs conflict with our own.
+        die "Option specification '$k' conflicts with a " . ref $self
+          . " option of the same name"
+          if $self->valid_property($k);
+        # XXX Are there other options we should check? Contents of
+        # %additive elsewhere in this package?
+        push @specs, $k . (defined $v->{type} ? $v->{type} : '');
+        push @specs, $v->{store} if exists $v->{store};
+        $args->{$k} = $v->{default} if exists $v->{default};
+    }
+
+    # Get the options values and return them.
+    # XXX Add option to allow users to set options?
+    Getopt::Long::Configure('pass_through');
+    local @ARGV = @_; # No other way to dupe Getopt::Long
+    Getopt::Long::GetOptions($args, @specs);
+    return $args, @ARGV;
+}
+
+sub args {
+    my $self = shift;
+    return wantarray ? %{ $self->{args} } : $self->{args} unless @_;
+    my $key = shift;
+    $self->{args}{$key} = shift if @_;
+    return $self->{args}{$key};
+}
+
 sub _read_arg {
   my ($self, $args, $key, $val) = @_;
 
@@ -943,7 +983,10 @@ sub _read_arg {
 
 sub read_args {
   my $self = shift;
-  my ($action, %args, @argv);
+  my ($action, @argv);
+  (my $args, @_) = $self->cull_options(@_);
+  my %args = %$args;
+
   while (@_) {
     local $_ = shift;
     if ( /^(\w+)=(.*)/ ) {

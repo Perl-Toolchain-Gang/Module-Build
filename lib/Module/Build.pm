@@ -615,7 +615,88 @@ it gets the distribution's version.  It looks for the first line
 matching C<$package\s-\s(.+)>, and uses the captured text as the
 abstract.
 
+=item get_options
+
+You can pass arbitrary options to F<Build.PL> or F<Build>, and they will be
+stored in the Module::Build object and can be accessed via the C<args()>
+method. However, sometimes you want more flexibility out of your argument
+processing than this allows. In such cases, use the C<get_options> parameter
+to pass in a hash reference of argument specifications, and the list of
+arguments to F<Build.PL> or F<Build> will be processed according to those
+specifications before they're passed on to C<Module::Build>'s own argument
+processing.
+
+The supported option specification hash keys are:
+
+=over 4
+
+=item type
+
+The type of option. The types are those supported by Getopt::Long; consult
+its documentation for a complete list. Typical types are C<=s> for strings,
+C<+> for additive options, and C<!> for negatable options.
+
+=item store
+
+A reference to a scalar in which to store the value passed to the option.
+If not specified, the value will be stored under the option name in the
+hash returned by the C<args()> method.
+
+=item default
+
+A default value for the option. If no default value is specified and no option
+is passed, then the option key will not exist in the hash returned by
+C<args()>.
+
 =back
+
+You can combine references to your own variables or subroutines with
+unreferenced specifications, for which the result will also be stored in the
+has returned by C<args()>. For example:
+
+ my $loud = 0;
+ my $build = Module::Build->new(
+     module_name => 'Spangly',
+     get_options => {
+                      loud =>     { store => \$loud },
+                      dbd  =>     { type  => '=s'   },
+                      quantity => { type  => '+'    },
+                    }
+ );
+
+ print STDERR "HEY, ARE YOU LISTENING??\n" if $loud;
+ print "We'll use the ", $build->args('dbd'), " DBI driver\n";
+ print "Are you sure you want that many?\n"
+   if $build->args('quantity') > 2;
+
+The arguments for such a specification can be called like so:
+
+ % perl Build.PL --loud --dbd=DBD::pg --quantity --quantity --quantity
+
+B<WARNING:> Any option specifications that conflict with Module::Build's own
+options (defined by its properties) will throw an exception.
+
+Consult the Getopt::Long documentation for details on its usage.
+
+=back
+
+=item args()
+
+  my $args_href = $build->args;
+  my %args = $build->args;
+  my $arg_value = $build->args($key);
+  $build->args($key, $value);
+
+This method is the preferred interface for retreiving the arguments passed via
+command-line options to F<Build.PL> or F<Build>, minus the Module-Build
+specific options.
+
+When called in in a scalar context with no arguments, this method returns a
+reference to the hash storing all of the arguments; in an array context, it
+returns the hash itself. When passed a single argument, it returns the value
+stored in the args hash for that option key. When called with two arguments,
+the second argument is assigned to the args hash under the key passed as the
+first argument.
 
 =item subclass()
 
