@@ -2,6 +2,13 @@ Revision history for Perl extension Module::Build.
 
 0.19
 
+ - During 'Build dist', we no longer have to load each .pm file (via
+   Module::Info) to determine the $VERSION numbers inside.  Instead,
+   we call our internal version_from_file() method, which is the same
+   thing MakeMaker and PAUSE and search.cpan.org do.  Also fixes a
+   failure when Module::Info is installed in a nonstandard directory.
+   [reported by Teun Burgers]
+
  - Fixed some failing test code on Windows - open files can't be
    deleted. [Andrew Savage]
 
