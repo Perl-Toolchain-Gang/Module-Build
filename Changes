@@ -10,6 +10,9 @@ Revision history for Perl extension Module::Build.
    method (above) to skip package-declaration-lookalikes in POD or
    comments.
 
+ - The 'disttest' action will now propagate its @INC settings to its
+   subprocesses.
+
 0.19_01  Sat Jul 12 10:12:52 CDT 2003
 
  - Fixed a problem with the 'install_path' parameter given to
