@@ -156,8 +156,6 @@ sub fake_makefile {
     warn "Unknown 'build_class', defaulting to 'Module::Build'\n";
     $args{build_class} = 'Module::Build';
   }
-  eval "use $args{build_class}";
-  die $@ if $@;
 
   my $perl = $args{build_class}->find_perl_interpreter;
   my $os_type = $args{build_class}->os_type;
