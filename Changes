@@ -26,6 +26,9 @@ Revision history for Perl extension Module::Build.
  - When creating the names of the 'libdoc' manual pages, we no longer
    assume that pods are under 'blib/lib' or 'blib/arch'.
 
+ - Fixed a crashing bug that could sometimes occur when the
+   distribution contained no 'lib' directory. [Chris Dolan]
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
