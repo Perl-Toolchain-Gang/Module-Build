@@ -22,6 +22,10 @@ Revision history for Perl extension Module::Build.
    output even when the Foo.c file wasn't being rebuilt.  It's now
    fixed.
 
+ - On some systems, the way we updated the timestamp on the
+   "lib/Foo.bs" file (one of the output files for XS-based modules)
+   was failing.  It's been replaced by a simple call to utime().
+
  - Fixed a problem in t/compat.t that prevented it from being run
    individually using 'make test TEST_FILES=t/compat.t'.  The problem
    was that a couple environment variables (TEST_FILES, MAKEFLAGS)

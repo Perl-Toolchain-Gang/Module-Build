@@ -2388,7 +2388,8 @@ sub process_xs {
     require ExtUtils::Mkbootstrap;
     print "ExtUtils::Mkbootstrap::Mkbootstrap('$file_base')\n";
     ExtUtils::Mkbootstrap::Mkbootstrap($file_base);  # Original had $BSLOADLIBS - what's that?
-    {my $fh = IO::File->new(">> $file_base.bs")}  # touch
+    my $now = time;
+    utime($now, $now, "$file_base.bs");  # touch
   }
   $self->copy_if_modified("$file_base.bs", $archdir, 1);
   
