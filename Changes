@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.18
 
+ - We now rewrite the shebang lines of scripts ourselves, rather than
+   relying on MakeMaker routines to do it.  MakeMaker changed the way
+   this happened (not the result, but where the code lived) a few
+   times.  [Suggested by Richard Clamp]
+
  - The scripts() method has changed to script_files(), and likewise
    the 'scripts' parameter has changed to 'script_files'.  The old
    names can still be used for backward compatibility.
