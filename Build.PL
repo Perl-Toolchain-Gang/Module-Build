@@ -36,6 +36,7 @@ my $build = new Module::Build
    build_requires => {
 		      Test => 0,
 		     },
+   sign => 1,
   );
 
 $build->create_build_script;

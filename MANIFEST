@@ -5,6 +5,7 @@ MANIFEST
 META.yml
 Makefile.PL
 README
+SIGNATURE
 lib/Module/Build.pm
 lib/Module/Build/Base.pm
 lib/Module/Build/Compat.pm
