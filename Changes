@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.27_01 (Beta for 0.28)
+0.27_01 (Beta for 0.28) 
 
  - When copying files in the 'distdir' action, set permissions to match
    the original files. [Julian Mehnle]
