@@ -792,7 +792,10 @@ sub write_metadata {
   my ($self, $file) = @_;
   my $p = $self->{properties};
 
-  $p->{license} ||= 'unknown';
+  unless ($p->{license}) {
+    warn "No license specified, setting license = 'unknown'\n";
+    $p->{license} = 'unknown';
+  }
   unless (grep {$p->{license} eq $_} qw(perl gpl restrictive artistic unknown)) {
     die "Unknown license type '$p->{license}";
   }
