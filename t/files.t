@@ -10,6 +10,7 @@ ok(1);
 
 
 my $m = Module::Build->current;
+my @files;
 
 {
   # Make sure copy_if_modified() can handle spaces in filenames
@@ -18,6 +19,7 @@ my $m = Module::Build->current;
   foreach (1..2) {
     my $tmp = File::Spec->catdir('t', "tmp$_");
     $m->add_to_cleanup($tmp);
+    push @files, $tmp;
     unless (-d $tmp) {
       mkdir($tmp, 0777) or die "Can't create $tmp: $!";
     }
@@ -39,4 +41,4 @@ my $m = Module::Build->current;
   ok -e $file2, 1;
 }
 
-$m->dispatch('realclean');
+$m->delete_filetree(@files);
