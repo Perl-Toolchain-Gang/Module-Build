@@ -3,3 +3,4 @@ Build.PL
 META.yml
 MANIFEST
 test.pl
+script

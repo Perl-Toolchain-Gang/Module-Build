@@ -1,5 +1,5 @@
 use Test;
-BEGIN { plan tests => 11 }
+BEGIN { plan tests => 13 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -19,7 +19,8 @@ File::Spec->catdir( Module::Build->cwd, 'blib', 'lib' );
 my $goto = File::Spec->catdir( Module::Build->cwd, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
 
-my $build = new Module::Build( module_name => 'Sample', license => 'perl' );
+my $build = new Module::Build( module_name => 'Sample', scripts => [ 'script' ],
+			       license => 'perl' );
 ok $build;
 
 eval {$build->create_build_script};
@@ -77,6 +78,15 @@ if (0 && $HAVE_SIGNATURE) {
 } else {
   # skip "skip Module::Signature is not installed", 1 for 1..2;
 }
+
+my $blib_script = File::Spec->catdir( qw( blib script script ) );
+ok -e $blib_script; 
+
+my $fh = IO::File->new($blib_script);
+my $first_line = <$fh>;
+print "# rewritten shebang?\n$first_line";
+
+ok $first_line ne "#!perl -w\n";
 
 eval {$build->dispatch('realclean')};
 ok $@, '';
