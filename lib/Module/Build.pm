@@ -543,7 +543,7 @@ by C<ExtUtils::MakeMaker>.  This method also creates some temporary
 data in a directory called C<_build/>.  Both of these will be removed
 when the C<realclean> action is performed.
 
-=item add_to_cleanup()
+=item add_to_cleanup(@files)
 
 You may call C<< $self->add_to_cleanup(@files) >>
 to tell C<Module::Build> that certain files should be removed when the
@@ -561,7 +561,7 @@ called once, when the user runs C<perl Build.PL>.  Thereafter, when
 the user runs C<Build test> or another action, the C<Module::Build>
 object is created using the C<resume()> method.
 
-=item dispatch()
+=item dispatch($action, %args)
 
 This method is also called from the auto-generated C<Build> script.
 It parses the command-line arguments into an action and an argument
@@ -689,7 +689,7 @@ In general you might prefer to use C<check_installed_status> if you
 need detailed information, or this method if you just need a yes/no
 answer.
 
-=item prompt()
+=item prompt($message, $default)
 
 Asks the user a question and returns their response as a string.  The
 first argument specifies the message to display to the user (for
@@ -704,7 +704,7 @@ letting the user provide an answer.
 
 This method may be called as a class or object method.
 
-=item y_n()
+=item y_n($message, $default)
 
 Asks the user a yes/no question using C<prompt()> and returns true or
 false accordingly.  The user will be asked the question repeatedly
@@ -733,7 +733,7 @@ same thing as C<script_files()>.  C<scripts()> is deprecated, but it
 will stay around for several versions to give people time to
 transition.
 
-=item copy_if_modified()
+=item copy_if_modified(%parameters)
 
 Takes the file in the C<from> parameter and copies it to the file in
 the C<to> parameter, or the directory in the C<to_dir> parameter, if
