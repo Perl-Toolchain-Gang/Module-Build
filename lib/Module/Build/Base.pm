@@ -1124,7 +1124,6 @@ sub ACTION_ppd {
 sub ACTION_dist {
   my ($self) = @_;
   
-  $self->depends_on('distsign') if $self->{properties}{sign};
   $self->depends_on('distdir');
   
   my $dist_dir = $self->dist_dir;
@@ -1148,9 +1147,15 @@ sub ACTION_distsign {
     warn "Couldn't load Module::Signature for 'distsign' action:\n $@\n";
     return;
   }
+
+  # We protect the signing with an eval{} to make sure we get back to
+  # the right directory after a signature failure.
   
-  $self->depends_on('distmeta');
-  Module::Signature::sign();
+  chdir $self->dist_dir or die "Can't chdir() to " . $self->dist_dir . ": $!";
+  eval {Module::Signature::sign()};
+  my @err = $@ ? ($@) : ();
+  chdir $self->base_dir or push @err, "Can't chdir() back to " . $self->base_dir . ": $!";
+  die join "\n", @err if @err;
 }
 
 
@@ -1187,8 +1192,11 @@ sub ACTION_distdir {
   
   my $dist_files = ExtUtils::Manifest::maniread('MANIFEST');
   $self->delete_filetree($dist_dir);
+  $self->add_to_cleanup($dist_dir);
   ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'best');
   warn "*** Did you forget to add $self->{metafile} to the MANIFEST?\n" unless exists $dist_files->{$self->{metafile}};
+  
+  $self->depends_on('distsign') if $self->{properties}{sign};
 }
 
 sub ACTION_disttest {
