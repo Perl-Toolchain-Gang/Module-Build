@@ -12,6 +12,9 @@ Revision history for Perl extension Module::Build.
  - Added documentation for the up_to_date() and contains_pod()
    methods. [Dave Rolsky]
 
+ - 'traditional' pass-through Makefile.PLs will now contain an
+   INSTALLDIRS parameter matching the Build.PL's.
+
 0.19_03
 
  - Added a notes() feature, which helps share data transparently
