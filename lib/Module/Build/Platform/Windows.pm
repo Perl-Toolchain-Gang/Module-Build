@@ -55,7 +55,6 @@ sub compiler_type {
 	  : 'GCC');
 }
 
-
 sub compile_c {
   my ($self, $file) = @_;
   my $cf = $self->{config};
@@ -170,6 +169,7 @@ sub link_c {
     $self->do_system( @$cmd );
   }
 
+  return $spec{output};
 }
 
 # canonize & quote paths
