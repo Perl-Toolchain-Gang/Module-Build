@@ -7,6 +7,13 @@ Revision history for Perl extension Module::Build.
    installation failed. [Reported by Ilya Zakharevich and Richard
    Clamp]
 
+ - Moved the documentation for 'codebase' to the section where it's
+   relevant. [Randy Sims, Glenn Linderman]
+
+ - Made the 'name', 'abstract', 'author', and 'version' properties
+   required when building a PPD file. [Spotted by Randy Sims, Dave
+   Rolsky, & Glenn Linderman]
+
 0.21_01  Wed Dec 17 07:51:49 CST 2003
 
 (A snapshot just because it's been so long since anything has been released)
