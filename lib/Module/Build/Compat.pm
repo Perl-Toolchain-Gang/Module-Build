@@ -19,7 +19,7 @@ my %makefile_to_build =
    INSTALLDIRS => sub {local $_ = shift; 'installdirs=' . (/^perl$/ ? 'core' : $_) },
    PREFIX => sub {die "Sorry, PREFIX is not supported.  See the Module::Build\n".
 		      "documentation for 'destdir' or 'install_base' instead.\n"},
-   LIB => sub { ('--install_path', 'lib='.shift()) }
+   LIB => sub { ('--install_path', 'lib='.shift()) },
   );
 
 # I sort of wonder whether we can use the same hash from above here.
@@ -28,6 +28,7 @@ my %known_make_macros =
    TEST_VERBOSE => 'verbose',
    VERBINST     => 'verbose',
    UNINST       => 'uninst',
+   TEST_FILES   => sub { map {('test_files', $_)} Module::Build->split_like_shell(shift) },
   );
 
 
