@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.22_01
 
+ - We now only attempt to fix the shebang line on a script if the
+   shebang line matches the regex /perl/i .  This fixes some instances
+   where people put shell scripts in their distributions. [Jaap
+   Karssenberg]
+
  - We no longer generate a 'requires', 'recommends', 'conflicts',
    etc. entry in the META.yml file if there's no data to go in it.
 
