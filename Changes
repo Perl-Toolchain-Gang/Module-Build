@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.17
+0.17  Sat Mar 29 18:06:01 CST 2003
 
  - Now works under perl 5.005_03.  [Richard Cramp]
 
