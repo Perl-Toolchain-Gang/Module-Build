@@ -1,6 +1,6 @@
 
 package Module::Build::Compat;
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 use strict;
 use File::Spec;
@@ -39,6 +39,7 @@ realclean :
 	rm -f $(THISFILE)
 .DEFAULT :
 	./Build $@
+.PHONY   : install
 EOF
 }
 
@@ -82,7 +83,7 @@ Module::Build::Compat - Compatibility with ExtUtils::MakeMaker
 
 =head1 SYNOPSIS
 
-Here's a Makefile.PL that passes all functionality through to Module::Build
+Here's a Makefile.PL that passes all functionality through to Module::Build:
 
   use Module::Build::Compat;
   Module::Build::Compat->run_build_pl(args => \@ARGV);
@@ -92,18 +93,20 @@ Here's a Makefile.PL that passes all functionality through to Module::Build
 Or, here's one that's more careful about sensing whether Module::Build
 is already installed:
 
-  unless (eval { require Module::Build::Compat; 1 }) {
+  unless (eval "use Module::Build::Compat 0.02; 1" ) {
     # Workaround with old CPAN.pm and CPANPLUS.pm
     require ExtUtils::MakeMaker;
     ExtUtils::MakeMaker::WriteMakefile(
-      PREREQ_PM => { 'Module::Build::Compat' => 0.01 }
+      PREREQ_PM => { 'Module::Build::Compat' => 0.02 }
     );
     warn "Warning: prerequisite Module::Build::Compat is not found.\n";
+    sleep 2;  # Wait a couple seconds after writing Makefile
+    open my($fh), ">> $0"  # Change modification date
+      or warn "You may have to run 'perl Makefile.PL' again.";
     exit(0);
   }
   Module::Build::Compat->run_build_pl(args => \@ARGV);
   Module::Build::Compat->write_makefile();
-
 
 =head1 DESCRIPTION
 
