@@ -10,8 +10,10 @@ use vars qw(@ISA);
 sub make_tarball {
   my ($self, $dir) = @_;
 
+  my $tar_flags = $self->{properties}{verbose} ? 'cvf' : 'cf';
+
   my $tar = $self->{args}{tar}  || 'tar';
-  $self->do_system("$tar cvf '$dir.tar' '$dir'");
+  $self->do_system("$tar $tar_flags '$dir.tar' '$dir'");
   my $gzip = $self->{args}{gzip} || 'gzip';
   $self->do_system("$gzip '$dir.tar'");
 }
