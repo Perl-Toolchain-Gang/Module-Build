@@ -3,30 +3,21 @@
 use strict;
 use warnings;
 
-use Cwd qw( cwd );
 use File::Spec;
 use File::Path qw( rmtree );
 
 use Test;
-BEGIN { plan tests => 12 }
+BEGIN { plan tests => 15 }
 
 use Module::Build;
 
-BEGIN {
-  $::cwd = cwd();
-  $::install = File::Spec->catdir( $::cwd, 't', '_tmp' );
-  chdir File::Spec->catdir( 't','Sample' );
-  $SIG{__DIE__} = \&cleanup;
-  sub cleanup {
-    print "Deleting $::install\n";
-    File::Path::rmtree($::install, 0, 0);
-    chdir $::cwd or die "Can't cd back to $::cwd: $!";
-  }
-}
+my $start = Module::Build->cwd;
+my $install = File::Spec->catdir( $start, 't', '_tmp' );
+chdir File::Spec->catdir( 't','Sample' ) or die "Can't chdir to t/Sample: $!";
 
 my $m = new Module::Build
   (
-   install_base => $::install,
+   install_base => $install,
    module_name  => 'Sample',
    scripts      => [ 'script', File::Spec->catfile( 'bin', 'sample.pl' ) ],
   );
@@ -42,32 +33,39 @@ my %man = (
 	   ext3 => $m->{config}{man3ext},
 	  );
 
-my @expected_bindocs = ( "sample.pl.$man{ext1}" );
-my @expected_libdocs = ( "Sample.$man{ext3}", "Sample$man{sep}Docs.$man{ext3}" );
-my @unexpected_bindocs = ( "script.$man{ext1}" );
-my @unexpected_libdocs = ( "Sample$man{sep}NoPod.$man{ext3}" );
-
+my %distro = (
+	      'bin/sample.pl' => "sample.pl.$man{ext1}",
+	      'lib/Sample/Docs.pod' => "Sample$man{sep}Docs.$man{ext3}",
+	      'lib/Sample.pm' => "Sample.$man{ext3}",
+	      'script' => '',
+	      'lib/Sample/NoPod.pm' => '',
+	     );
+$_ = $m->localize_file_path($_) foreach %distro;
 
 $m->dispatch('build');
 
 ok( $m->dispatch('builddocs') );
-ok( -e $_, 1, "$_ manpage was *not* created" ) for
-  map { File::Spec->catfile( 'blib', 'bindoc', $_ ) } @expected_bindocs;
-ok( -e $_, 1, "$_ manpage was *not* created" ) for
-  map { File::Spec->catfile( 'blib', 'libdoc', $_ ) } @expected_libdocs;
-ok(! -e $_, 1, "$_ manpage *was* created" ) for
-  map { File::Spec->catfile( 'blib', 'bindoc', $_ ) } @unexpected_bindocs;
-ok(! -e $_, 1, "$_ manpage *was* created" ) for
-  map { File::Spec->catfile( 'blib', 'libdoc', $_ ) } @unexpected_libdocs;
+
+while (my ($from, $v) = each %distro) {
+  if (!$v) {
+    ok $m->contains_pod($from), '', "$from should not contain POD";
+    next;
+  }
+  
+  my $to = File::Spec->catfile('blib', ($from =~ /^lib/ ? 'libdoc' : 'bindoc'), $v);
+  ok $m->contains_pod($from), 1, "$from should contain POD";
+  ok -e $to, 1, "Created $to manpage";
+}
 
 
+$m->add_to_cleanup($install);
 $m->dispatch('install');
 
-ok( -e $_, 1, "$_ manpage was *not* installed" ) for
-  map { File::Spec->catfile( $::install, 'man', $man{dir1}, $_ ) } @expected_bindocs;
-ok( -e $_, 1, "$_ manpage was *not* installed" ) for
-  map { File::Spec->catfile( $::install, 'man', $man{dir3}, $_ ) } @expected_libdocs;
-
+while (my ($from, $v) = each %distro) {
+  next unless $v;
+  my $to = File::Spec->catfile($install, 'man', $man{($from =~ /^lib/ ? 'dir3' : 'dir1')}, $v);
+  ok -e $to, 1, "Created $to manpage";
+}
 
 $m->dispatch('realclean');
 
@@ -79,7 +77,4 @@ my $m2 = new Module::Build
   );
 
 ok( $m2->{properties}->{libdoc_dirs}->[0], 'foo', 'override libdoc_dirs' );
-
-
-cleanup();
 
