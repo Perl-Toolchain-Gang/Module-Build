@@ -6,6 +6,12 @@ Revision history for Perl extension Module::Build.
    when Build.PL was run, we now just add those additional values that
    aren't part of the default compiled-in @INC. [Michael Schwern]
 
+ - The run_perl_script() method will now propagate any extra entries
+   in @INC (such as those added by "use lib" or the -I command-line
+   switch) to the subprocess.  This helps situations in which you want
+   to tell the subprocess where to find a certain module, for
+   instance.  [Michael Schwern]
+
 0.2606 (Bug fix for 0.26)   Tue Dec  7 22:33:11 CST 2004
 
  - Fixed a linking bug on Win32, in which compiled C code object files
