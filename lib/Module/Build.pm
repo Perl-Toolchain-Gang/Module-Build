@@ -553,6 +553,10 @@ that if C<$module> is installed but doesn't define a version number,
 the C<have> value will be C<undef> - this is why we don't use C<undef>
 for the case when C<$module> isn't installed at all.
 
+This method may be called either as an object method
+(C<< $build->check_installed_status($module, $version) >>)
+or as a class method 
+(C<< Module::Build->check_installed_status($module, $version) >>).
 
 =item check_installed_version($module, $version)
 
