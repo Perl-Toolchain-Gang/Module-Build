@@ -1162,7 +1162,7 @@ sub find_PL_files {
     # 'PL_files' is given as a Unix file spec, so we localize_file_path().
     
     if (UNIVERSAL::isa($files, 'ARRAY')) {
-      return { map {$_, /^(.*)\.PL$/}
+      return { map {$_, [/^(.*)\.PL$/]}
 	       map $self->localize_file_path($_),
 	       @$files };
 
@@ -1180,7 +1180,7 @@ sub find_PL_files {
   }
   
   return unless -d 'lib';
-  return { map {$_, /^(.*)\.PL$/} @{ $self->rscan_dir('lib', qr{\.PL$}) } };
+  return { map {$_, [/^(.*)\.PL$/]} @{ $self->rscan_dir('lib', qr{\.PL$}) } };
 }
 
 sub find_pm_files  { shift->_find_file_by_type('pm',  'lib') }
