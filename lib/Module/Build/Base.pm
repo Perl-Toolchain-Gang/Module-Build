@@ -608,9 +608,6 @@ sub check_installed_status {
   my %status = (need => $spec);
   
   if ($modname eq 'perl') {
-    # Check the current perl interpreter
-    # It's much more convenient to use $] here than $^V, but 'man
-    # perlvar' says I'm not supposed to.  Bloody tyrant.
     $status{have} = $self->perl_version;
   
   } elsif (eval { $status{have} = $modname->VERSION }) {
