@@ -31,6 +31,20 @@ sub stdout_of {
   return slurp($outfile);
 }
 
+sub stderr_of {
+  my $subr = shift;
+  my $outfile = 'save_err';
+
+  local *SAVEERR;
+  open SAVEERR, ">&STDERR" or die "Can't save STDERR handle: $!";
+  open STDERR, "> $outfile" or die "Can't create $outfile: $!";
+
+  eval {$subr->()};
+  open STDERR, ">&SAVEERR" or die "Can't restore STDERR: $!";
+
+  return slurp($outfile);
+}
+
 sub slurp {
   my $fh = IO::File->new($_[0]) or die "Can't open $_[0]: $!";
   local $/;
