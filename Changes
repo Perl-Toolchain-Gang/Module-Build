@@ -6,6 +6,9 @@ Revision history for Perl extension Module::Build.
    never got linked in with the modules being built. [Dominic
    Mitchell]
 
+ - Fixed a bug in the new_from_context() method in which any arguments
+   passed made us die. [Spotted by Jos Boumans]
+
 0.2605 (Bug fix for 0.26)   Tue Nov 30 07:16:13 CST 2004
 
  - Fixed a bug in which zero-length arguments for hash-valued
