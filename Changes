@@ -5,6 +5,10 @@ Revision history for Perl extension Module::Build.
 
 0.27_01 (Beta for 0.28)
 
+ - Split documentation into two sections. The user level documentation
+   and overview remains in 'Module/Build.pm', while a new document,
+   'Module/Build/Authoring.pod', has been created for module authors.
+
  - The creation of Unix man pages is no longer a strict necessity - it
    has now been turned into an 'auto-feature' contingent on the
    presence of Pod::Man, and when distributions are being built we
