@@ -1,0 +1,20 @@
+         Installation instructions for Module::Build
+
+To install this module, you have two choices.  You can either do:
+
+  perl Build.PL
+  ./Build test
+  ./Build install  (this step may need to be done as root)
+
+or if you really want to, you can do
+
+  perl Makefile.PL
+  make test
+  make install     (this step may need to be done as root)
+
+If you do the Makefile.PL option, you'll actually be using the
+Build.PL option under the surface with a pass-through Makefile.
+
+I recommend using the Build.PL option.
+
+ -Ken
