@@ -44,10 +44,9 @@ EOF
 	('  Install Module::Build now from CPAN?', 'y');
       
       unless ($yn =~ /^y/i) {
-	warn " *** Cannot install without Module::Build.  Exiting ...\n";
-	exit 1;
+	die " *** Cannot install without Module::Build.  Exiting ...\n";
       }
-
+      
       require Cwd;
       require File::Spec;
       require CPAN;
@@ -56,7 +55,8 @@ EOF
       my $cwd = Cwd::cwd();
       my $makefile = File::Spec->rel2abs($0);
       
-      CPAN::Shell->install('Module::Build::Compat');
+      CPAN::Shell->install('Module::Build::Compat')
+	or die " *** Cannot install without Module::Build.  Exiting ...\n";
       
       chdir $cwd or die "Cannot chdir() back to $cwd: $!";
       exec $^X, $makefile, @ARGV;  # Redo now that we have Module::Build
