@@ -1559,21 +1559,26 @@ sub ACTION_distclean {
   $self->depends_on('distcheck');
 }
 
+sub do_create_makefile_pl {
+  my $self = shift;
+  require Module::Build::Compat;
+  Module::Build::Compat->create_makefile_pl($self->create_makefile_pl, $self, @_);
+}
+
+sub do_create_readme {
+  my $self = shift;
+  require Pod::Text;
+  my $parser = Pod::Text->new;
+  $parser->parse_from_file($self->dist_version_from, 'README', @_);
+}
+
 sub ACTION_distdir {
   my ($self) = @_;
 
   $self->depends_on('distmeta');
-
-  if ($self->create_makefile_pl) {
-    require Module::Build::Compat;
-    Module::Build::Compat->create_makefile_pl($self->create_makefile_pl, $self);
-  }
   
-  if ($self->create_readme) {
-    require Pod::Text;
-    my $parser = Pod::Text->new;
-    $parser->parse_from_file($self->dist_version_from, 'README');
-  }
+  $self->do_create_makefile_pl if $self->create_makefile_pl;
+  $self->do_create_readme if $self->create_readme;
   
   my $dist_files = $self->_read_manifest('MANIFEST');
   delete $dist_files->{SIGNATURE};  # Don't copy, create a fresh one
