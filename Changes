@@ -5,6 +5,14 @@ Revision history for Perl extension Module::Build.
  - Added tests to t/runthrough.t that check to see installation is
    happening correctly.
 
+ - The $Config{cc} entry on some people's systems is something like
+   'ccache gcc', so we now split that string using split_like_shell().
+   [Richard Clamp]
+
+ - Added documentation for 'extra_linker_flags' parameter, and added a
+   corresponding 'extra_compiler_flags' parameter. [original patch by
+   Richard Clamp]
+
  - The pass-through Makefile created by Module::Build::Compat now
    supports MakeMaker options like POLLUTE=1 and INC.  We also just
    warn & skip when we see any unknown MM parameters, rather than
