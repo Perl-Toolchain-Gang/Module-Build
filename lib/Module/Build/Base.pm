@@ -957,8 +957,6 @@ sub _added_to_INC {
 sub _default_INC {
   my $self = shift;
 
-  local $ENV{PERL5LIB};  # this is not considered part of the default.
-
   my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
 
   my @inc = `$perl -le "print for \@INC"`;
@@ -2605,11 +2603,13 @@ sub run_perl_script {
   }
   my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
 
-  # Make sure our local additions to @INC are propagated to the subprocess
+  # Make sure our local additions to @INC are propagated to the
+  # subprocess.  It seems to work better on systems with very large
+  # @INCs to use -I instead of $ENV{PERL5LIB}.
   my $c = ref $self ? $self->config : \%Config::Config;
-  local $ENV{PERL5LIB} = join $c->{path_sep}, $self->_added_to_INC;
-
-  return $self->do_system($perl, @$preargs, $script, @$postargs);
+  my @inc = map { "-I$_" } $self->_added_to_INC;
+  
+  return $self->do_system($perl, @inc, @$preargs, $script, @$postargs);
 }
 
 sub process_xs {
