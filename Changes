@@ -53,6 +53,11 @@ Revision history for Perl extension Module::Build.
  - Added documentation for the 'code' and 'docs' actions. [Steve
    Purkis and Mark Stosberg]
 
+ - The internal method compile_support_files() has been renamed to
+   process_support_files() in order to make it consistent with other
+   processing methods.  Note that it was never documented using the
+   old name.
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
