@@ -781,7 +781,7 @@ This method returns a reasonable faxsimile of the currently-executing
 C<Module::Build> object representing the current build.  You can use
 this object to query its C<notes()> method, inquire about installed
 modules, and so on.  This is a great way to share information between
-different parts of your building process.  For instance, you can ask
+different parts of your build process.  For instance, you can ask
 the user a question during C<perl Build.PL>, then use their answer
 during a regression test:
 
@@ -821,6 +821,12 @@ arguments, C<notes()> returns a reference to the entire hash of notes.
 With one argument, C<notes($key)> returns the value associated with
 the given key.  With two arguments, C<notes($key, $value)> sets the
 value associated with the given key to C<$value>.
+
+The lifetime of the C<notes> data is for "a build" - that is, the
+C<notes> hash is created when C<perl Build.PL> is run (or when the
+C<new()> method is run, if the Module::Build Perl API is being used
+instead of called from a shell), and lasts until C<perl Build.PL> is
+run again or the C<clean> action is run.
 
 =item config()
 
