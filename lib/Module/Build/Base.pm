@@ -2147,7 +2147,7 @@ sub compile_c {
   my @cc = $self->split_like_shell($cf->{cc});
   
   $self->do_system(@cc, @flags, '-o', $obj_file, $file)
-    or die "error building $cf->{dlext} file from '$file'";
+    or die "error building $cf->{obj_ext} file from '$file'";
 
   return $obj_file;
 }
@@ -2184,11 +2184,12 @@ sub link_c {
   my ($self, $to, $file_base) = @_;
   my ($cf, $p) = ($self->{config}, $self->{properties}); # For convenience
 
+  my $obj_file = "$file_base$cf->{obj_ext}";
   my $lib_file = File::Spec->catfile($to, File::Basename::basename("$file_base.$cf->{dlext}"));
   $self->add_to_cleanup($lib_file);
   my $objects = $p->{objects} || [];
   
-  unless ($self->up_to_date(["$file_base$cf->{obj_ext}", @$objects], $lib_file)) {
+  unless ($self->up_to_date([$obj_file, @$objects], $lib_file)) {
     $self->prelink_c($to, $file_base) if $self->need_prelink_c;
 
     my @linker_flags = $self->split_like_shell($p->{extra_linker_flags});
@@ -2196,8 +2197,8 @@ sub link_c {
     my @shrp = $self->split_like_shell($cf->{shrpenv});
     my @ld = $self->split_like_shell($cf->{ld});
     $self->do_system(@shrp, @ld, @lddlflags, '-o', $lib_file,
-		     "$file_base$cf->{obj_ext}", @$objects, @linker_flags)
-      or die "error building $file_base$cf->{obj_ext} from '$file_base.$cf->{dlext}'";
+		     $obj_file, @$objects, @linker_flags)
+      or die "error building .$cf->{dlext} file from '$obj_file'";
   }
   
   return $lib_file;

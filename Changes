@@ -25,6 +25,9 @@ Revision history for Perl extension Module::Build.
  - Documented the 'tar' and 'gzip' parameters to the 'dist' and
    'ppmdist' actions.
 
+ - Fixed some incorrect error messages that occurred when
+   compiling/linking C sources went awry.
+
 0.24
 
  - Fixed a problem with incude_dirs not being propagated to the 'ccs'
