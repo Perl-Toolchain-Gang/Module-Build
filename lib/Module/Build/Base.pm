@@ -695,14 +695,15 @@ sub write_metadata {
 
   my %metadata = (
 		  distribution_type => 'module',
+		  dynamic_config => 0,
 		  name => $p->{module_name},
 		  version => $p->{module_version},
 		  license => $p->{license},
 		 );
   
   $metadata{requires} = $p->{prereq} if $p->{prereq}; # A synonym
-  foreach (qw(requires build_depends recommends conflicts)) {
-    $metadata{$_} = $p->{$_} if $p->{$_};
+  foreach (qw(requires build_depends recommends conflicts dynamic_config)) {
+    $metadata{$_} = $p->{$_} if exists $p->{$_};
   }
   
   require YAML;
