@@ -1,6 +1,15 @@
 Revision history for Perl extension Module::Build.
 
-0.26_01
+0.27_01
+
+ - When copying files in the 'distdir' action, set permissions to match
+   the original files. [Julian Mehnle]
+
+ - When adding files like META.yml to the MANIFEST, we now tell the
+   user we're doing so by printing one of the "Added to MANIFEST: ..."
+   lines.  [Ron Savage]
+
+0.2601
 
  - Fixed some backslash problems with split_like_shell() on
    Win32. [Steve Hay]
