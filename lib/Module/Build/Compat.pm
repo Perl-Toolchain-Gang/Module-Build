@@ -14,11 +14,12 @@ my %makefile_to_build =
   (
    TEST_VERBOSE => 'verbose',
    VERBINST     => 'verbose',
-   INC     => sub { map "extra_compiler_flags=-I$_", Module::Build->split_like_shell(shift) },
-   POLLUTE => sub { 'extra_compiler_flags=-DPERL_POLLUTE' },
+   INC     => sub { map {('--extra_compiler_flags', "-I$_")} Module::Build->split_like_shell(shift) },
+   POLLUTE => sub { ('--extra_compiler_flags', '-DPERL_POLLUTE') },
    INSTALLDIRS => sub {local $_ = shift; 'installdirs=' . (/^perl$/ ? 'core' : $_) },
    PREFIX => sub {die "Sorry, PREFIX is not supported.  See the Module::Build\n".
 		      "documentation for 'destdir' or 'install_base' instead.\n"},
+   LIB => sub { ('--install_path', 'lib='.shift()) }
   );
 
 sub create_makefile_pl {
@@ -121,13 +122,12 @@ sub makefile_to_build_args {
   my @out;
   foreach my $arg (@_) {
     my ($key, $val) = ($arg =~ /^(\w+)=(.+)/ ? ($1, $2) :
-		       $arg =~ /^(verbose)$/ ? ($1, 1)  :
 		       die "Malformed argument '$arg'");
-    if (exists $Config{lc($key)}) {
-      push @out, 'config=' . lc($key) . "=$val";
-    } elsif (exists $makefile_to_build{$key}) {
+    if (exists $makefile_to_build{$key}) {
       my $trans = $makefile_to_build{$key};
       push @out, ref($trans) ? $trans->($val) : "$trans=$val";
+    } elsif (exists $Config{lc($key)}) {
+      push @out, 'config=' . lc($key) . "=$val";
     } else {
       # Assume M::B can handle it in lowercase form
       push @out, "\L$key\E=$val";

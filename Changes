@@ -5,6 +5,19 @@ Revision history for Perl extension Module::Build.
  - During the 'distdir' action, if no MANIFEST.SKIP file exists, we
    will now create a reasonable default one. [Randy Sims]
 
+ - Added support for the 'LIB' parameter to passthrough
+   Makefile.PLs. [Spotted by Jesse Erlbaum]
+
+ - Passing a 'PREFIX' parameter to a passthrough Makefile.PL was
+   supposed to make it die with a helpful error message, but instead
+   it just ignored it and blindly tried to install to the wrong place.
+   This is now fixed.  [Spotted by Jesse Erlbaum]
+
+ - The regression tests now make sure that several pass-through
+   Makefile.PL parameters are dealt with correctly.
+
+ - Added an extra_compiler_flags() accessor method.
+
 0.24
 
  - Fixed a problem with incude_dirs not being propagated to the 'ccs'

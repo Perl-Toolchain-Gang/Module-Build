@@ -327,6 +327,7 @@ EOF
        create_makefile_pl
        create_readme
        pollute
+       extra_compiler_flags
        include_dirs
        bindoc_dirs
        libdoc_dirs
@@ -344,6 +345,13 @@ EOF
           return $self->{properties}{$property};
       };
   }
+}
+
+sub extra_compiler_flags {
+  my $self = shift;
+  my $p = $self->{properties};
+  $p->{extra_compiler_flags} = [@_] if @_;
+  return ref($p->{extra_compiler_flags}) ? $p->{extra_compiler_flags} : [$p->{extra_compiler_flags}];
 }
 
 # XXX Problem - if Module::Build is loaded from a different directory,

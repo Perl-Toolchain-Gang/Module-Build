@@ -1,3 +1,4 @@
+use strict;
 use Test;
 use Module::Build;
 use Module::Build::Compat;
@@ -8,7 +9,10 @@ require File::Spec->catfile('t', 'common.pl');
 
 skip_test("Don't know how to invoke 'make'")
   unless $Config{make} and find_in_path($Config{make});
-plan tests => 5 + 3*13;
+
+my @makefile_types = qw(small passthrough traditional);
+my $tests_per_type = 10;
+plan tests => 12 + @makefile_types*$tests_per_type;
 ok(1);  # Loaded
 
 my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
@@ -19,7 +23,7 @@ chdir $goto or die "can't chdir to $goto: $!";
 my $build = Module::Build->new_from_context;
 ok $build;
 
-foreach my $type (qw(small passthrough traditional)) {
+foreach my $type (@makefile_types) {
   Module::Build::Compat->create_makefile_pl($type, $build);
   test_makefile_creation($build);
   
@@ -36,7 +40,6 @@ foreach my $type (qw(small passthrough traditional)) {
   ok $build->do_system(@make, 'realclean');
   
   # Try again with some Makefile.PL arguments
-  test_makefile_creation($build, [], 'verbose', 1);
   test_makefile_creation($build, [], 'INSTALLDIRS=vendor', 1);
   
   1 while unlink 'Makefile.PL';
@@ -52,6 +55,34 @@ foreach my $type (qw(small passthrough traditional)) {
   ok $@, '';
   ok $maketext, qr/^realclean/m;
   ok $warning, qr/build_class/;
+}
+
+{
+  # Make sure various Makefile.PL arguments are supported
+  Module::Build::Compat->create_makefile_pl('passthrough', $build);
+
+  my $libdir = File::Spec->catdir( Module::Build->cwd, 't', 'libdir' );
+  my $result = $build->run_perl_script('Makefile.PL', [], 
+				       [
+					"LIB=$libdir",
+					'TEST_VERBOSE=1',
+					'INSTALLDIRS=perl',
+					'POLLUTE=1',
+				       ]
+				      );
+  ok $result;
+
+  my $new_build = Module::Build->resume();
+  ok $new_build->installdirs, 'core';
+  ok $new_build->verbose, 1;
+  ok $new_build->install_destination('lib'), $libdir;
+  ok $new_build->extra_compiler_flags->[0], '-DPERL_POLLUTE';
+  
+  $build->do_system(@make, 'realclean');
+  ok -e 'Makefile', undef, "Makefile shouldn't exist";
+
+  1 while unlink 'Makefile.PL';
+  ok -e 'Makefile.PL', undef;
 }
 
 #########################################################
