@@ -19,6 +19,14 @@ Revision history for Perl extension Module::Build.
    tends to do a better job, heuristically speaking, of returning
    relevant stuff.
 
+ - Added regression tests and a helper method ( add_build_elements() )
+   for adding new elements to the build process.  Also some
+   documentation.
+
+ - Wrote a recipe in the Cookbook for adding new elements to the build
+   process, and a recipe for changing the order in which the steps in
+   the build process will occur.
+
 0.25  Sun Apr 25 11:12:36 CDT 2004
 
  - During the 'distdir' action, if no MANIFEST.SKIP file exists, we
