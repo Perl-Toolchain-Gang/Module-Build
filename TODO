@@ -2,6 +2,9 @@
 
 * Add a 'diff' action that compares to previously installed version
 
+* Add a 'distsign' action that uses Module::Signature to provide
+cryptographic authentication to module distributions
+
 * Figure out how to cooperate well with real packaging systems
 (chiefly RPM, Debian, and PPM).  May mean creating packages ourselves,
 may mean creating lists of stuff to let package managers chew on, may
