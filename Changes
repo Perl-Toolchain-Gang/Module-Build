@@ -29,6 +29,15 @@ Revision history for Perl extension Module::Build.
    some more extensive recipes on how to add stuff to the
    build/install sequences.
 
+ - Have script_files default to everything in bin.  I believe this is
+   the least surprising behavior. [Suggested by Michael Schwern]
+
+ - If script_files is given a directory, consider each file in that
+   directory tree as a script to be installed.  This avoids having to
+   remember to add to the script_files list every time you add a
+   program. [Suggested by Michael Schwern]
+
+
 0.2602 (Bug fix for 0.26)   Thu Nov  4 11:19:29 CST 2004
 
  - The two bug fixes in 0.2601 gnashed against each other incorrectly,

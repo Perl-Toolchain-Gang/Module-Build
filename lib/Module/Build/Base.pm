@@ -11,6 +11,7 @@ use File::Spec ();
 use File::Compare ();
 use Data::Dumper ();
 use IO::File ();
+use IO::Dir ();
 use Text::ParseWords ();
 
 #################### Constructors ###########################
@@ -2126,18 +2127,39 @@ sub ppm_name {
   return 'PPM-' . $self->dist_dir;
 }
 
+sub _files_in {
+  my ($self, $dir) = @_;
+  return unless -d $dir;
+
+  my $dh = IO::Dir->new( $dir ) or die "Can't read directory $dir: $!";
+
+  my @files;
+  while (defined (my $file = $dh->read)) {
+    my $full_path = File::Spec->catfile($dir, $file);
+    next if -d $full_path;
+    push @files, $full_path;
+  }
+  return @files;
+}
+
 sub script_files {
   my $self = shift;
   
   for ($self->{properties}{script_files}) {
     $_ = shift if @_;
-    return unless $_;
+    next unless $_;
     
     # Always coerce into a hash
     return $_ if UNIVERSAL::isa($_, 'HASH');
-    return $_ = {$_ => 1} unless ref();
-    return { map {$_,1} @$_ };
+    return $_ = { map {$_,1} @$_ } if UNIVERSAL::isa($_, 'ARRAY');
+    
+    die "'script_files' must be a hashref, arrayref, or string" if ref();
+    
+    return $_ = { map {$_,1} $self->_files_in( $_ ) } if -d $_;
+    return $_ = {$_ => 1};
   }
+  
+  return $_ = { map {$_,1} $self->_files_in( File::Spec->catdir( $self->base_dir, 'bin' ) ) };
 }
 BEGIN { *scripts = \&script_files; }
 

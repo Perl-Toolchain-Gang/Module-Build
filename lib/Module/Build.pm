@@ -497,13 +497,18 @@ format, not in the style of the local system.
 
 An optional parameter specifying a set of files that should be
 installed as executable perl scripts when the module is installed.
-May be given as an array reference of the files, or as a hash
-reference whose keys are the files (and whose values will currently be
-ignored).
+May be given as an array reference of the files, as a hash reference
+whose keys are the files (and whose values will currently be ignored),
+as a string specifying a directory to scan for scripts
+(nonrecursively), or as a string specifying the location of a single
+script to install.  When scanning a directory for scripts, we don't do
+anything fancy - we just take every file that's not a directory.
 
-The default is to install no script files - in other words, there is
-no default location where Module::Build will look for script files to
-install.
+The default is to install any scripts found in a top-level F<bin/>
+directory in the distribution.  Note that older versions of
+Module::Build did not search for scripts anywhere by default - if
+you've got a F<bin/> directory and you don't want it auto-scanned for
+scripts, then pass an empty value for the C<script_files> parameter.
 
 For backward compatibility, you may use the parameter C<scripts>
 instead of C<script_files>.  Please consider this usage deprecated,
