@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.20_02
+0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
    called before 'distdir' - the signature would be generated twice.
@@ -22,7 +22,8 @@ Revision history for Perl extension Module::Build.
  - Added a new_from_context() method that authors of automated tools
    like CPANPLUS and CPAN can use instead of running all tasks as
    sub-processes.  We also use it in the regression tests for
-   Module::Build itself.
+   Module::Build itself.  ** Note that this method is currently
+   undocumented because its name may change before version 0.21. **
 
 0.20_01  Mon Sep  8 21:25:39 CDT 2003
 
