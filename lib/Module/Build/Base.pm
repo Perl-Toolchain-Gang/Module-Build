@@ -229,6 +229,7 @@ sub notes {
        PL_files
        scripts
        script_files
+       test_files
        perl
        config_dir
        build_script
@@ -1009,12 +1010,16 @@ sub ACTION_test {
 
 sub test_files {
   my $self = shift;
-  
+  my $p = $self->{properties};
+  if (@_) {
+    $p->{test_files} = (@_ == 1 ? shift : [@_]);
+  }
+
   my @tests;
-  if ($self->{args}{test_files}) {  # XXX use 'properties'
+  if ($p->{test_files}) {
     @tests = (map { -d $_ ? $self->expand_test_dir($_) : $_ }
 	      map glob,
-	      $self->split_like_shell($self->{args}{test_files}));
+	      $self->split_like_shell($p->{test_files}));
   } else {
     # Find all possible tests in t/ or test.pl
     push @tests, 'test.pl'                          if -e 'test.pl';
