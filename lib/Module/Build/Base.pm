@@ -1595,7 +1595,7 @@ sub do_create_readme {
 sub ACTION_distdir {
   my ($self) = @_;
 
-  $self->depends_on('distmeta', 'manifest');
+  $self->depends_on('distmeta');
 
   $self->do_create_makefile_pl if $self->create_makefile_pl;
   $self->do_create_readme if $self->create_readme;
