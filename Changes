@@ -3,6 +3,11 @@ Revision history for Perl extension Module::Build.
 
 0.27_01 (Beta for 0.28)
 
+ - new_from_context() was losing its arguments in some cases (and not
+   because of inadequate training in debate) - we now pass its
+   arguments directly to the Build.PL script rather than merging them
+   in afterwards.
+
  - Let resume() return an object blessed into the appropriate class
    if the user has provided a subclass, as specified by the
    'build_class' property. This allows current() and new_from_context()
