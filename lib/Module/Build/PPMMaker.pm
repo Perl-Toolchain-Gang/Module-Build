@@ -21,7 +21,7 @@ sub make_ppd {
   if (exists $args{codebase}) {
     @codebase = ref $args{codebase} ? @{$args{codebase}} : ($args{codebase});
   } else {
-    my $distfile = $build->dist_dir . ".tar.gz";
+    my $distfile = $build->ppm_name . '.tar.gz';
     print "Using default codebase '$distfile'\n";
     @codebase = ($distfile);
   }

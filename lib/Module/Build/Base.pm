@@ -1475,6 +1475,14 @@ sub ACTION_ppd {
   $self->add_to_cleanup($file);
 }
 
+sub ACTION_ppm_dist {
+  my ($self) = @_;
+  
+  $self->depends_on('build', 'ppd');
+  $self->add_to_cleanup($self->ppm_name);
+  $self->make_tarball($self->{properties}{blib}, $self->ppm_name);
+}
+
 sub ACTION_dist {
   my ($self) = @_;
   
@@ -1616,6 +1624,11 @@ sub dist_dir {
   return "$self->{properties}{dist_name}-$self->{properties}{dist_version}";
 }
 
+sub ppm_name {
+  my $self = shift;
+  return 'PPM-' . $self->dist_dir;
+}
+
 sub script_files {
   my $self = shift;
   if (@_) {
@@ -1743,18 +1756,22 @@ sub _packages_inside {
 }
 
 sub make_tarball {
-  my ($self, $dir) = @_;
-
-  print "Creating $dir.tar.gz\n";
+  my ($self, $dir, $file) = @_;
+  $file ||= $dir;
+  
+  print "Creating $file.tar.gz\n";
   
   if ($self->{args}{tar}) {
     my $tar_flags = $self->{properties}{verbose} ? 'cvf' : 'cf';
-    $self->do_system($self->{args}{tar}, $tar_flags, "$dir.tar", $dir);
-    $self->do_system($self->{args}{gzip}, "$dir.tar") if $self->{args}{gzip};
+    $self->do_system($self->{args}{tar}, $tar_flags, "$file.tar", $dir);
+    $self->do_system($self->{args}{gzip}, "$file.tar") if $self->{args}{gzip};
   } else {
     require Archive::Tar;
+    # Archive::Tar versions >= 1.09 use the following to enable a compatibility
+    # hack so that the resulting archive is compatible with older clients.
+    $Archive::Tar::DO_NOT_USE_PREFIX = 0;
     my $files = $self->rscan_dir($dir);
-    Archive::Tar->create_archive("$dir.tar.gz", 1, @$files);
+    Archive::Tar->create_archive("$file.tar.gz", 1, @$files);
   }
 }
 
