@@ -867,7 +867,7 @@ sub cull_args {
     $args{$_} = [ $args{$_} ] unless ref $args{$_};
     foreach my $arg ( @{$args{$_}} ) {
       $arg =~ /(\w+)=(.+)/
-	or die "Malformed '$_' argument: '$arg'";
+	or die "Malformed '$_' argument: '$arg' should be something like 'foo=bar'";
       $hash{$1} = $2;
     }
     $args{$_} = \%hash;
