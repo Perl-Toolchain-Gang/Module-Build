@@ -133,8 +133,9 @@ This illustrates initial configuration and the running of three
 'actions'.  In this case the actions run are 'build' (the default
 action), 'test', and 'install'.  Actions defined so far include:
 
-  build                          fakeinstall 
-  clean                          help        
+  build                          docs        
+  clean                          fakeinstall 
+  code                           help        
   diff                           install     
   dist                           manifest    
   distcheck                      ppd         
@@ -143,7 +144,6 @@ action), 'test', and 'install'.  Actions defined so far include:
   distmeta                       test        
   distsign                       testdb      
   disttest                       versioninstall
-  docs                                       
 
 You can run the 'help' action for a complete list of actions.
 
@@ -964,7 +964,16 @@ argument whose value is a whitespace-separated list of test scripts to
 run.  This is especially useful in development, when you only want to
 run a single test to see whether you've squashed a certain bug yet:
 
- ./Build test verbose=1 test_files=t/something_failing.t
+ ./Build test --test_files t/something_failing.t
+
+You may also pass several C<test_files> arguments separately:
+
+ ./Build test --test_files t/one.t --test_files t/two.t
+
+or use a C<glob()>-style pattern:
+
+ ./Build test --test_files 't/01-*.t'
+
 
 =item testdb
 
