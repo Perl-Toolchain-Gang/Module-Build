@@ -778,6 +778,7 @@ sub check_manifest {
 
 sub dispatch {
   my $self = shift;
+  local $self->{_completed_actions} = {};
 
   if (@_) {
     my ($action, %p) = @_;
@@ -794,6 +795,7 @@ sub dispatch {
 
 sub _call_action {
   my ($self, $action) = @_;
+  return if $self->{_completed_actions}{$action}++;
   local $self->{action} = $action;
   my $method = "ACTION_$action";
   die "No action '$action' defined" unless $self->can($method);
