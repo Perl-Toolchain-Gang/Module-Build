@@ -1223,6 +1223,7 @@ sub _find_file_by_type {
 
 sub localize_file_path {
   my ($self, $path) = @_;
+  return $path unless $path =~ m{/};
   return File::Spec->catfile( split qr{/}, $path );
 }
 
