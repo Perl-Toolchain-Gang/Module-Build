@@ -49,6 +49,7 @@ my $output = eval {
 ok $@, '';
 ok $output, qr/all tests successful/i;
 
+# This is the output of lib/Sample/Script.PL
 ok -e $build->localize_file_path('lib/Sample/Script');
 
 
