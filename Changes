@@ -5,7 +5,7 @@ Revision history for Perl extension Module::Build.
   - The META.yaml file was erroneously looking for 'build_depends'
     instead of 'build_requires'. [spotted by Iain Truskett]
 
-  - Add prompt() and yorn() methods for use in Build.PLs
+  - Add prompt() and y_n() methods for use in Build.PLs
 
   - Do more to work with all versions of Test::Harness when setting
     the TEST_VERBOSE flag and running under the debugger [patch by
