@@ -1198,25 +1198,30 @@ sub ACTION_distcheck {
   ExtUtils::Manifest::fullcheck();
 }
 
-sub ACTION_distsign {
-  my ($self) = @_;
-  
+sub _sign_dir {
+  my ($self, $dir) = @_;
+
   unless (eval { require Module::Signature; 1 }) {
     warn "Couldn't load Module::Signature for 'distsign' action:\n $@\n";
     return;
   }
 
   # We protect the signing with an eval{} to make sure we get back to
-  # the right directory after a signature failure.
+  # the right directory after a signature failure.  Would be nice if
+  # Module::Signature took a directory argument.
   
-  chdir $self->dist_dir or die "Can't chdir() to " . $self->dist_dir . ": $!";
+  chdir $dir or die "Can't chdir() to $dir: $!";
   eval {Module::Signature::sign()};
   my @err = $@ ? ($@) : ();
   chdir $self->base_dir or push @err, "Can't chdir() back to " . $self->base_dir . ": $!";
   die join "\n", @err if @err;
 }
 
-
+sub ACTION_distsign {
+  my ($self) = @_;
+  $self->depends_on('distdir') unless -d $self->dist_dir;
+  $self->_sign_dir($self->dist_dir);
+}
 
 sub ACTION_skipcheck {
   my ($self) = @_;
@@ -1238,8 +1243,6 @@ sub ACTION_distdir {
 
   $self->depends_on('distmeta');
 
-  my $dist_dir = $self->dist_dir;
-
   if ($self->{properties}{create_makefile_pl}) {
     require Module::Build::Compat;
     Module::Build::Compat->create_makefile_pl($self->{properties}{create_makefile_pl}, $self);
@@ -1250,12 +1253,14 @@ sub ACTION_distdir {
     warn "No files found in MANIFEST - try running 'manifest' action?\n";
     return;
   }
+  
+  my $dist_dir = $self->dist_dir;
   $self->delete_filetree($dist_dir);
   $self->add_to_cleanup($dist_dir);
   ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'best');
   warn "*** Did you forget to add $self->{metafile} to the MANIFEST?\n" unless exists $dist_files->{$self->{metafile}};
   
-  $self->depends_on('distsign') if $self->{properties}{sign};
+  $self->_sign_dir($dist_dir) if $self->{properties}{sign};
 }
 
 sub ACTION_disttest {
