@@ -1971,8 +1971,13 @@ sub install_map {
     my $localdir = File::Spec->catdir( $blib, $type );
     next unless -e $localdir;
     
-    $map{$localdir} = $self->install_destination($type)
-      or die "Can't figure out where to install things of type '$type'";
+    if (my $dest = $self->install_destination($type)) {
+      $map{$localdir} = $dest;
+    } else {
+      # Platforms like Win32, MacOS, etc. may not build man pages
+      die "Can't figure out where to install things of type '$type'"
+	unless $type =~ /^(lib|bin)doc$/;
+    }
   }
 
   if (length(my $destdir = $self->{properties}{destdir} || '')) {
