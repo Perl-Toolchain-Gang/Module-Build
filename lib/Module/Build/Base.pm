@@ -286,8 +286,8 @@ my ($notes, $features) = @$arrayref;
 sub get { $notes->{$_[1]} }
 sub feature { $features->{$_[1]} }
 
-__DATA__
 EOF
+  print $fh "__DATA__\n";
 
   local $Data::Dumper::Terse = 1;
   print $fh Data::Dumper::Dumper([scalar $self->build_config, scalar $self->features]);
