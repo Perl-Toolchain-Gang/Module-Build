@@ -69,21 +69,21 @@ $build->add_to_cleanup($destdir);
 }
 
 {
-  $build->config_notes(foo => 'bar');
+  $build->build_config(foo => 'bar');
   $build->features(baz => 'quux');
   eval {$build->dispatch('install', destdir => $destdir)};
   ok $@, '';
   
   my $libdir = strip_volume( $build->install_destination('lib') );
   local @INC = (@INC, File::Spec->catdir($destdir, $libdir));
-  eval {require Sample::ConfigNotes};
+  eval {require Sample::BuildConfig};
   
   if ($@) {
     ok $@, '';  # Show what the failure was
     ok 1;
   } else {
-    ok( Sample::ConfigNotes->get('foo'), 'bar' );
-    ok( Sample::ConfigNotes->feature('baz'), 'quux' );
+    ok( Sample::BuildConfig->get('foo'), 'bar' );
+    ok( Sample::BuildConfig->feature('baz'), 'quux' );
 
   }
 }

@@ -229,20 +229,20 @@ sub _general_notes {
   return $self->_persistent_hash_read($type, $key) unless @_;
   
   my $value = shift;
-  $self->has_config_notes(1) if $type =~ /^(config_notes|features)$/;
+  $self->has_build_config(1) if $type =~ /^(build_config|features)$/;
   return $self->_persistent_hash_write($type, { $key => $value });
 }
 
 sub notes        { shift()->_general_notes('notes', @_) }
-sub config_notes { shift()->_general_notes('config_notes', @_) }
+sub build_config { shift()->_general_notes('build_config', @_) }
 sub features     { shift()->_general_notes('features', @_) }
 
-sub ACTION_config_notes {
+sub ACTION_build_config {
   my $self = shift;
-  return unless $self->has_config_notes;
+  return unless $self->has_build_config;
   
-  die "The config_notes feature requires that 'module_name' be set" unless $self->module_name;
-  my $notes_name = $self->module_name . '::ConfigNotes';
+  die "The build_config feature requires that 'module_name' be set" unless $self->module_name;
+  my $notes_name = $self->module_name . '::BuildConfig';
   my $notes_pm = File::Spec->catfile($self->blib, 'lib', split /::/, "$notes_name.pm");
 
   print "Writing config notes to $notes_pm\n";
@@ -253,7 +253,7 @@ sub ACTION_config_notes {
 package %s;
 use strict;
 my $arrayref = eval do {local $/; <DATA>}
-  or die "Couldn't load ConfigNotes data: $@";
+  or die "Couldn't load BuildConfig data: $@";
 my ($notes, $features) = @$arrayref;
 
 sub get { $notes->{$_[1]} }
@@ -263,7 +263,7 @@ __DATA__
 EOF
 
   local $Data::Dumper::Terse = 1;
-  print $fh Data::Dumper::Dumper([scalar $self->config_notes, scalar $self->features]);
+  print $fh Data::Dumper::Dumper([scalar $self->build_config, scalar $self->features]);
 }
 
 {
@@ -289,7 +289,7 @@ EOF
        perl
        config_dir
        blib
-       has_config_notes
+       has_build_config
        build_script
        build_elements
        install_types
@@ -1140,7 +1140,7 @@ sub ACTION_build {
   my $self = shift;
   $self->depends_on('code');
   $self->depends_on('docs');
-  $self->depends_on('config_notes');
+  $self->depends_on('build_config');
 }
 
 sub process_support_files {
