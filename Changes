@@ -20,6 +20,9 @@ Revision history for Perl extension Module::Build.
    reasons why it may not be a good idea to use, but no longer
    threaten to remove it.  [Suggested by Martyn J. Pearce]
 
+ - Improved the formatting of the 'traditional' Makefile.PL generated
+   by Module::Build::Compat->create_makefile_pl. [Michael Schwern]
+
 0.19_04
 
  - Fixed yet another bug with installation directories, in which the
