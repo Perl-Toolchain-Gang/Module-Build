@@ -7,6 +7,10 @@ Revision history for Perl extension Module::Build.
     get handled by the 'realclean' action.  The internal
     write_cleanup() method (which was never documented) is now gone.
 
+  - The 'blib/' directory is now properly cleaned up in more (all?)
+    circumstances.  Previously it could become a phantom if
+    create_build_script() was never called.
+
   - Now scan the 'c_source' directory for .cpp (C++) files as well as
     .c files, and compiles them.
 

@@ -7,6 +7,10 @@
 may mean creating lists of stuff to let package managers chew on, may
 mean something else.
 
+* When doing an 'install' or 'preinstall' action, create a packlist
+file in a format useful for package managers.  Probably a subtask of
+the above packaging systems task.
+
 -------------------------- DONE: ---------------------------------
 
 * Write cleanup entries to _build/cleanup immediately, so they still
