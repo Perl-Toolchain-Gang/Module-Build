@@ -16,6 +16,9 @@ Revision history for Perl extension Module::Build.
    pages from being installed in the correct places. [spotted by Ville
    Skytta]
 
+ - Fixed a Module::Build::Compat bug in which setting INSTALLDIRS
+   caused a crash. [spotted by Ilya Martynov]
+
 0.20  Tue Aug 26 14:34:07 CDT 2003
 
  - Separated the 'build' action into two separate actions, 'code' and
