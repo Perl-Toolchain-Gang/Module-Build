@@ -150,7 +150,7 @@ When creating a C<Build.PL> script for a module, something like the
 following code will typically be used:
 
   use Module::Build;
-  my $build = new Module::Build
+  my $build = Module::Build->new
     (
      module_name => 'Foo::Bar',
      license => 'perl',
@@ -908,12 +908,9 @@ parameters it will accept - a good one is C<-u>:
 =item install
 
 This action will use C<ExtUtils::Install> to install the files from
-C<blib/> into the system.  Under normal circumstances, you'll need
-superuser privileges to install into your system's default C<sitelib>
-directory.
-
-See L<How Installation Works> for details about how Module::Build
-determines where to install things, and how to influence this process.
+C<blib/> into the system.  See L<How Installation Works> for details
+about how Module::Build determines where to install things, and how to
+influence this process.
 
 =item fakeinstall
 
@@ -1026,30 +1023,81 @@ that directory.
 
 When you invoke Module::Build's C<build> action, it needs to figure
 out where to install things.  Natively, Module::Build provides default
-installation locations for several types of installable items.  The
-determination of the default locations is reminiscent of the way
-MakeMaker does it:
-
- (XXX blah blah blah how installation works)
+installation locations for the following types of installable items:
 
 =over 4
 
-=item installdirs
+=item lib
 
-                            'installdirs' set to:
-                     core          site                vendor
+Usually pure-Perl module files ending in F<.pm>.
+
+=item archlib
+
+"Architecture-dependent" module files, usually produced by compiling
+XS, Inline, or similar code.
+
+=item script
+
+Programs written in pure Perl.  Try to make these as small as possible
+- put the code into modules, okay?
+
+=item bin
+
+"Architecture-dependent" programs, i.e. compiled C code or something.
+Pretty rare to see this in a perl distribution, but I suppose it happens.
+
+=item libdoc
+
+Documentation for the stuff in C<lib> and C<archlib>.  This is usually
+generated from the POD in F<.pm> files.
+
+=item bindoc
+
+Documentation for the stuff in C<script> and C<bin>.  Usually
+generated from the POD in those files.
+
+=back
+
+The default destinations for these installable things come from
+entries in your system's C<Config.pm>.  You can select from three
+different sets of default locations by setting the C<installdirs>
+parameter as follows:
+
+                          'installdirs' set to:
+                   core          site                vendor
  
-             results in the following defaults from Config.pm:
+              uses the following defaults from Config.pm:
  
- arch   =>   installarchlib  installsitearch     installvendorarch
- lib    =>   installprivlib  installsitelib      installvendorlib
- bin    =>   installbin      installsitebin      installvendorbin
- script =>   installscript   installscript       installscript
- man1   =>   installman1dir  installsiteman1dir  installvendorman1dir
- man3   =>   installman3dir  installsiteman3dir  installvendorman3dir
+ lib     => installprivlib  installsitelib      installvendorlib
+ archlib => installarchlib  installsitearch     installvendorarch
+ script  => installscript   installsitebin      installvendorbin
+ bin     => installbin      installsitebin      installvendorbin
+ libdoc  => installman3dir  installsiteman3dir  installvendorman3dir
+ bindoc  => installman1dir  installsiteman1dir  installvendorman1dir
 
+(Note that the 'script' line is different from MakeMaker -
+unfortunately there's no such thing as "installsitescript" or
+"installvendorscript" entry in C<Config.pm>, so we use the
+"installsitebin" and "installvendorbin" entries to at least get the
+general location right.  In the future, if C<Config.pm> adds some more
+appropriate entries, we'll start using those.)
 
- (XXX blah blah blah how installation works)
+Once the defaults have been set, you can override them.  For instance,
+you can set an individual entry like so:
+
+  xxx how the fuck does this work?
+
+Or you can set the whole bunch of them by supplying the
+C<install_base> parameter to a directory on your system.  For
+instance, if you set C<install_base> to "/usr/local/perl" on a Linux
+system, you'll install as follows:
+
+ lib     => /usr/local/perl/lib
+ archlib => /usr/local/perl/lib/i386-linux
+ script  => /usr/local/perl/scripts
+ bin     => /usr/local/perl/bin
+ libdoc  => /usr/local/perl/man1
+ bindoc  => /usr/local/perl/man3
 
 =item destdir
 
@@ -1073,7 +1121,8 @@ platform you're installing on.
 
 If you want the installation process to look around in C<@INC> for
 other versions of the stuff you're installing and try to delete it,
-you can use the C<uninst> parameter:
+you can use the C<uninst> parameter, which tells C<Module::Install> to
+do so:
 
  Build install uninst=1
 
@@ -1090,7 +1139,7 @@ methods, you can invoke these methods directly if you want to install
 a module non-interactively.  For instance, the following Perl script
 will invoke the entire build/install procedure:
 
- my $m = new Module::Build (module_name => 'MyModule');
+ my $m = Module::Build->new(module_name => 'MyModule');
  $m->dispatch('build');
  $m->dispatch('test');
  $m->dispatch('install');
@@ -1100,7 +1149,7 @@ exception.
 
 You can also pass arguments as part of the build process:
 
- my $m = new Module::Build (module_name => 'MyModule');
+ my $m = Module::Build->new(module_name => 'MyModule');
  $m->dispatch('build');
  $m->dispatch('test', verbose => 1);
  $m->dispatch('install', sitelib => '/my/secret/place/');
