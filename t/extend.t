@@ -43,21 +43,8 @@ $build->dispatch('realclean');
 {
   # Make sure we can add new kinds of stuff to the build sequence
 
-  {
-    package FooTester;
-    @FooTester::ISA = qw(Module::Build);
-    
-    sub process_foo_files {
-      my $self = shift;
-      my $files = $self->_find_file_by_type('foo', File::Spec->curdir);
-      while (my ($file, $dest) = each %$files) {
-	$self->copy_if_modified(from => $file,
-				to => File::Spec->catfile($self->blib, 'lib', $dest) );
-      }
-    }
-  }
-
-  my $build = FooTester->new( module_name => 'Sample' );
+  my $build = Module::Build->new( module_name => 'Sample',
+				  foo_files => {'test.foo', 'lib/test.foo'} );
   ok $build;
 
   $build->add_build_element('foo');
