@@ -771,7 +771,7 @@ sub known_actions {
   
   foreach my $class ($self->super_classes) {
     foreach ( keys %{ $class . '::' } ) {
-      $actions{$1}++ if /ACTION_(\w+)/;
+      $actions{$1}++ if /^ACTION_(\w+)/;
     }
   }
 
