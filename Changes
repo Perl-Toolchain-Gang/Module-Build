@@ -28,7 +28,12 @@ Revision history for Perl extension Module::Build.
  - Fixed some incorrect error messages that occurred when
    compiling/linking C sources went awry.
 
-0.24
+ - If the author uses a custom builder subclass, that subclass will
+   now be loaded in the passthrough Makefile.PL if the author uses the
+   'small' or 'passthrough' Makefile.PL options in
+   Module::Build::Compat. [Martyn Peck]
+
+0.24  Wed Feb 25 15:57:00 CST 2004
 
  - Fixed a problem with incude_dirs not being propagated to the 'ccs'
    file when compiling XS files on Win32. [Randy Sims and Steve Hay]
