@@ -1302,8 +1302,8 @@ sub manify_lib_pods {
   my $mandir = File::Spec->catdir( $self->blib, 'libdoc' );
   File::Path::mkpath( $mandir, 0, 0777 );
 
-  foreach my $file (keys %$files) {
-    my $manpage = $self->man3page_name( $file ) . '.' . $self->{config}{man3ext};
+  while (my ($file, $relfile) = each %$files) {
+    my $manpage = $self->man3page_name( $relfile ) . '.' . $self->{config}{man3ext};
     my $outfile = File::Spec->catfile( $mandir, $manpage);
     next if $self->up_to_date( $file, $outfile );
     print "Manifying $file -> $outfile\n";
@@ -1318,7 +1318,7 @@ sub _find_pods {
   foreach my $spec (@$dirs) {
     my $dir = $self->localize_file_path($spec);
     next unless -e $dir;
-    do { $files{$_} = $_ if $self->contains_pod( $_ ) }
+    do { $files{$_} = File::Spec->abs2rel($_, $dir) if $self->contains_pod( $_ ) }
       for @{ $self->rscan_dir( $dir ) };
   }
   return \%files;
@@ -1348,17 +1348,13 @@ sub man1page_name {
 #    -spurkis
 sub man3page_name {
   my $self = shift;
-  my $file = File::Spec->canonpath( shift ); # clean up file path
-  my @dirs = File::Spec->splitdir( $file );
-
-  # more clean up - assume all man3 pods are under 'blib/lib' or 'blib/arch'
-  # to avoid the complexity found in Pod::Man::begin_pod()
-  shift @dirs while ($dirs[0] =~ /^(?:blib|lib|arch)$/i);
-
-  # remove known exts from the base name
-  $dirs[-1] =~ s/\.p(?:od|m|l)\z//i;
-
-  return join( $self->manpage_separator, @dirs );
+  my ($vol, $dirs, $file) = File::Spec->splitpath( shift );
+  my @dirs = File::Spec->splitdir( File::Spec->canonpath($dirs) );
+  
+  # Remove known exts from the base name
+  $file =~ s/\.p(?:od|m|l)\z//i;
+  
+  return join( $self->manpage_separator, @dirs, $file );
 }
 
 sub manpage_separator {
