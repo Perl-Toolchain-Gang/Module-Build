@@ -1479,7 +1479,7 @@ sub htmlify_pods {
   if (-d $script) {
     File::Find::finddepth( sub 
                            {$pods->{$File::Find::name} = 
-                              "script::" . basename($File::Find::name) 
+                              "script::" . File::Basename::basename($File::Find::name) 
                                 if (-f $_ and not /\.bat$/ and $self->contains_pod($_));
                           }, $script);
   }
