@@ -70,8 +70,6 @@ sub new {
       unless exists $p->{dist_name};
     $p->{dist_version_from} = join( '/', 'lib', split '::', $p->{module_name} ) . '.pm'
       unless exists $p->{dist_version_from} or exists $p->{dist_version};
-    
-    delete $p->{module_name};
   }
 
   $self->check_manifest;
@@ -207,7 +205,7 @@ sub find_version {
   my $version_from;
   if (exists $p->{dist_version_from}) {
     # dist_version_from is always a Unix-style path
-    $version_from = File::Spec->catfile( split '/', delete $p->{dist_version_from} );
+    $version_from = File::Spec->catfile( split '/', $p->{dist_version_from} );
   } else {
     die "Must supply either 'dist_version', 'dist_version_from', or 'module_name' parameter";
   }
@@ -853,7 +851,7 @@ sub write_metadata {
 		  name => $p->{dist_name},
 		  version => $p->{dist_version},
 		  license => $p->{license},
-		  generated_by => (ref($self) || $self) . " version " . $self->VERSION,
+		  generated_by => "Module::Build version " . Module::Build->VERSION,
 		 );
   
   foreach (qw(requires build_requires recommends conflicts dynamic_config)) {
