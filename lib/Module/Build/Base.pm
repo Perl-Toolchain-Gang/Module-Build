@@ -296,18 +296,18 @@ sub feature_names { keys %%$features }
 sub config_names  { keys %%$config }
 
 sub write {
-  my $file = __FILE__;
+  my $me = __FILE__;
   require IO::File;
   require Data::Dumper;
 
-  my $mode_orig = (stat __FILE__)[2] & 07777;
-  chmod($mode_orig | 0222, __FILE__); # Make it writeable
-  my $fh = IO::File->new(__FILE__, 'r+') or die "Can't rewrite ", __FILE__, ": $!";
+  my $mode_orig = (stat $me)[2] & 07777;
+  chmod($mode_orig | 0222, $me); # Make it writeable
+  my $fh = IO::File->new($me, 'r+') or die "Can't rewrite $me: $!";
   seek($fh, 0, 0);
   while (<$fh>) {
     last if /^__DATA__$/;
   }
-  die "Couldn't find __DATA__ token in ", __FILE__ if eof($fh);
+  die "Couldn't find __DATA__ token in $me" if eof($fh);
 
   local $Data::Dumper::Terse = 1;
   seek($fh, tell($fh), 0);
@@ -315,8 +315,8 @@ sub write {
   truncate($fh, tell($fh));
   $fh->close;
 
-  chmod($mode_orig, __FILE__)
-    or warn "Couldn't restore permissions on ", __FILE__, ": $!";
+  chmod($mode_orig, $me)
+    or warn "Couldn't restore permissions on $me: $!";
 }
 
 EOF
