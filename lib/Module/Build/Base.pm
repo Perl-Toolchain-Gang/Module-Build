@@ -1647,8 +1647,14 @@ sub ACTION_testpod {
 sub ACTION_docs {
   my $self = shift;
   $self->depends_on('code');
-  $self->manify_bin_pods() if $self->install_destination('bindoc');
-  $self->manify_lib_pods() if $self->install_destination('libdoc');
+
+  require Module::Build::ConfigData;  # Only works after the 'code' action
+  if (Module::Build::ConfigData->feature('manpage_support')) {
+    
+    $self->manify_bin_pods() if $self->install_destination('bindoc');
+    $self->manify_lib_pods() if $self->install_destination('libdoc');
+  }
+
   $self->htmlify_pods()    if $self->install_destination('html');
 }
 
