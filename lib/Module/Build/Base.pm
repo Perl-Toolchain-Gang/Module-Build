@@ -2469,7 +2469,8 @@ sub link_c {
 
   return $lib_file if $self->up_to_date([$obj_file, @$objects], $lib_file);
 
-  $b->link(objects => [$obj_file, @$objects],
+  $b->link(module_name => $self->module_name,
+	   objects => [$obj_file, @$objects],
 	   lib_file => $lib_file,
 	   extra_linker_flags => $p->{extra_linker_flags});
   
