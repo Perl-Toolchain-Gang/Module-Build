@@ -48,6 +48,7 @@ sub resume {
   
   $self->cull_args(@ARGV);
   $self->{action} ||= 'build';
+  $self->_set_install_paths;
   
   return $self;
 }
@@ -1503,7 +1504,7 @@ sub _htmlify_pod {
   my $infile = File::Spec::Unix->abs2rel($args{path});
     
   my @rootdirs  = $isbin? ('bin') : ('site', 'lib');
-    
+  
   my $fulldir = File::Spec::Unix->catfile($args{htmldir}, @rootdirs, @dirs);
   my $outfile = File::Spec::Unix->catfile($fulldir, $name . '.html');
 
@@ -2047,8 +2048,11 @@ sub install_destination {
 sub install_types {
   my $self = shift;
   my $p = $self->{properties};
-  my %types = (%{$p->{install_types}}, %{$p->{install_path}});
-  return keys %types;
+  my $sets = $p->{install_sets}{ $p->{installdirs} };
+  my %types = map {$_, 1} (@{$p->{install_types}},
+			   keys %{$p->{install_path}},
+			   keys %$sets);
+  return sort keys %types;
 }
 
 sub install_map {
