@@ -1181,6 +1181,12 @@ module for distribution through a medium like CPAN.  It will create a
 tarball of the files listed in F<MANIFEST> and compress the tarball using
 GZIP compression.
 
+=item ppmdist
+
+Generates a PPM binary distribution and a PPD description file.  This
+action also invokes the 'ppd' action, so it can accept the same
+C<codebase> argument described under that action.
+
 =item distsign
 
 Uses C<Module::Signature> to create a SIGNATURE file for your
