@@ -250,6 +250,17 @@ sub notes {
       );
 
   sub valid_property { exists $valid_properties{$_[1]} }
+
+  # Create an accessor for each property that doesn't already have one
+  foreach my $property (keys %valid_properties) {
+      next if __PACKAGE__->can($property);
+      no strict 'refs';
+      *{$property} = sub {
+          my $self = shift;
+          $self->{properties}{$property} = shift if @_;
+          return $self->{properties}{$property};
+      };
+  }
 }
 
 # XXX Problem - if Module::Build is loaded from a different directory,
