@@ -2046,7 +2046,7 @@ sub install_destination {
 sub install_types {
   my $self = shift;
   my $p = $self->{properties};
-  my %types = (%{$p->{install_path}}, %{ $p->{install_sets}{$p->{installdirs}});
+  my %types = (%{$p->{install_path}}, %{ $p->{install_sets}{$p->{installdirs}} });
   return sort keys %types;
 }
 
