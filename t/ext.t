@@ -80,7 +80,7 @@ sub do_split_tests {
 
   my ($string, $expected) = %$test;
   my @result = $package->split_like_shell($string);
-  ok( grep( {!defined()} @result ), # all defined
+  ok( 0 + grep( !defined(), @result ), # all defined
       0,
       "'$string' result all defined" );
   ok( join(' ', map "{$_}", @result),
