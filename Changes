@@ -61,6 +61,10 @@ Revision history for Perl extension Module::Build.
  - Skip the 'write' pseudo-entry in the 'diff' action's installation
    map. [Chris Dolan]
 
+ - Fixed a bug in which notes() set in the Build.PL before
+   create_build_script() was called would get lost unless more notes()
+   were also set afterwards. [Spotted by Dave Rolsky]
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
