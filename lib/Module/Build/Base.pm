@@ -558,7 +558,7 @@ sub prereq_failures {
 	next if $status->{ok};
 	$status->{message} = ($status->{have} eq '<none>'
 			      ? "Optional prerequisite $modname isn't installed"
-			      : "Version $status->{have} is installed, but we prefer to have $spec");
+			      : "Version $status->{have} of $modname is installed, but we prefer to have $spec");
       } else {
 	next if $status->{ok};
       }
