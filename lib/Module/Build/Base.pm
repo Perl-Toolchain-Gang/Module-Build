@@ -1216,7 +1216,9 @@ sub _find_file_by_type {
   }
   
   return {} unless -d $dir;
-  return { map {$_, $_} @{ $self->rscan_dir($dir, qr{\.$type$}) } };
+  return { map {$_, $_}
+	   map $self->localize_file_path($_),
+	   @{ $self->rscan_dir($dir, qr{\.$type$}) } };
 }
 
 sub localize_file_path {
