@@ -593,7 +593,51 @@ You'll probably never call this method directly, it's only called from
 the auto-generated C<Build> script.  The C<new()> method is only
 called once, when the user runs C<perl Build.PL>.  Thereafter, when
 the user runs C<Build test> or another action, the C<Module::Build>
-object is created using the C<resume()> method.
+object is created using the C<resume()> method to reinstantiate with
+the settings given earlier to C<new()>.
+
+=item current()
+
+This method returns a reasonable faxsimile of the currently-executing
+C<Module::Build> object representing the current build.  You can use
+this object to query its C<notes()> method, inquire about installed
+modules, and so on.  This is a great way to share information between
+different parts of your building process.  For instance, you can ask
+the user a question during C<perl Build.PL>, then use their answer
+during a regression test:
+
+ # In Build.PL:
+ my $color = $build->prompt("What is your favorite color?");
+ $build->notes(color => $color);
+ 
+ # In t/colortest.t:
+ use Module::Build;
+ my $build = Module::Build->current;
+ my $color = $build->notes('color');
+ ...
+
+The way the C<current()> method is currently implemented, there may be
+slight differences between the C<$build> object in Build.PL and the
+one in C<t/colortest.t>.  It is our goal to minimize these differences
+in future releases of Module::Build, so please report any anomalies
+you find.
+
+=item notes()
+
+=item notes($key)
+
+=item notes($key => $value)
+
+The C<notes()> value allows you to store your own persistent
+information about the build, and to share that information among
+different entities involved in the build.  See the example in the
+C<current()> method.
+
+The C<notes()> method is essentally a glorified hash access.  With no
+arguments, C<notes()> returns a reference to the entire hash of notes.
+With one argument, C<notes($key)> returns the value associated with
+the given key.  With two arguments, C<notes($key, $value)> sets the
+value associated with the given key to C<$value>.
 
 =item dispatch($action, %args)
 
