@@ -1458,7 +1458,7 @@ sub ACTION_realclean {
 sub ACTION_ppd {
   my ($self) = @_;
   require Module::Build::PPMMaker;
-  my $ppd = Module::Build::PPMMaker->new(archname => $self->{config}{archname});
+  my $ppd = Module::Build::PPMMaker->new();
   my $file = $ppd->make_ppd(%{$self->{args}}, build => $self);
   $self->add_to_cleanup($file);
 }
