@@ -24,10 +24,11 @@ sub new {
 
   $self->{args} = {%Config, @_, %$args};
 
-  $self->find_version;
-  $self->write_config;
-  
   $self->check_manifest;
+  $self->check_prereq;
+  $self->find_version;
+  
+  $self->write_config;
   
   return $self;
 }
@@ -85,12 +86,11 @@ sub version_from_file {
 		    }; \$$2
 		   };
       local $^W;
-      my $result = eval $eval;
-      die "Could not eval '$_' in '$file': $@" if $@;
-      return $result;
+      return scalar eval $eval;
     }
   }
-  die "Couldn't find version string in '$file'";
+  return undef;
+  #die "Couldn't find version string in '$file'";
 }
 
 sub add_to_cleanup {
@@ -162,6 +162,48 @@ sub write_config {
       print $fh "$key=$self->{args}{$key}\n";
     }
   }
+}
+
+sub check_prereq {
+  my $self = shift;
+  return 1 unless $self->{prereq};
+
+  my $pass = 1;
+  while (my ($modname, $spec) = each %{$self->{prereq}}) {
+
+    my $file = $self->module_name_to_file($modname);
+    unless ($file) {
+      warn "WARNING: Prerequisite $modname isn't installed\n";
+      $pass = 0;
+      next;
+    }
+
+    my $version = $self->version_from_file($file);
+    if ($spec and !$version) {
+      warn "WARNING: Couldn't find a \$VERSION in prerequisite '$file'\n";
+      $pass = 0;
+      next;
+    }
+
+    my @conditions;
+    if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
+      @conditions = (">= $spec");
+    } else {
+      @conditions = split /\s*,\s*/, $self->{prereq}{$modname};
+    }
+
+    foreach (@conditions) {
+      if ($_ !~ /^\s*  (<=?|>=?|==|!=)  \s*  [\w.]+  \s*$/x) {
+	warn "WARNING: Invalid prerequisite condition for $modname: $_\n";
+	next;
+      }
+      unless (eval "\$version $_") {
+	warn "WARNING: $modname version $version is installed, but we need Version($modname) $_\n";
+	$pass = 0;
+      }
+    }
+  }
+  return $pass;
 }
 
 sub rm_previous_build_script {
