@@ -31,6 +31,11 @@ Revision history for Perl extension Module::Build.
    (i.e. 't/*.t'), and the corresponding test_files() method is now a
    read/write accessor.
 
+ - The 'distdir' action now copies files to the distribution
+   directory, rather than making them hard links to the original
+   files.  This allows authors to do last-minute alterations of the
+   files without affecting the originals. [Dave Rolsky]
+
 0.19_04
 
  - Fixed yet another bug with installation directories, in which the
