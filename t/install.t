@@ -42,7 +42,8 @@ $build->add_to_cleanup($destdir);
 
   # Make sure there's a packlist installed
   my $archdir = $build->install_destination('arch');
-  my $packlist = File::Spec->catdir($destdir, $archdir, 'auto', 'Sample', '.packlist');
+  my ($v, $d) = File::Spec->splitpath($archdir, 1);
+  my $packlist = File::Spec->catdir($destdir, $d, 'auto', 'Sample', '.packlist');
   ok -e $packlist, 1, "$packlist should be written";
 }
 
