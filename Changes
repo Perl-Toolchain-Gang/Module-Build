@@ -69,6 +69,11 @@ Revision history for Perl extension Module::Build.
    by a list of build elements, paving the way for letting people add
    their own types of build elements.
 
+ - Fixed some linking errors on Cygwin. [Randy Sims, Terrence Brannon]
+
+ - Fixed a line-ending problem with detecting the dist_abstract
+   properly on Cygwin. [Randy Sims]
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
