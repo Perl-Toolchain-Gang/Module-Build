@@ -11,7 +11,7 @@ Revision history for Perl extension Module::Build.
 
 0.17  Sat Mar 29 18:06:01 CST 2003
 
- - Now works under perl 5.005_03.  [Richard Cramp]
+ - Now works under perl 5.005_03.  [Richard Clamp]
 
  - When building blib/ , .PL files are now processed before doing
    anything else.  This means .PL files can be used in any of the
