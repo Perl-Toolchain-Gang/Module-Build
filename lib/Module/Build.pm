@@ -597,6 +597,8 @@ C<STDIN> and C<STDOUT> look like they're attached to files or
 something, not terminals), we'll just use the default without
 letting the user provide an answer.
 
+This method may be called as a class or object method.
+
 =item y_n()
 
 Asks the user a yes/no question using C<prompt()> and returns true or
@@ -611,6 +613,8 @@ Note that the default is specified as a string like C<"y"> or C<"n">,
 and the return value is a Perl boolean value like 1 or 0.  I thought
 about this for a while and this seemed like the most useful way to do
 it.
+
+This method may be called as a class or object method.
 
 =item script_files()
 
