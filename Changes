@@ -2,6 +2,13 @@ Revision history for Perl extension Module::Build.
 
 0.21_02
 
+ - Changed the manpage separator on OS/2 to '.'. [Randy Sims]
+
+ - Now the Build script will die() if we're run from the wrong
+   directory, rather than trying to chdir() to the right directory and
+   do its work there.  See
+   https://rt.cpan.org/Ticket/Display.html?id=4039 . [Chris Dolan]
+
  - On OS/2, disable C compilation, since apparently it isn't working
    there. [Reported by Ilya Zakharevich]
 
