@@ -3,7 +3,10 @@ Revision history for Perl extension Module::Build.
 0.2605
 
  - Fixed a bug in which zero-length arguments for hash-valued
-   parameters (e.g. "--config foo=bar") weren't being allowed.
+   parameters (e.g. " --config foo= ") weren't being allowed.
+
+ - The tests now play better with environments in which version.pm is
+   pre-loaded, like in bleadperl. [John Peacock & Michael Schwern]
 
 0.2604  Wed Nov 17 14:32:42 CST 2004
 
