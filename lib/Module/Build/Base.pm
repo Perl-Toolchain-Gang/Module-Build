@@ -181,6 +181,8 @@ sub resume {
        dist_name
        dist_version
        dist_version_from
+       dist_author
+       dist_abstract
        requires
        recommends
        pm_files
