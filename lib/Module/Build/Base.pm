@@ -717,15 +717,13 @@ sub ACTION_build {
 
 sub compile_support_files {
   my $self = shift;
-
-  if ($self->{properties}{c_source}) {
-    my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.c(pp)?$});
-    
-    push @{$self->{include_dirs}}, $self->{properties}{c_source};
-
-    foreach my $file (@$files) {
-      push @{$self->{objects}}, $self->compile_c($file);
-    }
+  return unless $self->{properties}{c_source};
+  
+  push @{$self->{include_dirs}}, $self->{properties}{c_source};
+  
+  my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.c(pp)?$});
+  foreach my $file (@$files) {
+    push @{$self->{objects}}, $self->compile_c($file);
   }
 }
 
@@ -755,7 +753,7 @@ sub process_pm_files {
 
 sub find_PL_files {
   my $self = shift;
-  return $self->{properties}{PL_files} || { map {+$_, undef} $self->rscan_dir('lib', qr{\.PL$}) };
+  return $self->{properties}{PL_files} || { map {$_, undef} $self->rscan_dir('lib', qr{\.PL$}) };
 }
 
 sub find_pm_files {
