@@ -26,14 +26,10 @@ sub link_c {
 }
 
 sub make_tarball {
-  my ($self, $dir) = @_;
-
-  my $tar_flags = $self->{properties}{verbose} ? 'cvf' : 'cf';
-
-  my $tar = $self->{args}{tar}  || 'tar';
-  $self->do_system($tar, $tar_flags, "$dir.tar", $dir);
-  my $gzip = $self->{args}{gzip} || 'gzip';
-  $self->do_system($gzip, "$dir.tar");
+  my $self = shift;
+  $self->{args}{tar}  ||= 'tar';
+  $self->{args}{gzip} ||= 'gzip';
+  $self->SUPER::make_tarball(@_);
 }
 
 sub _startperl { "#! " . shift()->perl }
