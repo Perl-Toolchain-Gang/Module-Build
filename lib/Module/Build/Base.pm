@@ -1189,10 +1189,11 @@ sub ACTION_distdir {
     Module::Build::Compat->create_makefile_pl($self->{properties}{create_makefile_pl}, $self);
   }
   
-  require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
-  local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
-  
-  my $dist_files = ExtUtils::Manifest::maniread('MANIFEST');
+  my $dist_files = $self->_read_manifest('MANIFEST');
+  unless (keys %$dist_files) {
+    warn "No files found in MANIFEST - try running 'manifest' action?\n";
+    return;
+  }
   $self->delete_filetree($dist_dir);
   $self->add_to_cleanup($dist_dir);
   ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'best');
@@ -1287,11 +1288,22 @@ sub ACTION_distmeta {
   return $self->{wrote_metadata} = $yaml_sub->($self->{metafile}, $node );
 }
 
+sub _read_manifest {
+  my ($self, $file) = @_;
+  require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
+  local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
+
+  return scalar ExtUtils::Manifest::maniread($file);
+}
+
 sub find_dist_packages {
   my $self = shift;
   
   # Only packages in .pm files are candidates for inclusion here.
-  my @pm_files = keys %{ $self->find_pm_files };
+  # Only include things in the MANIFEST, not things in developer's
+  # private stock.
+  my $dist_files = $self->_read_manifest('MANIFEST');
+  my @pm_files = grep {exists $dist_files->{$_}} keys %{ $self->find_pm_files };
   
   my %out;
   foreach my $file (@pm_files) {
