@@ -14,6 +14,11 @@ Revision history for Perl extension Module::Build.
  - Added a recipe to the cookbook showing how to run a single test
    file from the command line. [William McKee]
 
+ - For command-line arguments, we now accept the syntax "--foo=bar" in
+   addition to "--foo bar" and "foo=bar".  This seems to fit well with
+   what GNU getopt and Getopt::Long do, and with people's
+   expectations. [Adam Spiers]
+
 0.2609  Wed Mar 16 22:18:35 CST 2005
 
  - The html docs that were created during the first invokation of

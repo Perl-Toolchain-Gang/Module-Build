@@ -1167,6 +1167,8 @@ sub read_args {
       $self->_read_arg(\%args, $1, $2);
     } elsif ( /^--(\w+)$/ ) {
       $self->_read_arg(\%args, $1, shift());
+    } elsif ( /^--(\w+)=(.*)$/ ) {
+      $self->_read_arg(\%args, $1, $2);
     } elsif ( /^(\w+)$/ and !defined($action)) {
       $action = $1;
     } else {

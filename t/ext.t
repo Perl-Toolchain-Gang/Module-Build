@@ -55,7 +55,7 @@ my @win_splits =
    { 'a " b " c'            => [ 'a', ' b ', 'c' ] },
 );
 
-plan tests => 13 + 2*@unix_splits + 2*@win_splits;
+plan tests => 14 + 2*@unix_splits + 2*@win_splits;
 
 use Module::Build;
 ok(1);
@@ -81,12 +81,13 @@ foreach my $test (@win_splits) {
 
 {
   # Make sure read_args() functions properly as a class method
-  my @args = qw(foo=bar --food bard);
+  my @args = qw(foo=bar --food bard --foods=bards);
   my ($args) = Module::Build->read_args(@args);
 
-  ok keys(%$args), 3;
+  ok keys(%$args), 4;
   ok $args->{foo}, 'bar';
   ok $args->{food}, 'bard';
+  ok $args->{foods}, 'bards';
   ok exists $args->{ARGV}, 1;
   ok @{$args->{ARGV}}, 0;
 }
