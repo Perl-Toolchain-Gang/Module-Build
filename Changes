@@ -1,5 +1,15 @@
 Revision history for Perl extension Module::Build.
 
+0.2602 (Bug fix for 0.26)   Thu Nov  4 11:19:29 CST 2004
+
+ - The two bug fixes in 0.2601 gnashed against each other incorrectly,
+   resulting in a Win32 bug in split_like_shell().  Fixed.  [Spotted
+   by Steve Hay & Randy Sims]
+
+ - Removed a couple of 'use warnings' statements from the code - they
+   were causing compile failures on 5.005_04, where warnings.pm isn't
+   available. [Blair Zajac]
+
 0.2601 (Bug fix for 0.26)   Wed Nov  3 20:09:27 CST 2004
 
  - Fixed some backslash problems with split_like_shell() on
