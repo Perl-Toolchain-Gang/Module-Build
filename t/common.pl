@@ -1,12 +1,19 @@
 use strict;
 
-sub add_search_path {
-  # This is the equivalent of doing "use lib" at runtime, but also
-  # affects subprocesses.
+sub have_module {
+  my $module = shift;
+  return eval "use $module; 1";
+}
 
-  my $path = shift;
-  unshift @INC, $path;
-  $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$path:$ENV{PERL5LIB}" : $path;
+sub need_module {
+  my $module = shift;
+  skip_test("$module not installed") unless have_module($module);
+}
+
+sub skip_test {
+  my $msg = @_ ? shift() : '';
+  print "1..0 # Skipped: $msg\n";
+  exit;
 }
 
 sub stdout_of {
