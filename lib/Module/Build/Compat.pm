@@ -153,7 +153,7 @@ sub fake_makefile {
 
   my $perl = $args{build_class}->find_perl_interpreter;
   my $os_type = $args{build_class}->os_type;
-  my $noop = ($os_type eq 'Windows' ? 'rem' :
+  my $noop = ($os_type eq 'Windows' ? 'rem>nul' :
 	      $os_type eq 'VMS'     ? 'Continue' :
 	      'true');
 
