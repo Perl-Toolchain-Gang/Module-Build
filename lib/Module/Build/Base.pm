@@ -1459,15 +1459,27 @@ sub _sign_dir {
     warn "Couldn't load Module::Signature for 'distsign' action:\n $@\n";
     return;
   }
-
+  
+  # Add SIGNATURE to the MANIFEST
+  {
+    my $manifest = File::Spec->catfile($dir, 'MANIFEST');
+    die "Signing a distribution requires a MANIFEST file" unless -e $manifest;
+    my $mode = (stat $manifest)[2];
+    chmod($mode | 0222, $manifest) or die "Can't make $manifest writable: $!";
+    
+    my $fh = IO::File->new(">> $manifest") or die "Can't add SIGNATURE to $manifest: $!";
+    print $fh "\nSIGNATURE    Added here by Module::Build\n";
+    close $fh;
+    chmod($mode, $manifest);
+  }
+  
   # We protect the signing with an eval{} to make sure we get back to
   # the right directory after a signature failure.  Would be nice if
   # Module::Signature took a directory argument.
   
   my $start_dir = $self->cwd;
   chdir $dir or die "Can't chdir() to $dir: $!";
-  $self->delete_filetree('SIGNATURE');
-  eval {Module::Signature::sign()};
+  eval {local $Module::Signature::Quiet = 1; Module::Signature::sign()};
   my @err = $@ ? ($@) : ();
   chdir $start_dir or push @err, "Can't chdir() back to $start_dir: $!";
   die join "\n", @err if @err;
@@ -1508,18 +1520,6 @@ sub ACTION_distdir {
   unless (keys %$dist_files) {
     warn "No files found in MANIFEST - try running 'manifest' action?\n";
     return;
-  }
-  
-  if ($self->{properties}{sign}) {
-    warn "If you want to sign this distribution you need to include SIGNATURE in your MANIFEST file\n"
-      unless exists $dist_files->{SIGNATURE};
-    
-    unless (-e 'SIGNATURE') {
-      # just make a dummy file so manicopy() doesn't balk below
-      open my $fh, ">SIGNATURE" or die "Cannot write to SIGNATURE: $!";
-      close $fh;
-      $self->add_to_cleanup('SIGNATURE');
-    }
   }
   
   my $dist_dir = $self->dist_dir;
