@@ -69,7 +69,7 @@ foreach my $type (@makefile_types) {
     # Should fail with "can't find Foo/Builder.pm"
     my $warning = stderr_of
       (sub {
-	 my $result = $foo_builder->run_perl_script('Makefile.PL');
+	 my $result = $build->run_perl_script('Makefile.PL');
 	 ok !$result;
        });
     ok $warning, qr{Foo/Builder.pm};
@@ -80,7 +80,7 @@ foreach my $type (@makefile_types) {
   foreach my $style ('passthrough', 'small') {
     Module::Build::Compat->create_makefile_pl($style, $bar_builder);
     ok -e 'Makefile.PL';
-    ok $bar_builder->run_perl_script('Makefile.PL');
+    ok $build->run_perl_script('Makefile.PL');
   }
 }
 
