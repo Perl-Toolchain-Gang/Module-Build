@@ -1191,8 +1191,7 @@ sub compile_xs {
 
   print "$file -> $file_base.c\n";
   
-  # ExtUtils::ParseXS requires 5.6, but it's in @INC sometimes anyway.
-  if ($] >= 5.006 and eval {require ExtUtils::ParseXS; 1}) {
+  if (eval {require ExtUtils::ParseXS; 1}) {
     
     ExtUtils::ParseXS::process_file(
 				    filename => $file,
