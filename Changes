@@ -22,6 +22,10 @@ Revision history for Perl extension Module::Build.
  - Fixed a problem in htmlify_pods() that would produce test failures
    on Cygwin (and probably elsewhere).  [Yitzchak Scott-Thoennes]
 
+ - Fixed a fatal error that occurred when the author specified
+   'dist_author' manually in their Build.PL script. [Spotted by Ron
+   Savage]
+
  - The progress message "lib/Foo.xs -> lib/Foo.c" was previously being
    output even when the Foo.c file wasn't being rebuilt.  It's now
    fixed.
