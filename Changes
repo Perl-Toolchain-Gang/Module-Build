@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.19_04
 
+ - Don't build man pages when there's nowhere to install them, such as
+   on Win32 or Mac systems.
+
  - Added documentation for the 'dist_author', 'dist_abstract', and
    'codebase' parameters to new(), and for the 'ppd' action. [Dave
    Rolsky]
