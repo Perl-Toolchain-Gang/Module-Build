@@ -10,6 +10,9 @@ Revision history for Perl extension Module::Build.
  - Documented the 'test_files' parameter to new(). [Reported by Tony
    Bowden]
 
+ - Added a 'ppm_dist' action, which just makes the PPD file and then
+   makes a tarball out of the blib/ directory. [Randy Sims]
+
 0.22  Sat Jan 10 22:05:39 CST 2004
 
  - On Unixish platforms, the syntax "FOO=BAR /bin/baz arg arg" now
