@@ -11,7 +11,10 @@ use File::Spec ();
 use File::Path ();
 use File::Basename ();
 
+use Module::Build::Base;
+
 use vars qw($VERSION @ISA);
+@ISA = qw(Module::Build::Base);
 $VERSION = '0.24';
 
 # Okay, this is the brute-force method of finding out what kind of
@@ -59,25 +62,30 @@ my %OSTYPES = qw(
 		 mpeix     MPEiX
 		);
 
-# We only use this once - don't waste a symbol table entry on it.
-# More importantly, don't make it an inheritable method.
-my $load = sub {
-  my $mod = shift;
-  #warn "Using $mod";
+sub _interpose_module {
+  my ($self, $mod) = @_;
   eval "use $mod";
   die $@ if $@;
+
+  no strict 'refs';
+  my $top_class = $mod;
+  while (@{"${top_class}::ISA"}) {
+    last if ${"${top_class}::ISA"}[0] eq $ISA[0];
+    $top_class = ${"${top_class}::ISA"}[0];
+  }
+
+  @{"${top_class}::ISA"} = @ISA;
   @ISA = ($mod);
-};
+}
 
 if (grep {-e File::Spec->catfile($_, qw(Module Build Platform), $^O) . '.pm'} @INC) {
-  $load->("Module::Build::Platform::$^O");
+  __PACKAGE__->_interpose_module("Module::Build::Platform::$^O");
 
 } elsif (exists $OSTYPES{$^O}) {
-  $load->("Module::Build::Platform::$OSTYPES{$^O}");
+  __PACKAGE__->_interpose_module("Module::Build::Platform::$OSTYPES{$^O}");
 
 } else {
   warn "Unknown OS type '$^O' - using default settings\n";
-  $load->("Module::Build::Platform::Default");
 }
 
 sub os_type { $OSTYPES{$^O} }
