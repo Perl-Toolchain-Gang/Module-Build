@@ -28,9 +28,13 @@ sub run_build_pl {
 }
 
 sub fake_makefile {
-  return <<'EOF';
+  my $out = "THISFILE = $_[1]\n";
+  return $out . <<'EOF';
 all :
 	./Build
+realclean :
+	./Build realclean
+	rm -f $(THISFILE)
 .DEFAULT :
 	./Build $@
 EOF
@@ -42,7 +46,7 @@ sub write_makefile {
   my ($pack, %in) = @_;
   $in{makefile} ||= 'Makefile';
   open  MAKE, "> $in{makefile}" or die "Cannot write $in{makefile}: $!";
-  print MAKE $pack->fake_makefile;
+  print MAKE $pack->fake_makefile($in{makefile});
   close MAKE;
 }
 
