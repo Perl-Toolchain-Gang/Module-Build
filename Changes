@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.15  Fri Jan 17 15:00:24 CST 2003
 
+ - Added experimental support for creating distribution SIGNATURE
+   files via Module::Signature. [Dave Rolsky]
+
  - Added support for installing executable scripts, via the 'scripts'
    parameter to new(), and the scripts() accessor method.
 
