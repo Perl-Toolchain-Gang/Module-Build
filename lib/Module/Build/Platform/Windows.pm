@@ -68,6 +68,22 @@ sub manpage_separator {
     return '.';
 }
 
+sub split_like_shell {
+  # In Win32 command shells, the backslashes in the string "\bar\baz"
+  # should be preserved, because they often show up as parts of
+  # pathnames.  We double-up all these backslashes so shellwords() can
+  # still be used (making sure to avoid backslash-quote pairs, which
+  # should work the same as on Unix)
+
+  my ($self, $string) = @_;
+  
+  return () unless defined($string) && length($string);
+  return @$string if UNIVERSAL::isa($string, 'ARRAY');
+  
+  $string =~ s/\\(?!")/\\\\/g;
+  return Text::ParseWords::shellwords($string);
+}
+
 1;
 
 __END__
