@@ -58,7 +58,9 @@ sub new_from_context {
   
   # Run the Build.PL
   $package->run_perl_script('Build.PL');
-  return $package->resume;
+  my $self = $package->resume;
+  $self->merge_args(%args);
+  return $self;
 }
 
 sub current {
@@ -834,7 +836,7 @@ sub _call_action {
   return $self->$method();
 }
 
-sub _cull_arg {
+sub _read_arg {
   my ($self, $args, $key, $val) = @_;
 
   if ( exists $args->{$key} ) {
@@ -845,15 +847,15 @@ sub _cull_arg {
   }
 }
 
-sub cull_args {
+sub read_args {
   my $self = shift;
   my ($action, %args, @argv);
   while (@_) {
     local $_ = shift;
     if ( /^(\w+)=(.*)/ ) {
-      $self->_cull_arg(\%args, $1, $2);
+      $self->_read_arg(\%args, $1, $2);
     } elsif ( /^--(\w+)$/ ) {
-      $self->_cull_arg(\%args, $1, shift());
+      $self->_read_arg(\%args, $1, shift());
     } elsif ( /^(\w+)$/ and !defined($action)) {
       $action = $1;
     } else {
@@ -863,8 +865,7 @@ sub cull_args {
   $args{ARGV} = \@argv;
 
   # 'config' and 'install_path' are additive by hash key
-  my %additive = (config => $self->{config},
-		  install_path => $self->{properties}{install_path} ||= {});
+  my %additive = map {$_, 1} qw(config install_path);
 
   # Hashify these parameters
   for (keys %additive) {
@@ -879,8 +880,15 @@ sub cull_args {
     }
     $args{$_} = \%hash;
   }
+  
+  return \%args, $action;
+}
 
-  # Now merge data into $self.
+sub merge_args {
+  my ($self, $action, %args) = @_;
+  my %additive = (config => $self->{config},
+		  install_path => $self->{properties}{install_path} ||= {});
+
   $self->{action} = $action if defined $action;
 
   # Extract our 'properties' from $cmd_args, the rest are put in 'args'.
@@ -895,7 +903,12 @@ sub cull_args {
       $add_to->{$key} = $val;
     }
   }
+}
 
+sub cull_args {
+  my $self = shift;
+  my ($args, $action) = $self->read_args(@_);
+  $self->merge_args($action, %$args);
 }
 
 sub super_classes {
@@ -1581,7 +1594,7 @@ sub ACTION_distdir {
   my ($self) = @_;
 
   $self->depends_on('distmeta');
-  
+
   $self->do_create_makefile_pl if $self->create_makefile_pl;
   $self->do_create_readme if $self->create_readme;
   
@@ -1649,7 +1662,7 @@ sub script_files {
     # Always coerce into a hash
     return $_ if UNIVERSAL::isa($_, 'HASH');
     return $_ = {$_ => 1} unless ref();
-    return { map {$_,1} @{$_[0]} };
+    return { map {$_,1} @$_ };
   }
 }
 BEGIN { *scripts = \&script_files; }
