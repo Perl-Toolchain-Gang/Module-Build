@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.26_01
+0.2601 (Bug fix for 0.26)   Wed Nov  3 20:09:27 CST 2004
 
  - Fixed some backslash problems with split_like_shell() on
    Win32. [Steve Hay]
