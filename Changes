@@ -21,6 +21,10 @@ Revision history for Perl extension Module::Build.
    files, in accordance with the finding made at the London CLPAN
    meeting that it's essentially meaningless and ill-defined.
 
+ - The 'dist' action now accepts an optional 'tar' parameter to use a
+   system utility for building the tarball, and a 'gzip' parameter for
+   compressing it.  If these are used, Archive::Tar won't be invoked.
+
 0.21_02  Tue Dec 23 17:05:11 CST 2003
 
  - During testing, if YAML.pm isn't installed, then we won't try
