@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 22 }
+BEGIN { plan tests => 24 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -108,6 +108,13 @@ if ($HAVE_YAML) {
   ok $@, '';
   
   $libdir = strip_volume( $Config{installprivlib} );
+  $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
+  print "Should have installed module as $install_to\n";
+  ok -e $install_to;
+
+  $libdir = File::Spec->catdir('', 'foo', 'bar');
+  eval {$build->dispatch('install', install_path => {lib => $libdir}, destdir => $destdir)};
+  ok $@, '';
   $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
   print "Should have installed module as $install_to\n";
   ok -e $install_to;
