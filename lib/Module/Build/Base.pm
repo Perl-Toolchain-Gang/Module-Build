@@ -64,7 +64,6 @@ sub new {
 				   recommends => {},
 				   build_requires => {},
 				   conflicts => {},
-				   PL_files => {},
 				   scripts => [],
 				   perl => $perl,
 				   %input,
@@ -750,32 +749,38 @@ sub process_pm_files {
 
 sub find_PL_files {
   my $self = shift;
-  return $self->rscan_dir('lib', qr{\.PL$});
+  return $self->{properties}{PL_files} || { map {+$_, undef} $self->rscan_dir('lib', qr{\.PL$}) };
 }
 
 sub find_pm_files {
   my $self = shift;
-  return $self->rscan_dir('lib', qr{\.pm$});
+  return $self->{properties}{pm_files} || $self->rscan_dir('lib', qr{\.pm$});
 }
 
 sub find_pod_files {
   my $self = shift;
-  return $self->rscan_dir('lib', qr{\.pod$});
+  return $self->{properties}{pod_files} || $self->rscan_dir('lib', qr{\.pod$});
 }
 
 sub find_xs_files {
   my $self = shift;
-  return $self->rscan_dir('lib', qr{\.xs$});
+  return $self->{properties}{xs_files} || $self->rscan_dir('lib', qr{\.xs$});
+}
+
+sub find_script_files {
+  my $self = shift;
+  return $self->{properties}{script_files} || [];
 }
 
 sub process_script_files {
   my $self = shift;
-  return unless @{$self->{properties}{scripts}};
+  my $files = $self->find_script_files;
+  return unless @$files;
 
   my $script_dir = File::Spec->catdir('blib', 'script');
   File::Path::mkpath( $script_dir );
   
-  foreach my $file (@{$self->{properties}{scripts}}) {
+  foreach my $file (@$files) {
     my $result = $self->copy_if_modified($file, $script_dir, 'flatten') or next;
     require ExtUtils::MM;
     ExtUtils::MM->fixin($result);
@@ -837,13 +842,14 @@ sub ACTION_diff {
 
 sub process_PL_files {
   my ($self) = @_;
-  my $p = $self->{properties}{PL_files};
   my $files = $self->find_PL_files;
-  foreach my $file (@$files) {
-    my @to = (exists $p->{$file} ?
-	      (ref $p->{$file} ? @{$p->{$file}} : ($p->{$file})) :
+  
+  while (my ($file, $to) = each %$files) {
+    my @to = (defined $to ?
+	      (ref $to ? @$to : ($to)) :
 	      $file =~ /^(.*)\.PL$/);
     
+    # XXX - needs to use File::Spec
     if (grep {!-e $_ or  -M _ > -M $file} @to) {
       $self->run_perl_script($file);
       $self->add_to_cleanup(@to);
