@@ -802,6 +802,13 @@ files do not exist, it returns false.  Otherwise it returns true.
 The arguments may be either a scalar or an array reference of file
 names.
 
+=item contains_pod($file)
+
+Returns true if the given file appears to contain POD documentation.
+Currently this checks whether the file has a line beginning with
+'=pod', '=head', or '=item', but the exact semantics may change in the
+future.
+
 =back
 
 =head1 ACTIONS
