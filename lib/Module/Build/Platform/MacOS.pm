@@ -75,7 +75,7 @@ sub ACTION_install {
   my $self = shift;
   
   return $self->SUPER::ACTION_install(@_)
-    if ExtUtils::Install->VERSION ge '1.30';
+    if eval {ExtUtils::Install->VERSION('1.30'); 1};
     
   no warnings 'redefine';
   local *ExtUtils::Install::find = sub {
