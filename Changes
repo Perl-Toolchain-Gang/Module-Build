@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.11
 
+  - The 'name' in META.yaml is now the distribution name, not the
+    (incorrect) module name.
+
   - Added the check_installed_status() and prereq_failures() methods
     for checking prerequisite information with the programmatic
     interface
