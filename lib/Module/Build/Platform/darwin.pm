@@ -6,14 +6,14 @@ use Module::Build::Platform::Unix;
 use vars qw(@ISA);
 @ISA = qw(Module::Build::Platform::Unix);
 
-sub process_xs {
+sub compile_c {
   my ($self, $file) = @_;
 
   # -flat_namespace isn't a compile flag, it's a linker flag.  But
   # it's mistakenly in Config.pm as both.  Make the correction here.
   local $self->{args}{ccflags} = $self->{args}{ccflags};
   $self->{args}{ccflags} =~ s/-flat_namespace//;
-  $self->SUPER::process_xs($file);
+  $self->SUPER::compile_c($file);
 }
 
 
