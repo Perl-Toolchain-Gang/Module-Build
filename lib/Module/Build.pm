@@ -1396,7 +1396,7 @@ version-specific installs.
 
 This is an action intended for use by module authors, not people
 installing modules.  It will bring the F<MANIFEST> up to date with the
-files currently present in the distribution.  You may use a
+files currently present in the distribution.  You are encouraged to use a
 F<MANIFEST.SKIP> file to exclude certain files or directories from
 inclusion in the F<MANIFEST>.  F<MANIFEST.SKIP> should contain a bunch
 of regular expressions, one per line.  If a file in the distribution
@@ -1411,6 +1411,8 @@ add your own stuff to it:
    ^blib
    ~$
    \.bak$
+   \.tmp$
+   \.x~~$
    ^MANIFEST\.SKIP$
    CVS
 
