@@ -118,6 +118,8 @@ if ($HAVE_YAML) {
   $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
   print "Should have installed module as $install_to\n";
   ok -e $install_to;
+
+  # XXX need to test the 'install_base' parameter somehow
 }
 
 sub strip_volume {
