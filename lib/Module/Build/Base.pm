@@ -2081,8 +2081,13 @@ sub find_dist_packages {
   # Only packages in .pm files are candidates for inclusion here.
   # Only include things in the MANIFEST, not things in developer's
   # private stock.
-  my $dist_files = $self->_read_manifest('MANIFEST');
-  my @pm_files = grep {exists $dist_files->{$_}} keys %{ $self->find_pm_files };
+
+  # Localize
+  my %dist_files = (map
+		    {$self->localize_file_path($_) => $_}
+		    keys %{ $self->_read_manifest('MANIFEST') });
+
+  my @pm_files = grep {exists $dist_files{$_}} keys %{ $self->find_pm_files };
   
   my %out;
   foreach my $file (@pm_files) {
@@ -2092,7 +2097,7 @@ sub find_dist_packages {
     my $version = $self->version_from_file( $localfile );
     
     foreach my $package ($self->_packages_inside($localfile)) {
-      $out{$package}{file} = $file;
+      $out{$package}{file} = $dist_files{$file};
       $out{$package}{version} = $version if defined $version;
     }
   }
