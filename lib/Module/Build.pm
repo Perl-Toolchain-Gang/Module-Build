@@ -896,6 +896,10 @@ This action will simply print out a message that is meant to help you
 use the build process.  It will show you a list of available build
 actions too.
 
+With an optional argument specifying an action name (e.g. C<Build help
+test>), the 'help' action will show you any POD documentation it can
+find for that action.
+
 =item build
 
 If you run the C<Build> script without any arguments, it runs the
