@@ -7,7 +7,7 @@ use Config;
 require File::Spec->catfile('t', 'common.pl');
 
 skip_test("Don't know how to invoke 'make'") unless $Config{make};
-plan tests => 2 + 3*9;
+plan tests => 2 + 3*12;
 ok(1);  # Loaded
 
 my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
@@ -26,10 +26,8 @@ $build->add_to_cleanup('Makefile.PL');
 
 foreach my $type (qw(small passthrough traditional)) {
   Module::Build::Compat->create_makefile_pl($type, $build);
-  my $result = $build->run_perl_script('Makefile.PL');
-  ok $result;
-  ok -e 'Makefile', 1, "Makefile exists";
-
+  test_makefile_creation($build);
+  
   ok $build->do_system(@make);
   
   # Can't let 'test' STDOUT go to our STDOUT, or it'll confuse Test::Harness.
@@ -43,10 +41,20 @@ foreach my $type (qw(small passthrough traditional)) {
   ok $build->do_system(@make, 'realclean');
 
   # Try again with some Makefile.PL arguments
-  my $result = $build->run_perl_script('Makefile.PL', [], 'verbose');
+  test_makefile_creation($build, [], 'verbose');
+  ok $build->do_system(@make, 'realclean');
+  test_makefile_creation($build, [], 'INSTALLDIRS=vendor', 1);
+}
+
+sub test_makefile_creation {
+  my ($build, $preargs, $postargs, $cleanup) = @_;
+  
+  my $result = $build->run_perl_script('Makefile.PL', $preargs, $postargs);
   ok $result;
   ok -e 'Makefile', 1, "Makefile exists";
 
-  $build->dispatch('realclean');
-  ok not -e 'Makefile.PL';
+  if ($cleanup) {
+    $build->dispatch('realclean');
+    ok not -e 'Makefile.PL';
+  }
 }
