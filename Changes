@@ -13,6 +13,9 @@ Revision history for Perl extension Module::Build.
    hassle in which doing 'sudo Build install' would often create local
    doc files that needed superuser permissions to delete.
 
+ - Enhanced the 'help' action - 'Build help foo' will now show the POD
+   documentation for the 'foo' action.
+
 0.19_04
 
  - Fixed yet another bug with installation directories, in which the
