@@ -127,7 +127,7 @@ sub _varchname {  # Copied from PPM.pm
   my ($self, $config) = @_;
   my $varchname = $config->{archname};
   # Append "-5.8" to architecture name for Perl 5.8 and later
-  if (length($^V) && ord(substr($^V,1)) >= 8) {
+  if (defined($^V) && ord(substr($^V,1)) >= 8) {
     $varchname .= sprintf("-%d.%d", ord($^V), ord(substr($^V,1)));
   }
   return $varchname;
