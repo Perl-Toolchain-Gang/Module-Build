@@ -1791,23 +1791,30 @@ sub autosplit_file {
 
 sub have_c_compiler {
   my ($self) = @_;
-  return $self->{properties}{have_compiler} if defined $self->{properties}{have_compiler};
+  my $p = $self->{properties}; 
+  return $p->{have_compiler} if defined $p->{have_compiler};
+  
+  print "Checking if compiler tools configured... " if $p->{verbose};
   
   my $c_file = $self->config_file('compilet.c');
   {
     my $fh = IO::File->new("> $c_file") or die "Can't create $c_file: $!";
-    print $fh "int main() { return 0; }\n";
+    print $fh "int boot_compilet() { return 1; }\n";
   }
   
   my ($obj_file, $lib_file);
   eval {
+    local $p->{module_name} = 'compilet';  # Fool compile_c() and link_c() about the library name
     $obj_file = $self->compile_c($c_file);
     (my $file_base = $obj_file) =~ s/\.[^.]+$//;
+    $file_base =~ tr/"//d;
     $lib_file = $self->link_c($self->config_dir, $file_base);
   };
   unlink for grep defined, $c_file, $obj_file, $lib_file;
   
-  return $self->{properties}{have_compiler} = $@ ? 0 : 1;
+  my $result = $p->{have_compiler} = $@ ? 0 : 1;
+  print($result ? "ok.\n" : "failed.\n") if $p->{verbose};
+  return $result;
 }
 
 sub compile_c {
@@ -1860,7 +1867,9 @@ sub prelink_c {
     FILE     => $file_base,
   );
 
-  $self->add_to_cleanup("$file_base.exp", "$file_base.def");
+  # *One* of these will be created by Mksymlists depending on $^O
+  local $_;
+  $self->add_to_cleanup("$file_base.$_") for qw(ext def opt);
 }
 
 sub link_c {
