@@ -11,6 +11,9 @@ Revision history for Perl extension Module::Build.
  - If Pod::Man is not available, we now skip building man pages
    (rather than dying) and tell the user why.
 
+ - We now write a .packlist file upon installation, in the same place
+   that ExtUtils::MakeMaker does. [Johnny Lam]
+
  - On some Unix platforms (BSD derivatives, mostly) perl's $^X
    variable isn't set to the full path of the perl executable, just
    'perl', when the 'Build' script is run as './Build' and not 'perl
