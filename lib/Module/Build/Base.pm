@@ -240,6 +240,7 @@ sub notes {
        dist_abstract
        requires
        recommends
+       license
        pm_files
        xs_files
        pod_files
