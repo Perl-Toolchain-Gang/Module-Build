@@ -41,6 +41,7 @@ my %OSTYPES = qw(
 		 solaris   Unix
 		 sunos     Unix
 		 cygwin    Unix
+		 os2       Unix
 		 
 		 dos       Windows
 		 MSWin32   Windows
