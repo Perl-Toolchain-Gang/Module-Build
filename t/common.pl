@@ -22,38 +22,29 @@ sub skip_subtest {
   skip "skip $msg", 1;
 }
 
-sub stdout_of {
-  my $subr = shift;
+sub save_handle {
+  my ($handle, $subr) = @_;
   my $outfile = 'save_out';
 
   local *SAVEOUT;
-  open SAVEOUT, ">&STDOUT" or die "Can't save STDOUT handle: $!";
-  open STDOUT, "> $outfile" or die "Can't create $outfile: $!";
+  open SAVEOUT, ">&" . fileno($handle) or die "Can't save output handle: $!";
+  open $handle, "> $outfile" or die "Can't create $outfile: $!";
 
   eval {$subr->()};
-  open STDOUT, ">&SAVEOUT" or die "Can't restore STDOUT: $!";
+  open $handle, ">&SAVEOUT" or die "Can't restore output: $!";
 
-  return slurp($outfile);
+  my $ret = slurp($outfile);
+  1 while unlink $outfile;
+  return $ret;
 }
 
-sub stderr_of {
-  my $subr = shift;
-  my $outfile = 'save_err';
-
-  local *SAVEERR;
-  open SAVEERR, ">&STDERR" or die "Can't save STDERR handle: $!";
-  open STDERR, "> $outfile" or die "Can't create $outfile: $!";
-
-  eval {$subr->()};
-  open STDERR, ">&SAVEERR" or die "Can't restore STDERR: $!";
-
-  return slurp($outfile);
-}
+sub stdout_of { save_handle(\*STDOUT, @_) }
+sub stderr_of { save_handle(\*STDERR, @_) }
 
 sub slurp {
   my $fh = IO::File->new($_[0]) or die "Can't open $_[0]: $!";
   local $/;
-  return <$fh>;
+  return scalar <$fh>;
 }
 
 sub find_in_path {
