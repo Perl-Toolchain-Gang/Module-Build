@@ -60,7 +60,7 @@ my @win_splits =
    { 'a " b " c'            => [ 'a', ' b ', 'c' ] },
 );
 
-plan tests => 14 + 2*@unix_splits + 2*@win_splits;
+plan tests => 10 + 2*@unix_splits + 2*@win_splits;
 
 use Module::Build;
 ok(1);
@@ -88,12 +88,7 @@ foreach my $test (@win_splits) {
   # Make sure read_args() functions properly as a class method
   my @args = qw(foo=bar --food bard);
   my ($args) = Module::Build->read_args(@args);
-
-  is keys(%$args), 3;
-  is $args->{foo}, 'bar';
-  is $args->{food}, 'bard';
-  is exists $args->{ARGV}, 1;
-  is @{$args->{ARGV}}, 0;
+  is_deeply($args, {foo => 'bar', food => 'bard', ARGV => []});
 }
 
 {
