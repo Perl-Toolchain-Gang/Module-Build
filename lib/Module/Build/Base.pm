@@ -48,14 +48,19 @@ sub new {
 		    properties => {
 				   build_script => 'Build',
 				   config_dir => '_build',
-				   prereq => {},
-				   recommended => {},
+				   requires => {},
+				   recommends => {},
+				   build_requires => {},
+				   conflicts => {},
 				   PL_files => {},
 				   %input,
 				   %$cmd_properties,
 				  },
 		    new_cleanup => {},
 		   }, $package;
+
+  # A synonym
+  $self->{recommends} = delete $self->{prereq} if exists $self->{prereq};
 
   $self->check_manifest;
   $self->check_prereq;
@@ -82,8 +87,8 @@ sub resume {
        module_name
        module_version
        module_version_from
-       prereq
-       recommended
+       requires
+       recommends
        PL_files
        config_dir
        build_script
@@ -248,13 +253,13 @@ sub check_prereq {
   my $self = shift;
 
   my $pass = 1;
-  while (my ($modname, $spec) = each %{$self->{properties}{prereq}}) {
+  while (my ($modname, $spec) = each %{$self->{properties}{requires}}) {
     my $thispass = $self->check_installed_version($modname, $spec);
     warn "WARNING: $@\n" unless $thispass;
     $pass &&= $thispass;
   }
 
-  while (my ($modname, $spec) = each %{$self->{properties}{recommended}}) {
+  while (my ($modname, $spec) = each %{$self->{properties}{recommends}}) {
     warn "NOTE: $@\n" unless $self->check_installed_version($modname, $spec);
   }
 
@@ -301,7 +306,7 @@ sub check_installed_version {
   if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
     @conditions = (">= $spec");
   } else {
-    @conditions = split /\s*,\s*/, $self->{properties}{prereq}{$modname};
+    @conditions = split /\s*,\s*/, $self->{properties}{requires}{$modname};
   }
   
   foreach (@conditions) {
@@ -701,7 +706,6 @@ sub write_metadata {
 		  license => $p->{license},
 		 );
   
-  $metadata{requires} = $p->{prereq} if $p->{prereq}; # A synonym
   foreach (qw(requires build_depends recommends conflicts dynamic_config)) {
     $metadata{$_} = $p->{$_} if exists $p->{$_};
   }
