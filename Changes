@@ -9,7 +9,14 @@ Revision history for Perl extension Module::Build.
  - Get the installation to nonstandard locations figured out and
    working, finally
 
-0.19
+0.19 (Future release)
+
+
+0.18_02
+
+ - Fixed a problem with a bareword 'File::Spec' in one of the test
+   scripts that caused it not to compile under 5.8.0 (but is fine
+   under 5.6).
 
  - Fixed a problem with the 'destdir' installation parameter on
    platforms that have volume identifiers in path names (like "C:" on
