@@ -1,7 +1,7 @@
-# $Id $
 
 package Module::Build::Compat;
 use strict;
+use File::Spec;
 
 my %makefile_to_build = 
   (
@@ -40,12 +40,32 @@ realclean :
 EOF
 }
 
+sub fake_prereqs {
+  my $file = File::Spec->catfile('_build', 'prereqs');
+  open my $fh, "< $file" or die "Can't read $file: $!";
+  my $prereqs = eval do {local $/; <$fh>};
+  close $fh;
+  
+  my @prereq;
+  foreach my $section (qw/build_requires requires recommends/) {
+    foreach (keys %{$prereqs->{$section}}) {
+      next if $_ eq 'perl';
+      push @prereq, "$_=>q[$prereqs->{$section}{$_}]";
+    }
+  }
+
+  return unless @prereq;
+  return "#     PREREQ_PM => { " . join(", ", @prereq) . " }\n\n";
+}
+
+
 sub write_makefile {
   # Note - this doesn't yet emulate the PREREQ_PM stuff.
 
   my ($pack, %in) = @_;
   $in{makefile} ||= 'Makefile';
   open  MAKE, "> $in{makefile}" or die "Cannot write $in{makefile}: $!";
+  print MAKE $pack->fake_prereqs;
   print MAKE $pack->fake_makefile($in{makefile});
   close MAKE;
 }
@@ -60,11 +80,28 @@ Module::Build::Compat - Compatibility with ExtUtils::MakeMaker
 
 =head1 SYNOPSIS
 
- Here's a Makefile.PL that passes all functionality through to Module::Build
- 
+Here's a Makefile.PL that passes all functionality through to Module::Build
+
   use Module::Build::Compat;
   Module::Build::Compat->run_build_pl(args => \@ARGV);
   Module::Build::Compat->write_makefile();
+
+
+Or, here's one that's more careful about sensing whether Module::Build
+is already installed:
+
+  unless (eval { require Module::Build::Compat; 1 }) {
+    # Workaround with old CPAN.pm and CPANPLUS.pm
+    require ExtUtils::MakeMaker;
+    ExtUtils::MakeMaker::WriteMakefile(
+      PREREQ_PM => { 'Module::Build::Compat' => 0 }
+    );
+    warn "Warning: prerequisite Module::Build::Compat is not found.\n";
+    exit(0);
+  }
+  Module::Build::Compat->run_build_pl(args => \@ARGV);
+  Module::Build::Compat->write_makefile();
+
 
 =head1 DESCRIPTION
 
