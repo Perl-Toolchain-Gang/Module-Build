@@ -66,6 +66,7 @@ sub new {
 				   conflicts => {},
 				   script_files => [],
 				   perl => $perl,
+				   install_types => [qw(lib arch script)],
 				   %input,
 				   %$cmd_properties,
 				  },
@@ -191,6 +192,7 @@ sub resume {
        perl
        config_dir
        build_script
+       install_types
        destdir
        debugger
        verbose
@@ -1149,18 +1151,28 @@ sub make_tarball {
   Archive::Tar->create_archive("$dir.tar.gz", 1, @$files);
 }
 
+sub install_destination {
+  my ($self, $type) = @_;
+  return $self->{config}{"site$type"} || $self->{config}{"install$type"};
+}
+
+sub install_types {
+  my $self = shift;
+  return @{ $self->{properties}{install_types} }
+}
+
 sub install_map {
   my ($self, $blib) = @_;
-  my $lib     = File::Spec->catdir($blib,'lib');
-  my $arch    = File::Spec->catdir($blib,'arch');
-  my $script  = File::Spec->catdir($blib,'script');
-  
-  my %map = ($lib  => $self->{config}{sitelib},
-	     $arch => $self->{config}{sitearch});
-  
-  $map{$script} = $self->{config}{installscript}
-    if @{$self->{properties}{script_files}};
-  
+
+  my %map;
+  foreach my $type ($self->install_types) {
+    my $localdir = File::Spec->catdir( $blib, $type );
+    next unless -e $localdir;
+    
+    $map{$localdir} = $self->install_destination($type)
+      or die "Can't figure out where to install things of type '$type'";
+  }
+
   if (length(my $destdir = $self->{properties}{destdir} || '')) {
     $_ = File::Spec->catdir($destdir, $_) foreach values %map;
   }
