@@ -29,6 +29,7 @@ t/basic.t
 t/common.pl
 t/compat.t
 t/extend.t
+t/files.t
 t/install.t
 t/lib/ModuleBuildOne.pm
 t/MANIFEST
