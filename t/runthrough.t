@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 24 }
+BEGIN { plan tests => 25 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -21,11 +21,9 @@ my $start_dir = Module::Build->cwd;
 my $goto = File::Spec->catdir( $start_dir, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
 
-my $build = new Module::Build( module_name => 'Sample',
-			       script_files => [ 'script' ],
-			       requires => { 'File::Spec' => 0 },
-			       license => 'perl' );
+my $build = Module::Build->new_from_context();
 ok $build;
+ok $build->license, 'perl';
 
 # Make sure cleanup files added before create_build_script() get respected
 $build->add_to_cleanup('before_script');
