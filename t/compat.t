@@ -103,6 +103,7 @@ foreach my $type (@makefile_types) {
   my $libdir = File::Spec->catdir( $startdir, 't', 'libdir' );
   my $result = $build->run_perl_script('Makefile.PL', [], 
 				       [
+					'SKIP_RCFILE=1',
 					"LIB=$libdir",
 					'TEST_VERBOSE=1',
 					'INSTALLDIRS=perl',

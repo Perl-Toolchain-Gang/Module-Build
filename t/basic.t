@@ -124,7 +124,7 @@ chdir 't';
   
   chdir 'Sample';
 
-  eval {Module::Build->run_perl_script('Build.PL', [], ['--config', "foocakes=barcakes", '--foo', '--bar', '--bar', '-bat=hello', 'gee=whiz', '--any', 'hey', '--destdir', 'yo', '--verbose', '1'])};
+  eval {Module::Build->run_perl_script('Build.PL', [], ['skip_rcfile=1', '--config', "foocakes=barcakes", '--foo', '--bar', '--bar', '-bat=hello', 'gee=whiz', '--any', 'hey', '--destdir', 'yo', '--verbose', '1'])};
   ok $@, '';
   
   my $b = Module::Build->resume();
@@ -143,7 +143,7 @@ chdir 't';
   ok $b->runtime_params('verbose'), '1';
   ok !$b->runtime_params('license');
   ok my %runtime = $b->runtime_params;
-  ok scalar keys %runtime, 3;
+  ok scalar keys %runtime, 4;
   ok $runtime{destdir}, 'yo';
   ok $runtime{verbose}, '1';
   ok $runtime{config};

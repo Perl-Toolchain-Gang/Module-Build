@@ -476,7 +476,7 @@ __PACKAGE__->add_property($_) for qw(
    skip_rcfile
 );
 
-INIT {
+{
   my @prereq_actions = ( 'Build_PL', __PACKAGE__->known_actions );
   my @prereq_types   = qw( requires recommends conflicts );
   __PACKAGE__->add_property(prereq_actions => \@prereq_actions);
@@ -1024,9 +1024,10 @@ sub dispatch {
 
 sub _call_action {
   my ($self, $action) = @_;
-  return if $self->{_completed_actions}{$action}++;
 
   $self->validate_action_prereqs( $action );
+
+  return if $self->{_completed_actions}{$action}++;
 
   local $self->{action} = $action;
   my $method = "ACTION_$action";
