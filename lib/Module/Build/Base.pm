@@ -1972,6 +1972,9 @@ sub ACTION_distmeta {
   # If we're in the distdir, the metafile may exist and be non-writable.
   $self->delete_filetree($self->{metafile});
 
+  # Since we're building ourself, we have to do some special stuff
+  # here: the BuildConfig module is found in blib/lib.
+  local @INC = (@INC, File::Spec->catdir($self->blib, 'lib'));
   require Module::Build::BuildConfig;  # Only works after the 'build'
   unless (Module::Build::BuildConfig->feature('YAML_support')) {
     warn <<EOM;
