@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 26 }
+BEGIN { plan tests => 27 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -48,6 +48,8 @@ my $output = eval {
 };
 ok $@, '';
 ok $output, qr/all tests successful/i;
+
+ok -e $build->localize_file_path('lib/Sample/Script');
 
 
 # We prefix all lines with "| " so Test::Harness doesn't get confused.
