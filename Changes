@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.21_02
 
+ - Fixed a problem with the --config flag not being treated properly
+   (essentially ignored) on the command line for 'perl Build.PL' or
+   'Build <action>'. [Spotted by Jakub Bogusz]
+
  - Added a new config() method to get at the Build object's notion of
    the %Config hash.
 
