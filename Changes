@@ -35,7 +35,7 @@ Revision history for Perl extension Module::Build.
  - If the author uses a custom builder subclass, that subclass will
    now be loaded in the passthrough Makefile.PL if the author uses the
    'small' or 'passthrough' Makefile.PL options in
-   Module::Build::Compat. [Martyn Peck]
+   Module::Build::Compat. [Martyn Peck and Jaap Karssenberg]
 
  - Fixed minor error in the POD structure of Module::Build and
    Module::Build::Platform::VMS docs.
