@@ -67,6 +67,7 @@ sub new {
 				   script_files => [],
 				   perl => $perl,
 				   install_types => [qw(lib arch script)],
+				   include_dirs => [],
 				   %input,
 				   %$cmd_properties,
 				  },
@@ -193,6 +194,7 @@ sub resume {
        autosplit
        create_makefile_pl
        pollute
+       include_dirs
       );
 
   sub valid_property { exists $valid_properties{$_[1]} }
@@ -767,13 +769,14 @@ sub ACTION_build {
 
 sub compile_support_files {
   my $self = shift;
-  return unless $self->{properties}{c_source};
+  my $p = $self->{properties};
+  return unless $p->{c_source};
   
-  push @{$self->{include_dirs}}, $self->{properties}{c_source};
+  push @{$p->{include_dirs}}, $p->{c_source};
   
-  my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.c(pp)?$});
+  my $files = $self->rscan_dir($p->{c_source}, qr{\.c(pp)?$});
   foreach my $file (@$files) {
-    push @{$self->{objects}}, $self->compile_c($file);
+    push @{$p->{objects}}, $self->compile_c($file);
   }
 }
 
@@ -1262,21 +1265,25 @@ sub autosplit_file {
 
 sub compile_c {
   my ($self, $file) = @_;
-  my $cf = $self->{config}; # For convenience
-
+  my ($cf, $p) = ($self->{config}, $self->{properties}); # For convenience
+  
   # File name, minus the suffix
   (my $file_base = $file) =~ s/\.[^.]+$//;
   my $obj_file = "$file_base$cf->{obj_ext}";
   $self->add_to_cleanup($obj_file);
   return $obj_file if $self->up_to_date($file, $obj_file);
   
-  my $coredir = File::Spec->catdir($cf->{installarchlib}, 'CORE');
-  my @include_dirs = $self->{include_dirs} ? map {"-I$_"} @{$self->{include_dirs}} : ();
-  push @include_dirs, $self->split_like_shell($self->{args}{inc}) if $self->{args}{inc};
+  my @include_dirs = map {"-I$_"} (@{$p->{include_dirs}},
+				   File::Spec->catdir($cf->{installarchlib}, 'CORE'));
+  push @include_dirs, $self->split_like_shell($p->{inc});
+  
+  my @extra_compiler_flags = $self->split_like_shell($p->{extra_compiler_flags});
   my @ccflags = $self->split_like_shell($cf->{ccflags});
-  push @ccflags, '-DPERL_POLLUTE' if $self->{properties}{pollute} || $self->{args}{pollute};
+  push @ccflags, '-DPERL_POLLUTE' if $p->{pollute};
   my @optimize = $self->split_like_shell($cf->{optimize});
-  $self->do_system($cf->{cc}, @include_dirs, '-c', @ccflags, @optimize, "-I$coredir", '-o', $obj_file, $file)
+  my @cc = $self->split_like_shell($cf->{cc});
+  
+  $self->do_system(@cc, @include_dirs, @extra_compiler_flags, '-c', @ccflags, @optimize, '-o', $obj_file, $file)
     or die "error building $cf->{dlext} file from '$file'";
 
   return $obj_file;
@@ -1284,17 +1291,18 @@ sub compile_c {
 
 sub link_c {
   my ($self, $to, $file_base) = @_;
-  my $cf = $self->{config}; # For convenience
+  my ($cf, $p) = ($self->{config}, $self->{properties}); # For convenience
 
   my $lib_file = File::Spec->catfile($to, File::Basename::basename("$file_base.$cf->{dlext}"));
   $self->add_to_cleanup($lib_file);
-  my $objects = $self->{objects} || [];
+  my $objects = $p->{objects} || [];
   
   unless ($self->up_to_date(["$file_base$cf->{obj_ext}", @$objects], $lib_file)) {
-    my @linker_flags = $self->split_like_shell($self->{properties}{extra_linker_flags} || '');
+    my @linker_flags = $self->split_like_shell($p->{extra_linker_flags});
     my @lddlflags = $self->split_like_shell($cf->{lddlflags});
     my @shrp = $self->split_like_shell($cf->{shrpenv});
-    $self->do_system(@shrp, $cf->{ld}, @lddlflags, '-o', $lib_file,
+    my @ld = $self->split_like_shell($cf->{ld});
+    $self->do_system(@shrp, @ld, @lddlflags, '-o', $lib_file,
 		     "$file_base$cf->{obj_ext}", @$objects, @linker_flags)
       or die "error building $file_base$cf->{obj_ext} from '$file_base.$cf->{dlext}'";
   }
@@ -1333,11 +1341,16 @@ sub compile_xs {
 }
 
 sub split_like_shell {
-  my $self = shift;
-  local $_ = shift;
-  return wantarray ? () : '' unless defined() && length();
+  my ($self, $string) = @_;
   
-  return split ' ', $_;  # XXX This is naive - needs a fix
+  return () unless defined($string) && length($string);
+  return @$string if UNIVERSAL::isa($string, 'ARRAY');
+  
+  return $self->shell_split($string);
+}
+
+sub shell_split {
+  return split ' ', $_[1];  # XXX This is naive - needs a fix
 }
 
 sub stdout_to_file {

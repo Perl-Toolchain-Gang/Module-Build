@@ -92,7 +92,7 @@ sub makefile_to_build_args {
   foreach my $arg (@_) {
     my ($key, $val) = $arg =~ /^(\w+)=(.+)/ or die "Malformed argument '$arg'";
     if (exists $Config{lc($key)}) {
-      push @out, lc($key) . "=$val";
+      push @out, 'config=' . lc($key) . "=$val";
     } elsif (exists $makefile_to_build{$key}) {
       push @out, "$makefile_to_build{$key}=$val";
     } else {

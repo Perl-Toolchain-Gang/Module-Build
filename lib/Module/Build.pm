@@ -439,6 +439,29 @@ for your distribution during the 'distdir' action.  The default is
 false.  In the future, the default may change to true if you have
 C<Module::Signature> installed on your system.
 
+=item extra_compiler_flags
+
+=item extra_linker_flags
+
+These parameters can contain array references (or strings, in which
+case they will be split into arrays) to pass through to the compiler
+and linker phases when compiling/linking C code.  For example, to tell
+the compiler that your code is C++, you might do:
+
+ my build = Module::Build->new(
+     module_name          => 'Spangly',
+     extra_compiler_flags => ['-x', 'c++'],
+ );
+
+To link your XS code against glib you might write something like:
+
+ my build = Module::Build->new(
+     module_name          => 'Spangly',
+     dynamic_config       => 1,
+     extra_compiler_flags => `glib-config --cflags`,
+     extra_linker_flags   => `glib-config --libs`,
+ );
+
 =back
 
 =item create_build_script()
