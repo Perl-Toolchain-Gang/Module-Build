@@ -1460,6 +1460,7 @@ sub _sign_dir {
   
   my $start_dir = $self->cwd;
   chdir $dir or die "Can't chdir() to $dir: $!";
+  $self->delete_filetree('SIGNATURE');
   eval {Module::Signature::sign()};
   my @err = $@ ? ($@) : ();
   chdir $start_dir or push @err, "Can't chdir() back to $start_dir: $!";
