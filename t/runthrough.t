@@ -64,10 +64,15 @@ if ($HAVE_YAML) {
 }
 
 if ($HAVE_SIGNATURE) {
+  my $sigfile = File::Spec->catdir('Sample-0.01', 'SIGNATURE');
+  $build->add_to_cleanup( $sigfile );
+
+  chdir 'Sample-0.01' or warn "Couldn't chdir to Sample-0.01: $!";
   eval {$build->dispatch('distsign')};
   ok $@, '';
-  
-  ok -e File::Spec->catdir('Sample-0.01', 'SIGNATURE');
+  chdir $goto;
+
+  ok -e $sigfile;
 } else {
   skip "skip Module::Signature is not installed", 1 for 1..2;
 }
