@@ -123,11 +123,11 @@ sub link_c {
     objects       => [ "$file_base$cf->{obj_ext}", @{$self->{objects} || []} ],
     libs          => [ ],
     output        => $mylib,
-    ld            => $self->{config}{ld},
-    libperl       => $self->{config}{libperl},
-    perllibs      => [ $self->split_like_shell($self->{config}{perllibs})  ],
-    libpath       => [ $self->split_like_shell($self->{config}{libpth})    ],
-    lddlflags     => [ $self->split_like_shell($self->{config}{lddlflags}) ],
+    ld            => $cf->{ld},
+    libperl       => $cf->{libperl},
+    perllibs      => [ $self->split_like_shell($cf->{perllibs})  ],
+    libpath       => [ $self->split_like_shell($cf->{libpth})    ],
+    lddlflags     => [ $self->split_like_shell($cf->{lddlflags}) ],
     other_ldflags => [ $self->split_like_shell($self->{properties}{extra_linker_flags} || '') ],
     use_scripts   => 1, # XXX provide user option to change this???
   );
@@ -227,7 +227,7 @@ sub format_compiler_cmd {
   %spec = $self->write_compiler_script(%spec)
     if $spec{use_scripts};
 
-  return [ grep {defined && $_} (
+  return [ grep {defined && length} (
     $spec{cc}, '-c'         ,
     @{$spec{includes}}      ,
     @{$spec{cflags}}        ,
@@ -281,7 +281,7 @@ sub format_linker_cmd {
   %spec = $self->write_linker_script(%spec)
     if $spec{use_scripts};
 
-  return [ grep {defined && $_} (
+  return [ grep {defined && length} (
     $spec{ld}               ,
     @{$spec{lddlflags}}     ,
     @{$spec{libpath}}       ,
@@ -342,7 +342,7 @@ sub format_compiler_cmd {
   %spec = $self->write_compiler_script(%spec)
     if $spec{use_scripts};
 
-  return [ grep {defined && $_} (
+  return [ grep {defined && length} (
     $spec{cc}, '-c'         ,
     @{$spec{includes}}      ,
     @{$spec{cflags}}        ,
@@ -394,7 +394,7 @@ sub format_linker_cmd {
   %spec = $self->write_linker_script(%spec)
     if $spec{use_scripts};
 
-  return [ grep {defined && $_} (
+  return [ grep {defined && length} (
     $spec{ld}               ,
     @{$spec{lddlflags}}     ,
     @{$spec{libpath}}       ,
@@ -467,7 +467,7 @@ sub format_compiler_cmd {
     $path = '-I' . $path;
   }
 
-  return [ grep {defined && $_} (
+  return [ grep {defined && length} (
     $spec{cc}, '-c'         ,
     @{$spec{includes}}      ,
     @{$spec{cflags}}        ,
@@ -513,7 +513,7 @@ sub format_linker_cmd {
                '--output-exp' , $spec{explib}
   ];
 
-  push @cmds, [ grep {defined && $_} (
+  push @cmds, [ grep {defined && length} (
     $spec{ld}                 ,
     '-o', $spec{output}       ,
     "-Wl,--base-file,$spec{base_file}"   ,
@@ -535,7 +535,7 @@ sub format_linker_cmd {
                '--base-file'  , $spec{base_file}
   ];
 
-  push @cmds, [ grep {defined && $_} (
+  push @cmds, [ grep {defined && length} (
     $spec{ld}                 ,
     '-o', $spec{output}       ,
     "-Wl,--image-base,$spec{image_base}" ,
