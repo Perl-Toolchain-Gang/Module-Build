@@ -49,6 +49,7 @@ my $build = new Module::Build
 		    },
 
    add_to_cleanup => ['t/Sample/pod2htm*'],
+   script_files => ['scripts/build_config'],
   );
 
 $build->create_build_script;
