@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.23_01
+
+ - Fixed a problem with incude_dirs not being propagated to the 'ccs'
+   file when compiling XS files on Win32. [Randy Sims and Steve Hay]
+
 0.23  Sun Feb  8 22:01:18 CST 2004
 
  - Fixed a compatibility problem in pass-through Makefiles (created by
