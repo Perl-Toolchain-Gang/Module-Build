@@ -33,6 +33,9 @@ Revision history for Perl extension Module::Build.
    the lib/ directory and didn't explicitly name them in a hash
    reference to the new() constructor. [Chris Reinhardt, bug #4036]
 
+ - .PL files are now passed the names of their target files on the
+   command line when they run.
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
