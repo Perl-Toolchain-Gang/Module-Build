@@ -1,7 +1,5 @@
 package Module::Build;
 
-# $Id$
-
 # This module doesn't do much of anything itself, it inherits from the
 # modules that do the real work.  The only real thing it has to do is
 # figure out which OS-specific module to pull in.  Many of the
@@ -14,7 +12,7 @@ use File::Path ();
 use File::Basename ();
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.11';
+$VERSION = '0.12';
 
 # Okay, this is the brute-force method of finding out what kind of
 # platform we're on.  I don't know of a systematic way.  These values
