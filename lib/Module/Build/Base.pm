@@ -1177,13 +1177,37 @@ sub read_args {
   return \%args, $action;
 }
 
+# merge Module::Build argument lists that have already been parsed
+# by read_args(). Takes two references to option hashes and merges
+# the contents, giving priority to the first.
+sub _merge_arglist {
+  my( $self, $opts1, $opts2 ) = @_;
+
+  my %new_opts = %$opts1;
+  while (my ($key, $val) = each %$opts2) {
+    if ( exists( $opts1->{$key} ) ) {
+      if ( ref( $val ) eq 'HASH' ) {
+        while (my ($k, $v) = each %$val) {
+	  $new_opts{$key}{$k} = $v unless exists( $opts1->{$key}{$k} );
+	}
+      }
+    } else {
+      $new_opts{$key} = $val
+    }
+  }
+
+  return %new_opts;
+}
+
+# read ~/.modulebuildrc returning global options '*' and
+# options specific to the currently executing $action.
 sub read_modulebuildrc {
   my( $self, $action ) = @_;
 
-  return {} unless exists( $ENV{HOME} ) && -e $ENV{HOME};
+  return () unless exists( $ENV{HOME} ) && -e $ENV{HOME};
 
   my $modulebuildrc = File::Spec->catfile( $ENV{HOME}, '.modulebuildrc' );
-  return {} unless -e $modulebuildrc;
+  return () unless -e $modulebuildrc;
 
   my $fh = IO::File->new( $modulebuildrc )
       or die "Can't open $modulebuildrc: $!";
@@ -1211,28 +1235,22 @@ sub read_modulebuildrc {
     $options{$action} .= $options . ' '; # merge if more than one line
   }
 
+  my ($global_opts) =
+    $self->read_args( $self->split_like_shell( $options{'*'} || '' ) );
+  my ($action_opts) =
+    $self->read_args( $self->split_like_shell( $options{$action} || '' ) );
 
-  my $cmdline .= join ' ', grep defined && length,
-                 map { exists( $options{$_} ) ? $options{$_} : '' }
-		 ( '*', $action );
-
-  my @args = $self->split_like_shell( $cmdline );
-  my( $args ) = $self->read_args( @args );
-
-  return defined( $args ) ? $args : {};
+  # specific $action options take priority over global options '*'
+  return $self->_merge_arglist( $action_opts, $global_opts );
 }
 
+# merge the relevant options in ~/.modulebuildrc into Module::Build's
+# option list where they do not conflict with commandline options.
 sub merge_modulebuildrc {
-  my( $self, $action, %args ) = @_;
-
-  my $rc_args = $self->read_modulebuildrc( $action || 'build' );
-
-  my %app_args;
-  while (my ($key, $val) = each %$rc_args) {
-    $app_args{$key} = $val unless exists( $args{$key} );
-  }
-
-  $self->merge_args( $action, %app_args );
+  my( $self, $action, %cmdline_opts ) = @_;
+  my %rc_opts = $self->read_modulebuildrc( $action || $self->{action} || 'build' );
+  my %new_opts = $self->_merge_arglist( \%cmdline_opts, \%rc_opts );
+  $self->merge_args( $action, %new_opts );
 }
 
 sub merge_args {
