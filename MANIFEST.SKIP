@@ -10,3 +10,4 @@ CVS
 ^patches
 ^Module-
 ^t/_
+^Makefile$

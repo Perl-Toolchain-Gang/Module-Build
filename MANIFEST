@@ -1,7 +1,9 @@
 Build.PL
 Changes
+INSTALL
 MANIFEST
 META.yaml
+Makefile.PL
 README
 lib/Module/Build.pm
 lib/Module/Build/Base.pm
