@@ -998,8 +998,8 @@ sub link_c {
   my $lib_file = File::Spec->catfile($to, File::Basename::basename("$file_base.$cf->{dlext}"));
   $self->add_to_cleanup($lib_file);
   my $objects = $self->{objects} || [];
-
-  unless ($self->up_to_date("$file_base$cf->{obj_ext}", [$lib_file, @$objects])) {
+  
+  unless ($self->up_to_date(["$file_base$cf->{obj_ext}", @$objects], $lib_file)) {
     my @linker_flags = $self->split_like_shell($self->{properties}{extra_linker_flags} || '');
     my @lddlflags = $self->split_like_shell($cf->{lddlflags});
     my @shrp = $self->split_like_shell($cf->{shrpenv});
@@ -1141,28 +1141,21 @@ sub copy_if_modified {
 
 sub up_to_date {
   my ($self, $source, $derived) = @_;
-  my @source  = ref($source)  ? @$source  : ($source);
-  my @derived = ref($derived) ? @$derived : ($derived);
+  $source  = [$source]  unless ref $source;
+  $derived = [$derived] unless ref $derived;
 
-  return 0 if grep {not -e} @derived;
+  return 0 if grep {not -e} @$derived;
 
   my $most_recent_source = time / (24*60*60);
-  foreach my $file (@source) {
+  foreach my $file (@$source) {
     $most_recent_source = -M $file if -M $file < $most_recent_source;
   }
   
-  foreach my $derived (@derived) {
+  foreach my $derived (@$derived) {
     return 0 if -M $derived > $most_recent_source;
   }
   return 1;
 }
-
-#sub is_newer_than {
-#  my ($self, $one, $two) = @_;
-#  return 1 unless -e $two;
-#  return 0 unless -e $one;
-#  return -M $one < -M $two;
-#}
 
 1;
 __END__
