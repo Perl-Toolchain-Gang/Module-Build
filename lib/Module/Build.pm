@@ -31,10 +31,11 @@ my %OSTYPES = qw(
 		 machten   Unix
 		 next      Unix
 		 openbsd   Unix
+		 netbsd    Unix
 		 dec_osf   Unix
 		 svr4      Unix
+		 svr5      Unix
 		 sco_sv    Unix
-		 svr4      Unix
 		 unicos    Unix
 		 unicosmk  Unix
 		 solaris   Unix
