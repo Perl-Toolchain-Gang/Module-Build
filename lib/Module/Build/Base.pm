@@ -1698,12 +1698,18 @@ sub _packages_inside {
 
 sub make_tarball {
   my ($self, $dir) = @_;
-  
-  require Archive::Tar;
-  my $files = $self->rscan_dir($dir);
-  
+
   print "Creating $dir.tar.gz\n";
-  Archive::Tar->create_archive("$dir.tar.gz", 1, @$files);
+  
+  if ($self->{args}{tar}) {
+    my $tar_flags = $self->{properties}{verbose} ? 'cvf' : 'cf';
+    $self->do_system($self->{args}{tar}, $tar_flags, "$dir.tar", $dir);
+    $self->do_system($self->{args}{gzip}, "$dir.tar") if $self->{args}{gzip};
+  } else {
+    require Archive::Tar;
+    my $files = $self->rscan_dir($dir);
+    Archive::Tar->create_archive("$dir.tar.gz", 1, @$files);
+  }
 }
 
 sub install_base_relative {
