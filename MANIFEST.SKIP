@@ -23,7 +23,8 @@ Makefile$
 \.bs$
 \.bundle$
 \.yaml$
-^t/save_out$
+save_out$
+save_err$
 (^|/)\.#
 ^website
 /Script$
