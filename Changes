@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.2605
+
+ - Fixed a bug in which zero-length arguments for hash-valued
+   parameters (e.g. "--config foo=bar") weren't being allowed.
+
 0.2604  Wed Nov 17 14:32:42 CST 2004
 
  - Fixed a split_like_shell() bug introduced in 0.2603 for Windows, in
