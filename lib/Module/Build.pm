@@ -561,19 +561,22 @@ To link your XS code against glib you might write something like:
 
 =item dist_author
 
-This should be something like "John Doe <jdoe@example.com>".  This is
-used when creating PPD files.  If this is not specified, then
-C<Module::Build> looks at the module from which it gets the
-distribution's version.  If it finds a POD section marked "=head1
-AUTHOR", then it uses the contents of this section.
+This should be something like "John Doe <jdoe@example.com>", or if
+there are multiple authors, an anonymous array of strings may be
+specified.  This is used when generating metadata for F<META.yml> and
+PPD files.  If this is not specified, then C<Module::Build> looks at
+the module from which it gets the distribution's version.  If it finds
+a POD section marked "=head1 AUTHOR", then it uses the contents of
+this section.
 
 =item dist_abstract
 
 This should be a short description of the distribution.  This is used
-when creating PPD files.  If it is not given then C<Module::Build>
-looks in the POD of the module from which it gets the distribution's
-version.  It looks for the first line matching C<$package\s-\s(.+)>,
-and uses the captured text as the abstract.
+when generating metadata for F<META.yml> and PPD files.  If it is not
+given then C<Module::Build> looks in the POD of the module from which
+it gets the distribution's version.  It looks for the first line
+matching C<$package\s-\s(.+)>, and uses the captured text as the
+abstract.
 
 =back
 
