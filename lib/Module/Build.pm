@@ -392,8 +392,9 @@ checking on binary/packaged distributions of the module.
 =item conflicts
 
 Modules listed in this section conflict in some serious way with the
-given module.  C<Module::Build> will refuse to install the given
-module if
+given module.  C<Module::Build> (or some higher-level tool) will
+refuse to install the given module if the given module/version is also
+installed.
 
 =item create_makefile_pl
 
