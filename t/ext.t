@@ -1,6 +1,9 @@
 
 use strict;
 use Test;
+use File::Spec;
+
+require File::Spec->catfile('t', 'common.pl');
 
 my @unix_splits = 
   (
@@ -51,7 +54,7 @@ my @win_splits =
    { 'a " b " c'            => [ 'a', ' b ', 'c' ] },
 );
 
-plan tests => 12 + 2*@unix_splits + 2*@win_splits;
+plan tests => 13 + 2*@unix_splits + 2*@win_splits;
 
 use Module::Build;
 ok(1);
@@ -85,6 +88,13 @@ foreach my $test (@win_splits) {
   ok $args->{food}, 'bard';
   ok exists $args->{ARGV}, 1;
   ok @{$args->{ARGV}}, 0;
+}
+
+{
+  # Make sure run_perl_script() propagates @INC
+  local @INC = ('whosiewhatzit', @INC);
+  my $output = stdout_of( sub { Module::Build->run_perl_script('', ['-le', 'print for @INC']) } );
+  ok $output, qr{^whosiewhatzit}m;
 }
 
 ##################################################################

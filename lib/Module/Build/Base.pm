@@ -964,7 +964,7 @@ sub make_executable {
 sub _startperl { shift()->{config}{startperl} }
 
 # Return any directories in @INC which are not in the default @INC for
-# this Perl.  For example, stuff passed in with -I or loaded with "use lib".
+# this perl.  For example, stuff passed in with -I or loaded with "use lib".
 sub _added_to_INC {
   my $self = shift;
 
@@ -979,9 +979,9 @@ sub _default_INC {
 
   local $ENV{PERL5LIB};  # this is not considered part of the default.
 
-  my $perl = $self->perl;
+  my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
 
-  my @inc =`$perl -le "print for \@INC"`;
+  my @inc = `$perl -le "print for \@INC"`;
   chomp @inc;
 
   return @inc;
@@ -1479,7 +1479,6 @@ sub process_PL_files {
   my $files = $self->find_PL_files;
   
   while (my ($file, $to) = each %$files) {
-    local $ENV{'PERL5LIB'} = join $self->{config}{path_sep}, @INC;
     unless ($self->up_to_date( $file, $to )) {
       $self->run_perl_script($file, [], [@$to]);
       $self->add_to_cleanup(@$to);
@@ -2119,7 +2118,6 @@ sub ACTION_disttest {
   chdir $dist_dir or die "Cannot chdir to $dist_dir: $!";
   # XXX could be different names for scripts
   
-  local $ENV{'PERL5LIB'} = join $self->{config}{path_sep}, @INC;
   $self->run_perl_script('Build.PL') or die "Error executing 'Build.PL' in dist directory: $!";
   $self->run_perl_script('Build') or die "Error executing 'Build' in dist directory: $!";
   $self->run_perl_script('Build', [], ['test']) or die "Error executing 'Build test' in dist directory";
@@ -2627,7 +2625,11 @@ sub run_perl_script {
     $_ = [ $self->split_like_shell($_) ] unless ref();
   }
   my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
-  
+
+  # Make sure our local additions to @INC are propagated to the subprocess
+  my $c = ref $self ? $self->config : \%Config::Config;
+  local $ENV{PERL5LIB} = join $c->{path_sep}, $self->_added_to_INC;
+
   return $self->do_system($perl, @$preargs, $script, @$postargs);
 }
 
