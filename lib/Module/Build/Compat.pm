@@ -66,14 +66,16 @@ EOF
   } elsif ($type eq 'traditional') {
     my %prereq = ( %{$build->requires}, %{$build->build_requires} );
     delete $prereq{perl};
-    my $prereq = join '', map "\t\t\t'$_' => '$prereq{$_}',\n", keys %prereq;
+    my $prereq = join "\n", map "\t\t\t'$_' => '$prereq{$_}',", keys %prereq;
+    my $id = $build->installdirs eq 'core' ? 'perl' : $build->installdirs;
 
-    printf {$fh} <<'EOF', $build->dist_name, $build->dist_version, $prereq;
+    printf {$fh} <<'EOF', $build->dist_name, $build->dist_version, $id, $prereq;
     use ExtUtils::MakeMaker;
     WriteMakefile
       ('DISTNAME' => '%s',
        'VERSION' => '%s',
        'PL_FILES' => {},
+       'INSTALLDIRS' => '%s',
        'PREREQ_PM' => {
 %s
 		      },
