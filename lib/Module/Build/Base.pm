@@ -1206,10 +1206,15 @@ sub read_modulebuildrc {
 
   if ( $buffer ) { # anything left in $buffer ?
     my( $action, $options ) = split( /\s+/, $buffer, 2 );
-    $options{$action} .= $options . ' ';
+    $options{$action} .= $options . ' '; # merge if more than one line
   }
 
-  my @args = $self->split_like_shell( "$options{'*'} $options{$action}" );
+
+  my $cmdline .= join ' ', grep defined && length,
+                 map { exists( $options{$_} ) ? $options{$_} : '' }
+		 ( '*', $action );
+
+  my @args = $self->split_like_shell( $cmdline );
   my( $args ) = $self->read_args( @args );
 
   return defined( $args ) ? $args : {};
