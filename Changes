@@ -17,6 +17,10 @@ Revision history for Perl extension Module::Build.
    directories before prepending the destdir path.  The destdir path
    may still have a volume identifier on it.
 
+ - The t/compat.t test now uses $Config{make} instead of just 'make'
+   to test makefile compatibility.  This fixes some failures on Win32.
+   We also skip this test entirely if no make utility is available.
+
 0.18_01  Thu May 22 12:20:00 CDT 2003
 
  - Alternative distribution layouts are now supported via the
