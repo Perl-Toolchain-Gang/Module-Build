@@ -9,14 +9,18 @@ Revision history for Perl extension Module::Build.
    other contexts.
 
  - The locating and processing of .pm, .pod, .xs, .PL files and script
-   files are now isolated into their own overridable methods.
+   files are now isolated into their own methods.  This is aimed
+   toward providing a stable interface for this stuff, so they can be
+   overridden, parameterized, etc.  They're not quite stable yet,
+   though.
 
  - The internal lib_to_blib() method has gone away, because processing
    is now done by smaller specialized methods.  This method had some
    duplicate assumptions about filenames that it's nice to get rid of.
 
  - .PL files are no longer automatically processed in the c_source
-   directory.
+   directory, they must be specified manually in a 'PL_files'
+   parameter.
 
  - Mention in the docs that it's useful to do "PL_FILES => {}" in a
    Makefile.PL if you're using both a Makefile.PL and a
