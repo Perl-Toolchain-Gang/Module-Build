@@ -689,7 +689,7 @@ sub ACTION_build {
     File::Path::mkpath( $script_dir );
 
     foreach my $file (@{$self->{properties}{scripts}}) {
-      $self->copy_if_modified($file, $script_dir);
+      $self->copy_if_modified($file, $script_dir, 'flatten');
     }
   }
 
