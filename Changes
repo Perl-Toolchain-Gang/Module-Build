@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.2609
 
+ - The html docs that were created during the first invokation of
+   './Build' were being found and treated as pod that needed to be
+   converted to html during subsequent invokations. We now are more
+   specific about the directories we scan for pod that needs to be
+   converted, effectively avoiding blib/html. [Ray Zimmerman]
+
  - On some Unix platforms (BSD derivatives, mostly) perl's $^X
    variable isn't set to the full path of the perl executable, just
    'perl', when the 'Build' script is run as './Build' and not 'perl
