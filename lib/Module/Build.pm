@@ -1022,8 +1022,16 @@ that directory.
 =head2 How Installation Works
 
 When you invoke Module::Build's C<build> action, it needs to figure
-out where to install things.  Natively, Module::Build provides default
-installation locations for the following types of installable items:
+out where to install things.  The nutshell version of how this works
+is that default installation locations are determined from
+F<Config.pm>, and they may be overridden by using the C<install_path>
+parameter.  An C<install_base> parameter lets you specify an
+alternative installation root like F</home/foo>, and a C<destdir> lets
+you specify a temporary installation directory like F</tmp/install> in
+case you want to create bundled-up installable packages.
+
+Natively, Module::Build provides default installation locations for
+the following types of installable items:
 
 =over 4
 
@@ -1084,7 +1092,7 @@ unfortunately there's no such thing as "installsitescript" or
 general location right.  In the future, if C<Config.pm> adds some more
 appropriate entries, we'll start using those.)
 
-=item install_path
+=head3 install_path
 
 Once the defaults have been set, you can override them.  You can set
 individual entries by using the C<install_path> parameter:
@@ -1102,7 +1110,7 @@ or this:
 
  Build install install_path=lib=/foo/lib install_path=arch=/foo/lib/arch
 
-=item install_base
+=head3 install_base
 
 You can also set the whole bunch of installation paths by supplying the
 C<install_base> parameter to point to a directory on your system.  For
@@ -1127,7 +1135,7 @@ C<installdirs=site> layout.
 The exact layout under the directory you specify may vary by system -
 we try to do the "sensible" thing on each platform.
 
-=item destdir
+=head3 destdir
 
 If you want to install everything into a temporary directory first
 (for instance, if you want to create a directory tree that a package
@@ -1145,7 +1153,7 @@ This will effectively install to "$destdir/$sitelib",
 C<File::Spec> to make the pathnames work correctly on whatever
 platform you're installing on.
 
-=item uninst
+=head3 uninst
 
 If you want the installation process to look around in C<@INC> for
 other versions of the stuff you're installing and try to delete it,
