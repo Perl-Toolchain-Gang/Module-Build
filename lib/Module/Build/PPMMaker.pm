@@ -124,7 +124,7 @@ sub _ppd_version {
 }
 
 sub _varchname {  # Copied from PPM.pm
-  my $config = shift;
+  my ($self, $config) = @_;
   my $varchname = $config->{archname};
   # Append "-5.8" to architecture name for Perl 5.8 and later
   if (length($^V) && ord(substr($^V,1)) >= 8) {
