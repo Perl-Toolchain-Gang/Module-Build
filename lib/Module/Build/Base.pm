@@ -23,6 +23,7 @@ sub new {
     if $self->{action};
 
   $self->_set_install_paths;
+  $self->_find_nested_builds;
   $self->dist_name;
   $self->check_manifest;
   $self->check_prereq;
@@ -96,6 +97,7 @@ sub _construct {
 				   installdirs     => 'site',
 				   install_path    => {},
 				   include_dirs    => [],
+				   recurse_into    => [],
 				   %input,
 				  },
 		   }, $package;
@@ -163,6 +165,25 @@ sub _set_install_paths {
 		@html,
 	       },
     };
+}
+
+sub _find_nested_builds {
+  my $self = shift;
+  my $r = $self->recurse_into or return;
+
+  my ($file, @r);
+  if (!ref($r) && $r eq 'auto') {
+    local *DH;
+    opendir DH, $self->base_dir
+      or die "Can't scan directory " . $self->base_dir . " for nested builds: $!";
+    while (defined($file = readdir DH)) {
+      my $subdir = File::Spec->catdir( $self->base_dir, $file );
+      next unless -d $subdir;
+      push @r, $subdir if -e File::Spec->catfile( $subdir, 'Build.PL' );
+    }
+  }
+
+  $self->recurse_into(\@r);
 }
 
 sub cwd {
@@ -456,6 +477,7 @@ EOF
        bindoc_dirs
        libdoc_dirs
        get_options
+       recurse_into
       );
 
   sub valid_property { exists $valid_properties{$_[1]} }
