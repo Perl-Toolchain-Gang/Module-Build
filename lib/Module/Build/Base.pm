@@ -1503,7 +1503,6 @@ sub _htmlify_pod {
   my $infile = File::Spec::Unix->abs2rel($args{path});
     
   my @rootdirs  = $isbin? ('bin') : ('site', 'lib');
-  my $path2root = "../" x (@rootdirs+@dirs-1);
     
   my $fulldir = File::Spec::Unix->catfile($args{htmldir}, @rootdirs, @dirs);
   my $outfile = File::Spec::Unix->catfile($fulldir, $name . '.html');
@@ -1515,6 +1514,7 @@ sub _htmlify_pod {
 	or die "Couldn't mkdir $fulldir: $!";  
   }
     
+  my $path2root = "../" x (@rootdirs+@dirs-1);
   my $htmlroot = File::Spec::Unix->catdir($path2root, 'site');
   my $podpath = join ":" => ($isbin ? qw(bin lib) : qw(lib));
   my $title = join('::', @dirs) . $name;
