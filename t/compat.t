@@ -1,11 +1,13 @@
 use Test;
-BEGIN { plan tests => 11 }
-
 use Module::Build;
 use Module::Build::Compat;
 use File::Spec;
 use File::Path;
 use Config;
+require File::Spec->catfile('t', 'common.pl');
+
+skip_test("Don't know how to invoke 'make'") unless $Config{make};
+plan tests => 11;
 ok(1);  # Loaded
 
 
