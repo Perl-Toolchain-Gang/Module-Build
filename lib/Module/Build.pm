@@ -14,7 +14,7 @@ use File::Path ();
 use File::Basename ();
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.05_01';
+$VERSION = '0.06';
 
 # Okay, this is the brute-force method of finding out what kind of
 # platform we're on.  I don't know of a systematic way.  These values
@@ -101,7 +101,7 @@ Module::Build - Build and install Perl modules
 
 =head1 DESCRIPTION
 
-This is a beta version of a new module set I've been working on,
+This is a beta version of a new module I've been working on,
 C<Module::Build>.  It is meant to be a replacement for
 C<ExtUtils::MakeMaker>.
 
@@ -202,12 +202,48 @@ C<Ken::Module>'s version must be B<at least> 1.2, B<less than> 2.0,
 and B<not equal to> 1.5.  The list of criteria is separated by commas,
 and all criteria must be satisfied.
 
+A special C<perl> entry lets you specify the versions of the Perl
+interpreter that are supported by your module.  The same version
+dependency-checking semantics are available.
+
+One note: currently C<Module::Build> doesn't actually I<require> the
+user to have dependencies installed, it just strongly urges.  In the
+future we may require it.  There's now a C<recommended> section for
+things that aren't absolutely required.
+
+Automated tools like CPAN.pm should refuse to install a module if one
+of its dependencies isn't satisfied, unless a "force" command is given
+by the user.  If the tools are helpful, they should also offer to
+install the dependencies.
+
 =item * recommended
 
-This is just like the C<prereq> argument, except that modules in this
-list aren't essential, just a good idea.  We'll just print a friendly
-warning if one of these modules aren't found, but we'll continue
-running.
+This is just like the C<prereq> argument, except that modules listed
+in this section aren't essential, just a good idea.  We'll just print
+a friendly warning if one of these modules aren't found, but we'll
+continue running.
+
+If a module is recommended but not required, all tests should still
+pass if the module isn't installed.  This may mean that some tests
+will be skipped if recommended dependencies aren't present.
+
+Automated tools like CPAN.pm should inform the user when recommended
+modules aren't installed, and it should offer to install them if it
+wants to be helpful.
+
+=item * build_prereq
+
+Modules listed in this section are necessary to build and install the
+given module, but are not necessary for regular usage of it.  This is
+actually an important distinction - it allows for tighter control over
+the body of installed modules, and facilitates correct dependency
+checking on binary/packaged distributions of the module.
+
+=item * conflicts
+
+Modules listed in this section conflict in some serious way with the
+given module.  C<Module::Build> will refuse to install the given
+module if
 
 =item * c_source
 
