@@ -1624,31 +1624,6 @@ sub ACTION_versioninstall {
   only::install::install(%onlyargs);
 }
 
-sub ACTION_htmlinstall {
-  my $self = shift;
-  return unless my $destdir = $self->config->{installhtmldir};
-  $self->depends_on('html');
-  
-  my $html_base = File::Spec->catdir($self->blib, 'html');
-  my @files;
-  File::Find::finddepth(sub 
-                        {push @files, $File::Find::name 
-                           if $File::Find::name =~ /\.html$/
-                         }, $html_base);
-  foreach my $file (@files) {
-    (my $relative_to = $file) =~ s!\Q$html_base!!;
-    $relative_to =~ s!^/!!;
-    my $to = File::Spec->catfile($destdir, $relative_to);
-    my $base_dir = File::Basename::dirname($to);
-    unless (-d $base_dir) {
-      File::Path::mkpath($base_dir, 1, 0755)
-          or die "Cannot mkpath $base_dir: $!";
-    }
-    File::Copy::copy($file, $to)
-        or warn "Cannot copy '$file' to '$to': $!";
-  }
-}
-
 sub ACTION_clean {
   my ($self) = @_;
   foreach my $item ($self->cleanup) {
