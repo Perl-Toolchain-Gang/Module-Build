@@ -70,7 +70,7 @@ $build->add_to_cleanup($destdir);
 
 {
   $build->build_config(foo => 'bar');
-  $build->features(baz => 'quux');
+  $build->features(baz => 1);
   eval {$build->dispatch('install', destdir => $destdir)};
   ok $@, '';
   
@@ -83,7 +83,7 @@ $build->add_to_cleanup($destdir);
     ok 1;
   } else {
     ok( Sample::BuildConfig->get('foo'), 'bar' );
-    ok( Sample::BuildConfig->feature('baz'), 'quux' );
+    ok( Sample::BuildConfig->feature('baz') );
 
   }
 }
