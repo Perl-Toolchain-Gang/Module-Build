@@ -81,18 +81,18 @@ if ($build->check_installed_version('YAML', 0)) {
   my $contents = do {local $/; <$fh>};
   ok $contents, "/Module::Build version ". $build->VERSION ."/";
   
-} else {
-  skip "skip YAML.pm is not installed", 1 for 1..6;
-}
+  if ($build->check_installed_status('Archive::Tar', 0)
+      or $build->isa('Module::Build::Platform::Unix')) {
+    $build->add_to_cleanup($build->dist_dir . ".tar.gz");
+    eval {$build->dispatch('dist')};
+    ok $@, '';
+    
+  } else {
+    skip "skip not sure if we can create a tarball on this platform", 1;
+  }
 
-if ($build->check_installed_status('Archive::Tar', 0)
-    or $build->isa('Module::Build::Platform::Unix')) {
-  $build->add_to_cleanup($build->dist_dir . ".tar.gz");
-  eval {$build->dispatch('dist')};
-  ok $@, '';
-  
 } else {
-  skip "skip not sure if we can create a tarball on this platform", 1;
+  skip "skip YAML.pm is not installed", 1 for 1..7;
 }
 
 {
