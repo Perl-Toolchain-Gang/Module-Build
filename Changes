@@ -14,6 +14,11 @@ Revision history for Perl extension Module::Build.
    only once', and one in PPMMaker about $^V being undefined. [Blair
    Zajac]
 
+ - The PodParser module will now only extract paragraphs in the
+   'AUTHOR' section of the pod if they contain an '@' character.  This
+   tends to do a better job, heuristically speaking, of returning
+   relevant stuff.
+
 0.25  Sun Apr 25 11:12:36 CDT 2004
 
  - During the 'distdir' action, if no MANIFEST.SKIP file exists, we
