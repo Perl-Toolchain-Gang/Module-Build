@@ -246,6 +246,7 @@ sub notes {
        c_source
        autosplit
        create_makefile_pl
+       create_readme
        pollute
        include_dirs
        bindoc_dirs
@@ -1514,9 +1515,15 @@ sub ACTION_distdir {
 
   $self->depends_on('distmeta');
 
-  if ($self->{properties}{create_makefile_pl}) {
+  if ($self->create_makefile_pl) {
     require Module::Build::Compat;
-    Module::Build::Compat->create_makefile_pl($self->{properties}{create_makefile_pl}, $self);
+    Module::Build::Compat->create_makefile_pl($self->create_makefile_pl, $self);
+  }
+  
+  if ($self->create_readme) {
+    require Pod::Text;
+    my $parser = Pod::Text->new;
+    $parser->parse_from_file($self->dist_version_from, 'README');
   }
   
   my $dist_files = $self->_read_manifest('MANIFEST');
