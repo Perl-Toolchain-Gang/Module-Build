@@ -126,11 +126,7 @@ you can do something the following in your F<Build.PL> file:
     }
   }
   
-  my $build = $class->new
-    (
-     module_name => ... ,
-     ... ,
-    );
+  my $build = $class->new( ... );
   
   $build->add_build_elements('foo');
 
@@ -139,7 +135,7 @@ This creates a custom subclass of C<Module::Build> that knows how to
 build elements of type C<foo>.  It should place the elements in a
 subdirectory of F<blib/> corresponding to items that C<Module::Build>
 knows how to install - to add new capabilities in I<that> arena, see
-L<Adding new types to the install process>.
+L</Adding new types to the install process>.
 
 
 =head2 Changing the order of the build process
@@ -164,6 +160,7 @@ C<Module::Build> code.
 
 =head2 Adding new types to the install process
 
+... more to come ...
 
 =head1 AUTHOR
 
