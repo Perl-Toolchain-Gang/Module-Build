@@ -32,6 +32,12 @@ Revision history for Perl extension Module::Build.
    the need for doing so in a regression test. [Initial patch by Mark
    Stosberg]
 
+ - Improved compatibility with version.pm when authors are using
+   version objects as their $VERSION variables.  Now
+   version_from_file() can deal with these objects.  Currently we
+   stringify them right away, but perhaps in the future we will
+   preserve them as objects for a while.
+
  - During 'distdir' and 'distmeta' actions, die a bit more gracefully
    if there's no MANIFEST (i.e. explicitly say that a MANIFEST is
    required). [Spotted by Adrian Howard]
