@@ -2484,8 +2484,8 @@ sub make_tarball {
 sub install_base_relative {
   my ($self, $type) = @_;
   my %map = (
-	     lib     => ['lib'],
-	     arch    => ['lib', $self->{config}{archname}],
+	     lib     => ['lib', 'perl5'],
+	     arch    => ['lib', 'perl5', $self->{config}{archname}],
 	     bin     => ['bin'],
 	     script  => ['bin'],
 	     bindoc  => ['man', 'man1'],
@@ -2499,10 +2499,8 @@ sub install_destination {
   my ($self, $type) = @_;
   my $p = $self->{properties};
   
-  if ($p->{install_base}) {
-    return File::Spec->catdir($p->{install_base}, $self->install_base_relative($type));
-  }
   return $p->{install_path}{$type} if exists $p->{install_path}{$type};
+  return File::Spec->catdir($p->{install_base}, $self->install_base_relative($type)) if $p->{install_base};
   return $p->{install_sets}{ $p->{installdirs} }{$type};
 }
 

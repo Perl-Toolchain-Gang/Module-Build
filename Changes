@@ -22,6 +22,18 @@ Revision history for Perl extension Module::Build.
    user we're doing so by printing one of the "Added to MANIFEST: ..."
    lines.  [Ron Savage]
 
+ - A user-specified 'install_path' setting will now take precedence
+   over an 'install_base' setting.  This allows the user to use
+   'install_base' to set the base for all elements in one go, and then
+   use 'install_path' to override specific paths or add paths for
+   additional kinds of targets.
+
+ * When using the 'install_base' option to choose a directory for
+   installing everything, perl modules now go into lib/perl5/ instead
+   of just lib/.  It seems this is more consistent with people's
+   expectations, and the way I had it before was a bit peculiar to the
+   way I like things in my own home directory. [Michael Schwern]
+
  - Added docs for run_perl_script().
 
  - Added some stuff to the docs about why PREFIX is unsupported, and

@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 29 }
+BEGIN { plan tests => 31 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -63,7 +63,7 @@ $build->add_to_cleanup($destdir);
   my $libdir = File::Spec->catdir(File::Spec->rootdir, 'foo', 'base');
   eval {$build->dispatch('install', install_base => $libdir, destdir => $destdir)};
   ok $@, '';
-  my $install_to = File::Spec->catfile($destdir, $libdir, 'lib', 'Sample.pm');
+  my $install_to = File::Spec->catfile($destdir, $libdir, 'lib', 'perl5', 'Sample.pm');
   print "Should have installed module as $install_to\n";
   ok -e $install_to;  
 }
@@ -124,13 +124,20 @@ ok $@, '';
 					      '--install_base', $basedir])};
   ok $@, '';
   
-  my $relpath = $build->install_base_relative('lib');
-  $install_to = File::Spec->catfile($destdir, $basedir, $relpath, 'Sample.pm');
-  print "# Should have installed module as $install_to\n";
-  ok -e $install_to;
+  $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
+  ok -e $install_to, 1, "Look for file at $install_to";
   
   eval {$build->dispatch('realclean')};
   ok $@, '';
+}
+
+{
+  # Make sure 'install_path' overrides 'install_base'
+  my $build = Module::Build->new( module_name => 'Sample',
+				  install_base => File::Spec->catdir('', 'foo'),
+				  install_path => {lib => File::Spec->catdir('', 'bar')});
+  ok $build;
+  ok $build->install_destination('lib'), File::Spec->catdir('', 'bar');
 }
 
 {
