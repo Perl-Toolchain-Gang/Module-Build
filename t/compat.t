@@ -5,6 +5,7 @@ use Module::Build;
 use Module::Build::Compat;
 use File::Spec;
 use File::Path;
+use Config;
 ok(1);  # Loaded
 
 
@@ -25,7 +26,7 @@ foreach my $type (qw(small passthrough traditional)) {
   my $result = $build->run_perl_script('Makefile.PL');
   ok $result;
 
-  ok $build->do_system('make', 'realclean');
+  ok $build->do_system($Config{make}, 'realclean');
   $build->dispatch('realclean');
   ok not -e 'Makefile.PL';
 }
