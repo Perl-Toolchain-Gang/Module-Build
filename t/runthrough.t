@@ -1,10 +1,11 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 20 }
+BEGIN { plan tests => 22 }
 use Module::Build;
 use File::Spec;
 use File::Path;
+use Config;
 my $HAVE_YAML = eval {require YAML; 1};
 my $HAVE_SIGNATURE = eval {require Module::Signature; 1};
 
@@ -118,6 +119,13 @@ if (0 && $HAVE_SIGNATURE) {
   ok $@, '';
   
   my $install_to = File::Spec->catfile($destdir, $build->install_destination('lib'), 'Sample.pm');
+  print "Should have installed to $install_to\n";
+  ok -e $install_to;
+
+  eval {$build->dispatch('install', installdirs => 'core', destdir => $destdir)};
+  ok $@, '';
+  
+  $install_to = File::Spec->catfile($destdir, $Config{installprivlib}, 'Sample.pm');
   print "Should have installed to $install_to\n";
   ok -e $install_to;
 }
