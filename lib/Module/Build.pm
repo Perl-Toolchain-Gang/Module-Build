@@ -617,7 +617,7 @@ abstract.
 
 =item get_options
 
-You can pass arbitrary options to F<Build.PL> or F<Build>, and they will be
+You can pass arbitrary command-line options to F<Build.PL> or F<Build>, and they will be
 stored in the Module::Build object and can be accessed via the C<args()>
 method. However, sometimes you want more flexibility out of your argument
 processing than this allows. In such cases, use the C<get_options> parameter
@@ -634,7 +634,10 @@ The supported option specification hash keys are:
 
 The type of option. The types are those supported by Getopt::Long; consult
 its documentation for a complete list. Typical types are C<=s> for strings,
-C<+> for additive options, and C<!> for negatable options.
+C<+> for additive options, and C<!> for negatable options.  If the
+type is not specified, it will be considered a boolean, i.e. no
+argument is taken and a value of 1 will be assigned when the option is
+encountered.
 
 =item store
 
