@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.16
+0.16  Mon Feb 24 13:06:47 CST 2003
 
  - All three C compilers that perl supports on Windows environments
    (MSVC, BCC, and GCC) are now supported by Module::Build.  We now
