@@ -374,6 +374,8 @@ EOF
 
   sub valid_property { exists $valid_properties{$_[1]} }
 
+  sub valid_properties { keys %valid_properties }
+
   # Create an accessor for each property that doesn't already have one
   foreach my $property (keys %valid_properties) {
       next if __PACKAGE__->can($property);
