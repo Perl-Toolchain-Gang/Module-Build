@@ -28,7 +28,7 @@ my $build = new Module::Build
 	       },
    recommends => {
 		  YAML => 0.35,
-		  'Archive::Tar' => 0.23,
+		  'Archive::Tar' => '1.00',
 		  'ExtUtils::Install' => 0.30,
 		  'ExtUtils::ParseXS' => 2.02,
 		  'Module::Info' => 0,
