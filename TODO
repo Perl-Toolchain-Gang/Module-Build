@@ -1,11 +1,14 @@
 -------------------------- TO DO: --------------------------------
 
+* Create man pages to install during 'install' action.
+
 * Figure out how to make the build process work on MacOS
 
-* Add a 'diff' action that compares to previously installed version
-
 * Add a 'distsign' action that uses Module::Signature to provide
-cryptographic authentication to module distributions
+cryptographic authentication to module distributions.
+
+* Think about how to allow "local policy" configuration, as well as
+"local enhancements" for frequent developers or frequent installers.
 
 * Figure out how to cooperate well with real packaging systems
 (chiefly RPM, Debian, and PPM).  May mean creating packages ourselves,
@@ -17,6 +20,8 @@ file in a format useful for package managers.  Probably a subtask of
 the above packaging systems task.
 
 -------------------------- DONE: ---------------------------------
+
+* Add a 'diff' action that compares to previously installed version.
 
 * Write cleanup entries to _build/cleanup immediately, so they still
 get written if an error occurs

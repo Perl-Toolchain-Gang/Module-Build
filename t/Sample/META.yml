@@ -3,8 +3,8 @@ build_requires: {}
 conflicts: {}
 distribution_type: module
 dynamic_config: 0
-generated_by: Module::Build version 0.13
-license: unknown
+generated_by: Module::Build version 0.14
+license: perl
 name: Sample
 recommends: {}
 requires: {}
