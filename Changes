@@ -7,6 +7,12 @@ Revision history for Perl extension Module::Build.
  - Added documentation for the requires(), recommends(),
    build_requires(), and conflicts() methods.
 
+ - On Unix platforms, we now create the "Build" script with a #! line
+   matching the perl interpreter that was used to invoke the Build.PL
+   script, rather than whatever is in $Config{startperl}.  This avoids
+   a potential warning about the interpreters not matching. [Spotted
+   by Ken Y. Clark]
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
