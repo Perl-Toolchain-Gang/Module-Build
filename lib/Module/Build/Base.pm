@@ -39,6 +39,14 @@ sub new {
     $cmd_properties->{$key} = delete $cmd_args->{$key} if __PACKAGE__->valid_property($key);
   }
 
+  # The following warning could be unnecessary if the user is running
+  # an embedded perl, but there aren't too many of those around, and
+  # embedded perls aren't usually used to install modules, and the
+  # installation process sometimes needs to run external scripts
+  # (e.g. to run tests).
+  my $perl = $package->find_perl_interpreter
+    or warn "Warning: Can't locate your perl binary";
+
   # 'args' are arbitrary user args.
   # 'config' is Config.pm and its overridden values.
   # 'properties' is stuff Module::Build needs in order to work.  They get saved in _build/.
@@ -57,7 +65,7 @@ sub new {
 				   conflicts => {},
 				   PL_files => {},
 				   scripts => [],
-				   perl => $^X,
+				   perl => $perl,
 				   %input,
 				   %$cmd_properties,
 				  },
@@ -85,6 +93,14 @@ sub new {
 sub cwd {
   require Cwd;
   return Cwd::cwd();
+}
+
+sub find_perl_interpreter {
+  my $perl;
+  File::Spec->file_name_is_absolute($perl = $^X)
+    or -f ($perl = $Config::Config{perlpath})
+    or ($perl = $^X);
+  return $perl;
 }
 
 sub base_dir { shift()->{properties}{base_dir} }
@@ -138,6 +154,12 @@ sub resume {
   my $self = bless {@_}, $package;
   
   $self->read_config;
+  
+  my $perl = $self->find_perl_interpreter;
+  warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
+       "   but we are now using '$perl'.\n")
+    unless $perl eq $self->{properties}{perl};
+  
   return $self;
 }
 
@@ -473,8 +495,6 @@ my \$build = resume $build_package (
     build_script => '$build_script',
   },
 );
-warn "WARNING: '\$0' script was created with \$build->{properties}{perl}, but\\n".
-     "we are now using \$^X\\n" unless \$^X eq \$build->{properties}{perl};
 
 \$build->dispatch;
 EOF
@@ -1150,7 +1170,7 @@ sub run_perl_script {
     $_ = [ $self->split_like_shell($_) ] unless ref();
   }
   
-  return $self->do_system($self->{config}{perlpath}, @$preargs, $script, @$postargs);
+  return $self->do_system($self->{properties}{perl}, @$preargs, $script, @$postargs);
 }
 
 # A lot of this looks Unixy, but actually it may work fine on Windows.
