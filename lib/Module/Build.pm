@@ -90,12 +90,20 @@ Module::Build - Build and install Perl modules
 
 =head1 SYNOPSIS
 
- Standard process for building & installing modules:
+Standard process for building & installing modules:
  
    perl Build.PL
    ./Build
    ./Build test
    ./Build install
+
+Or, if you're on a platform (like DOS or Windows) that doesn't like
+the "./" notation, you can do this:
+
+   perl Build.PL
+   perl Build
+   perl Build test
+   perl Build install
 
 =head1 DESCRIPTION
 
