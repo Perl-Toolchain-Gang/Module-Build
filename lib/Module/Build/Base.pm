@@ -110,6 +110,8 @@ sub _construct {
   $p->{bindoc_dirs} ||= [ "$p->{blib}/script" ];
   $p->{libdoc_dirs} ||= [ "$p->{blib}/lib", "$p->{blib}/arch" ];
 
+  $p->{dist_author} = [ $p->{dist_author} ] if exists $p->{dist_author} and not ref $p->{dist_author};
+
   # Synonyms
   $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
   $p->{script_files} = delete $p->{scripts} if exists $p->{scripts};

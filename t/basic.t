@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-BEGIN { plan tests => 34 }
+BEGIN { plan tests => 37 }
 use Module::Build;
 ok(1);
 
@@ -139,4 +139,19 @@ chdir 't';
   ok $b->args('doo'), 'hee';
   ok my %args = $b->args;
   ok $args{foo}, 1;
+
+  chdir $cwd or die "Can't change back to $cwd: $!";
 }
+
+# Test author stuff
+{
+  my $build = new Module::Build
+    (
+     module_name => 'ModuleBuildOne',
+     dist_author => 'Foo Meister <foo@example.com>',
+    );
+  ok $build;
+  ok ref($build->dist_author);
+  ok $build->dist_author->[0], 'Foo Meister <foo@example.com>';
+}
+
