@@ -135,17 +135,18 @@ This illustrates initial configuration and the running of three
 'actions'.  In this case the actions run are 'build' (the default
 action), 'test', and 'install'.  Actions defined so far include:
 
-  build                          docs        
-  clean                          fakeinstall 
-  code                           help        
-  diff                           install     
-  dist                           manifest    
-  distcheck                      ppd         
-  distclean                      realclean   
-  distdir                        skipcheck   
-  distmeta                       test        
-  distsign                       testdb      
+  build                          fakeinstall   
+  clean                          help          
+  code                           install       
+  diff                           manifest      
+  dist                           ppd           
+  distcheck                      ppmdist       
+  distclean                      realclean     
+  distdir                        skipcheck     
+  distmeta                       test          
+  distsign                       testdb        
   disttest                       versioninstall
+  docs
 
 You can run the 'help' action for a complete list of actions.
 
@@ -190,7 +191,8 @@ C<ACTION_whatever>, and then you could perform the action C<Build
 whatever>.
 
 For information on providing backward compatibility with
-C<ExtUtils::MakeMaker>, see L<Module::Build::Compat>.
+C<ExtUtils::MakeMaker>, see L<Module::Build::Compat> and
+L<http://www.makemaker.org/wiki/index.cgi?ModuleBuildConversionGuide>.
 
 =head1 METHODS
 
@@ -1608,7 +1610,7 @@ details of how to access it.
 
 =head1 SEE ALSO
 
-perl(1), ExtUtils::MakeMaker(3), YAML(3)
+perl(1), Module::Build::Cookbook(3), ExtUtils::MakeMaker(3), YAML(3)
 
 http://www.dsmit.com/cons/
 
