@@ -2177,6 +2177,7 @@ sub do_create_makefile_pl {
   my $self = shift;
   require Module::Build::Compat;
   Module::Build::Compat->create_makefile_pl($self->create_makefile_pl, $self, @_);
+  $self->_add_to_manifest('MANIFEST', 'Makefile.PL');
 }
 
 sub do_create_readme {
@@ -2184,6 +2185,7 @@ sub do_create_readme {
   require Pod::Text;
   my $parser = Pod::Text->new;
   $parser->parse_from_file($self->dist_version_from, 'README', @_);
+  $self->_add_to_manifest('MANIFEST', 'README');
 }
 
 sub ACTION_distdir {
