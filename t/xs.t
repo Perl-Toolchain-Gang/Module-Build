@@ -7,7 +7,7 @@ use Module::Build;
 use File::Spec;
 
 print("1..0 # Skipped: no compiler found\n"), exit(0) unless Module::Build->current->have_c_compiler;
-plan tests => 10;
+plan tests => 12;
 
 require File::Spec->catfile('t', 'common.pl');
 
@@ -66,6 +66,17 @@ ok $@, '';
     </IMPLEMENTATION>
 </SOFTPKG>
 EOF
+}
+
+if ($m->os_type eq 'Unix') {
+  eval {$m->dispatch('clean')};
+  ok $@, '';
+  
+  local $m->{config}{ld} = "FOO=BAR $m->{config}{ld}";
+  eval {$m->dispatch('build')};
+  ok $@, '';
+} else {
+  skip "skip skipping a couple Unixish-only tests", 1 for 1..2;
 }
 
 eval {$m->dispatch('realclean')};
