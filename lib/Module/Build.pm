@@ -680,6 +680,10 @@ one in C<t/colortest.t>.  It is our goal to minimize these differences
 in future releases of Module::Build, so please report any anomalies
 you find.
 
+One important caveat: in its current implementation, C<current()> will
+B<NOT> work correctly if you have changed out of the directory that
+C<Module::Build> was invoked from.
+
 =item notes()
 
 =item notes($key)
