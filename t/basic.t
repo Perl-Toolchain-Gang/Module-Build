@@ -70,7 +70,10 @@ chdir 't';
   $info = Module::Build->check_installed_status('File::Spec', '> 0');
   ok $info->{ok}, 1;
   
-  local $Foo::Module::VERSION = '1.01_02';
+  # Use 2 lines for this, to avoid a "used only once" warning
+  local $Foo::Module::VERSION;
+  $Foo::Module::VERSION = '1.01_02';
+
   $info = Module::Build->check_installed_status('Foo::Module', '1.01_02');
   ok $info->{ok}, 1;
   print "# $info->{message}\n" if $info->{message};
