@@ -1110,11 +1110,12 @@ sub find_dist_packages {
     return unless eval {require Module::Info; Module::Info->VERSION(0.19); 1};
     
     my $localfile = File::Spec->catfile( split m{/}, $file );
-    my $module = Module::Info->new_from_file( $localfile );
+    my $version = $self->version_from_file( $localfile );
 
     print "Scanning $localfile for packages\n";
-    my %packages = $module->package_versions;
-    while (my ($package, $version) = each %packages) {
+    my $module = Module::Info->new_from_file( $localfile );
+
+    foreach my $package ($module->packages_inside) {
       $out{$package} = {
 			file => $file,
 			version => $version,
