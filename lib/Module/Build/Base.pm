@@ -941,7 +941,6 @@ sub merge_args {
   }
 }
 
-
 sub cull_args {
   my $self = shift;
   my ($args, $action) = $self->read_args(@_);
@@ -1127,7 +1126,9 @@ sub ACTION_code {
   $self->add_to_cleanup($blib);
   File::Path::mkpath( File::Spec->catdir($blib, 'arch') );
   
-  $self->autosplit_file($self->autosplit, $blib) if $self->autosplit;
+  if (my $split = $self->autosplit) {
+    $self->autosplit_file($_, $blib) for ref($split) ? @$split : ($split);
+  }
   
   foreach my $element (@{$self->build_elements}) {
     my $method = "process_${element}_files";
@@ -1415,6 +1416,77 @@ sub contains_pod {
   }
   
   return '';
+}
+
+sub ACTION_html {
+  my $self = shift;
+  $self->depends_on('build');
+  
+  require Pod::Html;
+  require Module::Build::PodParser;
+  
+  my $html_base = $Config{installhtmldir} ?
+    File::Basename::basename($Config{installhtmldir}) : 'html';
+  
+  my $blib = $self->blib;
+  my $html = File::Spec::Unix->catdir($blib, $html_base);
+  my $script = File::Spec::Unix->catdir($blib, 'script');
+  unless (-d $html) {
+    File::Path::mkpath($html, 1, 0755) or die "Couldn't mkdir $html: $!";
+  }
+
+  my $pods = $self->_find_pods($self->blib);
+  my %pods = Pod::Find::pod_find({-verbose => 1}, $self->blib);
+  if (-d $script) {
+    File::Find::finddepth( sub
+                           {$pods{$File::Find::name} =
+                              "script::" . basename($File::Find::name)
+                                if (-f $_ and not /\.bat$/ and $self->contains_pod($_));
+                          }, $script);
+  }
+
+  my $backlink = '__top';
+  my $css = ($^O =~ /Win32/) ? 'Active.css' : '';
+  foreach my $pod (keys %pods){
+    my @dirs = split /::/, $pods{$pod};
+    my $isbin = $dirs[0] eq 'script';
+    my $infile = File::Spec::Unix->abs2rel($pod);
+    my $outfile = "$dirs[-1].html";
+
+    my @rootdirs  = $isbin? ('bin') : ('site', 'lib');
+    my $path2root = "../" x (@rootdirs+@dirs);
+    $path2root =~ s!/$!!;
+
+    my $fulldir = File::Spec::Unix->catfile($html, @rootdirs, @dirs);
+    unless (-d $fulldir){
+      File::Path::mkpath($fulldir, 1, 0755)
+          or die "Couldn't mkdir $fulldir: $!";
+    }
+    $outfile = File::Spec::Unix->catfile($fulldir, $outfile);
+
+    my $htmlroot = File::Spec::Unix->catdir($path2root, 'site', 'lib');
+    my $podpath = join ":" => map { File::Spec::Unix->catdir($blib, $_) }
+      ($isbin ? qw(bin lib) : qw(lib));
+    (my $package = $pods{$pod}) =~ s!^(lib|script)::!!;
+
+    my $parser = Module::Build::PodParser->new(file => $infile);
+    my $abstract = $parser->get_abstract;
+    my $title =  $abstract ? "$package - $abstract" : $package;
+    my @opts = (
+		'--header',
+                '--flush',
+                "--backlink=__top",
+		"--title=$title",
+                "--podpath=$podpath",
+		"--infile=$infile",
+		"--outfile=$outfile",
+		"--podroot=$blib",
+		"--htmlroot=$htmlroot",
+	       );
+    push @opts, "--css=$path2root/$css" if $css;
+    print "pod2html @opts\n";
+    Pod::Html::pod2html(@opts);# or warn "pod2html @opts failed: $!";
+  }
 }
 
 # Adapted from ExtUtils::MM_Unix
