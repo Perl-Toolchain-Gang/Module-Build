@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.19
 
+ - Alternative distribution layouts are now supported via the
+   'pm_files', 'pod_files', 'xs_files', 'PL_files', and 'script_files'
+   parameters to new().  This should help people transition from
+   MakeMaker, and might even help us write an automatic transition
+   tool.
+
  - Added tests to t/runthrough.t that check to see installation is
    happening correctly.
 
