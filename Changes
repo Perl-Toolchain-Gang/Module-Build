@@ -1,6 +1,39 @@
 Revision history for Perl extension Module::Build.
 
-0.05
+0.06
+
+  - Added the Module::Build::Compat module for assisting and
+    explaining compatibility with ExtUtils::Makemaker and cohorts.
+
+  - State is now saved using Data::Dumper instead of my ad-hoc
+    mechanism, guaranteeing data integrity.  Whitespace values broke
+    in the former scheme.
+
+  - Added the 'recommended' option, which works like 'prereq' but
+    isn't insistent.
+
+  - Separated the various parameters into three groups: parameters
+    that tell Module::Build what to do, Config.pm parameters, and
+    user-defined parameters for each build (the module author is the
+    'user' here).  This helps avoid conflicts between names, and it
+    was silly to have them all together.  The three groups of
+    parameters are subject to the same rules for overriding: values
+    specified during a Build action take precedence over values
+    specified at 'perl Build.PL' time, which in turn take precedence
+    over values specified in the call to new().
+
+  - Improved support for .PL files.  Any .PL file in the lib/
+    directory or the directory specified by 'c_source' will now get
+    properly executed.  I also added a 'PL_files' parameter that you
+    can use in case the .PL doesn't create an obviously-named output
+    file.
+
+  - If a prerequisite condition is malformed, we now report a prereq
+    failure and say why.  Previously we issued a warning and kept
+    going.
+
+
+0.05   10-Jan-2002 20:26
   - Added the Module::Build->subclass() method, which makes it easier to
     make quick-and-dirty subclasses of Module::Build.
 
