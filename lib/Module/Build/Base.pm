@@ -2720,13 +2720,19 @@ sub run_perl_script {
   foreach ($preargs, $postargs) {
     $_ = [ $self->split_like_shell($_) ] unless ref();
   }
+  return $self->run_perl_command([@$preargs, $script, @$postargs]);
+}
+
+sub run_perl_command {
+  my ($self, $args) = @_;
+  $args = [ $self->split_like_shell($args) ] unless ref($args);
   my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
 
   # Make sure our local additions to @INC are propagated to the subprocess
   my $c = ref $self ? $self->config : \%Config::Config;
   local $ENV{PERL5LIB} = join $c->{path_sep}, $self->_added_to_INC;
 
-  return $self->do_system($perl, @$preargs, $script, @$postargs);
+  return $self->do_system($perl, @$args);
 }
 
 sub process_xs {
