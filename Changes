@@ -1,6 +1,17 @@
 Revision history for Perl extension Module::Build.
 
+0.02  Wed Sep  5 00:53:04 CDT 2001
+  - Added POD documentation.
+
+  - Added the 'install', 'fakeinstall', and 'dist' actions.
+
+  - new() will now determine version string based on 'module_version', or
+    'module_version_from', or 'module_name', in that order.
+
+  - Module::Build::Base handles its file paths in a platform-independent
+    way, using the File:: modules
+
+
 0.01  Sun Aug  5 01:23:10 2001
-	- original version; created by h2xs 1.1.1.4 with options
-		-XA -n Module::Build
+  - original version; created by h2xs 1.1.1.4 with options -XA -n Module::Build
 

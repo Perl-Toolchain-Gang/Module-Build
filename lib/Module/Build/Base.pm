@@ -6,10 +6,11 @@ use File::Copy ();
 use File::Find ();
 use File::Path ();
 use File::Basename ();
+use File::Spec ();
 use Test::Harness ();
 
 sub new {
-  my ($package) = @_;
+  my $package = shift;
   my $self = bless {
 		    # Don't save these defaults in config_dir.
 		    build_script => 'Build',
@@ -20,8 +21,10 @@ sub new {
   my ($action, $args) = $self->cull_args(@ARGV);
   die "Too early to specify a build action '$action'.  Do ./$self->{build_script} $action instead.\n"
     if $action;
-  
+
   $self->{args} = {%Config, @_, %$args};
+
+  $self->find_version;
   $self->write_config;
   
   return $self;
@@ -38,11 +41,61 @@ sub resume {
   return $self;
 }
 
+sub find_version {
+  my ($self) = @_;
+  return if exists $self->{args}{module_version};
+  
+  if (exists $self->{args}{module_version_from}) {
+    my $version = $self->version_from_file($self->{args}{module_version_from});
+    $self->{args}{module_version} = $version;
+    delete $self->{args}{module_version_from};
+  } else {
+    # Try to find the version in 'module_name'
+    my $chief_file = $self->module_name_to_file($self->{args}{module_name});
+    die "Can't find module '$self->{args}{module_name}' for version check" unless defined $chief_file;
+    $self->{args}{module_version} = $self->version_from_file($chief_file);
+  }
+}
+
+sub module_name_to_file {
+  my ($self, $mod) = @_;
+  my $file = File::Spec->catfile(split '::', $mod) . '.pm';
+  foreach ('lib', @INC) {
+    my $testfile = File::Spec->catfile($_, $file);
+    return $testfile if -e $testfile;
+  }
+  return;
+}
+
+sub version_from_file {
+  my ($self, $file) = @_;
+
+  open my($fh), $file or die "Can't open '$file' for version: $!";
+  while (<$fh>) {
+    if ( /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/ ) {
+      my $eval = qq{
+		    package Module::Build::Base::_version;
+		    no strict;
+		    
+		    local $1$2;
+		    \$$2=undef; do {
+		      $_
+		    }; \$$2
+		   };
+      no warnings;
+      my $result = eval $eval;
+      die "Could not eval '$_' in '$file': $@" if $@;
+      return $result;
+    }
+  }
+  die "Couldn't find version string in '$self->{module_version_from}'";
+}
+
 sub read_config {
   my ($self) = @_;
   
-  open my $fh, "$self->{config_dir}/build_params" 
-    or die "Can't create '$self->{config_dir}/build_params': $!";
+  my $file = File::Spec->catfile($self->{config_dir}, 'build_params');
+  open my $fh, $file or die "Can't create '$file': $!";
   
   while (<$fh>) {
     $self->{args}{$1} = $2 if /^(\w+)=(.*)/;
@@ -56,8 +109,8 @@ sub write_config {
   mkdir $self->{config_dir}, 0777
     or die "Can't mkdir $self->{config_dir}: $!";
   
-  open my $fh, ">$self->{config_dir}/build_params" 
-    or die "Can't create '$self->{config_dir}/build_params': $!";
+  my $file = File::Spec->catfile($self->{config_dir}, 'build_params');
+  open my $fh, ">$file" or die "Can't create '$file': $!";
   
   foreach my $key (sort(keys %Config), sort keys %{$self->{args}} ) {
     if ($self->{args}{$key} =~ /\n/) {
@@ -85,7 +138,7 @@ sub print_build_script {
   my ($self, $fh) = @_;
   
   my $quoted_INC = join ', ', map "'$_'", @INC;
-  my $build_dir = File::Basename::dirname($0);
+  my $build_dir = File::Spec->rel2abs(File::Basename::dirname($0));
   my $build_package = ref($self);
 
   print $fh <<EOF;
@@ -112,7 +165,8 @@ sub create_build_script {
   
   $self->rm_previous_build_script;
 
-  print "Creating new '$self->{build_script}' file\n";
+  print("Creating new '$self->{build_script}' script for ",
+	"'$self->{args}{module_name}' version '$self->{args}{module_version}'\n");
   open my $fh, ">$self->{build_script}" or die "Can't create '$self->{build_script}': $!";
   $self->print_build_script($fh);
   close $fh;
@@ -171,13 +225,11 @@ sub cull_args {
 sub ACTION_test {
   my ($self) = @_;
   
-  # Depends on 'build'
-  $self->ACTION_build;
+  $self->depends_on('build');
   
   $Test::Harness::verbose = $self->{args}{verbose} || 0;
   
   if (-e 'test.pl') {
-    # XXX Is this right?
     Test::Harness::runtests('test.pl');
   } elsif (-e 't' and -d _) {
     my $tests = $self->rscan_dir('t', qr{\.t$});
@@ -196,6 +248,20 @@ sub ACTION_build {
   $self->copy_if_modified($files, 'blib');
 }
 
+sub ACTION_install {
+  my ($self) = @_;
+  require ExtUtils::Install;  # Grr, uses MakeMaker
+  $self->depends_on('build');
+  ExtUtils::Install::install($self->install_map, 1, 0);
+}
+
+sub ACTION_fakeinstall {
+  my ($self) = @_;
+  require ExtUtils::Install;  # Grr, uses MakeMaker
+  $self->depends_on('build');
+  ExtUtils::Install::install($self->install_map, 1, 1);
+}
+
 sub ACTION_clean {
   my ($self) = @_;
   # This stuff shouldn't be hard-coded here, it'll come from a data file of saved state info
@@ -204,8 +270,39 @@ sub ACTION_clean {
 
 sub ACTION_realclean {
   my ($self) = @_;
-  $self->ACTION_clean;
+  $self->depends_on('clean');
   $self->delete_filetree($self->{config_dir}, $self->{build_script});
+}
+
+sub ACTION_dist {
+  my ($self) = @_;
+  (my $dist_dir = $self->{args}{module_name}) =~ s/::/-/;
+  $dist_dir .= "-$self->{args}{module_version}";
+  mkdir $dist_dir or die "Can't create '$dist_dir/': $!";
+  
+  require ExtUtils::Manifest;
+  my $dist_files = ExtUtils::Manifest::maniread('MANIFEST');
+  ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'best');
+  
+  # Cross-platform snafu here - delay fix until later
+  system($self->{args}{tar} || 'tar', 'cvf', "$dist_dir.tar", $dist_dir);
+  $self->delete_filetree($dist_dir);
+  system($self->{args}{gzip} || 'gzip', "$dist_dir.tar");
+}
+
+sub install_map {
+  my $self = shift;
+  my $blib = File::Spec->catfile('blib','lib');
+  return {$blib => $self->{args}{sitelib},
+	  read  => ''};  # To keep ExtUtils::Install quiet
+}
+
+sub depends_on {
+  my $self = shift;
+  foreach my $action (@_) {
+    my $method = "ACTION_$action";
+    $self->$method;
+  }
 }
 
 sub rscan_dir {
@@ -235,13 +332,14 @@ sub copy_if_modified {
   my ($self, $files, $to) = @_;
   
   foreach my $file (@$files) {
-    if (!-e "$to/$file" or -M "$to/$file" > -M "$file") {
+    my $to_path = File::Spec->catfile($to, $file);
+    if (!-e $to_path or -M $to_path > -M "$file") {
       # Create parent directories
       my $path = File::Basename::dirname($file);
-      File::Path::mkpath("$to/$path", 0, 0777);
+      File::Path::mkpath(File::Spec->catfile($to, $path), 0, 0777);
       
-      print "$file -> $to/$file\n";
-      File::Copy::copy($file, "$to/$file") or die "Can't copy('$file', '$to/$file'): $!";
+      print "$file -> $to_path\n";
+      File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
     }
   }
 }
@@ -252,21 +350,23 @@ __END__
 
 =head1 NAME
 
-Module::Build - Perl extension for blah blah blah
+Module::Build::Base - Default methods for Module::Build
 
 =head1 SYNOPSIS
 
-  use Module::Build;
-  blah blah blah
+  please see the Module::Build documentation
 
 =head1 DESCRIPTION
 
-Stub documentation for Module::Build, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
+The C<Module::Build::Base> module defines the core functionality of
+C<Module::Build>.  Its methods may be overridden by any of the
+platform-independent modules in the C<Module::Build::Platform::>
+namespace, but the intention here is to make this base module as
+platform-neutral as possible.  Nicely enough, Perl has several core
+tools available in the C<File::> namespace for doing this, so the task
+isn't very difficult.
 
-Blah blah blah.
-
+Please see the C<Module::Build> documentation for more details.
 
 =head1 AUTHOR
 
@@ -274,6 +374,6 @@ Ken Williams, ken@forum.swarthmore.edu
 
 =head1 SEE ALSO
 
-perl(1), ExtUtils::MakeMaker(3)
+perl(1), Module::Build(3)
 
 =cut
