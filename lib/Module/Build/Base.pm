@@ -94,6 +94,18 @@ sub resume {
   return $self;
 }
 
+sub instance {
+  my $package = shift;
+  # hmm, wonder what the right thing to do here is
+  local @ARGV;
+  return $package->resume(
+			  properties => {
+					 config_dir => '_build',
+					 build_script => 'Build',
+					},
+			 );
+}
+
 ################## End constructors #########################
 
 sub _set_install_paths {
@@ -408,6 +420,13 @@ sub _persistent_hash_write {
   my $ph = $self->{phash}{$name} ||= {disk => {}, new => {}};
   
   @{$ph->{new}}{ keys %$href } = values %$href;  # Merge
+
+  # Do some optimization to avoid unnecessary writes
+  foreach my $key (keys %{ $ph->{new} }) {
+    next if ref $ph->{new}{$key};
+    next if ref $ph->{disk}{$key} or !exists $ph->{disk}{$key};
+    delete $ph->{new}{$key} if $ph->{new}{$key} eq $ph->{disk}{$key};
+  }
   
   if (my $file = $self->config_file($name)) {
     return if -e $file and !keys %{ $ph->{new} };  # Nothing to do
@@ -480,9 +499,10 @@ sub read_config {
   die if $@;
   ($self->{args}, $self->{config}, $self->{properties}) = @$ref;
   close $fh;
-  
-  if (-e $self->config_file('cleanup')) {
-    $self->_persistent_hash_restore('cleanup');
+
+  for ('cleanup', 'notes') {
+    next unless -e $self->config_file($_);
+    $self->_persistent_hash_restore($_);
   }
 }
 
