@@ -95,6 +95,7 @@ sub _construct {
 				   conflicts       => {},
 				   perl            => $perl,
 				   mb_version      => Module::Build->VERSION,
+				   build_elements  => [qw( PL support pm xs pod script )],
 				   install_types   => [qw( lib arch script bindoc libdoc )],
 				   installdirs     => 'site',
 				   include_dirs    => [],
@@ -252,6 +253,7 @@ sub notes {
        config_dir
        blib
        build_script
+       build_elements
        install_types
        install_sets
        install_path
@@ -1075,16 +1077,12 @@ sub ACTION_code {
   $self->add_to_cleanup($blib);
   File::Path::mkpath( File::Spec->catdir($blib, 'arch') );
   
-  if ($self->{properties}{autosplit}) {
-    $self->autosplit_file($self->{properties}{autosplit}, $blib);
-  }
+  $self->autosplit_file($self->autosplit, $blib) if $self->autosplit;
   
-  $self->process_PL_files;
-  $self->process_support_files;
-  $self->process_pm_files;
-  $self->process_xs_files;
-  $self->process_pod_files;
-  $self->process_script_files;
+  foreach my $element (@{$self->build_elements}) {
+    my $method = "process_${element}_files";
+    $self->$method();
+  }
 }
 
 sub ACTION_build {
