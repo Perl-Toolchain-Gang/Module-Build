@@ -1948,6 +1948,8 @@ sub _add_to_manifest {
   print $fh map "$_\n", @$lines;
   close $fh;
   chmod($mode, $manifest);
+
+  print map "Added to $manifest: $_\n", @$lines;
 }
 
 sub _sign_dir {
@@ -2112,8 +2114,6 @@ sub ACTION_manifest {
   require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
   local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
   ExtUtils::Manifest::mkmanifest();
-
-  $self->_add_to_manifest('MANIFEST', $self->{metafile} || 'META.yml');
 }
 
 sub dist_dir {
@@ -2199,6 +2199,7 @@ sub ACTION_distmeta {
 Please check and edit the generated metadata, or consider installing YAML.pm.\n
 EOM
 
+    $self->_add_to_manifest('MANIFEST', $self->{metafile});
     return $self->_write_minimal_metadata();
   }
 
@@ -2223,7 +2224,9 @@ EOM
   
   # YAML API changed after version 0.30
   my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
-  return $self->{wrote_metadata} = $yaml_sub->($self->{metafile}, $node );
+  $self->{wrote_metadata} = $yaml_sub->($self->{metafile}, $node );
+
+  $self->_add_to_manifest('MANIFEST', $self->{metafile});
 }
 
 sub _read_manifest {
