@@ -704,6 +704,7 @@ sub ACTION_build {
 
 sub ACTION_manifypods {
   my $self = shift;
+  warn "Sorry, the 'manifypods' action is not yet implemented.\n"; return;
   require Pod::Man;
   
   my $p = Pod::Man->new(section => 3);
