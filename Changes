@@ -8,6 +8,8 @@ Revision history for Perl extension Module::Build.
  - The tests now play better with environments in which version.pm is
    pre-loaded, like in bleadperl. [John Peacock & Michael Schwern]
 
+ - Fixed a syntax error in one of the tests under perl 5.005.
+
 0.2604  Wed Nov 17 14:32:42 CST 2004
 
  - Fixed a split_like_shell() bug introduced in 0.2603 for Windows, in
