@@ -104,18 +104,6 @@ EOF
   return $ppd_file;
 }
 
-sub _parse_abstract {
-    my($self, $file) = @_;
-
-    my $result;
-    local $/ = "\n";
-
-    my $fh = IO::File->new("<$file")
-      or die "Could not open $file: $!";
-
-    return $result;
-}
-
 sub _ppd_version {
   my ($self, $version) = @_;
 
