@@ -1,5 +1,36 @@
 Revision history for Perl extension Module::Build.
 
+0.14
+
+  - Added a 'diff' action, which is useful for comparing the details
+    of what you're about to install with what is already installed on
+    your system.  This uses File::Compare, which is in the core.
+
+  - Fixed a problem on Windows in which the _build/ directory wasn't
+    getting deleted during the 'realclean' action, because we had a
+    file open in that directory. [Spotted by Michael Schwern]
+
+  - Internally we now use the multi-argument form of system() to run
+    external commands (such as 'diff' or 'cc') whenever possible.
+    Note that this means we have to handle splitting some strings
+    (such as $Config{ccflags}) into argument lists like the shell
+    would, which is a drag.  However, the alternative would be to
+    handle shell quoting of all arguments to commands ourselves, which
+    is an even bigger drag across platforms.
+
+  - To handle the argument splitting mentioned above, a method
+    split_like_shell() has been created.
+
+  - The 'test' action now takes a 'test_files' parameter, similar to
+    the (undocumented) ExtUtils::MakeMaker TEST_FILES argument.  Handy
+    during development when fixing bugs.
+
+  - Internally, the rscan_dir() method can now accept a predicate
+    function that decides whether a file/directory should be matched.
+
+  - We now issue a warning message when the author hasn't specified a
+    license type.
+
 0.13  Wed Nov 20 20:07:53 AEST 2002
 
   - 'cleanup' file lists are now written immediately, rather than at
