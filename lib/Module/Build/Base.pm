@@ -473,6 +473,7 @@ __PACKAGE__->add_property($_) for qw(
    ignore_prereq_conflicts
    ignore_prereq_requires
    ignore_prereqs
+   skip_rcfile
 );
 
 INIT {
@@ -1220,12 +1221,22 @@ sub read_modulebuildrc {
   return defined( $args ) ? $args : {};
 }
 
-sub merge_args {
-  my ($self, $action, %cmd_args) = @_;
-  $self->{action} = $action if defined $action;
+sub merge_modulebuildrc {
+  my( $self, $action, %args ) = @_;
 
-  my $rc_args = $self->read_modulebuildrc( $self->{action} || 'build' );
-  my %args = ( %$rc_args, %cmd_args );
+  my $rc_args = $self->read_modulebuildrc( $action || 'build' );
+
+  my %app_args;
+  while (my ($key, $val) = each %$rc_args) {
+    $app_args{$key} = $val unless exists( $args{$key} );
+  }
+
+  $self->merge_args( $action, %app_args );
+}
+
+sub merge_args {
+  my ($self, $action, %args) = @_;
+  $self->{action} = $action if defined $action;
 
   my %additive = map { $_ => 1 } $self->hash_properties;
 
@@ -1250,6 +1261,7 @@ sub cull_args {
   my $self = shift;
   my ($args, $action) = $self->read_args(@_);
   $self->merge_args($action, %$args);
+  $self->merge_modulebuildrc( $action, %$args ) unless $self->skip_rcfile;
 }
 
 sub super_classes {
