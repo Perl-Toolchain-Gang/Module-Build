@@ -42,7 +42,7 @@ Revision history for Perl extension Module::Build.
  - Moved INSTALL to INSTALL.txt to increase compatibility with various
    odd versions of 'make' during 'make install' on case-insensitive
    filesystems (like nmake on Win32, often).  Only affects the
-   Makefile compatibility layer.  [reported by Andrew Savage]
+   Makefile compatibility layer.  [reported by Andrew Savige]
 
  - Module::Build->known_actions() now works as a class method.
 
@@ -52,7 +52,7 @@ Revision history for Perl extension Module::Build.
  - Pass-through makefiles now list each action individually rather
    than using a ".DEFAULT" catch-all.  This improves compatibility
    with 'nmake' on Win32, and probably some other less common 'make'
-   dialects.  [Andrew Savage]
+   dialects.  [Andrew Savige]
 
  - We're now more aggressive about testing the pass-through makefiles,
    e.g. making sure they can run 'all' and 'test' targets, and making
@@ -153,7 +153,7 @@ Revision history for Perl extension Module::Build.
    [reported by Teun Burgers]
 
  - Fixed some failing test code on Windows - open files can't be
-   deleted. [Andrew Savage]
+   deleted. [Andrew Savige]
 
  - The Cygwin platform is now treated as a flavor of Unix rather than
    a flavor of Windows. [chocolateboy]
