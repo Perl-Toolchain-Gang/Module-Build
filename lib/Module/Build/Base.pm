@@ -51,6 +51,16 @@ sub resume {
   return $self;
 }
 
+sub new_from_context {
+  my ($package, %args) = @_;
+  
+  # XXX Read the META.yml and see whether we need to run the Build.PL
+  
+  # Run the Build.PL
+  $package->run_perl_script('Build.PL');
+  return $package->resume;
+}
+
 sub current {
   # hmm, wonder what the right thing to do here is
   local @ARGV;
