@@ -1,9 +1,9 @@
 Revision history for Perl extension Module::Build.
 
-0.20
+0.19_01  Sat Jul 12 10:12:52 CDT 2003
 
  - Fixed a problem with the 'install_path' parameter given to
-   'Build.PL' being lost in subsuquent actions. [Reported by Mathieu
+   'Build.PL' being lost in subsequent actions. [Reported by Mathieu
    Arnold]
 
 0.19  Wed Jul  9 22:34:02 CDT 2003
