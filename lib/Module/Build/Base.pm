@@ -132,6 +132,8 @@ sub _set_install_paths {
   my $self = shift;
   my $c = $self->{config};
 
+  my @htmldoc = $c->{installhtmldir} ? (htmldoc => $c->{installhtmldir}) : ();
+
   $self->{properties}{install_sets} =
     {
      core   => {
@@ -141,6 +143,7 @@ sub _set_install_paths {
 		script  => $c->{installscript},
 		bindoc  => $c->{installman1dir},
 		libdoc  => $c->{installman3dir},
+		@htmldoc,
 	       },
      site   => {
 		lib     => $c->{installsitelib},
@@ -149,6 +152,7 @@ sub _set_install_paths {
 		script  => $c->{installsitescript} || $c->{installsitebin} || $c->{installscript},
 		bindoc  => $c->{installsiteman1dir} || $c->{installman1dir},
 		libdoc  => $c->{installsiteman3dir} || $c->{installman3dir},
+		@htmldoc,
 	       },
      vendor => {
 		lib     => $c->{installvendorlib},
@@ -157,6 +161,7 @@ sub _set_install_paths {
 		script  => $c->{installvendorscript} || $c->{installvendorbin} || $c->{installscript},
 		bindoc  => $c->{installvendorman1dir} || $c->{installman1dir},
 		libdoc  => $c->{installvendorman3dir} || $c->{installman3dir},
+		@htmldoc,
 	       },
     };
 }
@@ -1385,6 +1390,7 @@ sub ACTION_docs {
   require Pod::Man;
   $self->manify_bin_pods() if $self->install_destination('bindoc');
   $self->manify_lib_pods() if $self->install_destination('libdoc');
+  $self->htmlify_pods()    if $self->install_destination('htmldoc');
 }
 
 sub manify_bin_pods {
@@ -1449,14 +1455,19 @@ sub contains_pod {
   return '';
 }
 
-sub ACTION_html {
+sub ACTION_htmldoc {
   my $self = shift;
-  $self->depends_on('build');
+  $self->htmlify_pods;
+}
+
+sub htmlify_pods {
+  my $self = shift;
+  $self->depends_on('code');
   require Pod::Html;
   require Module::Build::PodParser;
   
   my $blib = $self->blib;
-  my $html = File::Spec::Unix->catdir($blib, 'html');
+  my $html = File::Spec::Unix->catdir($blib, 'htmldoc');
   my $script = File::Spec::Unix->catdir($blib, 'script');
   
   unless (-d $html) {
@@ -2046,7 +2057,9 @@ sub install_destination {
 
 sub install_types {
   my $self = shift;
-  return @{ $self->{properties}{install_types} }
+  my $p = $self->{properties};
+  my %types = (%{$p->{install_types}}, %{$p->{install_path}});
+  return keys %types;
 }
 
 sub install_map {
