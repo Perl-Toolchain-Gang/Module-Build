@@ -66,11 +66,11 @@ chdir 't';
   ok $info->{have}, $File::Spec::VERSION;
 
   # Make sure check_installed_status() works with an advanced spec
-  my $info = Module::Build->check_installed_status('File::Spec', '> 0');
+  $info = Module::Build->check_installed_status('File::Spec', '> 0');
   ok $info->{ok}, 1;
   
   local $Foo::Module::VERSION = '1.01_02';
-  my $info = Module::Build->check_installed_status('Foo::Module', '1.01_02');
+  $info = Module::Build->check_installed_status('Foo::Module', '1.01_02');
   ok $info->{ok}, 1;
   print $info->{message}, "\n";
 }
