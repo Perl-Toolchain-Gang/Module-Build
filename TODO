@@ -1,5 +1,9 @@
 -------------------------- TO DO: --------------------------------
 
+* Look at Time::HiRes as a way to get C modules compiled & linked on
+  various weird platforms, and abstract them into a new utility module
+  for this purpose.
+
 * Rethink the whole approach to dependencies.  This means making
   "requires vs. recommends vs. conflicts" orthogonal to "build-time
   vs. run-time", recording which dependencies the user chooses to
