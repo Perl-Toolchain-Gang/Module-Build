@@ -17,6 +17,7 @@ lib/Module/Build/Platform/VMS.pm
 lib/Module/Build/Platform/VOS.pm
 lib/Module/Build/Platform/Windows.pm
 lib/Module/Build/Platform/darwin.pm
+t/MANIFEST
 t/XSTest/Build.PL
 t/XSTest/Changes
 t/XSTest/MANIFEST
@@ -24,4 +25,5 @@ t/XSTest/lib/XSTest.pm
 t/XSTest/lib/XSTest.xs
 t/XSTest/test.pl
 t/basic.t
+t/lib/ModuleBuildOne.pm
 t/xs.t

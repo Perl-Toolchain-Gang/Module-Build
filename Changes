@@ -1,6 +1,7 @@
 Revision history for Perl extension Module::Build.
 
-0.08
+0.08  Wed Jun 26 20:30:56 EST 2002
+
   - Fixed the 'prereq' alias for the 'requires' parameter
 
   - Added some tests in t/basic.t to test the dependency checking

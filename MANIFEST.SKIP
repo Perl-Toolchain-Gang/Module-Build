@@ -9,3 +9,4 @@ CVS
 \.bak$
 ^patches
 ^Module-
+^t/_
