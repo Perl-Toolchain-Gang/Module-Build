@@ -546,16 +546,17 @@ sub check_installed_status {
   my @conditions = $self->_parse_conditions($spec);
   
   foreach (@conditions) {
-    unless ( /^\s*  (<=?|>=?|==|!=)  \s*  ([\w.]+)  \s*$/x ) {
-      die "Invalid prerequisite condition '$_' for $modname";
-    }
-    if ($modname eq 'perl') {
-      my ($op, $version) = ($1, $2);
-      $_ = "$op " . $self->perl_version_to_float($version);
-    }
-    next if $_ eq '>= 0';  # Module doesn't have to actually define a $VERSION
-    unless (eval "\$status{have} $_") {
-      $status{message} = "Version $status{have} is installed, but we need version $_";
+    my ($op, $version) = /^\s*  (<=?|>=?|==|!=)  \s*  ([\w.]+)  \s*$/x
+      or die "Invalid prerequisite condition '$_' for $modname";
+    
+    $version = $self->perl_version_to_float($version)
+      if $modname eq 'perl';
+    
+    next if $op eq '>=' and !$version;  # Module doesn't have to actually define a $VERSION
+    
+    unless (eval "\$status{have} $op $version") {
+      warn $@ if $@;
+      $status{message} = "Version $status{have} is installed, but we need version $op $version";
       return \%status;
     }
   }
