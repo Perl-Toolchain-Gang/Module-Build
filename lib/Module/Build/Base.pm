@@ -397,6 +397,7 @@ sub dist_abstract {
     last if ($result) = /^(?:$package\s-\s)(.*)/;
   }
   
+  $result =~ s/\s+$//;
   return $p->{dist_abstract} = $result;
 }
 
