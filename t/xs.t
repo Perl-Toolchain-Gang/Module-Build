@@ -46,17 +46,19 @@ sub have_compiler {
   my %things;
   foreach (qw(cc ld)) {
     return 0 unless $Config{$_};
-    $things{$_} = (File::Spec->file_name_is_absolute($Config{cc}) ?
-                   $Config{cc} :
-                   find_in_path($Config{cc}));
-    return 0 unless $things{$_};
-    return 0 unless -x $things{$_};
+    my $thing = (File::Spec->file_name_is_absolute($Config{cc}) ?
+		 $Config{cc} :
+		 find_in_path($Config{cc}));
+    return 0 unless $thing;
+    return 0 unless -x $thing;
   }
   return 1;
 }
 
 sub find_in_path {
   my $thing = shift;
+  $thing = (Module::Build->split_like_shell($thing))[0]; # It may be something like 'ccache gcc'
+  
   my @path = split $Config{path_sep}, $ENV{PATH};
   my @exe_ext = $^O eq 'MSWin32' ?
     split($Config{path_sep}, $ENV{PATHEXT} || '.com;.exe;.bat') :
