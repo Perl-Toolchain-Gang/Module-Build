@@ -26,7 +26,7 @@ sub new {
   my $cmd_config;
   if ($cmd_args->{config}) {
     # XXX need to hashify this string better (deal with quoted whitespace)
-    $cmd_config->{$1} = $2 while $cmd_args->{config} =~ /(\w+)=(\S+)/;
+    $cmd_config->{$1} = $2 while $cmd_args->{config} =~ /(\w+)=(\S+)/g;
   } else {
     $cmd_config = {};
   }
@@ -347,8 +347,8 @@ sub check_prereq {
     }
   }
   
-  warn "ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions ".
-       "of the modules indicated above before proceeding with this installation.\n";
+  warn "ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions\n".
+       " of the modules indicated above before proceeding with this installation.\n";
   return 0;
 }
 
@@ -751,14 +751,14 @@ sub ACTION_install {
   my ($self) = @_;
   require ExtUtils::Install;
   $self->depends_on('build');
-  ExtUtils::Install::install($self->install_map('blib'), 1, 0);
+  ExtUtils::Install::install($self->install_map('blib'), 1, 0, $self->{args}{uninst}||0);
 }
 
 sub ACTION_fakeinstall {
   my ($self) = @_;
   require ExtUtils::Install;
   $self->depends_on('build');
-  ExtUtils::Install::install($self->install_map('blib'), 1, 1);
+  ExtUtils::Install::install($self->install_map('blib'), 1, 1, $self->{args}{uninst}||0);
 }
 
 sub ACTION_clean {
