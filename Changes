@@ -6,6 +6,8 @@ Revision history for Perl extension Module::Build.
    no 'make' utility available.  We now detect this and skip some
    'make' compatibility tests. [Randy Sims]
 
+ - Add NetBSD to the list of Unix-like systems. [Adrian Bunk]
+
  - Fixed a spurious testing failure on non-Unix platforms that
    happened because we accidentally call localize_file_path() on empty
    strings in the test suite. [Spotted by Randy Sims on Windows]
