@@ -294,7 +294,7 @@ sub write_compiler_script {
 
   close SCRIPT;
 
-  push @{$spec{includes}}, '@"' . $script . '"';
+  push @{$spec{includes}}, qq{\@"$script"};
 
   return %spec;
 }
@@ -354,7 +354,7 @@ sub write_linker_script {
 
   close SCRIPT;
 
-  push @{$spec{lddlflags}}, '@"' . $script . '"';
+  push @{$spec{lddlflags}}, qq{\@"$script"};
 
   return %spec;
 }
@@ -404,7 +404,7 @@ sub write_compiler_script {
 
   close SCRIPT;
 
-  push @{$spec{includes}}, '@"' . $script . '"';
+  push @{$spec{includes}}, qq{\@"$script"};
 
   return %spec;
 }
@@ -476,8 +476,8 @@ sub write_linker_script {
 
   close LD_LIBS;
 
-  push @{$spec{lddlflags}}, '@"' . $ld_script  . '"';
-  push @{$spec{perllibs}},  '@"' . $ld_libs    . '"';
+  push @{$spec{lddlflags}}, qq{\@"$ld_script"};
+  push @{$spec{perllibs}},  qq{\@"$ld_libs"};
 
   return %spec;
 }
