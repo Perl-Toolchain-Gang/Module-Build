@@ -939,6 +939,30 @@ sub make_executable {
 
 sub _startperl { shift()->{config}{startperl} }
 
+# Return any directories in @INC which are not in the default @INC for
+# this Perl.  For example, stuff passed in with -I or loaded with "use lib".
+sub _added_to_INC {
+  my $self = shift;
+
+  my %seen;
+  $seen{$_}++ foreach $self->_default_INC;
+  return grep !$seen{$_}++, @INC;
+}
+
+# Determine the default @INC for this Perl
+sub _default_INC {
+  my $self = shift;
+
+  local $ENV{PERL5LIB};  # this is not considered part of the default.
+
+  my $perl = $self->perl;
+
+  my @inc =`$perl -le "print for \@INC"`;
+  chomp @inc;
+
+  return @inc;
+}
+
 sub print_build_script {
   my ($self, $fh) = @_;
   
@@ -947,7 +971,7 @@ sub print_build_script {
   my %q = map {$_, $self->$_()} qw(config_dir base_dir);
   $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $^O eq 'MSWin32';
 
-  my @myINC = @INC;
+  my @myINC = $self->_added_to_INC;
   for (@myINC, values %q) {
     $_ = File::Spec->canonpath( File::Spec->rel2abs($_) );
     s/([\\\'])/\\$1/g;
@@ -972,7 +996,7 @@ BEGIN {
     die ('This script must be run from $q{base_dir}, not '.\$curdir."\\n".
 	 "Please re-run the Build.PL script here.\\n");
   }
-  \@INC = 
+  unshift \@INC,
     (
 $quoted_INC
     );

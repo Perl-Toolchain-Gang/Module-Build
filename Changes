@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+0.2607
+
+ - Instead of freezing @INC in the 'Build' script to the value it had
+   when Build.PL was run, we now just add those additional values that
+   aren't part of the default compiled-in @INC. [Michael Schwern]
+
 0.2606 (Bug fix for 0.26)   Tue Dec  7 22:33:11 CST 2004
 
  - Fixed a linking bug on Win32, in which compiled C code object files
