@@ -350,7 +350,7 @@ sub check_prereq {
   }
   
   warn "ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions\n".
-       " of the modules indicated above before proceeding with this installation.\n";
+       " of the modules indicated above before proceeding with this installation.\n\n";
   return 0;
 }
 
