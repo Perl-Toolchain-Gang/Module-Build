@@ -21,6 +21,10 @@ Revision history for Perl extension Module::Build.
    incorrect results if the method was called more than once in the
    same program.
 
+ - Fixed a problem in which actions defined by user subclasses
+   wouldn't be available via the pass-through Makefiles created by
+   Module::Build::Compat. [Reported by Jaap Karssenberg]
+
 0.22  Sat Jan 10 22:05:39 CST 2004
 
  - On Unixish platforms, the syntax "FOO=BAR /bin/baz arg arg" now
