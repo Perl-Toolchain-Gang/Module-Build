@@ -262,13 +262,12 @@ sub split_like_shell {
   # still be used (making sure to avoid backslash-quote pairs, which
   # should work the same as on Unix)
 
-  my ($self, $string) = @_;
-  
-  return () unless defined($string) && length($string);
-  return @$string if UNIVERSAL::isa($string, 'ARRAY');
-  
-  $string =~ s/\\(?!")/\\\\/g;
-  return Text::ParseWords::shellwords($string);
+  (my $self, local $_) = @_;
+  if (defined() && length() && !ref()) {
+    s/\\(?!")/\\\\/g;
+  }
+
+  return $self->SUPER::split_like_shell($_);
 }
 
 1;
