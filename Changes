@@ -13,6 +13,14 @@ Revision history for Perl extension Module::Build.
  - Added a 'ppm_dist' action, which just makes the PPD file and then
    makes a tarball out of the blib/ directory. [Randy Sims]
 
+ - Fixed a problem in "Build help <action>", which didn't find the
+   correct help chunk if <action> was the final element in a POD
+   list. [Jaap Karssenberg]
+
+ - Fixed a problem in the get_action_docs() method which gave
+   incorrect results if the method was called more than once in the
+   same program.
+
 0.22  Sat Jan 10 22:05:39 CST 2004
 
  - On Unixish platforms, the syntax "FOO=BAR /bin/baz arg arg" now
