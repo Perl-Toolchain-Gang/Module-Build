@@ -46,6 +46,10 @@ Revision history for Perl extension Module::Build.
  - Existing values in $ENV{HARNESS_PERL_SWITCHES} are now respected
    and not squashed when we run the 'test' action. [Paul Johnson]
 
+ - On cygwin, the separator string for manual page names has been set
+   to '.'.  Previously it was '::', inherited from Unix. [Yitzchak
+   Scott-Thoennes]
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
