@@ -1035,7 +1035,12 @@ sub write_metadata {
     $node->{$_} = $p->{$_} if exists $p->{$_};
   }
   
-  $node->{provides} = $self->find_dist_packages;
+  $node->{provides} = $self->find_dist_packages
+    or do {
+      warn "Module::Info was not available, no 'provides' will be created in $file";
+      delete $node->{provides};
+    };
+
   $node->{generated_by} = "Module::Build version " . Module::Build->VERSION;
 
   return YAML::StoreFile($file, $node ) if $YAML::VERSION le '0.30';
@@ -1054,15 +1059,17 @@ sub find_dist_packages {
   foreach my $file (@pm_files) {
     next if $file =~ m{^t/};  # Skip things in t/
     
-    require Module::Info;
+    return unless eval {require Module::Info; Module::Info->VERSION(0.19); 1};
+    
     my $localfile = File::Spec->catfile( split m{/}, $file );
     my $module = Module::Info->new_from_file( $localfile );
 
     print "Scanning $localfile for packages\n";
-    foreach my $package ($module->packages_inside) {
+    my %packages = $module->package_versions;
+    while (my ($package, $version) = each %packages) {
       $out{$package} = {
 			file => $file,
-			# version => $version,
+			version => $version,
 		       };
     }
   }
