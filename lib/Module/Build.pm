@@ -14,7 +14,7 @@ use File::Path ();
 use File::Basename ();
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 # Okay, this is the brute-force method of finding out what kind of
 # platform we're on.  I don't know of a systematic way.  These values
@@ -182,18 +182,53 @@ C<ExtUtils::MakeMaker> and C<CPAN.pm>.
 Allows you to specify an alternate file for finding the module
 version, instead of looking in the file specified by C<module_name>.
 
-=item * prereq
+=item * license
 
-An optional C<prereq> argument specifies any module prerequisites that
+Specifies the licensing terms of your distribution.  Valid options include:
+
+=over 4
+
+=item * perl
+
+The distribution may be copied and redistributed under the same terms
+as perl itself (this is by far the most common licensing option for
+modules on CPAN).
+
+=item * gpl
+
+The distribution is distributed under the terms of the Gnu Public
+License.
+
+=item * restrictive
+
+The distribution may not be redistributed without special arrangement
+with the author.
+
+=back
+
+Note that you must still include the terms of your license in your
+documentation - this field only lets automated tools figure out your
+licensing restrictions.  Humans still need something to read.
+
+If you use a licensing option unknown to C<Module::Build>, an
+C<unknown> license type will be used.  Please let me know if you need
+another license to be recognized - I just started out with a small set
+to keep things simple, figuring I'd let people with actual working
+knowledge in this area tell me what to do.
+
+=item * requires
+
+An optional C<requires> argument specifies any module prerequisites that
 the current module depends on.  The prerequisites are given in a hash
 reference, where the keys are the module names and the values are
 version specifiers:
 
- prereq => {Foo::Module => '2.4',
-            Bar::Module => 0,
-            Ken::Module => '>= 1.2, != 1.5, < 2.0'},
+ requires => {Foo::Module => '2.4',
+              Bar::Module => 0,
+              Ken::Module => '>= 1.2, != 1.5, < 2.0',
+              perl => '5.6.0'},
 
-These three version specifiers have different effects.  The value
+These four version specifiers have different effects.  The value
 C<'2.4'> means that B<at least> version 2.4 of C<Foo::Module> must be
 installed.  The value C<0> means that B<any> version of C<Bar::Module>
 is acceptable, even if C<Bar::Module> doesn't define a version.  The
@@ -204,11 +239,12 @@ and all criteria must be satisfied.
 
 A special C<perl> entry lets you specify the versions of the Perl
 interpreter that are supported by your module.  The same version
-dependency-checking semantics are available.
+dependency-checking semantics are available, except that we also
+understand perl's new double-dotted version numbers.
 
 One note: currently C<Module::Build> doesn't actually I<require> the
 user to have dependencies installed, it just strongly urges.  In the
-future we may require it.  There's now a C<recommended> section for
+future we may require it.  There's now a C<recommends> section for
 things that aren't absolutely required.
 
 Automated tools like CPAN.pm should refuse to install a module if one
@@ -216,7 +252,12 @@ of its dependencies isn't satisfied, unless a "force" command is given
 by the user.  If the tools are helpful, they should also offer to
 install the dependencies.
 
-=item * recommended
+A sysnonym for C<requires> is C<prereq>, to help succour people
+transitioning from C<ExtUtils::MakeMaker>.  The C<requires> term is
+preferred, but the C<prereq> term will remain valid in future
+distributions.
+
+=item * recommends
 
 This is just like the C<prereq> argument, except that modules listed
 in this section aren't essential, just a good idea.  We'll just print
@@ -231,7 +272,7 @@ Automated tools like CPAN.pm should inform the user when recommended
 modules aren't installed, and it should offer to install them if it
 wants to be helpful.
 
-=item * build_prereq
+=item * build_requires
 
 Modules listed in this section are necessary to build and install the
 given module, but are not necessary for regular usage of it.  This is
@@ -259,6 +300,21 @@ An optional C<autosplit> argument specifies a file which should be run
 through the C<Autosplit::autosplit()> function.  In general I don't
 consider this a great idea, and I may even go so far as to remove this
 feature later.  Let me know if I shouldn't.
+
+=item * build_from_metadata
+
+A flag indicating whether this module can be built, tested and
+installed solely from consulting its metadata file, or whether the
+F<Build.PL> file must be executed.  The default value is 1, reflecting
+the fact that "most" of the modules on CPAN just need to be copied
+from one place to another.  The main reason to set this to a false
+value is that your module performs some dynamic configuration as part
+of its build/install process.
+
+Currently C<Module::Build> doesn't actually do anything with this flag
+- it's probably going to be up to tools like C<CPAN.pm> to do
+something useful with it.  It can potentially bring lots of security,
+packaging, and convenience improvements.
 
 =back
 
@@ -523,6 +579,14 @@ the files listed in the F<MANIFEST> file to that directory.  This
 directory is what people will see when they download your distribution
 and unpack it.
 
+While performing the 'distdir' action, a file containing various bits
+of "metadata" will be created.  The metadata includes the module's
+name, version, dependencies, license, and the C<build_from_metadata>
+flag.  This file is created as F<META.yaml> in YAML format, so you
+must have the C<YAML> module installed in order to create it.  You
+should also ensure that the F<META.yaml> file is listed in your
+F<MANIFEST> - if it's not, a warning will be issued.
+
 =item * disttest
 
 Performs the 'distdir' action, then switches into that directory and
@@ -685,7 +749,8 @@ worrying about backward compatibility.
 Finally, Perl is said to be a language for system administration.
 Could it really be the case that Perl isn't up to the task of building
 and installing software?  Even if that software is a bunch of stupid
-little C<.pm> files?  Are you getting riled up yet??
+little C<.pm> files that just need to be copied from one place to
+another?  Are you getting riled up yet??
 
 =back
 
@@ -707,7 +772,6 @@ whether the dynamic declaration of dependencies is a good idea.
 - make man pages and install them.
 - append to perllocal.pod
 - write .packlist in appropriate location (needed for un-install)
-- write dependency list in _build
 
 =head1 AUTHOR
 
@@ -715,7 +779,7 @@ Ken Williams, ken@mathforum.org
 
 =head1 SEE ALSO
 
-perl(1), ExtUtils::MakeMaker(3)
+perl(1), ExtUtils::MakeMaker(3), YAML(3)
 
 http://www.dsmit.com/cons/
 
