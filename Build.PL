@@ -20,6 +20,9 @@ my $build = new Module::Build
 		  YAML => 0.35,
 		  Archive::Tar => 0.22,
 		 },
+   build_requires => {
+		      Test => 0,
+		     },
    dynamic_config => 1,
   );
 
