@@ -95,6 +95,12 @@ sub compile_c {
      $spec{perlinc},
   );
 
+  # Add -I flag to includes, *once*
+  foreach my $path ( @{ $spec{includes} || [] },
+                     @{ $spec{perlinc}  || [] } ) {
+    $path = '-I' . $path unless $path =~ /-I/;
+  }
+
   my @cmds = $self->format_compiler_cmd(%spec);
   while ( my $cmd = shift @cmds ) {
     $self->do_system( @$cmd )
@@ -251,11 +257,6 @@ package Module::Build::Platform::Windows::MSVC;
 sub format_compiler_cmd {
   my ($self, %spec) = @_;
 
-  foreach my $path ( @{ $spec{includes} || [] },
-                     @{ $spec{perlinc}  || [] } ) {
-    $path = '-I' . $path;
-  }
-
   %spec = $self->write_compiler_script(%spec)
     if $spec{use_scripts};
 
@@ -365,11 +366,6 @@ package Module::Build::Platform::Windows::BCC;
 
 sub format_compiler_cmd {
   my ($self, %spec) = @_;
-
-  foreach my $path ( @{ $spec{includes} || [] },
-                     @{ $spec{perlinc}  || [] } ) {
-    $path = '-I' . $path;
-  }
 
   %spec = $self->write_compiler_script(%spec)
     if $spec{use_scripts};
@@ -493,11 +489,6 @@ package Module::Build::Platform::Windows::GCC;
 
 sub format_compiler_cmd {
   my ($self, %spec) = @_;
-
-  foreach my $path ( @{ $spec{includes} || [] },
-                     @{ $spec{perlinc}  || [] } ) {
-    $path = '-I' . $path;
-  }
 
   return [ grep {defined && length} (
     $spec{cc}, '-c'         ,

@@ -1,6 +1,7 @@
 Changes
 MANIFEST
 Build.PL
+empty.h
 lib/XSTest.pm
 lib/XSTest.xs
 test.pl

@@ -2,6 +2,7 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#include "empty.h"
 
 MODULE = XSTest		PACKAGE = XSTest		
 
