@@ -1475,7 +1475,7 @@ sub ACTION_ppd {
   $self->add_to_cleanup($file);
 }
 
-sub ACTION_ppm_dist {
+sub ACTION_ppmdist {
   my ($self) = @_;
   
   $self->depends_on('build', 'ppd');
