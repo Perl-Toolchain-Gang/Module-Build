@@ -7,6 +7,12 @@ Revision history for Perl extension Module::Build.
    invocation (similar to how perl's require() function works).  This
    helps avoid some difficult problems with dependency loops.
 
+ - Separated the 'build' action into two separate actions, 'code' and
+   'docs'.  This is similar to MakeMaker's separation of the 'all'
+   target into 'pure_all' and 'manifypods'.  This fixes a permissions
+   hassle in which doing 'sudo Build install' would often create local
+   doc files that needed superuser permissions to delete.
+
 0.19_04
 
  - Fixed yet another bug with installation directories, in which the
