@@ -157,8 +157,36 @@ Do take care when altering this property, since there may be
 non-obvious (and non-documented!) ordering dependencies in the
 C<Module::Build> code.
 
+=head2 Dealing with more than one perl installation
+
+If you have more than one C<perl> interpreter installed on your
+system, you can choose which installation to target whenever you use
+C<Module::Build>.  Usually it's as simple as using the right C<perl>
+in the C<perl Build.PL> step - this perl will be remembered for the
+rest of the life of the generated F<Build> script.
+
+Occasionally, however, we get it wrong.  This is because there often
+is no reliable way in perl to find a path to the currently-running
+perl interpreter.  When C<$^X> doesn't tell us much (e.g. when it's
+something like "perl" instead of an absolute path), we do some very
+effective guessing, but there's still a small chance we can get it
+wrong.  Or not find one at all.
+
+Therefore, if you want to explicitly tell C<Module::Build> which perl
+binary you're targetting, you can override C<$Config{perlpath}>, like
+so:
+
+  /foo/perl Build.PL --config perlpath=/foo/perl
+  ./Build --config perlpath=/foo/perl
+  ./Build test --config perlpath=/foo/perl
+
 
 =head2 Adding new types to the install process
+
+Sometimes you might have extra types of files that you want to install
+alongside the standard types like F<.pm> and F<.pod> files.  For
+instance, you might have a F<Foo.dat> file containing some data
+related to the C<Boo::Baz> module.  
 
 ... more to come ...
 
