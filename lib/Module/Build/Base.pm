@@ -40,6 +40,11 @@ sub resume {
        "   but we are now using '$perl'.\n")
     unless $perl eq $self->{properties}{perl};
   
+  my $mb_version = Module::Build->VERSION;
+  die(" * ERROR: Configuration was initially created with Module::Build version '$self->{properties}{mb_version}',\n".
+      "   but we are now using version '$mb_version'.  Please re-run the Build.PL or Makefile.PL script.\n")
+    unless $mb_version eq $self->{properties}{mb_version};
+  
   $self->cull_args(@ARGV);
   $self->{action} ||= 'build';
   
@@ -79,6 +84,7 @@ sub _construct {
 				   build_requires  => {},
 				   conflicts       => {},
 				   perl            => $perl,
+				   mb_version      => Module::Build->VERSION,
 				   install_types   => [qw( lib arch script bindoc libdoc )],
 				   installdirs     => 'site',
 				   include_dirs    => [],
