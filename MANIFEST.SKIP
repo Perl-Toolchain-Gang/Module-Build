@@ -14,7 +14,7 @@ CVS
 ^t/_
 ^t/Sample/save_out$
 ^t/Sample/SIGNATURE
-^\.
+(^|/)\.
 Makefile$
 /cover_db/
 
