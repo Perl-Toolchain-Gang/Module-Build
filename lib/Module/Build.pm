@@ -575,13 +575,6 @@ looks in the POD of the module from which it gets the distribution's
 version.  It looks for the first line matching C<$package\s-\s(.+)>,
 and uses the captured text as the abstract.
 
-=item codebase
-
-This can be either a single scalar string, or an array reference of
-strings.  It is required when creating PPD files.  It should be a URL,
-or URLs, to be used as the value for the C<< <CODEBASE> >> tag in the
-generated PPD.
-
 =back
 
 =item subclass()
@@ -1211,6 +1204,15 @@ that directory.
 =item ppd
 
 Build a PPD file for your distribution.
+
+This action takes an optional argument C<codebase> which is used in
+the generated ppd file to specify the (usually relative) URL of the
+distribution. By default, this value is the distribution name without
+any path information.
+
+Example:
+
+ perl Build ppd codebase="MSWin32-x86-multi-thread/Module-Build-0.21.tar.gz"
 
 =back
 
