@@ -821,7 +821,7 @@ sub read_config {
     next unless -e $self->config_file($_);
     $self->_persistent_hash_restore($_);
   }
-  $self->has_config_data(1) if keys(%{$self->config_data}) || keys(%{$self->features});
+  $self->has_config_data(1) if keys(%{$self->config_data}) || keys(%{$self->feature});
 }
 
 sub _write_dumper {
