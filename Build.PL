@@ -28,9 +28,12 @@ my $build = new ModuleBuildBuilder
 		'File::Path'     => 0,
 		'File::Spec'     => 0,
 		'ExtUtils::Install' => 0,
+		'ExtUtils::Manifest' => 0,
+		'ExtUtils::Mkbootstrap' => 0,
 		'IO::File'       => 0,
 		'Cwd'            => 0,
 		'Text::ParseWords' => 0,
+		'Getopt::Long'   => 0,
 	       },
    recommends => {
 		  'Archive::Tar' => '1.08',
@@ -60,6 +63,11 @@ my $build = new ModuleBuildBuilder
 		     {
 		      description => "Can create Unix man pages",
 		      requires => { 'Pod::Man' => 0 },
+		     },
+		     HTML_support =>
+		     {
+		      description => "Can create HTML documentation",
+		      requires => { 'Pod::Html' => 0 },
 		     },
 		    },
 
