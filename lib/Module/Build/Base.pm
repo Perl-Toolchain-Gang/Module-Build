@@ -294,24 +294,34 @@ sub version_from_file {
 
 sub add_to_cleanup {
   my $self = shift;
+
+  # $self->{cleanup} contains files that are written in the 'cleanup'
+  # file.  $self->{add_to_cleanup} is a buffer that we haven't written
+  # yet (and may never write if we don't ever create the cleanup file).
+
   my @new_files = grep {!exists $self->{cleanup}{$_}} @_, keys %{$self->{add_to_cleanup}};
   return unless @new_files;
   
   if ( my $file = $self->config_file('cleanup') ) {
-    # A state file exists on disk, so we don't need to save in memory
+    # A state file exists on disk, so save immediately
 
     my $fh = IO::File->new(">> $file") or die "Can't append to $file: $!";
     print $fh "$_\n" foreach @new_files;
-    delete $self->{add_to_cleanup};
+    $self->{add_to_cleanup} = {};
+    
+    @{$self->{cleanup}}{ @new_files } = ();
     
   } else {
     # No state file is being used.  Maybe it will later, but for now
-    # just save in memory.
+    # just (re-)save in memory.
 
     @{$self->{add_to_cleanup}}{ @new_files } = ();
   }
-  
-  @{$self->{cleanup}}{ @new_files } = ();
+}
+
+sub cleanup {
+  my $self = shift;
+  return (keys %{$self->{cleanup}}, keys %{$self->{add_to_cleanup}});
 }
 
 sub config_file {
@@ -953,7 +963,7 @@ sub ACTION_versioninstall {
 
 sub ACTION_clean {
   my ($self) = @_;
-  foreach my $item (keys %{$self->{cleanup}}) {
+  foreach my $item ($self->cleanup) {
     $self->delete_filetree($item);
   }
 }
