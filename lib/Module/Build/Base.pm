@@ -1817,6 +1817,10 @@ sub _add_to_manifest {
   my ($self, $manifest, $lines) = @_;
   $lines = [$lines] unless ref $lines;
 
+  my $existing_files = $self->_read_manifest($manifest);
+  @$lines = grep {!exists $existing_files->{$_}} @$lines
+    or return;
+
   my $mode = (stat $manifest)[2];
   chmod($mode | 0222, $manifest) or die "Can't make $manifest writable: $!";
   
@@ -1982,9 +1986,6 @@ EOF
 sub ACTION_manifest {
   my ($self) = @_;
 
-  my $metafile = $self->{metafile} || 'META.yml';
-  $self->depends_on('distmeta') unless -e $metafile;
-
   my $maniskip = 'MANIFEST.SKIP';
   unless ( -e 'MANIFEST' || -e $maniskip ) {
     warn "File '$maniskip' does not exist: Creating a default '$maniskip'\n";
@@ -1994,6 +1995,8 @@ sub ACTION_manifest {
   require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
   local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
   ExtUtils::Manifest::mkmanifest();
+
+  $self->_add_to_manifest('MANIFEST', $self->{metafile} || 'META.yml');
 }
 
 sub dist_dir {
