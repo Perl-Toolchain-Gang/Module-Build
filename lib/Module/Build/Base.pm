@@ -1926,9 +1926,21 @@ sub copy_if_modified {
   my %args = @_ > 3 ? @_ : ( from => shift, to_dir => shift, flatten => shift );
   
   my $file = $args{from};
-  my $to_path = $args{to} || File::Spec->catfile( $args{to_dir}, $args{flatten}
-						  ? File::Basename::basename($file)
-						  : $file );
+  unless (defined $file and length $file) {
+    die "No 'from' parameter given to copy_if_modified";
+  }
+  
+  my $to_path;
+  if (defined $args{to} and length $args{to}) {
+    $to_path = $args{to};
+  } elsif (defined $args{to_dir} and length $args{to_dir}) {
+    $to_path = File::Spec->catfile( $args{to_dir}, $args{flatten}
+				    ? File::Basename::basename($file)
+				    : $file );
+  } else {
+    die "No 'to' or 'to_dir' parameter given to copy_if_modified";
+  }
+  
   return if $self->up_to_date($file, $to_path); # Already fresh
   
   # Create parent directories
