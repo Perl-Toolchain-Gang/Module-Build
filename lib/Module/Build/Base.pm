@@ -649,9 +649,9 @@ sub ACTION_testdb {
   $self->depends_on('test');
 }
 
-sub ACTION_build {
-  my ($self) = @_;
-  
+sub compile_support_files {
+  my $self = shift;
+
   if ($self->{properties}{c_source}) {
     $self->process_PL_files($self->{properties}{c_source});
     
@@ -663,7 +663,13 @@ sub ACTION_build {
       push @{$self->{objects}}, $self->compile_c($file);
     }
   }
+}
 
+sub ACTION_build {
+  my ($self) = @_;
+
+  $self->compile_support_files;
+  
   # What more needs to be done when creating blib/ from lib/?
   # Currently we handle .pm, .xs, .pod, and .PL files.
 
@@ -672,6 +678,18 @@ sub ACTION_build {
   $self->add_to_cleanup('blib');
   my $files = $self->rscan_dir('lib', qr{\.(pm|pod|xs)$});
   $self->lib_to_blib($files, 'blib');
+}
+
+sub ACTION_manifypods {
+  my $self = shift;
+  require Pod::Man;
+  
+  my $p = Pod::Man->new(section => 3);
+  my $files = $self->rscan_dir('lib', qr{\.(pm|pod)$});
+  foreach my $file (@$files) {
+    my @path = File::Spec->splitdir($file);
+    # ...
+  }
 }
 
 # For systems that don't have 'diff' executable, should use Algorithm::Diff
@@ -965,8 +983,9 @@ sub compile_c {
   
   my $coredir = File::Spec->catdir($cf->{archlib}, 'CORE');
   my @include_dirs = $self->{include_dirs} ? map {"-I$_"} @{$self->{include_dirs}} : ();
-  my @ccflags = split ' ', $cf->{ccflags};
-  $self->do_system($cf->{cc}, @include_dirs, '-c', @ccflags, "-I$coredir", '-o', $obj_file, $file)
+  my @ccflags = $self->split_like_shell($cf->{ccflags});
+  my @optimize = $self->split_like_shell($cf->{optimize});
+  $self->do_system($cf->{cc}, @include_dirs, '-c', @ccflags, @optimize, "-I$coredir", '-o', $obj_file, $file)
     or die "error building $cf->{dlext} file from '$file'";
 
   return $obj_file;
@@ -981,7 +1000,7 @@ sub link_c {
   my $objects = $self->{objects} || [];
 
   unless ($self->up_to_date("$file_base$cf->{obj_ext}", [$lib_file, @$objects])) {
-    my @linker_flags = $self->split_like_shell($cf->{extra_linker_flags} || '');
+    my @linker_flags = $self->split_like_shell($self->{properties}{extra_linker_flags} || '');
     my @lddlflags = $self->split_like_shell($cf->{lddlflags});
     my @shrp = $self->split_like_shell($cf->{shrpenv});
     $self->do_system(@shrp, $cf->{ld}, @lddlflags, '-o', $lib_file,
