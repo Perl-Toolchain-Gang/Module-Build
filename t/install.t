@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 15 }
+BEGIN { plan tests => 17 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -76,7 +76,17 @@ ok $@, '';
   eval {$build->run_perl_script('Build', [], ['install', '--destdir', $destdir])};
   ok $@, '';
   my $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
-  print "Should have installed module as $install_to\n";
+  print "# Should have installed module as $install_to\n";
+  ok -e $install_to;
+
+  my $basedir = File::Spec->catdir('', 'bar');
+  eval {$build->run_perl_script('Build', [], ['install', '--destdir', $destdir,
+					      '--install_base', $basedir])};
+  ok $@, '';
+  
+  my $relpath = $build->install_base_relative('lib');
+  $install_to = File::Spec->catfile($destdir, $basedir, $relpath, 'Sample.pm');
+  print "# Should have installed module as $install_to\n";
   ok -e $install_to;
   
   eval {$build->dispatch('realclean')};
