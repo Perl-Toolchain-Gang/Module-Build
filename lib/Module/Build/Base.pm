@@ -1624,7 +1624,6 @@ sub ACTION_testpod {
 sub ACTION_docs {
   my $self = shift;
   $self->depends_on('code');
-  require Pod::Man;
   $self->manify_bin_pods() if $self->install_destination('bindoc');
   $self->manify_lib_pods() if $self->install_destination('libdoc');
   $self->htmlify_pods()    if $self->install_destination('html');
@@ -1632,6 +1631,7 @@ sub ACTION_docs {
 
 sub manify_bin_pods {
   my $self    = shift;
+  require Pod::Man;
   my $parser  = Pod::Man->new( section => 1 ); # binary manpages go in section 1
   my $files   = $self->_find_pods($self->{properties}{bindoc_dirs});
   return unless keys %$files;
@@ -1651,6 +1651,7 @@ sub manify_bin_pods {
 
 sub manify_lib_pods {
   my $self    = shift;
+  require Pod::Man;
   my $parser  = Pod::Man->new( section => 3 ); # library manpages go in section 3
   my $files   = $self->_find_pods($self->{properties}{libdoc_dirs});
   return unless keys %$files;
