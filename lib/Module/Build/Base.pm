@@ -2388,8 +2388,8 @@ sub install_map {
 
   # Write the packlist into the same place as ExtUtils::MakeMaker.
   my $archdir = $self->install_destination('arch');
-  my $ext = File::Spec->catdir(split /::/, $self->module_name);
-  $map{write} = File::Spec->catdir($archdir, 'auto', $ext, '.packlist');
+  my @ext = split /::/, $self->module_name;
+  $map{write} = File::Spec->catdir($archdir, 'auto', @ext, '.packlist');
   
   if (length(my $destdir = $self->{properties}{destdir} || '')) {
     foreach (keys %map) {
