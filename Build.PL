@@ -30,7 +30,6 @@ my $build = new Module::Build
    build_requires => {
 		      Test => 0,
 		     },
-   dynamic_config => 1,
   );
 
 $build->create_build_script;
