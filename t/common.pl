@@ -1,4 +1,5 @@
 use strict;
+use Config;
 
 sub have_module {
   my $module = shift;
@@ -38,8 +39,7 @@ sub slurp {
 
 sub find_in_path {
   my $thing = shift;
-
-  require Config;
+  
   my @path = split $Config{path_sep}, $ENV{PATH};
   my @exe_ext = $^O eq 'MSWin32' ? ('', # may have extension already
     split($Config{path_sep}, $ENV{PATHEXT} || '.com;.exe;.bat')) :
