@@ -543,7 +543,7 @@ To link your XS code against glib you might write something like:
      extra_linker_flags   => `glib-config --libs`,
  );
 
-=head dist_author
+=item dist_author
 
 This should be something like "John Doe <jdoe@example.com>".  This is
 used when creating PPD files.  If this is not specified, then
@@ -551,7 +551,7 @@ C<Module::Build> looks at the module from which it gets the
 distribution's version.  If it finds a POD section marked "=head1
 AUTHOR", then it uses the contents of this section.
 
-=head dist_abstract
+=item dist_abstract
 
 This should be a short description of the distribution.  This is used
 when creating PPD files.  If it is not given then C<Module::Build>
@@ -559,7 +559,7 @@ looks in the POD of the module from which it gets the distribution's
 version.  It looks for the first line matching C<$package\s-\s(.+)>,
 and uses the captured text as the abstract.
 
-=head codebase
+=item codebase
 
 This can be either a single scalar string, or an array reference of
 strings.  It is required when creating PPD files.  It should be a URL,
