@@ -963,6 +963,22 @@ whatever is appropriate.  If you're running on an unknown platform, it
 will return C<undef> - there shouldn't be many unknown platforms
 though.
 
+=item prepare_metadata()
+
+This method is provided for authors to override to customize the
+fields of F<META.yml>. It is passed a YAML::Node node object which can
+be modified as desired and then returned. Eg.
+
+  package My::Builder;
+  use base 'Module::Build';
+
+  sub prepare_metadata {
+    my $self = shift;
+    my $node = $self->SUPER::prepare_metadata( shift );
+    $node->{custom_field} = 'foo';
+    return $node;
+  }
+
 =item prereq_failures()
 
 Returns a data structure containing information about any failed

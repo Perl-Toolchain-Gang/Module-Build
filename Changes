@@ -3,6 +3,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_01 (Beta for 0.28)
 
+ - Added new method Module::Build::prepare_metadata() for authors to
+   override in order to add custom fields to META.yml.
+
  - Refactored methods relating to parsing perl module files for package,
    version, and pod data into a new class: Module::Build::ModuleInfo.
 

@@ -2370,8 +2370,21 @@ EOM
   require YAML;
 
   # We use YAML::Node to get the order nice in the YAML file.
-  my $node = YAML::Node->new({});
-  
+  my $node = $self->prepare_metadata( YAML::Node->new({}) );
+
+  # YAML API changed after version 0.30
+  my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
+  $self->{wrote_metadata} = $yaml_sub->($self->{metafile}, $node );
+
+  $self->_add_to_manifest('MANIFEST', $self->{metafile});
+}
+
+sub prepare_metadata {
+  my $self = shift;
+  my $node = shift;
+
+  my $p = $self->{properties};
+
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
     (my $name = $_) =~ s/^dist_//;
     $node->{$name} = $self->$_();
@@ -2380,17 +2393,13 @@ EOM
   foreach (qw(requires recommends build_requires conflicts)) {
     $node->{$_} = $p->{$_} if exists $p->{$_} and keys %{ $p->{$_} };
   }
-  
+
   $node->{dynamic_config} = $p->{dynamic_config} if exists $p->{dynamic_config};
   $node->{provides} = $self->find_dist_packages;
 
   $node->{generated_by} = "Module::Build version $Module::Build::VERSION";
-  
-  # YAML API changed after version 0.30
-  my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
-  $self->{wrote_metadata} = $yaml_sub->($self->{metafile}, $node );
 
-  $self->_add_to_manifest('MANIFEST', $self->{metafile});
+  return $node;
 }
 
 sub _read_manifest {
