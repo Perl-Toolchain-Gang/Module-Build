@@ -46,7 +46,7 @@ realclean :
 	rm -f $(THISFILE)
 .DEFAULT :
 	./Build $@
-.PHONY   : install
+.PHONY   : install manifest
 EOF
 }
 
