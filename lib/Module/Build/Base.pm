@@ -1,6 +1,6 @@
 package Module::Build::Base;
 
-# $Id $
+# $Id$
 
 use strict;
 use Config;
@@ -34,7 +34,7 @@ sub new {
   # Extract our 'properties' from $cmd_args, the rest are put in 'args'
   my $cmd_properties = {};
   foreach my $key (keys %$cmd_args) {
-    $cmd_properties = delete $cmd_args->{$key} if __PACKAGE__->valid_property($key);
+    $cmd_properties->{$key} = delete $cmd_args->{$key} if __PACKAGE__->valid_property($key);
   }
 
   # 'args' are arbitrary user args.
@@ -48,6 +48,9 @@ sub new {
 		    properties => {
 				   build_script => 'Build',
 				   config_dir => '_build',
+				   prereq => {},
+				   recommended => {},
+				   PL_files => {},
 				   %input,
 				   %$cmd_properties,
 				  },
@@ -80,6 +83,8 @@ sub resume {
        module_version
        module_version_from
        prereq
+       recommended
+       PL_files
        config_dir
        build_script
        debugger
@@ -238,13 +243,16 @@ sub write_config {
 
 sub check_prereq {
   my $self = shift;
-  return 1 unless $self->{properties}{prereq};
 
   my $pass = 1;
   while (my ($modname, $spec) = each %{$self->{properties}{prereq}}) {
     my $thispass = $self->check_installed_version($modname, $spec);
     warn "WARNING: $@\n" unless $thispass;
     $pass &&= $thispass;
+  }
+
+  while (my ($modname, $spec) = each %{$self->{properties}{recommended}}) {
+    warn "NOTE: $@\n" unless $self->check_installed_version($modname, $spec);
   }
 
   if (!$pass) {
@@ -254,6 +262,7 @@ sub check_prereq {
   return $pass;
 }
 
+# I wish I could set $!, but I can't.
 sub check_installed_version {
   my ($self, $modname, $spec) = @_;
 
@@ -279,7 +288,7 @@ sub check_installed_version {
   foreach (@conditions) {
     if ($_ !~ /^\s*  (<=?|>=?|==|!=)  \s*  [\w.]+  \s*$/x) {
       $@ = "Invalid prerequisite condition for $modname: $_";
-      next;
+      return 0;
     }
     unless (eval "\$version $_") {
       $@ = "$modname version $version is installed, but we need version $_";
@@ -378,19 +387,27 @@ sub check_manifest {
 sub dispatch {
   my $self = shift;
   
+  my (%p, $args, $action);
   if (@_) {
-    $self->{action} = shift;
-    $self->{args} = {%{$self->{args}}, @_};
+    ($action, %p) = @_;
+    $args = $p{args} ? delete($p{args}) : {};
   } else {
-    my ($action, $args) = $self->cull_args(@ARGV);
-    $self->{action} = $action || 'build';
-    $self->{args} = {%{$self->{args}}, %$args};
+    ($action, $args) = $self->cull_args(@ARGV);
+
+    # Extract our 'properties' from $args
+    foreach my $key (keys %$args) {
+      $p{$key} = delete $args->{$key} if __PACKAGE__->valid_property($key);
+    }
   }
 
-  my $action = "ACTION_$self->{action}";
-  print("No method '$action' defined.\n"), return unless $self->can($action);
+  $self->{action} = $action || 'build';
+  $self->{args} = {%{$self->{args}}, %$args};
+  $self->{properties} = {%{$self->{properties}}, %p};
+
+  my $method = "ACTION_$self->{action}";
+  print("No method '$method' defined.\n"), return unless $self->can($method);
   
-  return $self->$action;
+  return $self->$method;
 }
 
 sub cull_args {
@@ -485,7 +502,7 @@ sub ACTION_test {
   # This will get run and the user will see the output.  It doesn't
   # emit Test::Harness-style output.
   if (-e 'visual.pl') {
-    $self->run_script('visual.pl', '-Mblib');
+    $self->run_perl_script('visual.pl', '-Mblib');
   }
 }
 
@@ -499,22 +516,41 @@ sub ACTION_build {
   my ($self) = @_;
   
   if ($self->{properties}{c_source}) {
+    $self->process_PL_files($self->{properties}{c_source});
+    
+    my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.c$});
+    
     push @{$self->{include_dirs}}, $self->{properties}{c_source};
-    my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.(c|PL)$});
+
     foreach my $file (@$files) {
-      if ($file =~ /c$/) {
-	push @{$self->{objects}}, $self->compile_c($file);
-      } elsif ($file =~ /PL/) {
-	$self->run_perl_script($file);
-      }
+      push @{$self->{objects}}, $self->compile_c($file);
     }
   }
 
   # What more needs to be done when creating blib/ from lib/?
   # Currently we handle .pm, .xs, .pod, and .PL files.
-  my $files = $self->rscan_dir('lib', qr{\.(pm|pod|xs|PL)$});
+
+  $self->process_PL_files('lib');
+
+  my $files = $self->rscan_dir('lib', qr{\.(pm|pod|xs)$});
   $self->lib_to_blib($files, 'blib');
   $self->add_to_cleanup('blib');
+}
+
+sub process_PL_files {
+  my ($self, $dir) = @_;
+  my $p = $self->{properties}{PL_files};
+  my $files = $self->rscan_dir($dir, qr{\.PL$});
+  foreach my $file (@$files) {
+    my @to = (exists $p->{$file} ?
+	      (ref $p->{$file} ? @{$p->{$file}} : ($p->{$file})) :
+	      $file =~ /^(.*)\.PL$/);
+    
+    if (grep {!-e $_ or  -M _ > -M $file} @to) {
+      $self->run_perl_script($file);
+      $self->add_to_cleanup(@to);
+    }
+  }
 }
 
 sub ACTION_install {
@@ -685,9 +721,6 @@ sub lib_to_blib {
 
     } elsif ($file =~ /\.xs$/) {
       $self->process_xs($file);
-
-    } elsif ($file =~ /\.PL$/) {
-      $self->run_perl_script($file);
 
     } else {
       warn "Ignoring file '$file', unknown extension\n";
