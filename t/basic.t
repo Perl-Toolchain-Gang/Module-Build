@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-BEGIN { plan tests => 15 }
+BEGIN { plan tests => 16 }
 use Module::Build;
 ok(1);
 
@@ -61,6 +61,11 @@ chdir 't';
   # Make sure check_installed_status() works with an advanced spec
   my $info = Module::Build->check_installed_status('File::Spec', '> 0');
   ok $info->{ok}, 1;
+  
+  local $Foo::Module::VERSION = '1.01_02';
+  my $info = Module::Build->check_installed_status('Foo::Module', '1.01_02');
+  ok $info->{ok}, 1;
+  print $info->{message}, "\n";
 }
 
 # Test verbosity

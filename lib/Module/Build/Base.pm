@@ -1,7 +1,5 @@
 package Module::Build::Base;
 
-# $Id$
-
 use strict;
 BEGIN { require 5.00503 }
 use Config;
@@ -528,6 +526,9 @@ sub check_installed_status {
     # It's much more convenient to use $] here than $^V, but 'man
     # perlvar' says I'm not supposed to.  Bloody tyrant.
     $status{have} = $self->perl_version;
+  
+  } elsif (eval { $status{have} = $modname->VERSION }) {
+    # Don't try to load if it's already loaded
     
   } else {
     my $file = $self->find_module_by_name($modname, \@INC);
@@ -554,7 +555,7 @@ sub check_installed_status {
     
     next if $op eq '>=' and !$version;  # Module doesn't have to actually define a $VERSION
     
-    unless (eval "\$status{have} $op $version") {
+    unless (eval "\$status{have} $op \$version") {
       warn $@ if $@;
       $status{message} = "Version $status{have} is installed, but we need version $op $version";
       return \%status;
