@@ -1,6 +1,22 @@
 Revision history for Perl extension Module::Build.
 
-0.07
+0.08
+  - Fixed the 'prereq' alias for the 'requires' parameter
+
+  - Added some tests in t/basic.t to test the dependency checking
+
+  - Added 'artistic' as a licensing option [Arthur Bergman]
+
+  - Fixed some bugs in requires/prereq/recommends/conflicts/build_depends
+
+  - Fixed a typo in the 'distclean' action that prevented its
+    execution [Arthur Bergman]
+
+  - Separated the linking phase of building XS items into its own
+    link_c() method.  Its interface is still unstable, so it's not
+    documented yet. [suggested by Arthur Bergman]
+
+0.07  Jun  9 2002 15:46
 
   - We now generate a 'META.yaml' metadata file during 'Build dist'.
     This can be very useful for lots of things, none of which are
