@@ -767,7 +767,7 @@ packaging, etc. tasks.
 
 Second, arguments are processed in a very systematic way.  Arguments
 are always key=value pairs.  They may be specified at C<perl Build.PL>
-time (i.e.  C<perl Build.PL sitelib=/my/secret/place>), in which case
+time (i.e.  C<perl Build.PL destdir=/my/secret/place>), in which case
 their values last for the lifetime of the C<Build> script.  They may
 also be specified when executing a particular action (i.e.
 C<Build test verbose=1>), in which case their values last only for the
@@ -898,46 +898,12 @@ parameters it will accept - a good one is C<-u>:
 =item install
 
 This action will use C<ExtUtils::Install> to install the files from
-C<blib/> into the correct system-wide module directory.  The directory
-is determined from the C<sitelib> entry in the C<Config.pm> module.
-To install into a different directory, pass a different value for the
-C<sitelib> parameter, like so:
+C<blib/> into the system.  Under normal circumstances, you'll need
+superuser privileges to install into your system's default C<sitelib>
+directory.
 
- Build install sitelib=/my/secret/place/
-
-Alternatively, you could specify the C<sitelib> parameter when you run
-the C<Build.PL> script:
-
- perl Build.PL sitelib=/my/secret/place/
-
-Under normal circumstances, you'll need superuser privileges to
-install into your system's default C<sitelib> directory.
-
-If you want to install everything into a temporary directory first
-(for instance, if you want to create a directory tree that a package
-manager like C<rpm> or C<dpkg> could create a package from), you can
-use the C<destdir> parameter:
-
- perl Build.PL destdir=/tmp/foo
-
-or
-
- Build install destdir=/tmp/foo
-
-This will effectively install to "$destdir/$sitelib",
-"$destdir/$sitearch", and the like, except that it will use
-C<File::Spec> to make the pathnames work correctly on whatever
-platform you're installing on.
-
-If you want the installation process to look around in C<@INC> for
-other versions of the stuff you're installing and try to delete it,
-you can use the C<uninst> parameter:
-
- Build install uninst=1
-
-This can be a good idea, as it helps prevent multiple versions of a
-module from being present on your system, which can be a confusing
-situation indeed.
+See L<How Installation Works> for details about how Module::Build
+determines where to install things, and how to influence this process.
 
 =item fakeinstall
 
@@ -1043,6 +1009,67 @@ F<MANIFEST> - if it's not, a warning will be issued.
 Performs the 'distdir' action, then switches into that directory and
 runs a C<perl Build.PL>, followed by the 'build' and 'test' actions in
 that directory.
+
+=back
+
+=head2 How Installation Works
+
+When you invoke Module::Build's C<build> action, it needs to figure
+out where to install things.  Natively, Module::Build provides default
+installation locations for several types of installable items.  The
+determination of the default locations is reminiscent of the way
+MakeMaker does it:
+
+ (XXX blah blah blah how installation works)
+
+=over 4
+
+=item installdirs
+
+                            'installdirs' set to:
+                     core          site                vendor
+ 
+             results in the following defaults from Config.pm:
+ 
+ arch   =>   installarchlib  installsitearch     installvendorarch
+ lib    =>   installprivlib  installsitelib      installvendorlib
+ bin    =>   installbin      installsitebin      installvendorbin
+ script =>   installscript   installscript       installscript
+ man1   =>   installman1dir  installsiteman1dir  installvendorman1dir
+ man3   =>   installman3dir  installsiteman3dir  installvendorman3dir
+
+
+ (XXX blah blah blah how installation works)
+
+=item destdir
+
+If you want to install everything into a temporary directory first
+(for instance, if you want to create a directory tree that a package
+manager like C<rpm> or C<dpkg> could create a package from), you can
+use the C<destdir> parameter:
+
+ perl Build.PL destdir=/tmp/foo
+
+or
+
+ Build install destdir=/tmp/foo
+
+This will effectively install to "$destdir/$sitelib",
+"$destdir/$sitearch", and the like, except that it will use
+C<File::Spec> to make the pathnames work correctly on whatever
+platform you're installing on.
+
+=item uninst
+
+If you want the installation process to look around in C<@INC> for
+other versions of the stuff you're installing and try to delete it,
+you can use the C<uninst> parameter:
+
+ Build install uninst=1
+
+This can be a good idea, as it helps prevent multiple versions of a
+module from being present on your system, which can be a confusing
+situation indeed.
 
 =back
 
