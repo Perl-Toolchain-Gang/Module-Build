@@ -1,6 +1,6 @@
 use strict;
 
-# On some platforms (*ahem*, MacOS 5.6.1) "use lib qw(lib);" doesn't
+# On some platforms (*ahem*, MacPerl 5.6.1) "use lib qw(lib);" doesn't
 # find the local "lib" directory, so we use File::Spec to do it properly.
 use File::Spec;
 use lib File::Spec->catdir('lib');
