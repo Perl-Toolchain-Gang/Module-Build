@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.21_01
 
+ - Removed caveat about "looking for alternatives" in how hashes are
+   specified on the command line, since an alternative has been found.
+
  - Previously most warnings about optional prerequisites looked like
    they were actually error messages about required prerequisites.
    This has been corrected. [Reported again by Sagar Shah]
