@@ -22,15 +22,15 @@ my $m = new Module::Build
 ok(1);
 
 eval {$m->dispatch('clean')};
-ok !$@;
+ok $@, '';
 
 eval {$m->dispatch('build')};
-ok !$@;
+ok $@, '';
 
 # We can't be verbose in the sub-test, because Test::Harness will think that the output is for the top-level test.
 eval {$m->dispatch('test')};
-ok !$@;
+ok $@, '';
 
 eval {$m->dispatch('realclean')};
-ok !$@;
+ok $@, '';
 
