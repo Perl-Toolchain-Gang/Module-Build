@@ -780,6 +780,23 @@ sub compile_support_files {
   }
 }
 
+sub process_PL_files {
+  my ($self) = @_;
+  my $files = $self->find_PL_files;
+  
+  while (my ($file, $to) = each %$files) {
+    my @to = (defined $to ?
+	      (ref $to ? @$to : ($to)) :
+	      $file =~ /^(.*)\.PL$/);
+    
+    # XXX - needs to use File::Spec
+    if (grep {!-e $_ or  -M _ > -M $file} @to) {
+      $self->run_perl_script($file);
+      $self->add_to_cleanup(@to);
+    }
+  }
+}
+
 sub process_xs_files {
   my $self = shift;
   my $files = $self->find_xs_files;
@@ -801,6 +818,21 @@ sub process_pm_files {
   my $files = $self->find_pm_files;
   foreach my $file (@$files) {
     $self->copy_if_modified($file, 'blib');
+  }
+}
+
+sub process_script_files {
+  my $self = shift;
+  my $files = $self->find_script_files;
+  return unless @$files;
+
+  my $script_dir = File::Spec->catdir('blib', 'script');
+  File::Path::mkpath( $script_dir );
+  
+  foreach my $file (@$files) {
+    my $result = $self->copy_if_modified($file, $script_dir, 'flatten') or next;
+    $self->fix_shebang_line($result);
+    $self->make_executable($result);
   }
 }
 
@@ -827,21 +859,6 @@ sub find_xs_files {
 sub find_script_files {
   my $self = shift;
   return $self->{properties}{script_files} || [];
-}
-
-sub process_script_files {
-  my $self = shift;
-  my $files = $self->find_script_files;
-  return unless @$files;
-
-  my $script_dir = File::Spec->catdir('blib', 'script');
-  File::Path::mkpath( $script_dir );
-  
-  foreach my $file (@$files) {
-    my $result = $self->copy_if_modified($file, $script_dir, 'flatten') or next;
-    $self->fix_shebang_line($result);
-    $self->make_executable($result);
-  }
 }
 
 sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
@@ -941,23 +958,6 @@ sub ACTION_diff {
       } else {
 	$self->do_system('diff', @flags, $installed, $file);
       }
-    }
-  }
-}
-
-sub process_PL_files {
-  my ($self) = @_;
-  my $files = $self->find_PL_files;
-  
-  while (my ($file, $to) = each %$files) {
-    my @to = (defined $to ?
-	      (ref $to ? @$to : ($to)) :
-	      $file =~ /^(.*)\.PL$/);
-    
-    # XXX - needs to use File::Spec
-    if (grep {!-e $_ or  -M _ > -M $file} @to) {
-      $self->run_perl_script($file);
-      $self->add_to_cleanup(@to);
     }
   }
 }
