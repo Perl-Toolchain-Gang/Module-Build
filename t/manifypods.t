@@ -39,7 +39,8 @@ my %distro = (
 	      'script' => '',
 	      'lib/Sample/NoPod.pm' => '',
 	     );
-$_ = $m->localize_file_path($_) foreach %distro;
+# foreach(keys %foo) doesn't give proper lvalues on 5.005, so we use the ugly way
+%distro = map {$m->localize_file_path($_), $distro{$_}} keys %distro;
 
 $m->dispatch('build');
 
