@@ -13,26 +13,25 @@ my $goto = File::Spec->catdir( Module::Build->cwd, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
 
 
-my $build = new Module::Build
-  (
-   module_name => 'Sample',
-  );
+my $build = new Module::Build( module_name => 'Sample' );
 ok $build;
 
 eval {$build->create_build_script};
-ok !$@;
+ok $@, '';
 
 eval {$build->dispatch('test')};
-ok !$@;
+ok $@, '';
 
 eval {$build->dispatch('disttest')};
-ok !$@;
+ok $@, '';
 
+# After a test, the distdir should contain a blib/ directory
 ok -e File::Spec->catdir('Sample-0.01', 'blib');
 
 eval {$build->dispatch('distdir')};
-ok !$@;
+ok $@, '';
 
+# The 'distdir' should contain a lib/ directory
 ok -e File::Spec->catdir('Sample-0.01', 'lib');
 
 # The freshly run 'distdir' should never contain a blib/ directory, or
@@ -40,6 +39,7 @@ ok -e File::Spec->catdir('Sample-0.01', 'lib');
 ok not -e File::Spec->catdir('Sample-0.01', 'blib');
 
 eval {$build->dispatch('realclean')};
-ok !$@;
+ok $@, '';
 
+# Clean up
 File::Path::rmtree( 'Sample-0.01', 0, 0 );
