@@ -2036,7 +2036,9 @@ sub ACTION_distdir {
   $self->add_to_cleanup($dist_dir);
   
   foreach my $file (keys %$dist_files) {
-    $self->copy_if_modified(from => $file, to_dir => $dist_dir, verbose => 0);
+    my $new = $self->copy_if_modified(from => $file, to_dir => $dist_dir, verbose => 0);
+    chmod +(stat $file)[2], $new
+      or warn "Couldn't set permissions on $new: $!";
   }
   
   $self->_sign_dir($dist_dir) if $self->{properties}{sign};
