@@ -15,7 +15,7 @@ use Module::Build::Base;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Module::Build::Base);
-$VERSION = '0.24';
+$VERSION = '0.24_01';
 
 # Okay, this is the brute-force method of finding out what kind of
 # platform we're on.  I don't know of a systematic way.  These values
@@ -1625,6 +1625,7 @@ signature or the like, if available.  See C<cons> for an example.
 
 - append to perllocal.pod
 - write .packlist in appropriate location (needed for un-install)
+- add a 'plugin' functionality
 
 =head1 AUTHOR
 
@@ -1632,6 +1633,7 @@ Ken Williams, kwilliams@cpan.org
 
 Development questions, bug reports, and patches should be sent to the
 Module-Build mailing list at module-build-general@lists.sourceforge.net .
+
 Bug reports are also welcome at
 http://rt.cpan.org/NoAuth/Bugs.html?Dist=Module-Build .
 
