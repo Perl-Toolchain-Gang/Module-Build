@@ -9,6 +9,8 @@ Revision history for Perl extension Module::Build.
    user we're doing so by printing one of the "Added to MANIFEST: ..."
    lines.  [Ron Savage]
 
+ - Added docs for run_perl_script().
+
 0.2601
 
  - Fixed some backslash problems with split_like_shell() on
