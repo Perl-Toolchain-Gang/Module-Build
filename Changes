@@ -1,5 +1,12 @@
 Revision history for Perl extension Module::Build.
 
+0.22_01
+
+ - Fixed a compatibility problem in pass-through Makefiles (created by
+   Module::Build::Compat).  Some 'make' utilities (for example, BSD
+   make) didn't like a '@' by itself on a line, so we stole some
+   'NOOP' code from MakeMaker to fix it. [Reported by Mathieu Arnold]
+
 0.22  Sat Jan 10 22:05:39 CST 2004
 
  - On Unixish platforms, the syntax "FOO=BAR /bin/baz arg arg" now
