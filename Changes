@@ -11,7 +11,8 @@ Revision history for Perl extension Module::Build.
    trailing newline, which is now fixed. [Chip Salzenberg]
 
  - Squashed a warning in t/basic.t about '"Foo::Module::VERSION" used
-   only once'. [Blair Zajac]
+   only once', and one in PPMMaker about $^V being undefined. [Blair
+   Zajac]
 
 0.25  Sun Apr 25 11:12:36 CDT 2004
 
