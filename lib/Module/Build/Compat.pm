@@ -77,8 +77,8 @@ EOF
 	or die " *** Cannot install without Module::Build.  Exiting ...\n";
       
       chdir $cwd or die "Cannot chdir() back to $cwd: $!";
-      exec $^X, $makefile, @ARGV;  # Redo now that we have Module::Build
     }
+    eval "use Module::Build::Compat 0.02; 1" or die $@;
     use lib '%s';
     Module::Build::Compat->run_build_pl(args => \@ARGV);
     require %s;
@@ -161,8 +161,8 @@ sub run_build_pl {
   my ($pack, %in) = @_;
   $in{script} ||= 'Build.PL';
   my @args = $in{args} ? $pack->makefile_to_build_args(@{$in{args}}) : ();
-  print "$^X $in{script} @args\n";
-  system($^X, $in{script}, @args) == 0 or die "Couldn't run $in{script}: $!";
+  print "# running $in{script} @args\n";
+  Module::Build->run_perl_script($in{script}, [], \@args) or die "Couldn't run $in{script}: $!";
 }
 
 sub fake_makefile {
