@@ -1452,61 +1452,58 @@ sub contains_pod {
 sub ACTION_html {
   my $self = shift;
   $self->depends_on('build');
-  
   require Pod::Html;
   require Module::Build::PodParser;
-  
-  my $html_base = $Config{installhtmldir} ?
+  my $cwd = $self->cwd;
+  $cwd =~ s!^\w:!!;
+  $cwd =~ s!(\\|:)!/!g;
+  my $html_base = $Config{installhtmldir} ? 
     File::Basename::basename($Config{installhtmldir}) : 'html';
-  
-  my $blib = $self->blib;
+  my $blib = File::Spec::Unix->catdir($cwd, 'blib');
   my $html = File::Spec::Unix->catdir($blib, $html_base);
   my $script = File::Spec::Unix->catdir($blib, 'script');
   unless (-d $html) {
     File::Path::mkpath($html, 1, 0755) or die "Couldn't mkdir $html: $!";
   }
-
-  my $pods = $self->_find_pods($self->blib);
-  my %pods = Pod::Find::pod_find({-verbose => 1}, $self->blib);
+  my $pods = $self->_find_pods([$self->blib]);
   if (-d $script) {
-    File::Find::finddepth( sub
-                           {$pods{$File::Find::name} =
-                              "script::" . basename($File::Find::name)
+    File::Find::finddepth( sub 
+                           {$pods->{$File::Find::name} = 
+                              "script::" . basename($File::Find::name) 
                                 if (-f $_ and not /\.bat$/ and $self->contains_pod($_));
                           }, $script);
   }
-
+  
   my $backlink = '__top';
   my $css = ($^O =~ /Win32/) ? 'Active.css' : '';
-  foreach my $pod (keys %pods){
-    my @dirs = split /::/, $pods{$pod};
-    my $isbin = $dirs[0] eq 'script';
+  foreach my $pod (keys %$pods){
+    my ($name, $path, $suffix) = File::Basename::fileparse($pods->{$pod}, qr{\..*});
+    my @dirs = File::Spec->splitdir($path);
+    my $isbin = shift @dirs eq 'script';
     my $infile = File::Spec::Unix->abs2rel($pod);
-    my $outfile = "$dirs[-1].html";
-
+    
     my @rootdirs  = $isbin? ('bin') : ('site', 'lib');
     my $path2root = "../" x (@rootdirs+@dirs);
-    $path2root =~ s!/$!!;
-
+    
     my $fulldir = File::Spec::Unix->catfile($html, @rootdirs, @dirs);
     unless (-d $fulldir){
-      File::Path::mkpath($fulldir, 1, 0755)
-          or die "Couldn't mkdir $fulldir: $!";
+      File::Path::mkpath($fulldir, 1, 0755) 
+          or die "Couldn't mkdir $fulldir: $!";  
     }
-    $outfile = File::Spec::Unix->catfile($fulldir, $outfile);
-
+    my $outfile = File::Spec::Unix->catfile($fulldir, $name . '.html');
+    
     my $htmlroot = File::Spec::Unix->catdir($path2root, 'site', 'lib');
-    my $podpath = join ":" => map { File::Spec::Unix->catdir($blib, $_) }
+    my $podpath = join ":" => map { File::Spec::Unix->catdir($blib, $_) }  
       ($isbin ? qw(bin lib) : qw(lib));
-    (my $package = $pods{$pod}) =~ s!^(lib|script)::!!;
-
-    my $parser = Module::Build::PodParser->new(file => $infile);
-    my $abstract = $parser->get_abstract;
+    my $package = join('::', @dirs) . $name;
+    my $fh = IO::File->new($infile);
+    my $parser = Module::Build::PodParser->new(fh => $fh);
+    my $abstract = $parser->get_abstract();
     my $title =  $abstract ? "$package - $abstract" : $package;
     my @opts = (
 		'--header',
                 '--flush',
-                "--backlink=__top",
+                "--backlink=$backlink",
 		"--title=$title",
                 "--podpath=$podpath",
 		"--infile=$infile",
@@ -1612,6 +1609,33 @@ sub ACTION_versioninstall {
   my %onlyargs = map {exists($self->{args}{$_}) ? ($_ => $self->{args}{$_}) : ()}
     qw(version versionlib);
   only::install::install(%onlyargs);
+}
+
+sub ACTION_htmlinstall {
+  return unless my $destdir = $Config{installhtmldir};
+  my $self = shift;
+  $self->depends_on('html');
+  my $cwd = $self->cwd;
+  my $blib = File::Spec->catdir($cwd, 'blib');
+  my $html_base = File::Spec->catdir($blib,
+                                     File::Basename::basename($destdir));
+  my @files;
+  File::Find::finddepth(sub 
+                        {push @files, $File::Find::name 
+                           if $File::Find::name =~ /\.html$/
+                         }, $html_base);
+  foreach my $file (@files) {
+    (my $relative_to = $file) =~ s!\Q$html_base!!;
+    $relative_to =~ s!^/!!;
+    my $to = File::Spec->catfile($destdir, $relative_to);
+    my $base_dir = File::Basename::dirname($to);
+    unless (-d $base_dir) {
+      File::Path::mkpath($base_dir, 1, 0755)
+          or die "Cannot mkpath $base_dir: $!";
+    }
+    File::Copy::copy($file, $to)
+        or warn "Cannot copy '$file' to '$to': $!";
+  }
 }
 
 sub ACTION_clean {
