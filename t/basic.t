@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-BEGIN { plan tests => 19 }
+BEGIN { plan tests => 20 }
 use Module::Build;
 ok(1);
 
@@ -73,6 +73,21 @@ chdir 't';
   $info = Module::Build->check_installed_status('Foo::Module', '1.01_02');
   ok $info->{ok}, 1;
   print "# $info->{message}\n" if $info->{message};
+}
+
+{
+  # Make sure the correct warning message is generated when an
+  # optional prereq isn't installed
+
+  my $flagged = 0;
+  local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /ModuleBuildNonExistent isn't installed/};
+
+  my $m = new Module::Build
+    (
+     module_name => 'ModuleBuildOne',
+     recommends => {ModuleBuildNonExistent => 3},
+    );
+  ok $flagged;
 }
 
 # Test verbosity
