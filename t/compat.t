@@ -9,7 +9,7 @@ use Config;
 my $common_pl = File::Spec->catfile('t', 'common.pl');
 require $common_pl;
 
-use Carp;  $SIG{__WARN__} = \&Carp::cluck;
+#use Carp;  $SIG{__WARN__} = \&Carp::cluck;
 
 
 # Don't let our own verbosity/test_file get mixed up with our subprocess's
