@@ -1377,7 +1377,12 @@ C<ExtUtils::MakeMaker>.  There is a workaround C<MY> package that lets
 you override certain MakeMaker methods, but only certain explicitly
 predefined (by MakeMaker) methods can be overridden.  Also, the method
 of customization is very crude: you have to modify a string containing
-the Makefile text for the particular target.
+the Makefile text for the particular target.  Since these strings
+aren't documented, and I<can't> be documented (they take on different
+values depending on the platform, version of perl, version of
+MakeMaker, etc.), you have no guarantee that your modifications will
+work on someone else's machine or after an upgrade of MakeMaker or
+perl.
 
 =item *
 
@@ -1396,7 +1401,6 @@ another?  Are you getting riled up yet??
 
 =back
 
-Please contact me if you have any questions or ideas.
 
 =head1 MIGRATION
 
@@ -1428,6 +1432,8 @@ Ken Williams, ken@mathforum.org
 
 Development questions, bug reports, and patches should be sent to the
 Module-Build mailing list at module-build-general@lists.sourceforge.net .
+Bug reports are also welcome at
+http://rt.cpan.org/NoAuth/Bugs.html?Dist=Module-Build .
 
 An anonymous CVS repository containing the latest development version
 is available; see http://sourceforge.net/cvs/?group_id=45731 for the
