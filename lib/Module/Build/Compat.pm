@@ -133,7 +133,7 @@ sub fake_prereqs {
   close $fh;
   
   my @prereq;
-  foreach my $section (qw/build_requires requires recommends/) {
+  foreach my $section (qw/build_requires requires/) {
     foreach (keys %{$prereqs->{$section}}) {
       next if $_ eq 'perl';
       push @prereq, "$_=>q[$prereqs->{$section}{$_}]";
