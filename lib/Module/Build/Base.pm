@@ -424,14 +424,6 @@ sub check_installed_version {
   return 0;
 }
 
-sub rm_previous_build_script {
-  my $self = shift;
-  if (-e $self->{properties}{build_script}) {
-    print "Removing previous file '$self->{properties}{build_script}'\n";
-    unlink $self->{properties}{build_script} or die "Couldn't remove '$self->{properties}{build_script}': $!";
-  }
-}
-
 sub make_build_script_executable {
   chmod 0544, $_[0]->{properties}{build_script};
 }
@@ -454,9 +446,11 @@ sub print_build_script {
   print $fh <<EOF;
 $self->{config}{startperl} -w
 
-BEGIN { \@INC = ($quoted_INC) }
+BEGIN {
+  chdir('$base_dir') or die 'Cannot chdir to $base_dir: '.\$!;
+  \@INC = ($quoted_INC);
+}
 
-chdir('$base_dir') or die 'Cannot chdir to $base_dir: '.\$!;
 use $build_package;
 
 # This should have just enough arguments to be able to bootstrap the rest.
@@ -472,14 +466,17 @@ EOF
 
 sub create_build_script {
   my ($self) = @_;
+  my $p = $self->{properties};
   
   $self->write_config;
   
-  $self->rm_previous_build_script;
+  if ( $self->delete_filetree($p->{build_script}) ) {
+    print "Removed previous script '$p->{build_script}'\n";
+  }
 
-  print("Creating new '$self->{properties}{build_script}' script for ",
-	"'$self->{properties}{dist_name}' version '$self->{properties}{dist_version}'\n");
-  open my $fh, ">$self->{properties}{build_script}" or die "Can't create '$self->{properties}{build_script}': $!";
+  print("Creating new '$p->{build_script}' script for ",
+	"'$p->{dist_name}' version '$p->{dist_version}'\n");
+  open my $fh, ">$p->{build_script}" or die "Can't create '$p->{build_script}': $!";
   $self->print_build_script($fh);
   close $fh;
   
@@ -903,16 +900,15 @@ sub rscan_dir {
 
 sub delete_filetree {
   my $self = shift;
+  my $deleted = 0;
   foreach (@_) {
     next unless -e $_;
     print "Deleting $_\n";
-    if (-d $_) {
-      File::Path::rmtree($_, 0, 0);
-    } else {
-      unlink $_;
-    }
+    File::Path::rmtree($_, 0, 0);
     die "Couldn't remove '$_': $!\n" if -e $_;
+    $deleted++;
   }
+  return $deleted;
 }
 
 sub lib_to_blib {
@@ -1034,19 +1030,20 @@ sub process_xs {
       or die "Can't find ExtUtils::xsubpp in INC (@INC)";
     my $typemap =  $self->find_module_by_name('ExtUtils::typemap', \@INC);
     
-    # XXX the '> $file_base.c' isn't really a post-arg, it's redirection.  Fix later.
-    
     # Here we're trying to trick xsubpp into thinking it's been run as
     # a command.  Oy, it hurts!
-    local @INC  = ($cf->{archlib}, $cf->{privlib}, @INC);
-    local @ARGV = ("-noprototypes", "-typemap", $typemap, $file);
-    local *CORE::GLOBAL::exit = sub {warn "NOT EXITING!"};
-    $self->stdout_to_file( sub { package xsubpp; do $xsubpp }, "$file_base.c" );
+#    local @INC  = ($cf->{archlib}, $cf->{privlib}, @INC);
+#    local @ARGV = ("-noprototypes", "-typemap", $typemap, $file);
+#    local *CORE::GLOBAL::exit = sub {warn "NOT EXITING!"};
+#    $self->stdout_to_file( sub { package xsubpp; do $xsubpp }, "$file_base.c" );
 
-#    $self->run_perl_script($xsubpp,
-#			   ["-I$cf->{archlib}", "-I$cf->{privlib}"], 
-#			   ["-noprototypes", "-typemap", $typemap, $file, ">", "$file_base.c"]);
-#      or die "error building .c file from '$file'";
+    my $command = (qq{$^X "-I$cf->{archlib}" "-I$cf->{privlib}" "$xsubpp" -noprototypes } .
+		   qq{-typemap "$typemap" "$file"});
+    
+    print $command;
+    open my($fh), "> $file_base.c" or die "Couldn't write $file_base.c: $!";
+    print $fh `$command`;
+    close $fh;
   }
   
   # .c -> .o
