@@ -6,7 +6,8 @@ use File::Path;
 use Config;
 require File::Spec->catfile('t', 'common.pl');
 
-skip_test("Don't know how to invoke 'make'") unless $Config{make};
+skip_test("Don't know how to invoke 'make'")
+  unless $Config{make} and find_in_path($Config{make});
 plan tests => 2 + 3*13;
 ok(1);  # Loaded
 

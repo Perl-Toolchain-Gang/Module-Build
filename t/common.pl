@@ -36,4 +36,21 @@ sub slurp {
   return <$fh>;
 }
 
+sub find_in_path {
+  my $thing = shift;
+
+  require Config;
+  my @path = split $Config{path_sep}, $ENV{PATH};
+  my @exe_ext = $^O eq 'MSWin32' ? ('', # may have extension already
+    split($Config{path_sep}, $ENV{PATHEXT} || '.com;.exe;.bat')) :
+    ('');
+  foreach (@path) {
+    my $fullpath = File::Spec->catfile($_, $thing);
+    foreach my $ext ( @exe_ext ) {
+      return "$fullpath$ext" if -e "$fullpath$ext";
+    }
+  }
+  return;
+}
+
 1;
