@@ -220,15 +220,50 @@ sub y_n {
   }
 }
 
-sub notes {
+sub _general_notes {
   my $self = shift;
-  return $self->_persistent_hash_read('notes') unless @_;
+  my $type = shift;
+  return $self->_persistent_hash_read($type) unless @_;
   
   my $key = shift;
-  return $self->_persistent_hash_read('notes', $key) unless @_;
+  return $self->_persistent_hash_read($type, $key) unless @_;
   
   my $value = shift;
-  return $self->_persistent_hash_write('notes', { $key => $value });
+  $self->has_config_notes(1) if $type =~ /^(config_notes|features)$/;
+  return $self->_persistent_hash_write($type, { $key => $value });
+}
+
+sub notes        { shift()->_general_notes('notes', @_) }
+sub config_notes { shift()->_general_notes('config_notes', @_) }
+sub features     { shift()->_general_notes('features', @_) }
+
+sub ACTION_config_notes {
+  my $self = shift;
+  my $notes = $self->config_notes;
+  return unless %$notes;
+  
+  my $notes_name = $self->module_name . '::ConfigNotes';
+  my $notes_pm = File::Spec->catfile($self->blib, 'lib', split /::/, "$notes_name.pm");
+
+  print "Writing config notes to $notes_pm\n";
+  
+  my $fh = IO::File->new("> $notes_pm") or die "Can't create '$notes_pm': $!";
+
+  printf $fh <<'EOF', $notes_name;
+package %s;
+use strict;
+my $arrayref = eval do {local $/; <DATA>}
+  or die "Couldn't load ConfigNotes data: $@";
+my ($notes, $features) = @$arrayref;
+
+sub get { $notes->{$_[1]} }
+sub feature { $features->{$_[1]} }
+
+__DATA__
+EOF
+
+  local $Data::Dumper::Terse = 1;
+  print $fh Data::Dumper::Dumper([$notes, scalar $self->features]);
 }
 
 {
@@ -254,6 +289,7 @@ sub notes {
        perl
        config_dir
        blib
+       has_config_notes
        build_script
        build_elements
        install_types
@@ -1103,6 +1139,7 @@ sub ACTION_build {
   my $self = shift;
   $self->depends_on('code');
   $self->depends_on('docs');
+  $self->depends_on('config_notes') if $self->has_config_notes;
 }
 
 sub process_support_files {

@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 24 }
+BEGIN { plan tests => 27 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -66,6 +66,26 @@ $build->add_to_cleanup($destdir);
   my $install_to = File::Spec->catfile($destdir, $libdir, 'lib', 'Sample.pm');
   print "Should have installed module as $install_to\n";
   ok -e $install_to;  
+}
+
+{
+  $build->config_notes(foo => 'bar');
+  $build->features(baz => 'quux');
+  eval {$build->dispatch('install', destdir => $destdir)};
+  ok $@, '';
+  
+  my $libdir = strip_volume( $build->install_destination('lib') );
+  local @INC = (@INC, File::Spec->catdir($destdir, $libdir));
+  eval {require Sample::ConfigNotes};
+  
+  if ($@) {
+    ok $@, '';  # Show what the failure was
+    ok 1;
+  } else {
+    ok( Sample::ConfigNotes->get('foo'), 'bar' );
+    ok( Sample::ConfigNotes->feature('baz'), 'quux' );
+
+  }
 }
 
 eval {$build->dispatch('realclean')};
