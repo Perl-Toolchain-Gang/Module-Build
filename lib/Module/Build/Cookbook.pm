@@ -107,6 +107,24 @@ To do this, specify the C<destdir> parameter to the C<install> action:
 
  Build install destdir=/tmp/my-package-1.003
 
+=head2 Running a single test file
+
+C<Module::Builde> supports running a single test, which enables you to
+track down errors more quickly. Use the following format:
+
+  ./Build test --test_files t/mytest.t
+
+In addition, you may want to run the test in verbose mode to get more
+informative output:
+
+  ./Build test --test_files t/mytest.t --verbose 1
+
+I run this so frequently that I actually define the following shell alias:
+
+  alias t './Build test --verbose 1 --test_files'
+
+So then I can just execute C<t t/mytest.t> to run a single test.
+
 
 =head1 ADVANCED RECIPES
 
