@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.24_01
+
+ - During the 'distdir' action, if no MANIFEST.SKIP file exists, we
+   will now create a reasonable default one. [Randy Sims]
+
 0.24
 
  - Fixed a problem with incude_dirs not being propagated to the 'ccs'
