@@ -37,9 +37,6 @@ Revision history for Perl extension Module::Build.
    remember to add to the script_files list every time you add a
    program. [Suggested by Michael Schwern]
 
- - The tests now play better with environments in which version.pm is
-   pre-loaded, like in bleadperl. [John Peacock & Michael Schwern]
-
  - We now only load Pod::Man when we actually need to build man pages.
 
  - We now make Test::Harness use our carefully-selected path to a perl
@@ -48,10 +45,17 @@ Revision history for Perl extension Module::Build.
    version, but it's safer to make sure we're using the same perl
    everywhere.
 
+ - When the user is using the 'install_base' option, scripts will now
+   be installed by default in $install_base/bin/ rather than
+   $install_base/script/ . [Jan Hudec and Michael Schwern]
+
 0.2605
 
  - Fixed a bug in which zero-length arguments for hash-valued
-   parameters (e.g. "--config foo=bar") weren't being allowed.
+   parameters (e.g. " --config foo= ") weren't being allowed.
+
+ - The tests now play better with environments in which version.pm is
+   pre-loaded, like in bleadperl. [John Peacock & Michael Schwern]
 
 0.2604  Wed Nov 17 14:32:42 CST 2004
 
