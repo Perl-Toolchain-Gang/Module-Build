@@ -1024,7 +1024,7 @@ sub ACTION_test {
 		File::Spec->catdir($p->{base_dir}, $self->blib, 'arch'),
 		@INC);
   
-  my $tests = $self->test_files;
+  my $tests = $self->find_test_files;
 
   if (@$tests) {
     # Work around a Test::Harness bug that loses the particular perl we're running under
@@ -1045,20 +1045,9 @@ sub test_files {
   my $self = shift;
   my $p = $self->{properties};
   if (@_) {
-    $p->{test_files} = (@_ == 1 ? shift : [@_]);
+    return $p->{test_files} = (@_ == 1 ? shift : [@_]);
   }
-
-  my @tests;
-  if ($p->{test_files}) {
-    @tests = (map { -d $_ ? $self->expand_test_dir($_) : $_ }
-	      map glob,
-	      $self->split_like_shell($p->{test_files}));
-  } else {
-    # Find all possible tests in t/ or test.pl
-    push @tests, 'test.pl'                          if -e 'test.pl';
-    push @tests, $self->expand_test_dir('t')        if -e 't' and -d _;
-  }
-  return \@tests;
+  return $self->find_test_files;
 }
 
 sub expand_test_dir {
@@ -1207,6 +1196,29 @@ sub find_script_files {
   
   # No default location for script files
   return {};
+}
+
+sub find_test_files {
+  my $self = shift;
+  my $p = $self->{properties};
+  
+  if (my $files = $p->{test_files}) {
+    $files = [keys %$files] if UNIVERSAL::isa($files, 'HASH');
+    $files = [map { -d $_ ? $self->expand_test_dir($_) : $_ }
+	      map glob,
+	      $self->split_like_shell($files)];
+    
+    # Always given as a Unix file spec.  Values in the hash are
+    # meaningless, but we preserve if present.
+    return [ map $self->localize_file_path($_), @$files ];
+    
+  } else {
+    # Find all possible tests in t/ or test.pl
+    my @tests;
+    push @tests, 'test.pl'                          if -e 'test.pl';
+    push @tests, $self->expand_test_dir('t')        if -e 't' and -d _;
+    return \@tests;
+  }
 }
 
 sub _find_file_by_type {
