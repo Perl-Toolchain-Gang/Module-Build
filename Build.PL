@@ -14,6 +14,7 @@ my $build = new Module::Build
 		File::Basename => 0,
 		File::Spec     => 0,
 		Data::Dumper   => 0,
+		ExtUtils::Install => ($^O eq 'MacOS ? '1.30' : 0),
 		Cwd            => 0,
 	       },
    recommends => {
