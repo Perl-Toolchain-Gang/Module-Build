@@ -1031,7 +1031,7 @@ installation locations for the following types of installable items:
 
 Usually pure-Perl module files ending in F<.pm>.
 
-=item archlib
+=item arch
 
 "Architecture-dependent" module files, usually produced by compiling
 XS, Inline, or similar code.
@@ -1039,22 +1039,24 @@ XS, Inline, or similar code.
 =item script
 
 Programs written in pure Perl.  Try to make these as small as possible
-- put the code into modules, okay?
+- put the code into modules whenever possible.
 
 =item bin
 
 "Architecture-dependent" programs, i.e. compiled C code or something.
-Pretty rare to see this in a perl distribution, but I suppose it happens.
+Pretty rare to see this in a perl distribution, but it happens.
 
 =item libdoc
 
-Documentation for the stuff in C<lib> and C<archlib>.  This is usually
-generated from the POD in F<.pm> files.
+Documentation for the stuff in C<lib> and C<arch>.  This is usually
+generated from the POD in F<.pm> files.  Under Unix, these are manual
+pages belonging to the 'man3' category.
 
 =item bindoc
 
 Documentation for the stuff in C<script> and C<bin>.  Usually
-generated from the POD in those files.
+generated from the POD in those files.  Under Unix, these are manual
+pages belonging to the 'man1' category.
 
 =back
 
@@ -1069,7 +1071,7 @@ parameter as follows:
               uses the following defaults from Config.pm:
  
  lib     => installprivlib  installsitelib      installvendorlib
- archlib => installarchlib  installsitearch     installvendorarch
+ arch    => installarchlib  installsitearch     installvendorarch
  script  => installscript   installsitebin      installvendorbin
  bin     => installbin      installsitebin      installvendorbin
  libdoc  => installman3dir  installsiteman3dir  installvendorman3dir
@@ -1093,7 +1095,7 @@ instance, if you set C<install_base> to "/usr/local/perl" on a Linux
 system, you'll install as follows:
 
  lib     => /usr/local/perl/lib
- archlib => /usr/local/perl/lib/i386-linux
+ arch    => /usr/local/perl/lib/i386-linux
  script  => /usr/local/perl/scripts
  bin     => /usr/local/perl/bin
  libdoc  => /usr/local/perl/man1
