@@ -108,6 +108,63 @@ To do this, specify the C<destdir> parameter to the C<install> action:
  Build install destdir=/tmp/my-package-1.003
 
 
+=head1 ADVANCED RECIPES
+
+=head2 Adding new elements to the build process
+
+If there's some new type of file (i.e. not a F<.pm> file, or F<.xs>
+file, or one of the other things C<Module::Build> knows how to
+process) that you'd like to handle during the building of your module,
+you can do something the following in your F<Build.PL> file:
+
+  use Module::Build;
+  
+  my $class = Module::Build->subclass( code => <<'EOC' );
+    sub process_foo_files {
+      my $self = shift;
+      ... locate and process foo files, and create something in blib/
+    }
+  }
+  
+  my $build = $class->new
+    (
+     module_name => ... ,
+     ... ,
+    );
+  
+  $build->add_build_elements('foo');
+
+
+This creates a custom subclass of C<Module::Build> that knows how to
+build elements of type C<foo>.  It should place the elements in a
+subdirectory of F<blib/> corresponding to items that C<Module::Build>
+knows how to install - to add new capabilities in I<that> arena, see
+L<Adding new types to the install process>.
+
+
+=head2 Changing the order of the build process
+
+The C<build_elements> property specifies the steps C<Module::Build>
+will take when building a distribution.  To change the build order,
+change the order of the entries in that property:
+
+ # Process pod files first
+ my @e = @{$build->build_elements};
+ my $i = grep {$e[$_] eq 'pod'} 0..$#e;
+ unshift @e, splice @e, $i, 1;
+
+Currently, C<build_elements> has the following default value:
+
+  [qw( PL support pm xs pod script )]
+
+Do take care when altering this property, since there may be
+non-obvious (and non-documented!) ordering dependencies in the
+C<Module::Build> code.
+
+
+=head2 Adding new types to the install process
+
+
 =head1 AUTHOR
 
 Ken Williams, ken@mathforum.org
