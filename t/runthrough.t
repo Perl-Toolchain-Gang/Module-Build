@@ -1,5 +1,5 @@
 use Test; 
-BEGIN { plan tests => 17 }
+BEGIN { plan tests => 19 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -11,12 +11,14 @@ require File::Spec->catfile('t', 'common.pl');
 
 ######################### End of black magic.
 
+my $start_dir = Module::Build->cwd;
+
 # So 'test' and 'disttest' can see the not-yet-installed Module::Build.
 unshift @INC,     # For 'test'
 $ENV{PERL5LIB} =  # For 'disttest'
-File::Spec->catdir( Module::Build->cwd, 'blib', 'lib' );
+File::Spec->catdir( $start_dir, 'blib', 'lib' );
 
-my $goto = File::Spec->catdir( Module::Build->cwd, 't', 'Sample' );
+my $goto = File::Spec->catdir( $start_dir, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
 
 my $build = new Module::Build( module_name => 'Sample', scripts => [ 'script' ],
@@ -92,6 +94,7 @@ if (0 && $HAVE_SIGNATURE) {
 }
 
 {
+  # Check that a shebang line is rewritten
   my $blib_script = File::Spec->catdir( qw( blib script script ) );
   ok -e $blib_script; 
   
@@ -100,6 +103,19 @@ if (0 && $HAVE_SIGNATURE) {
   print "# rewritten shebang?\n$first_line";
   
   ok $first_line ne "#!perl -w\n";
+}
+
+{
+  # Check installation
+  my $destdir = File::Spec->catdir($start_dir, 't', 'install_test');
+  $build->add_to_cleanup($destdir);
+  
+  eval {$build->dispatch('install', destdir => $destdir)};
+  ok $@, '';
+  
+  my $install_to = File::Spec->catfile($destdir, $build->install_destination('lib'), 'Sample.pm');
+  print "Should have installed to $install_to\n";
+  ok -e $install_to;
 }
 
 eval {$build->dispatch('realclean')};
