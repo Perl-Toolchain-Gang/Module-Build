@@ -756,7 +756,7 @@ sub ACTION_distclean {
 sub ACTION_distdir {
   my ($self) = @_;
 
-  my $metafile = 'META.yaml';
+  my $metafile = 'META.yml';
   $self->write_metadata($metafile);
 
   my $dist_dir = $self->dist_dir;
