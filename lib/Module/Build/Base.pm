@@ -1657,7 +1657,10 @@ sub ACTION_testpod {
 sub ACTION_docs {
   my $self = shift;
   $self->depends_on('code');
-  require Pod::Man;
+  unless (eval {require Pod::Man; 1}) {
+    warn " *** Pod::Man is not available, skipped building man pages\n";
+    return;
+  }
   $self->manify_bin_pods() if $self->install_destination('bindoc');
   $self->manify_lib_pods() if $self->install_destination('libdoc');
   $self->htmlify_pods()    if $self->install_destination('html');
