@@ -721,6 +721,17 @@ Examples:
     }
   }
 
+=item requires()
+
+=item build_requires()
+
+=item recommends()
+
+=item conflicts()
+
+Each of these methods returns a hash reference indicating the
+prerequisites that were passed to the C<new()> method.
+
 =item check_installed_status($module, $version)
 
 This method returns a hash reference indicating whether a version
