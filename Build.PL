@@ -1,7 +1,9 @@
-use lib qw(lib);
+use lib qw(lib);  # Use Module::Build to test & install itself
 use Module::Build;
 
-my $b = new Module::Build;
-$b->create(
-	   module_name => 'Module::Build',
-	  );
+my $build = new Module::Build 
+  (
+   module_name => 'Module::Build',   
+  );
+
+$build->create_build_script;
