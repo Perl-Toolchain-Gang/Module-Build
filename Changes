@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.21_01
 
+ - Updated my email address in the documentation to a more recent
+   variant.
+
  - On some platforms it's common to have a $Config{make} defined, but
    no 'make' utility available.  We now detect this and skip some
    'make' compatibility tests. [Randy Sims]
