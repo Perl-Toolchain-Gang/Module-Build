@@ -23,8 +23,12 @@ Revision history for Perl extension Module::Build.
    didn't like some of the parameters we fed it. [Spotted by Blair
    Zajac]
 
- - The final line of the pass-through Makefile was missing its
-   trailing newline, which is now fixed. [Chip Salzenberg]
+ - The final line of the generated pass-through Makefile was missing
+   its trailing newline, which is now fixed. [Chip Salzenberg]
+
+ - We now depend on YAML version at least 0.35 and at most version
+   0.49, so that we don't pick up a new (and backward-incompatible) beta
+   version from CPAN.
 
  - Squashed a warning in t/basic.t about '"Foo::Module::VERSION" used
    only once', and one in PPMMaker about $^V being undefined. [Blair
