@@ -120,7 +120,7 @@ platforms like MacOS (traditional) can use it fairly easily.  Its only
 prerequisites are modules that are included with perl 5.6.0, and it
 works fine on perl 5.005 if you can install a few additional modules.
 
-See L<MOTIVATIONS> for more comparisons between C<ExtUtils::MakeMaker>
+See L<"MOTIVATIONS"> for more comparisons between C<ExtUtils::MakeMaker>
 and C<Module::Build>.
 
 To install C<Module::Build>, and any other module that uses
@@ -612,7 +612,7 @@ abstract.
 =item subclass()
 
 This creates a new C<Module::Build> subclass on the fly, as described
-in the L<SUBCLASSING> section.  The caller must provide either a
+in the L<"SUBCLASSING"> section.  The caller must provide either a
 C<class> or C<code> parameter, or both.  The C<class> parameter
 indicates the name to use for the new subclass, and defaults to
 C<MyModuleBuilder>.  The C<code> parameter specifies Perl code to use
@@ -703,7 +703,7 @@ It parses the command-line arguments into an action and an argument
 list, then calls the appropriate routine to handle the action.
 Currently (though this may change), an action C<foo> will invoke the
 C<ACTION_foo> method.  All arguments (including everything mentioned
-in L<ACTIONS> below) are contained in the C<< $self->{args} >> hash
+in L<"ACTIONS"> below) are contained in the C<< $self->{args} >> hash
 reference.
 
 =item os_type()
