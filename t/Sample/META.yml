@@ -7,9 +7,6 @@ abstract: Foo foo sample foo
 license: perl
 requires:
   File::Spec: 0
-recommends: {}
-build_requires: {}
-conflicts: {}
 provides:
   Sample:
     file: lib/Sample.pm
