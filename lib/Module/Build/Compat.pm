@@ -346,8 +346,14 @@ will probably have problems installing your module with it.
 
 Include a Build.PL script and a "traditional" Makefile.PL,
 created either manually or with create_makefile_pl().  Users won't
-ever have to install Module::Build, but in truth it's difficult to
-create a proper Makefile.PL
+ever have to install Module::Build if they use the Makefile.PL, but
+they won't get to take advantage of Module::Build's extra features
+either.
+
+If you go this route, make sure you explicitly set C<PL_FILES> in the
+call to C<WriteMakefile()> (probably to an empty hash reference), or
+else MakeMaker will mistakenly run the Build.PL and you'll get an
+error message about "Too early to run Build script" or something.
 
 =item 3.
 
