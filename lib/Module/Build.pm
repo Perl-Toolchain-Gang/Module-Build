@@ -159,28 +159,58 @@ stabilizes.
 =head2 $m = Module::Build->new(...)
 
 Creates a new Module::Build object.  Arguments to the new() method are
-listed below.  The only required argument is the C<module_name> argument.
+listed below.  Most arguments are optional, but you must provide
+either the C<module_name> argument, or C<dist_name> and one of
+C<dist_version> or C<dist_version_from>.  In other words, you must
+provide enough information to determine both a distribution name and
+version.
 
 =over 4
 
 =item * module_name
 
-The C<module_name> argument is required, and should be a string like
-C<'Your::Module'>.  We use it for several purposes, including finding
-the version string for this distribution, and creating a
-suitably-named distribution directory.
+The C<module_name> is a shortcut for setting default values of
+C<dist_name> and C<dist_version_from>, reflecting the fact that the
+majority of CPAN distributions are centered around one "main" module.
+For instance, if you set C<module_name> to C<Foo::Bar>, then
+C<dist_name> will default to C<Foo-Bar> and C<dist_version_from> will
+default to C<lib/Foo/Bar.pm>.  C<dist_version_from> will in turn be
+used to set C<dist_version>.
 
-=item * module_version
+Setting C<module_name> won't override a C<dist_*> parameter you
+specify explicitly.
 
-The C<module_version> argument is optional - if not explicitly
-provided, we'll look for the version string in the module specified by
-C<module_name>, parsing it out according to the same rules as
-C<ExtUtils::MakeMaker> and C<CPAN.pm>.
+=item * dist_name
 
-=item * module_version_from
+Specifies the name for this distribution.  Most authors won't need to
+set this directly, they can use C<module_name> to set C<dist_name> to
+a reasonable default.  However, some agglomerative distributions like
+C<libwww-perl> or C<bioperl> have names that don't correspond directly
+to a module name, so C<dist_name> can be set independently.
 
-Allows you to specify an alternate file for finding the module
-version, instead of looking in the file specified by C<module_name>.
+=item * dist_version
+
+Specifies a version number for the distribution.  See C<module_name>
+or C<dist_version_from> for ways to have this set automatically from a
+C<$VERSION> variable in a module.  One way or another, a version
+number needs to be set.
+
+=item * dist_version_from
+
+Specifies a file to look for the distribution version in.  Most
+authors won't need to set this directly, they can use C<module_name>
+to set it to a reasonable default.
+
+The version is extracted from the specified file according to the same
+rules as C<ExtUtils::MakeMaker> and C<CPAN.pm>.  It involves finding
+the first line that matches the regular expression
+
+   /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/
+
+, eval()-ing that line, then checking the value of the C<$VERSION>
+variable.  Quite ugly, really, but all the modules on CPAN depend on
+this process, so there's no real opportunity to change to something
+better.
 
 =item * license
 
