@@ -6,10 +6,13 @@ Revision history for Perl extension Module::Build.
    signature tests if we're testing noninteractively, or if the user's
    gpg setup isn't right, etc.
  
- - Get the installation to nonstandard locations figured out and
-   working, finally
+ - Get the 'install_base' parameter working as documented.
 
-0.19 (Future release)
+0.18_03
+
+ - Added support for the 'install_path' parameter, which allows custom
+   specification of where things should be installed.  This is a major
+   improvement to Module::Build's functionality.
 
  - Command-line arguments may now either be specified using the syntax
    '--foo foovalue' as well as the traditional syntax 'foo=foovalue'.
