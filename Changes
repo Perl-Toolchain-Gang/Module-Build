@@ -2,6 +2,13 @@ Revision history for Perl extension Module::Build.
 
 0.21_01
 
+ - Added support for building XS (and C in general) stuff on AIX.
+   This was done by a small reorganization of prelink_c() method from
+   Windows.pm to Build.pm, and it is only invoked for the platforms
+   that need it invoked.  AIX also massages some very naughty bits in
+   $Config{lddlflags} that should never have been put there, but alas,
+   they're there.
+
  - Added OS/2 ($^O = 'os2') to the list of Unix-like platforms.  This
    basically means that most platform-specific operations will be done
    in a Unix-like manner.
