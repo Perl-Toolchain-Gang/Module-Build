@@ -1595,18 +1595,18 @@ sub do_create_readme {
 sub ACTION_distdir {
   my ($self) = @_;
 
-  $self->depends_on('distmeta');
+  $self->depends_on('distmeta', 'manifest');
 
   $self->do_create_makefile_pl if $self->create_makefile_pl;
   $self->do_create_readme if $self->create_readme;
   
   my $dist_files = $self->_read_manifest('MANIFEST');
   delete $dist_files->{SIGNATURE};  # Don't copy, create a fresh one
-  unless (keys %$dist_files) {
-    warn "No files found in MANIFEST - try running 'manifest' action?\n";
-    return;
-  }
-  warn "*** Did you forget to add $self->{metafile} to the MANIFEST?\n" unless exists $dist_files->{$self->{metafile}};
+  die "No files found in MANIFEST - try running 'manifest' action?\n"
+    unless ($dist_files and keys %$dist_files);
+  
+  warn "*** Did you forget to add $self->{metafile} to the MANIFEST?\n"
+    unless exists $dist_files->{$self->{metafile}};
   
   my $dist_dir = $self->dist_dir;
   $self->delete_filetree($dist_dir);
@@ -1744,9 +1744,10 @@ EOM
 
 sub _read_manifest {
   my ($self, $file) = @_;
+  return undef unless -e $file;
+
   require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
   local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
-
   return scalar ExtUtils::Manifest::maniread($file);
 }
 
