@@ -22,6 +22,7 @@ lib/Module/Build/Platform/VOS.pm
 lib/Module/Build/Platform/Windows.pm
 lib/Module/Build/Platform/cygwin.pm
 lib/Module/Build/Platform/darwin.pm
+lib/Module/Build/Platform/aix.pm
 t/MANIFEST
 t/Sample/Build.PL
 t/Sample/MANIFEST
