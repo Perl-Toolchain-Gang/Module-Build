@@ -1,3 +1,13 @@
+use strict;
+
+sub add_search_path {
+  # This is the equivalent of doing "use lib" at runtime, but also
+  # affects subprocesses.
+
+  my $path = shift;
+  unshift @INC, $path;
+  $ENV{PERL5LIB} = $ENV{PERL5LIB} ? "$path:$ENV{PERL5LIB}" : $path;
+}
 
 sub stdout_of {
   my $subr = shift;
@@ -9,7 +19,6 @@ sub stdout_of {
 
   eval {$subr->()};
   open STDOUT, ">&SAVEOUT" or die "Can't restore STDOUT: $!";
-#  die $@ if $@;
 
   return slurp($outfile);
 }
