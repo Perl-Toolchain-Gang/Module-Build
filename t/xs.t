@@ -77,7 +77,7 @@ if ($m->os_type eq 'Unix') {
   eval {$m->dispatch('build')};
   ok $@, '';
 } else {
-  skip "skip skipping a couple Unixish-only tests", 1 for 1..2;
+  skip_subtest("skipping a couple Unixish-only tests") for 1..2;
 }
 
 eval {$m->dispatch('realclean')};
