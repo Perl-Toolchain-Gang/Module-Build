@@ -47,6 +47,7 @@ sub new {
 		    config => {%Config, %$config, %$cmd_config},
 		    properties => {
 				   build_script => 'Build',
+				   base_dir => $package->cwd,
 				   config_dir => '_build',
 				   requires => {},
 				   recommends => {},
@@ -68,9 +69,12 @@ sub new {
   $self->check_prereq;
   $self->find_version;
   
-  $self->write_config;
-  
   return $self;
+}
+
+sub cwd {
+  require Cwd;
+  return Cwd::cwd;
 }
 
 sub resume {
@@ -147,23 +151,25 @@ sub find_version {
 
   return if exists $p->{module_version};
   
+  my $version_from;
   if (exists $p->{module_version_from}) {
-    my $version = $self->version_from_file($p->{module_version_from});
-    $p->{module_version} = $version;
-    delete $p->{module_version_from};
+    # module_version_from is always a Unix-style path
+    $version_from = File::Spec->catfile( split '/', delete $p->{module_version_from} );
+  } elsif (exists $p->{module_name}) {
+    my $search_path = File::Spec->catdir($p->{base_dir}, 'lib');
+    $version_from = $self->find_module_by_name($p->{module_name}, [$search_path]);
+    die "Can't find '$p->{module_name}' in $search_path for version check" unless defined $version_from;
   } else {
-    # Try to find the version in 'module_name'
-    die "No module_name parameter supplied" unless $p->{module_name};
-    my $chief_file = $self->module_name_to_file($p->{module_name});
-    die "Can't find module '$p->{module_name}' for version check" unless defined $chief_file;
-    $p->{module_version} = $self->version_from_file($chief_file);
+    die "Must supply either 'module_version', 'module_version_from', or 'module_name' parameter";
   }
+
+  $p->{module_version} = $self->version_from_file($version_from);
 }
 
-sub module_name_to_file {
-  my ($self, $mod) = @_;
+sub find_module_by_name {
+  my ($self, $mod, $dirs) = @_;
   my $file = File::Spec->catfile(split '::', $mod);
-  foreach ('lib', @INC) {
+  foreach (@$dirs) {
     my $testfile = File::Spec->catfile($_, $file);
     return $testfile if -e $testfile and !-d _;  # For stuff like ExtUtils::xsubpp
     return "$testfile.pm" if -e "$testfile.pm";
@@ -291,7 +297,7 @@ sub check_installed_version {
     $installed_version = $^V ? $self->perl_version_to_float(sprintf "%vd", $^V) : $];
     
   } else {
-    my $file = $self->module_name_to_file($modname);
+    my $file = $self->find_module_by_name($modname, \@INC);
     unless ($file) {
       $@ = "Prerequisite $modname isn't installed";
       return 0;
@@ -346,12 +352,11 @@ sub print_build_script {
   
   my $build_package = ref($self);
 
-  my ($config_dir, $build_script, $build_dir) = 
-    ($self->{properties}{config_dir}, $self->{properties}{build_script},
-     File::Spec->rel2abs(File::Basename::dirname($0)));  # XXX should be property of $self
+  my ($config_dir, $build_script, $base_dir) = 
+    ($self->{properties}{config_dir}, $self->{properties}{build_script}, $self->{properties}{base_dir});
 
   my @myINC = @INC;
-  for ($config_dir, $build_script, $build_dir, @myINC) {
+  for ($config_dir, $build_script, $base_dir, @myINC) {
     s/([\\\'])/\\$1/g;
   }
 
@@ -362,7 +367,7 @@ $self->{config}{startperl} -w
 
 BEGIN { \@INC = ($quoted_INC) }
 
-chdir('$build_dir') or die 'Cannot chdir to $build_dir: '.\$!;
+chdir('$base_dir') or die 'Cannot chdir to $base_dir: '.\$!;
 use $build_package;
 
 # This should have just enough arguments to be able to bootstrap the rest.
@@ -374,7 +379,6 @@ my \$build = resume $build_package (
 );
 eval {\$build->dispatch};
 my \$err = \$@;
-chdir('$build_dir') or die 'Cannot chdir to $build_dir: '.\$!;
 \$build->write_cleanup;  # Always write, even if error occurs
 die \$err if \$err;
 
@@ -383,6 +387,8 @@ EOF
 
 sub create_build_script {
   my ($self) = @_;
+  
+  $self->write_config;
   
   $self->rm_previous_build_script;
 
@@ -436,8 +442,8 @@ sub dispatch {
   $self->{properties} = {%{$self->{properties}}, %p};
 
   my $method = "ACTION_$self->{action}";
-  print("No method '$method' defined.\n"), return unless $self->can($method);
-  
+  print("No action '$self->{action}' defined.\n"), return unless $self->can($method);
+
   return $self->$method;
 }
 
@@ -657,6 +663,7 @@ sub ACTION_distdir {
   local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
   
   my $dist_files = ExtUtils::Manifest::maniread('MANIFEST');
+  $self->delete_filetree($dist_dir);
   ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'best');
   warn "*** Did you forget to add $metafile to the MANIFEST?\n" unless exists $dist_files->{$metafile};
 }
@@ -672,7 +679,7 @@ sub ACTION_disttest {
   $self->do_system("$^X Build.PL") or die "Error executing '$^X Build.PL' in dist directory: $!";
   $self->do_system('./Build') or die "Error executing './Build' in dist directory: $!";
   $self->do_system('./Build test') or die "Error executing './Build test' in dist directory: $!";
-  # XXX doesn't change back to top dir
+  chdir $self->{properties}{base_dir};
 }
 
 sub ACTION_manifest {
@@ -849,9 +856,9 @@ sub process_xs {
   unless ($self->up_to_date($file, "$file_base.c")) {
     $self->add_to_cleanup("$file_base.c");
     
-    my $xsubpp  = $self->module_name_to_file('ExtUtils::xsubpp')
+    my $xsubpp  = $self->find_module_by_name('ExtUtils::xsubpp', \@INC)
       or die "Can't find ExtUtils::xsubpp in INC (@INC)";
-    my $typemap =  $self->module_name_to_file('ExtUtils::typemap');
+    my $typemap =  $self->find_module_by_name('ExtUtils::typemap', \@INC);
     
     # XXX the '> $file_base.c' isn't really a post-arg, it's redirection.  Fix later.
     $self->run_perl_script($xsubpp, "-I$cf->{archlib} -I$cf->{privlib}", 
