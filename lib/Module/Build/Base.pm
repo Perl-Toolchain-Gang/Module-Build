@@ -98,6 +98,7 @@ sub _construct {
 				   install_path    => {},
 				   include_dirs    => [],
 				   recurse_into    => [],
+				   build_class     => $package,
 				   %input,
 				  },
 		   }, $package;
@@ -442,6 +443,7 @@ EOF
        dist_version
        dist_version_from
        dist_author
+       build_class
        dist_abstract
        requires
        recommends
@@ -964,7 +966,7 @@ sub _startperl { shift()->{config}{startperl} }
 sub print_build_script {
   my ($self, $fh) = @_;
   
-  my $build_package = ref($self);
+  my $build_package = $self->build_class;
   
   my %q = map {$_, $self->$_()} qw(config_dir base_dir);
   $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $^O eq 'MSWin32';

@@ -162,6 +162,17 @@ actually an important distinction - it allows for tighter control over
 the body of installed modules, and facilitates correct dependency
 checking on binary/packaged distributions of the module.
 
+=item build_class
+
+The Module::Build class or subclass to use in the build
+script. Defaults to "Module::Build" or the class name passed to or
+created by a call to C<subclass()>. This property is useful if you're
+writing a custom Module::Build subclass and have a bootstrapping
+problem--that is, your subclass requires modules that may not be
+installed when C<perl Build.PL> is executed, but you've listed in
+C<build_requires> so that they should be available when C<./Build> is
+executed.
+
 =item c_source
 
 An optional C<c_source> argument specifies a directory which contains

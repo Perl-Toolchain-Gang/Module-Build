@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-BEGIN { plan tests => 41 }
+BEGIN { plan tests => 43 }
 use Module::Build;
 ok(1);
 
@@ -21,6 +21,7 @@ chdir 't';
   my $build = new Module::Build( module_name => 'ModuleBuildOne' );
   ok $build;
   ok $build->module_name, 'ModuleBuildOne';
+  ok $build->build_class, 'Module::Build';
   ok $build->dist_name, 'ModuleBuildOne';
   
   $build = Module::Build->new( dist_name => 'ModuleBuildOne', dist_version => 7 );
@@ -152,8 +153,10 @@ chdir 't';
     (
      module_name => 'ModuleBuildOne',
      dist_author => 'Foo Meister <foo@example.com>',
+     build_class => 'My::Big::Fat::Builder',
     );
   ok $build;
   ok ref($build->dist_author);
   ok $build->dist_author->[0], 'Foo Meister <foo@example.com>';
+  ok $build->build_class, 'My::Big::Fat::Builder';
 }
