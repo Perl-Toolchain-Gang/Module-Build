@@ -727,6 +727,16 @@ the C<Build.PL> script:
 Under normal circumstances, you'll need superuser privileges to
 install into the default C<sitelib> directory.
 
+If you want the installation process to look around in C<@INC> for
+other versions of the stuff you're installing and try to delete it,
+you can use the C<uninst> parameter:
+
+ Build install uninst=1
+
+This can be a good idea, as it helps prevent multiple versions of a
+module from being present on your system, which can be a confusing
+situation indeed.
+
 =item fakeinstall
 
 This is just like the C<install> action, but it won't actually do
