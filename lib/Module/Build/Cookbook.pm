@@ -90,7 +90,7 @@ actions.
  );
  $b->dispatch('build');
  $b->dispatch('test', verbose => 1);
- $b->dispatch('install);
+ $b->dispatch('install');
 
 The first argument to C<dispatch()> is the name of the action, and any
 following arguments are named parameters.
