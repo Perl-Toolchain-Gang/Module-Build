@@ -250,10 +250,17 @@ sub write_config {
   File::Path::mkpath($self->{properties}{config_dir});
   -d $self->{properties}{config_dir} or die "Can't mkdir $self->{properties}{config_dir}: $!";
   
-  my $file = $self->config_file('build_params');
-  open my $fh, ">$file" or die "Can't create '$file': $!";
   local $Data::Dumper::Terse = 1;
+
+  my $file = $self->config_file('build_params');
+  open my $fh, "> $file" or die "Can't create '$file': $!";
   print $fh Data::Dumper::Dumper([$self->{args}, $self->{config}, $self->{properties}]);
+  close $fh;
+
+  $file = $self->config_file('prereqs');
+  open $fh, "> $file" or die "Can't create '$file': $!";
+  my @items = qw(requires build_requires conflicts recommends);
+  print $fh Data::Dumper::Dumper( { map {$_,$self->{properties}{$_}} @items } );
   close $fh;
 }
 
