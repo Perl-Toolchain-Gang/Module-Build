@@ -136,7 +136,9 @@ sub makefile_to_build_args {
 		       die "Malformed argument '$arg'");
 
     # Do tilde-expansion like MakeMaker does, more or less
-    $val =~ s{^~(\w*)} { (getpwnam($1 || (getpwuid $>)[0]))[7] || "~$1" }e;
+    unless ( Module::Build->os_type eq 'Windows' ) {
+      $val =~ s{^~(\w*)} { (getpwnam($1 || (getpwuid $>)[0]))[7] || "~$1" }e;
+    }
 
     if (exists $makefile_to_build{$key}) {
       my $trans = $makefile_to_build{$key};

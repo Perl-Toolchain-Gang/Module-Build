@@ -151,7 +151,8 @@ foreach my $type (@makefile_types) {
   $build->run_perl_script('Makefile.PL', [], ['INSTALL_BASE=~/foo']);
   my $b2 = Module::Build->current;
   ok $b2->install_base;
-  ok $b2->install_base !~ /^~/, 1, "Tildes should be expanded";
+  skip $^O =~ /MSWin/ ? 'Windows does not support tilde-expansion' : '',
+       $b2->install_base !~ /^~/, 1, "Tildes should be expanded";
   
   $build->do_system(@make, 'realclean');
   1 while unlink 'Makefile.PL';
