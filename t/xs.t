@@ -3,7 +3,7 @@
 use strict;
 use Test;
 
-BEGIN { plan tests => 6 }
+BEGIN { plan tests => 7 }
 
 use Module::Build;
 use File::Spec;
@@ -34,3 +34,5 @@ ok $@, '';
 eval {$m->dispatch('realclean')};
 ok $@, '';
 
+# Make sure blib/ is gone after 'realclean'
+ok not -e 'blib';
