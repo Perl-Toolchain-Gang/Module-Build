@@ -53,6 +53,6 @@ Ken Williams, ken@forum.swarthmore.edu
 
 perl(1), ExtUtils::MakeMaker(3)
 
-http://www.dsmit.com/cons/stable/cons.html
+http://www.dsmit.com/cons/
 
 =cut
