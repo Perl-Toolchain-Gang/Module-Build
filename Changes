@@ -31,6 +31,9 @@ Revision history for Perl extension Module::Build.
    warn & skip when we see any unknown MM parameters, rather than
    dying.  [Dave Rolsky]
 
+ - Fixed an error about how @INC and $ENV{PERL5LIB} interact during
+   the testing of M::B itself. [jk <billy2000@fastmail.fm>]
+
  - The pass-through Makefile doesn't include 'recommended' M::B
    dependencies in the Makefile anymore, since they're not strictly
    necessary.  In particular, this makes installing M::B itself
