@@ -13,9 +13,9 @@ sub make_tarball {
   my $tar_flags = $self->{properties}{verbose} ? 'cvf' : 'cf';
 
   my $tar = $self->{args}{tar}  || 'tar';
-  $self->do_system("$tar $tar_flags '$dir.tar' '$dir'");
+  $self->do_system($tar, $tar_flags, "$dir.tar", $dir);
   my $gzip = $self->{args}{gzip} || 'gzip';
-  $self->do_system("$gzip '$dir.tar'");
+  $self->do_system($gzip, "$dir.tar");
 }
 
 sub _startperl { "#! " . shift()->perl }
