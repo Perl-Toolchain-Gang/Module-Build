@@ -22,7 +22,7 @@ lib/Module/Build/Platform/darwin.pm
 t/MANIFEST
 t/Sample/Build.PL
 t/Sample/MANIFEST
-t/Sample/META.yaml
+t/Sample/META.yml
 t/Sample/lib/Sample.pm
 t/Sample/test.pl
 t/XSTest/Build.PL

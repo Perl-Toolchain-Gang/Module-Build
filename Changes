@@ -10,6 +10,10 @@ Revision history for Perl extension Module::Build.
   - Now scan the 'c_source' directory for .cpp (C++) files as well as
     .c files, and compiles them.
 
+  - Use a 'phony' target for 'make manifest' in the pass-through
+    Makefile, for the same reason as 'make install' (see version 0.12
+    notes below).
+
   - Module::Build::Compat now accepts any known Config.pm key and
     passes it through to the Build.PL.  Fixes a problem with CPANPLUS,
     which was passing INSTALLMAN1DIR.

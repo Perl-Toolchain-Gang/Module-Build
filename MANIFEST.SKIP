@@ -1,5 +1,5 @@
 ^_build
-^blib
+(^|/)blib
 CVS
 ^Build$
 ~$
@@ -10,8 +10,15 @@ CVS
 ^patches
 ^Module-
 ^t/_
+^t/Sample/save_out$
+^\.
 ^Makefile$
 
+^TODO$
 ^CPANTEST
 \.c$
+\.bs$
+\.bundle$
+\.yaml$
 ^t/save_out$
+(^|/)\.#
