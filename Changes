@@ -33,7 +33,7 @@ Revision history for Perl extension Module::Build.
     file, since various ExtUtils::Install errors might leave us in an
     unknown directory. [patch by Ilya Martynov]
 
-  - Specified the 'license', 'recommends', and 'build_from_metadata'
+  - Specified the 'license', 'recommends', and 'dynamic_config'
     values in Build.PL, and changed 'prereq' to 'requires'.
 
 0.06  Apr 2 2002 17:44

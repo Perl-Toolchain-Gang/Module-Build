@@ -19,7 +19,7 @@ my $build = new Module::Build
 		  YAML => 0.30,
 		  Archive::Tar => 0.22,
 		 },
-   build_from_metadata => 0,
+   dynamic_config => 1,
   );
 
 $build->create_build_script;

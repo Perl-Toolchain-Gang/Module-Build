@@ -301,15 +301,15 @@ through the C<Autosplit::autosplit()> function.  In general I don't
 consider this a great idea, and I may even go so far as to remove this
 feature later.  Let me know if I shouldn't.
 
-=item * build_from_metadata
+=item * dynamic_config
 
-A flag indicating whether this module can be built, tested and
-installed solely from consulting its metadata file, or whether the
-F<Build.PL> file must be executed.  The default value is 1, reflecting
-the fact that "most" of the modules on CPAN just need to be copied
-from one place to another.  The main reason to set this to a false
-value is that your module performs some dynamic configuration as part
-of its build/install process.
+A boolean flag indicating whether the F<Build.PL> file must be
+executed, or whether this module can be built, tested and installed
+solely from consulting its metadata file.  The default value is 0,
+reflecting the fact that "most" of the modules on CPAN just need to be
+copied from one place to another.  The main reason to set this to a
+true value is that your module performs some dynamic configuration as
+part of its build/install process.
 
 Currently C<Module::Build> doesn't actually do anything with this flag
 - it's probably going to be up to tools like C<CPAN.pm> to do
@@ -581,7 +581,7 @@ and unpack it.
 
 While performing the 'distdir' action, a file containing various bits
 of "metadata" will be created.  The metadata includes the module's
-name, version, dependencies, license, and the C<build_from_metadata>
+name, version, dependencies, license, and the C<dynamic_config>
 flag.  This file is created as F<META.yaml> in YAML format, so you
 must have the C<YAML> module installed in order to create it.  You
 should also ensure that the F<META.yaml> file is listed in your
