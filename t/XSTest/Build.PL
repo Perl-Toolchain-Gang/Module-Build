@@ -9,6 +9,8 @@ $build->create_build_script;
 
 __END__
 
+# The EU::MM equivalent of the above:
+
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
