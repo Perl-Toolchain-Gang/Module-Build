@@ -1,0 +1,10 @@
+--- lib/Module/Build/Base.pm	2004-02-25 13:57:59.000000000 -0800
++++ lib/Module/Build/Base.pm	2004-03-18 17:19:26.000000000 -0800
+@@ -477,6 +477,7 @@
+   my $match = qr/([\$*])(([\w\:\']*)\bVERSION)\b.*\=/;
+   my ($v_line, $sigil, $var) = $self->_next_code_line($fh, $match) or return undef;
+ 
++  eval { require version };
+   my $eval = qq{q#  Hide from _packages_inside()
+ 		 #; package Module::Build::Base::_version;
+ 		 no strict;
