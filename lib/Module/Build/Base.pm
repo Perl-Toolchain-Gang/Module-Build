@@ -77,11 +77,14 @@ sub new {
   $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
   $p->{script_files} = delete $p->{scripts} if exists $p->{scripts};
 
+  $self->add_to_cleanup( @{delete $p->{cleanup_files}} )
+    if $p->{cleanup_files};
+  
   $self->dist_name;
   $self->check_manifest;
   $self->check_prereq;
   $self->dist_version;
-  
+
   return $self;
 }
 
@@ -858,6 +861,7 @@ sub find_PL_files {
     }
   }
   
+  return unless -d 'lib';
   return { map {$_, /^(.*)\.PL$/} @{ $self->rscan_dir('lib', qr{\.PL$}) } };
 }
 
@@ -886,6 +890,7 @@ sub _find_file_by_type {
     return { map $self->localize_file_path($_), %$files };
   }
   
+  return unless -d 'lib';
   return { map {$_, $_} @{ $self->rscan_dir('lib', qr{\.$type$}) } };
 }
 
