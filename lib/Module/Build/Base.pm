@@ -269,8 +269,9 @@ sub ACTION_build_config {
   my $self = shift;
   return unless $self->has_build_config;
   
-  die "The build_config feature requires that 'module_name' be set" unless $self->module_name;
-  my $notes_name = $self->module_name . '::BuildConfig';
+  my $module_name = $self->module_name
+    or die "The build_config feature requires that 'module_name' be set";
+  my $notes_name = $module_name . '::BuildConfig';
   my $notes_pm = File::Spec->catfile($self->blib, 'lib', split /::/, "$notes_name.pm");
 
   return if $self->up_to_date([$self->config_file('build_config'), $self->config_file('features')], $notes_pm);
@@ -291,7 +292,7 @@ sub config { $config->{$_[1]} }
 sub feature { $features->{$_[1]} }
 
 sub set_config { $config->{$_[1]} = $_[2] }
-sub set_feature { $features->{$_[1]} = $_[2] }
+sub set_feature { $features->{$_[1]} = 0+!!$_[2] }
 
 sub feature_names { keys %%$features }
 sub config_names  { keys %%$config }
@@ -320,8 +321,93 @@ sub write {
     or warn "Couldn't restore permissions on $me: $!";
 }
 
+__END__
+
 EOF
-  print $fh "__DATA__\n";
+
+  printf $fh <<"EOF", $notes_name, $module_name;
+
+=head1 NAME
+
+$notes_name - Configuration for $module_name
+
+=head1 SYNOPSIS
+
+  use $notes_name;
+  \$value = $notes_name->config('foo');
+  \$value = $notes_name->feature('bar');
+  
+  \@names = $notes_name->config_names;
+  \@names = $notes_name->feature_names;
+  
+  $notes_name->set_config(foo => \$new_value);
+  $notes_name->set_feature(bar => \$new_value);
+  $notes_name->write;  # Save changes
+
+=head1 DESCRIPTION
+
+This module holds the configuration data for the C<$module_name>
+module.  It also provides a programmatic interface for getting or
+setting that configuration data.  Note that in order to actually make
+changes, you'll have to have write access to the C<$notes_name>
+module, and you should attempt to understand the repercussions of your
+actions.
+
+=head1 METHODS
+
+=over 4
+
+=item config(\$name)
+
+Given a string argument, returns the value of the configuration item
+by that name, or C<undef> if no such item exists.
+
+=item feature(\$name)
+
+Given a string argument, returns the value of the feature by that
+name, or C<undef> if no such feature exists.
+
+=item set_config(\$name, \$value)
+
+Sets the configuration item with the given name to the given value.
+The value may be any Perl scalar that will serialize correctly using
+C<Data::Dumper>.  This includes references, objects (usually), and
+complex data structures.  It probably does not include transient
+things like filehandles or sockets.
+
+=item set_feature(\$name, \$value)
+
+Sets the feature with the given name to the given boolean value.  The
+value will be converted to 0 or 1 automatically.
+
+=item config_names()
+
+Returns a list of all the names of config items currently defined in
+C<$notes_name>, or in scalar context the number of items.
+
+=item feature_names()
+
+Returns a list of all the names of features currently defined in
+C<$notes_name>, or in scalar context the number of features.
+
+=item write()
+
+Commits any changes from C<set_config()> and C<set_feature()> to disk.
+Requires write access to the C<$notes_name> module.
+
+=back
+
+=head1 AUTHOR
+
+C<$notes_name> was automatically created using C<Module::Build>.
+C<Module::Build> was written by Ken Williams, but he holds no
+authorship claim or copyright claim to the contents of C<$notes_name>.
+
+=cut
+
+__DATA__
+
+EOF
 
   local $Data::Dumper::Terse = 1;
   print $fh Data::Dumper::Dumper([scalar $self->build_config, scalar $self->feature]);
