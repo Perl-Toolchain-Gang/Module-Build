@@ -1199,7 +1199,7 @@ sub _find_pods {
     my $dir = $self->localize_file_path($spec);
     next unless -e $dir;
     do { $files{$_} = $_ if $self->contains_pod( $_ ) }
-      for @{ $self->rscan_dir( $dir, sub { -f $File::Find::name } ) };
+      for @{ $self->rscan_dir( $dir ) };
   }
   return \%files;
 }
