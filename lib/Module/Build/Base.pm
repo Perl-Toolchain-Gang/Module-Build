@@ -346,34 +346,42 @@ sub find_module_by_name {
   return;
 }
 
-sub version_from_file {
-  my ($self, $file) = @_;
-
-  # Some of this code came from the ExtUtils:: hierarchy.
-  my $fh = IO::File->new($file) or die "Can't open '$file' for version: $!";
+sub _next_code_line {
+  my ($self, $fh, $pat) = @_;
   my $inpod = 0;
   
   local $_;
   while (<$fh>) {
     $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
     next if $inpod || /^\s*#/;
-    if ( my ($sigil, $var) = /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/ ) {
-      my $eval = qq{  q#  Hide from _packages_inside()
-		    #; package Module::Build::Base::_version;
-		    no strict;
-		    
-		    local $sigil$var;
-		    \$$var=undef; do {
-		      $_
-		    }; \$$var
-		   };
-      local $^W;
-      my $result = eval $eval;
-      warn "Error evaling version line '$eval' in $file: $@\n" if $@;
-      return $result;
-    }
+    return wantarray ? ($_, /$pat/) : $_
+      if $_ =~ $pat;
   }
-  return undef;
+  return;
+}
+
+sub version_from_file {
+  my ($self, $file) = @_;
+
+  # Some of this code came from the ExtUtils:: hierarchy.
+  my $fh = IO::File->new($file) or die "Can't open '$file' for version: $!";
+
+  my $match = qr/([\$*])(([\w\:\']*)\bVERSION)\b.*\=/;
+  my ($v_line, $sigil, $var) = $self->_next_code_line($fh, $match) or return undef;
+
+  my $eval = qq{q#  Hide from _packages_inside()
+		 #; package Module::Build::Base::_version;
+		 no strict;
+		    
+		 local $sigil$var;
+		 \$$var=undef; do {
+		   $v_line
+		 }; \$$var
+		};
+  local $^W;
+  my $result = eval $eval;
+  warn "Error evaling version line '$eval' in $file: $@\n" if $@;
+  return $result;
 }
 
 sub _write_cleanup {
@@ -1392,10 +1400,11 @@ sub _packages_inside {
   # XXX this SUCKS SUCKS SUCKS!  Damn you perl!
   my ($self, $file) = @_;
   my $fh = IO::File->new($file) or die "Can't read $file: $!";
-  my @packages;
-  while (defined(my $line = <$fh>)) {
-    push @packages, $1 if $line =~ /^[\s\{;]*package\s+([\w:]+)/;
-  }
+  
+  my (@packages, $p);
+  push @packages, $p while (undef, $p) = 
+    $self->_next_code_line($fh, qr/^[\s\{;]*package\s+([\w:]+)/);
+  
   return @packages;
 }
 
