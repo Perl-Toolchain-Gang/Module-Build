@@ -237,7 +237,7 @@ $opts{code}
 EOF
   close $fh;
   
-  push @INC, File::Spec->catdir($build_dir, 'lib');
+  push @INC, File::Spec->catdir(File::Spec->rel2abs($build_dir), 'lib');
   eval "use $opts{class}";
   die $@ if $@;
 
@@ -595,6 +595,7 @@ sub print_build_script {
 
   my @myINC = @INC;
   for ($config_dir, $build_script, $base_dir, @myINC) {
+    $_ = File::Spec->rel2abs($_);
     s/([\\\'])/\\$1/g;
   }
 
