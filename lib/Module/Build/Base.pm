@@ -92,6 +92,7 @@ sub _construct {
 				   mb_version      => Module::Build->VERSION,
 				   build_elements  => [qw( PL support pm xs pod script )],
 				   installdirs     => 'site',
+				   install_path    => {},
 				   include_dirs    => [],
 				   %input,
 				  },
@@ -958,7 +959,7 @@ sub read_args {
 sub merge_args {
   my ($self, $action, %args) = @_;
   my %additive = (config => $self->{config},
-		  install_path => $self->{properties}{install_path} ||= {});
+		  install_path => $self->{properties}{install_path});
 
   $self->{action} = $action if defined $action;
 
