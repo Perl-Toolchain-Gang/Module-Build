@@ -1038,7 +1038,7 @@ to process things of that type, e.g. if you add a build element called
 C<'foo'>, then you must also define a method called
 C<process_foo_files()>.
 
-See also L<Module::Build::Compat/Adding new elements to the build process>.
+See also L<Module::Build::Cookbook/Adding new elements to the build process>.
 
 =item copy_if_modified(%parameters)
 
