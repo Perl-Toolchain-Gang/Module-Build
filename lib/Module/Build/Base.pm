@@ -168,6 +168,17 @@ sub y_n {
   }
 }
 
+sub notes {
+  my $self = shift;
+  return $self->_persistent_hash_read('notes') unless @_;
+  
+  my $key = shift;
+  return $self->_persistent_hash_read('notes', $key) unless @_;
+  
+  my $value = shift;
+  return $self->_persistent_hash_write('notes', { $key => $value });
+}
+
 sub resume {
   my $package = shift;
   my $self = bless {@_}, $package;
@@ -388,44 +399,67 @@ sub version_from_file {
   return $result;
 }
 
-sub _write_cleanup {
-  my $self = shift;
-  my @to_write = keys %{ $self->{add_to_cleanup} }
-    or return;
+sub _persistent_hash_write {
+  my ($self, $name, $href) = @_;
+  $href ||= {};
+  my $ph = $self->{phash}{$name} ||= {disk => {}, new => {}};
   
-  my $file = $self->config_file('cleanup');
-  my $fh = IO::File->new(">> $file") or die "Can't write to $file: $!";
-  print $fh "$_\n" foreach @to_write;
-  close $fh;
+  @{$ph->{new}}{ keys %$href } = values %$href;  # Merge
   
-  @{ $self->{cleanup} }{ @to_write } = ();
-  $self->{add_to_cleanup} = {};
+  if (my $file = $self->config_file($name)) {
+    return if -e $file and !keys %{ $ph->{new} };  # Nothing to do
+    
+    local $Data::Dumper::Terse = 1;
+    my $fh = IO::File->new("> $file") or die "Can't write to $file: $!";
+    @{$ph->{disk}}{ keys %{$ph->{new}} } = values %{$ph->{new}};  # Merge
+    print $fh Data::Dumper::Dumper($ph->{disk});
+    close $fh;
+    
+    $ph->{new} = {};
+  }
+  return $self->_persistent_hash_read($name);
 }
 
-sub cleanup_is_flushed {
+sub _persistent_hash_read {
   my $self = shift;
-  return ! keys %{ $self->{add_to_cleanup} };
+  my $name = shift;
+  my $ph = $self->{phash}{$name} ||= {disk => {}, new => {}};
+
+  if (@_) {
+    # Return 1 key as a scalar
+    my $key = shift;
+    return $ph->{new}{$key} if exists $ph->{new}{$key};
+    return $ph->{disk}{$key};
+  } else {
+    # Return all data
+    my $out = (keys %{$ph->{new}}
+	       ? {%{$ph->{disk}}, %{$ph->{new}}}
+	       : $ph->{disk});
+    return wantarray ? %$out : $out;
+  }
+}
+
+sub _persistent_hash_restore {
+  my ($self, $name) = @_;
+  my $ph = $self->{phash}{$name} ||= {disk => {}, new => {}};
+  
+  my $file = $self->config_file($name) or die "No config file '$name'";
+  my $fh = IO::File->new("< $file") or die "Can't read $file: $!";
+  
+  $ph->{disk} = eval do {local $/; <$fh>};
+  die $@ if $@;
 }
 
 sub add_to_cleanup {
   my $self = shift;
-
-  # $self->{cleanup} contains files that are already written in the
-  # 'cleanup' file.  $self->{add_to_cleanup} is a buffer that we
-  # haven't written yet (and may never write if we don't ever create
-  # the cleanup file).
-  
-  my @new_files = grep {!exists $self->{cleanup}{$_}} @_
-    or return;
-  
-  @{$self->{add_to_cleanup}}{ @new_files } = ();
-  
-  $self->_write_cleanup if $self->config_file('cleanup');
+  my %files = map {$_, 1} @_;
+  $self->_persistent_hash_write('cleanup', \%files);
 }
 
 sub cleanup {
   my $self = shift;
-  return (keys %{$self->{cleanup}}, keys %{$self->{add_to_cleanup}});
+  my $all = $self->_persistent_hash_read('cleanup');
+  return keys %$all;
 }
 
 sub config_file {
@@ -444,13 +478,8 @@ sub read_config {
   ($self->{args}, $self->{config}, $self->{properties}) = @$ref;
   close $fh;
   
-  my $cleanup_file = $self->config_file('cleanup');
-  $self->{cleanup} = {};
-  if (-e $cleanup_file) {
-    my $fh = IO::File->new($cleanup_file) or die "Can't read '$file': $!";
-    my @files = <$fh>;
-    chomp @files;
-    @{$self->{cleanup}}{@files} = ();
+  if (-e $self->config_file('cleanup')) {
+    $self->_persistent_hash_restore('cleanup');
   }
 }
 
@@ -472,8 +501,8 @@ sub write_config {
   my @items = qw(requires build_requires conflicts recommends);
   print $fh Data::Dumper::Dumper( { map { $_, $self->$_() } @items } );
   close $fh;
-  
-  $self->_write_cleanup;
+
+  $self->_persistent_hash_write('cleanup');
 }
 
 sub requires       { shift()->{properties}{requires} }
