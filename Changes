@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+0.2606 (Bug fix for 0.26)
+
+ - Fixed a linking bug on Win32, in which compiled C code object files
+   never got linked in with the modules being built. [Dominic
+   Mitchell]
+
 0.2605 (Bug fix for 0.26)   Tue Nov 30 07:16:13 CST 2004
 
  - Fixed a bug in which zero-length arguments for hash-valued
