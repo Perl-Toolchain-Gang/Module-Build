@@ -1020,6 +1020,9 @@ whether the dynamic declaration of dependencies is a good idea.
 
 Ken Williams, ken@mathforum.org
 
+Development questions, bug reports, and patches should be sent to the
+Module-Build mailing list at module-build-general@lists.sourceforge.net .
+
 =head1 SEE ALSO
 
 perl(1), ExtUtils::MakeMaker(3), YAML(3)
