@@ -16,6 +16,20 @@ Revision history for Perl extension Module::Build.
    filesystems (like nmake on Win32, often).  Only affects the
    Makefile compatibility layer.  [reported by Andrew Savage]
 
+ - Module::Build->known_actions() now works as a class method.
+
+ - We now use the correct perl interpreter (via
+   Module::Build->find_perl_interpreter) in pass-through makefiles.
+
+ - Pass-through makefiles now list each action individually rather
+   than using a ".DEFAULT" catch-all.  This improves compatibility
+   with 'nmake' on Win32, and probably some other less common 'make'
+   dialects.  [Andrew Savage]
+
+ - We're now more aggressive about testing the pass-through makefiles,
+   e.g. making sure they can run 'all' and 'test' targets, and making
+   sure the Makefile itself actually exists.
+
 0.18_02  Sun Jun  1 18:32:22 CDT 2003
 
  - Fixed a problem with check_installed_status() when installed
