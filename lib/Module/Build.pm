@@ -489,8 +489,10 @@ though it will continue to exist for several version releases.
 
 An optional C<autosplit> argument specifies a file which should be run
 through the C<Autosplit::autosplit()> function.  In general I don't
-consider this a great idea, and I may even go so far as to remove this
-feature later.  Let me know if I shouldn't.
+consider this a great idea, because it's not always clear that
+autosplitting achieves its intended performance benefits.  It may even
+harm performance in environments like mod_perl, where as much as
+possible of a module's code should be loaded during startup.
 
 =item dynamic_config
 
