@@ -29,9 +29,12 @@ my $build = new Module::Build( module_name => 'Sample',
   # Fake out Module::Signature and Module::Build - the first one to
   # run should be distmeta.
   my @run_order;
-  local *Module::Signature::sign              = sub { push @run_order, 'sign' };
-  local *Module::Build::Base::ACTION_distmeta = sub { push @run_order, 'distmeta' };
-  eval { $build->dispatch('distdir') };
+  {
+    local $^W; # Skip 'redefined' warnings
+    local *Module::Signature::sign              = sub { push @run_order, 'sign' };
+    local *Module::Build::Base::ACTION_distmeta = sub { push @run_order, 'distmeta' };
+    eval { $build->dispatch('distdir') };
+  }
   ok $@, '';
   ok $run_order[0], 'distmeta';
   ok $run_order[1], 'sign';
