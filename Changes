@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.21_01
 
+ - Previously most warnings about optional prerequisites looked like
+   they were actually error messages about required prerequisites.
+   This has been corrected. [Reported again by Sagar Shah]
+
  - Added support for building XS (and C in general) stuff on AIX.
    This was done by a small reorganization of prelink_c() method from
    Windows.pm to Build.pm, and it is only invoked for the platforms
