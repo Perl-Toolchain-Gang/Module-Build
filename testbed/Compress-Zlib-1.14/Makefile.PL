@@ -25,6 +25,7 @@ WriteMakefile(
 	'dist'	 	=> {COMPRESS=>'gzip', SUFFIX=>'gz',
 			    DIST_DEFAULT => 'MyDoubleCheck tardist',
 			    },
+	PL_FILES => {},
 	($BUILD_ZLIB
 	  ? (MYEXTLIB	=> "$ZLIB_LIB/libz\$(LIB_EXT)")
 	  : (LIBS	=> [ "-L$ZLIB_LIB -lz " ])
