@@ -7,3 +7,4 @@ CVS
 ^testbed
 ^MANIFEST\.SKIP$
 \.bak$
+^patches
