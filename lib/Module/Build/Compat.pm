@@ -9,12 +9,8 @@ use Module::Build;
 
 my %makefile_to_build = 
   (
-   PREFIX  => 'prefix',
-   LIB     => 'lib',
-   UNINST  => 'uninst',
    TEST_VERBOSE => 'verbose',
    VERBINST     => 'verbose',
-   TEST_FILES   => 'test_files',
    INC     => sub { map "extra_compiler_flags=-I$_", Module::Build->split_like_shell(shift) },
    POLLUTE => sub { 'extra_compiler_flags=-DPERL_POLLUTE' },
    INSTALLDIRS => sub {local $_ = shift; 'installdirs=' . /^perl$/ ? 'core' : $_ }
@@ -98,7 +94,8 @@ sub makefile_to_build_args {
       my $trans = $makefile_to_build{$key};
       push @out, ref($trans) ? $trans->($val) : "$trans=$val";
     } else {
-      warn "Unknown parameter '$key'";
+      # Assume M::B can handle it in lowercase form
+      push @out, "\L$key\E=$val";
     }
   }
   return @out;

@@ -11,6 +11,12 @@ Revision history for Perl extension Module::Build.
 
 0.19 (Future release)
 
+ - Pass-through Makefile.PLs now convert unknown Makefile.PL
+   parameters to lower-case and hand them to Build.PL, rather than
+   ignoring them.  This means we only have to account for the
+   differences in the interface, not the entire interface, in
+   translating parameters.
+
  - We now issue a warning & don't proceed if asked to make a distdir
    and there's no MANIFEST or it's empty.
 
