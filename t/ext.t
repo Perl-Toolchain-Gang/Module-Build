@@ -51,7 +51,7 @@ my @win_splits =
    { 'a " b " c'            => [ 'a', ' b ', 'c' ] },
 );
 
-plan tests => 7 + 2*@unix_splits + 2*@win_splits;
+plan tests => 12 + 2*@unix_splits + 2*@win_splits;
 
 use Module::Build;
 ok(1);
@@ -64,7 +64,6 @@ foreach my $platform ('', '::Platform::Unix', '::Platform::Windows') {
   ok "@result", "foo bar baz", "Split using $pkg";
 }
 
-
 use Module::Build::Platform::Unix;
 foreach my $test (@unix_splits) {
   do_split_tests('Module::Build::Platform::Unix', $test);
@@ -75,6 +74,20 @@ foreach my $test (@win_splits) {
   do_split_tests('Module::Build::Platform::Windows', $test);
 }
 
+
+{
+  # Make sure read_args() functions properly as a class method
+  my @args = qw(foo=bar --food bard);
+  my ($args) = Module::Build->read_args(@args);
+
+  ok keys(%$args), 3;
+  ok $args->{foo}, 'bar';
+  ok $args->{food}, 'bard';
+  ok exists $args->{ARGV}, 1;
+  ok @{$args->{ARGV}}, 0;
+}
+
+##################################################################
 sub do_split_tests {
   my ($package, $test) = @_;
 
