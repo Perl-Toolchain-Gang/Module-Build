@@ -12,13 +12,15 @@ Revision history for Perl extension Module::Build.
    got the impression I was a little more truculent toward MakeMaker
    than I really am.
 
- - Added the formal concepts of "features" and "config notes" for
+ - Added the formal concepts of "features" and "config data" for
    distributions.  This allows the module author to define a certain
    set of features that the user can switch on and off (usually
    according to whether they have the proper prerequisites for them),
    and to save build-time configuration information in a standardized
    format.  See the main documentation of Module::Build for more
-   details.
+   details.  (Note that the name of this system was called
+   "BuildConfig" for a while in beta, but now it's called
+   "ConfigData".)
 
  - Added an 'auto_features' capability, which simplifies the process
    of defining features that depend on a set of prerequisites.
