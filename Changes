@@ -43,6 +43,9 @@ Revision history for Perl extension Module::Build.
  - Added documentation for the dist_version() and dist_name()
    methods. [Spotted by Johan Vromans]
 
+ - Existing values in $ENV{HARNESS_PERL_SWITCHES} are now respected
+   and not squashed when we run the 'test' action. [Paul Johnson]
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
