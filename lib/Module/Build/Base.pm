@@ -117,8 +117,6 @@ sub _construct {
 
   $self->add_to_cleanup( @{delete $p->{add_to_cleanup}} )
     if $p->{add_to_cleanup};
-
-  $self->load_plugins;
   
   return $self;
 }
@@ -198,14 +196,6 @@ sub find_perl_interpreter {
 
 sub base_dir { shift()->{properties}{base_dir} }
 sub installdirs { shift()->{properties}{installdirs} }
-
-sub load_plugins {
-  my $self = shift;
-  my $plugins = $self->{properties}{plugins} or return;
-  foreach my $name (@$plugins) {
-    $self->_interpose_module("Module::Build::Plugin::$name");
-  }
-}
 
 sub prompt {
   my $self = shift;
