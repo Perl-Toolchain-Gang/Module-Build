@@ -1,0 +1,251 @@
+Received: from urth.org (root@urth.org [65.103.28.217]) by
+    support1.mathforum.org (8.11.6/8.11.6/The Math Forum, $Revision: 1.5
+    primary) with ESMTP id fAN4cx813867 for <ken@forum.swarthmore.edu>;
+    Thu, 22 Nov 2001 23:38:59 -0500
+Received: from urth.org (autarch@localhost [127.0.0.1]) by urth.org
+    (8.12.1/8.12.1/Debian -2) with ESMTP id fAN4cvLc021380 for
+    <ken@forum.swarthmore.edu>; Thu, 22 Nov 2001 22:38:57 -0600
+Received: from localhost (autarch@localhost) by urth.org
+    (8.12.1/8.12.1/Debian -2) with ESMTP id fAN4cvxL021376 for
+    <ken@forum.swarthmore.edu>; Thu, 22 Nov 2001 22:38:57 -0600
+Date: Thu, 22 Nov 2001 22:38:56 -0600 (CST)
+From: Dave Rolsky <autarch@urth.org>
+To: Ken Williams <ken@forum.swarthmore.edu>
+Subject: another M::B patch
+Message-Id: <Pine.LNX.4.40.0111222220440.17162-100000@urth.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+This adds a few things, but there are caveats for some:
+
+check_prereq now calls check_individual_prereq once per module/spec.  I
+think its important to have a publicly available method that returns
+pass/fail for a single module with a spec.  This'll be needed by CPAN.pm,
+for example.  I'm not so sure I like the idea of this method just blithely
+spitting out warnings.  Maybe there should be a flag for it or something.
+check_prereq could turn the flag on but if you called it explicitly the
+flag'd be off.
+
+I also added code to handle writing to perllocal.pod and .packlist.  This
+is where the caveats come in.
+
+I don't know how much you've looked at MakeMaker but bear with me.
+MakeMaker allows you to define something called 'INSTALLDIRS'.  This isn't
+actually a set of directories but more of a keyword that tells MakeMaker
+which set of directories things go in.  The possibilities for this include
+'site', 'perl', and (I think) 'vendor'.  The default is 'site'.  I think
+'perl' is used when installing core modules.  Vendor is not really used
+much, AFAICT.
+
+Anyway, setting INSTALLDIRS to one of these causes MM to use a certain set
+of directories for installs.  However, setting LIB when running "perl
+Makefile.PL" pretty much overwrites all of these at once.  PREFIX is a
+little more complicated, in that it basically causes MM to do a
+regex-replacement of anything matching $Config{prefix} in $Config{install}
+with PREFIX.  You can also set these invidual directories, like
+INSTALLSITELIB, separately.
+
+So, that's all a complicated mess.  Right now I have bits of code checking
+for things like what installdirs is, but what really needs to happen is
+that all of this should be resolved when the object is created and it
+should written into _build/build_params.  Then the logic in the rest of
+the code is greatly simplified.
+
+Anyway, I'm sending the patch as is cause it at least gives some idea of
+how to get the perllocal.pod and .packlist bits working.  I know you
+mentioned you were reworking the configuration bits so once that's done
+one of us can tackle the above-mentioned directory determination fun.
+
+
+-dave
+
+/*==================
+www.urth.org
+We await the New Sun
+==================*/
+
+
+? testbed/B/blib
+? testbed/B/source/defsubs.h
+Index: lib/Module/Build.pm
+===================================================================
+RCS file: /Users/ken/src/CVS-repository/modules/Module-Build/lib/Module/Build.pm,v
+retrieving revision 1.16
+diff -u -r1.16 Build.pm
+--- Build.pm	2001/11/21 20:29:10	1.16
++++ Build.pm	2001/11/23 04:24:07
+@@ -556,9 +556,6 @@
+
+ =head1 TO DO
+
+-Need to implement a prerequisite mechanism, similar to MakeMaker's
+-C<PREREQ_PM> stuff.
+-
+ There will also be a subclassing mechanism that doesn't require as
+ much module infrastructure to use.  Something like this:
+
+Index: lib/Module/Build/Base.pm
+===================================================================
+RCS file: /Users/ken/src/CVS-repository/modules/Module-Build/lib/Module/Build/Base.pm,v
+retrieving revision 1.11
+diff -u -r1.11 Base.pm
+--- Base.pm	2001/11/21 19:28:09	1.11
++++ Base.pm	2001/11/23 04:24:08
+@@ -172,40 +172,46 @@
+
+   my $pass = 1;
+   while (my ($modname, $spec) = each %{$self->{prereq}}) {
++    $pass = $self->check_individual_prereq($modname, $spec);
++  }
+
+-    my $file = $self->module_name_to_file($modname);
+-    unless ($file) {
+-      warn "WARNING: Prerequisite $modname isn't installed\n";
+-      $pass = 0;
+-      next;
+-    }
++  return $pass;
++}
+
+-    my $version = $self->version_from_file($file);
+-    if ($spec and !$version) {
+-      warn "WARNING: Couldn't find a \$VERSION in prerequisite '$file'\n";
+-      $pass = 0;
+-      next;
+-    }
++sub check_individual_prereq {
++  my ($self, $modname, $spec) = @_;
+
+-    my @conditions;
+-    if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
+-      @conditions = (">= $spec");
+-    } else {
+-      @conditions = split /\s*,\s*/, $self->{prereq}{$modname};
+-    }
++  my $file = $self->module_name_to_file($modname);
++  unless ($file) {
++    warn "WARNING: Prerequisite $modname isn't installed\n";
++    return 0;
++  }
+
+-    foreach (@conditions) {
+-      if ($_ !~ /^\s*  (<=?|>=?|==|!=)  \s*  [\w.]+  \s*$/x) {
+-	warn "WARNING: Invalid prerequisite condition for $modname: $_\n";
+-	next;
+-      }
+-      unless (eval "\$version $_") {
+-	warn "WARNING: $modname version $version is installed, but we need Version($modname) $_\n";
+-	$pass = 0;
+-      }
++  my $version = $self->version_from_file($file);
++  if ($spec and !$version) {
++    warn "WARNING: Couldn't find a \$VERSION in prerequisite '$file'\n";
++    return 0;
++  }
++
++  my @conditions;
++  if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
++    @conditions = (">= $spec");
++  } else {
++    @conditions = split /\s*,\s*/, $self->{prereq}{$modname};
++  }
++
++  foreach (@conditions) {
++    if ($_ !~ /^\s*  (<=?|>=?|==|!=)  \s*  [\w.]+  \s*$/x) {
++      warn "WARNING: Invalid prerequisite condition for $modname: $_\n";
++      next;
++    }
++    unless (eval "\$version $_") {
++      warn "WARNING: $modname version $version is installed, but we need Version($modname) $_\n";
++      return 0;
+     }
+   }
+-  return $pass;
++
++  return 1;
+ }
+
+ sub rm_previous_build_script {
+@@ -435,6 +441,55 @@
+   require ExtUtils::Install;
+   $self->depends_on('build');
+   ExtUtils::Install::install($self->install_map('blib'), 1, 0);
++
++  $self->_write_to_perllocal;
++}
++
++sub _write_to_perllocal {
++  my ($self) = @_;
++
++  # This is like INSTALLDIRS in makemaker (which be either 'perl' or
++  # 'site') - not sure what its all about - maybe this default should
++  # be assigned somewhere earlier.
++  my $install_targ = exists $self->{args}{install_dir} ? $self->{args}{install_dir} : 'site';
++  my $install_dir = $self->{args}{"install${install_targ}arch"};
++  my $perllocal = File::Spec->catfile($install_dir, 'perllocal.pod');
++
++  # XXX - this probably isn't right - Dave
++  my $linktype = exists $self->{args}{linktype} ? $self->{args}{linktype} : 'static';
++
++  File::Path::mkpath([File::Basename::dirname($perllocal)], 0, 0755);
++  open my $fh, ">>$perllocal" or die "Cannot append to $perllocal: $!";
++
++  my $t = scalar localtime;
++  my @exe_files = @{$self->{args}{exe_files}} if ref $self->{args}{exe_files};
++
++  print $fh <<"EOF" or die "Cannot append to $perllocal: $!";
++=head2 $t: C<Module> L<$self->{args}{module_name}|$self->{args}{module_name}>
++
++=over 4
++
++=item *
++
++C<installed into: $install_dir>
++
++=item *
++
++C<LINKTYPE: $linktype>
++
++=item *
++
++<VERSION: $self->{args}{module_version}>
++
++=item *
++
++C<EXE_FILES:@exe_files>
++
++=back
++
++EOF
++
++  close $fh or die "Cannot close $perllocal: $!";
+ }
+
+ sub ACTION_fakeinstall {
+@@ -545,9 +600,24 @@
+   my ($self, $blib) = @_;
+   my $lib  = File::Spec->catfile($blib,'lib');
+   my $arch = File::Spec->catfile($blib,'arch');
++
++  my $install_targ = exists $self->{args}{install_dir} ? $self->{args}{install_dir} : 'site';
++
++  my %packlist;
++
++  my @ext_dirs = split /::/, $self->{args}{module_name};
++  if ($install_targ eq 'site') {
++      $packlist{read} = File::Spec->catfile($self->{args}{sitearchexp}, 'auto', @ext_dirs, '.packlist');
++      $packlist{write} = File::Spec->catfile($self->{args}{installsitearch}, 'auto', @ext_dirs, '.packlist');
++  } else {
++      $packlist{read} = File::Spec->catfile($self->{args}{archlib}, 'auto', @ext_dirs, '.packlist');
++      $packlist{write} = File::Spec->catfile($self->{args}{installarchlib}, 'auto', @ext_dirs, '.packlist');
++  }
++
+   return {$lib  => $self->{args}{sitelib},
+ 	  $arch => $self->{args}{sitearch},
+-	  read  => ''};  # To keep ExtUtils::Install quiet
++	  %packlist,
++	 };
+ }
+
+ sub depends_on {
+
