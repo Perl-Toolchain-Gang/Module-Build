@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-BEGIN { plan tests => 16 }
+BEGIN { plan tests => 18 }
 use Module::Build;
 ok(1);
 
@@ -24,6 +24,12 @@ chdir 't';
   ok $build;
 }
 
+# Make sure actions are defined, and known_actions works as class method
+{
+  my %actions = map {$_, 1} Module::Build->known_actions;
+  ok $actions{clean}, 1;
+  ok $actions{distdir}, 1;
+}
 
 # Test prerequisite checking
 {
