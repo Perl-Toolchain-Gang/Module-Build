@@ -790,6 +790,18 @@ found.  This is usually the same as the current working directory,
 because the C<Build> script will C<chdir()> into this directory as
 soon as it begins execution.
 
+=item up_to_date($source_file, $derived_file)
+
+=item up_to_date(\@source_files, \@derived_files)
+
+This method can be used to compare a set of source files to a set of
+derived files.  If any of the source files are newer than any of the
+derived files, it returns false.  Additionally, if any of the derived
+files do not exist, it returns false.  Otherwise it returns true.
+
+The arguments may be either a scalar or an array reference of file
+names.
+
 =back
 
 =head1 ACTIONS
