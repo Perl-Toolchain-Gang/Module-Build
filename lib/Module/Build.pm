@@ -107,9 +107,19 @@ the "./" notation, you can do this:
 
 =head1 DESCRIPTION
 
-This is a beta version of a new module I've been working on,
-C<Module::Build>.  It is meant to be a replacement for
-C<ExtUtils::MakeMaker>.
+C<Module::Build> is a system for building, testing, and installing
+Perl modules.  It is meant to be a replacement for
+C<ExtUtils::MakeMaker>.  Developers may alter the behavior of the
+module through subclassing in a much more straightforward way than
+with C<MakeMaker>.  It also does not require a C<make> on your system
+- most of the C<Module::Build> code is pure-perl and written in a very
+cross-platform way.  In fact, you don't even need a shell, so even
+platforms like MacOS (traditional) can use it fairly easily.  Its only
+prerequisites are modules that are included with perl 5.6.0, and it
+works fine on perl 5.005 if you can install a few additional modules.
+
+See L<MOTIVATIONS> for more comparisons between C<ExtUtils::MakeMaker>
+and C<Module::Build>.
 
 To install C<Module::Build>, and any other module that uses
 C<Module::Build> for its installation process, do the following:
@@ -164,11 +174,11 @@ C<Build.PL> script:
 The model used by C<Module::Build> is a lot like the C<MakeMaker>
 metaphor, with the following correspondences:
 
-   In ExtUtils::MakeMaker               In Module::Build
-  ------------------------             ---------------------------
-   Makefile.PL (initial script)         Build.PL (initial script)
-   Makefile (a long Makefile)           Build (a short perl script)
-   <none>                               _build/ (for saving state info)
+   In Module::Build                 In ExtUtils::MakeMaker
+  ---------------------------      ------------------------
+   Build.PL (initial script)        Makefile.PL (initial script)
+   Build (a short perl script)      Makefile (a long Makefile)
+   _build/ (saved state info)       various config text in the Makefile
 
 Any customization can be done simply by subclassing C<Module::Build>
 and adding a method called (for example) C<ACTION_test>, overriding
