@@ -8,6 +8,7 @@ README
 lib/Module/Build.pm
 lib/Module/Build/Base.pm
 lib/Module/Build/Compat.pm
+lib/Module/Build/PPMMaker.pm
 lib/Module/Build/Platform/Amiga.pm
 lib/Module/Build/Platform/Default.pm
 lib/Module/Build/Platform/EBCDIC.pm
@@ -34,6 +35,7 @@ t/XSTest/lib/XSTest.xs
 t/XSTest/test.pl
 t/basic.t
 t/common.pl
+t/compat.t
 t/lib/ModuleBuildOne.pm
 t/runthrough.t
 t/xs.t
