@@ -63,7 +63,7 @@ sub new_from_context {
   # Run the Build.PL
   $package->run_perl_script('Build.PL');
   my $self = $package->resume;
-  $self->merge_args(%args);
+  $self->merge_args(undef, %args);
   return $self;
 }
 
