@@ -1,8 +1,10 @@
 --- #YAML:1.0
 name: Sample
 version: 0.01
+author:
+  - Sample Man <sample@example.com>
+abstract: Foo foo sample foo
 license: perl
-distribution_type: module
 requires:
   File::Spec: 0
 recommends: {}

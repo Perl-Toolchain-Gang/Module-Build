@@ -13,6 +13,14 @@ Revision history for Perl extension Module::Build.
  - The 'dist_author' property can now accept multiple authors, see the
    docs for more info. [Randy Sims]
 
+ - If the user doesn't have YAML.pm installed during ACTION_dist, we
+   now create a minimal YAML.pm anyway, without any dependency
+   information.
+
+ - The 'distribution_type' field is no longer created in META.yml
+   files, in accordance with the finding made at the London CLPAN
+   meeting that it's essentially meaningless and ill-defined.
+
 0.21_02  Tue Dec 23 17:05:11 CST 2003
 
  - During testing, if YAML.pm isn't installed, then we won't try
