@@ -1355,8 +1355,8 @@ sub process_xs {
   (my $file_base = $file) =~ s/\.[^.]+$//;
 
   # .xs -> .c
+  $self->add_to_cleanup("$file_base.c");
   unless ($self->up_to_date($file, "$file_base.c")) {
-    $self->add_to_cleanup("$file_base.c");
     $self->compile_xs($file);
   }
   
@@ -1372,8 +1372,8 @@ sub process_xs {
   }
   
   # .xs -> .bs
+  $self->add_to_cleanup("$file_base.bs");
   unless ($self->up_to_date($file, "$file_base.bs")) {
-    $self->add_to_cleanup("$file_base.bs");
     require ExtUtils::Mkbootstrap;
     print "ExtUtils::Mkbootstrap::Mkbootstrap('$file_base')\n";
     ExtUtils::Mkbootstrap::Mkbootstrap($file_base);  # Original had $BSLOADLIBS - what's that?
