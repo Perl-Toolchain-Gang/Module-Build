@@ -1084,15 +1084,28 @@ unfortunately there's no such thing as "installsitescript" or
 general location right.  In the future, if C<Config.pm> adds some more
 appropriate entries, we'll start using those.)
 
-Once the defaults have been set, you can override them.  For instance,
-you can set an individual entry like so:
+=item install_path
 
-  xxx how the fuck does this work?
+Once the defaults have been set, you can override them.  You can set
+individual entries by using the C<install_path> parameter:
+
+ my $m = Module::Build->new
+  (...other options...,
+   install_path => {lib  => '/foo/lib',
+                    arch => '/foo/lib/arch'});
+
+On the command line, that would look like this:
+
+ perl Build.PL install_path=lib=/foo/lib install_path=arch=/foo/lib/arch
+
+or this:
+
+ Build install install_path=lib=/foo/lib install_path=arch=/foo/lib/arch
 
 =item install_base
 
-You can set the whole bunch of them by supplying the
-C<install_base> parameter to a directory on your system.  For
+You can also set the whole bunch of installation paths by supplying the
+C<install_base> parameter to point to a directory on your system.  For
 instance, if you set C<install_base> to "/home/ken" on a Linux
 system, you'll install as follows:
 
