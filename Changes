@@ -12,6 +12,9 @@ Revision history for Perl extension Module::Build.
    got the impression I was a little more truculent toward MakeMaker
    than I really am.
 
+ - Added the 'testcover' action, which runs a test suite using
+   Devel::Cover.  [Dave Rolsky]
+
  - Fixed a fatal error that would occur on perl 5.005 when building
    HTML documentation, because its version of Pod::Html was old and
    didn't like some of the parameters we fed it. [Spotted by Blair
