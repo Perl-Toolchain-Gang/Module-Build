@@ -1490,7 +1490,7 @@ sub ACTION_html {
     }
     my $outfile = File::Spec::Unix->catfile($fulldir, $name . '.html');
     
-    my $htmlroot = File::Spec::Unix->catdir($path2root, 'site', 'lib');
+    my $htmlroot = File::Spec::Unix->catdir($path2root, 'site');
     my $podpath = join ":" => ($isbin ? qw(bin lib) : qw(lib));
     my $title = join('::', @dirs) . $name;
     
@@ -1512,6 +1512,7 @@ sub ACTION_html {
 		"--htmlroot=$htmlroot",
 	       );
     push @opts, "--css=$path2root/$css" if $css;
+    
     print "Creating $outfile\n";
     print "pod2html @opts\n" if $self->verbose;
     Pod::Html::pod2html(@opts);# or warn "pod2html @opts failed: $!";
