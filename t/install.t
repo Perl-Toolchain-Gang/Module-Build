@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 11 }
+BEGIN { plan tests => 15 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -66,6 +66,22 @@ $build->add_to_cleanup($destdir);
 
 eval {$build->dispatch('realclean')};
 ok $@, '';
+
+{
+  # Try again by running the script rather than with programmatic interface
+  my $libdir = File::Spec->catdir('', 'foo', 'lib');
+  eval {$build->run_perl_script('Build.PL', [], ['--install_path', "lib=$libdir"])};
+  ok $@, '';
+  
+  eval {$build->run_perl_script('Build', [], ['install', '--destdir', $destdir])};
+  ok $@, '';
+  my $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
+  print "Should have installed module as $install_to\n";
+  ok -e $install_to;
+  
+  eval {$build->dispatch('realclean')};
+  ok $@, '';
+}
 
 sub strip_volume {
   my $dir = shift;
