@@ -29,6 +29,10 @@ Revision history for Perl extension Module::Build.
  - Fixed a crashing bug that could sometimes occur when the
    distribution contained no 'lib' directory. [Chris Dolan]
 
+ - Fixed a crashing bug that happened when the user had .PL files in
+   the lib/ directory and didn't explicitly name them in a hash
+   reference to the new() constructor. [Chris Reinhardt, bug #4036]
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
