@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.2608
+
+ - Tilde-expansion is now performed on arguments passed to a
+   compatibility-Makefile.PL [Spotted by Sam Vilain]
+
 0.2607 (Bug fix release in 0.26 series)  Sat Dec 18 14:14:09 CST 2004
 
  - Instead of freezing @INC in the 'Build' script to the value it had
