@@ -7,22 +7,23 @@ use Data::Dumper;
 use IO::File;
 
 sub new {
-  my $class = shift;
-  return bless {
-		disk => {},
-		new  => {},
-		@_,
-	       }, $class;
+  my ($class, %args) = @_;
+  my $file = delete $args{file} or die "Missing required parameter 'file' to new()";
+  my $self = bless {
+		    disk => {},
+		    new  => {},
+		    file => $file,
+		    %args,
+		   }, $class;
 }
 
 sub restore {
-  my ($class, $file) = @_;
-  my $self = $class->new( file => $file );
+  my $self = shift;
 
-  my $fh = IO::File->new("< $file") or die "Can't read $file: $!";
+  my $fh = IO::File->new("< $self->{file}") or die "Can't read $self->{file}: $!";
   $self->{disk} = eval do {local $/; <$fh>};
   die $@ if $@;
-  return $self;
+  $self->{new} = {};
 }
 
 sub access {
@@ -72,6 +73,10 @@ sub write {
   }
   
   if (my $file = $self->{file}) {
+    my ($vol, $dir, $base) = File::Spec->splitpath($file);
+    $dir = File::Spec->catpath($vol, $dir, '');
+    return unless -e $dir && -d $dir;  # The user needs to arrange for this
+
     return if -e $file and !keys %{ $self->{new} };  # Nothing to do
     
     @{$self->{disk}}{ keys %{$self->{new}} } = values %{$self->{new}};  # Merge 

@@ -14,7 +14,9 @@ use IO::File ();
 use Text::ParseWords ();
 use Carp ();
 
-require Module::Build::ModuleInfo;
+use Module::Build::ModuleInfo;
+use Module::Build::Notes;
+
 
 #################### Constructors ###########################
 sub new {
@@ -103,10 +105,17 @@ sub _construct {
 				   mb_version      => $Module::Build::VERSION,
 				   %input,
 				  },
+		    phash => {},
 		   }, $package;
 
   $self->_set_defaults;
-  my ($p, $c) = ($self->{properties}, $self->{config});
+  my ($p, $c, $ph) = ($self->{properties}, $self->{config}, $self->{phash});
+
+  foreach (qw(notes config_data features runtime_params cleanup)) {
+    my $file = File::Spec->catfile($self->config_dir, $_);
+    $ph->{$_} = Module::Build::Notes->new(file => $file);
+    $ph->{$_}->restore if -e $file;
+  }
 
   # The following warning could be unnecessary if the user is running
   # an embedded perl, but there aren't too many of those around, and
@@ -286,23 +295,10 @@ sub y_n {
   }
 }
 
-sub _general_notes {
-  my $self = shift;
-  my $type = shift;
-  return $self->_persistent_hash_read($type) unless @_;
-  
-  my $key = shift;
-  return $self->_persistent_hash_read($type, $key) unless @_;
-  
-  my $value = shift;
-  $self->has_config_data(1) if $type =~ /^(config_data|features)$/;
-  return $self->_persistent_hash_write($type, { $key => $value });
-}
-
-sub notes        { shift()->_general_notes('notes', @_) }
-sub config_data  { shift()->_general_notes('config_data', @_) }
-sub feature      { shift()->_general_notes('features', @_) }
-sub runtime_params { shift->_persistent_hash_read('runtime_params', @_ ? shift : ()) }
+sub notes        { shift()->{phash}{notes}->access(@_) }
+sub config_data  { shift()->{phash}{config_data}->access(@_) }
+sub feature      { shift()->{phash}{features}->access(@_) }
+sub runtime_params { shift->{phash}{runtime_params}->read( @_ ? shift : () ) }  # Read-only
 sub current_action { shift->{action} }
 
 sub add_build_element {
@@ -734,70 +730,15 @@ sub find_module_by_name { # Method provided for backwards compatability
   return Module::Build::ModuleInfo->find_module_by_name(@_[1,2]);
 }
 
-sub _persistent_hash_write {
-  my ($self, $name, $href) = @_;
-  $href ||= {};
-  my $ph = $self->{phash}{$name} ||= {disk => {}, new => {}};
-  
-  @{$ph->{new}}{ keys %$href } = values %$href;  # Merge
-
-  # Do some optimization to avoid unnecessary writes
-  foreach my $key (keys %{ $ph->{new} }) {
-    next if ref $ph->{new}{$key};
-    next if ref $ph->{disk}{$key} or !exists $ph->{disk}{$key};
-    delete $ph->{new}{$key} if $ph->{new}{$key} eq $ph->{disk}{$key};
-  }
-  
-  if (my $file = $self->config_file($name)) {
-    return if -e $file and !keys %{ $ph->{new} };  # Nothing to do
-    
-    @{$ph->{disk}}{ keys %{$ph->{new}} } = values %{$ph->{new}};  # Merge
-    $self->_write_dumper($name, $ph->{disk});
-    
-    $ph->{new} = {};
-  }
-  return $self->_persistent_hash_read($name);
-}
-
-sub _persistent_hash_read {
-  my $self = shift;
-  my $name = shift;
-  my $ph = $self->{phash}{$name} ||= {disk => {}, new => {}};
-
-  if (@_) {
-    # Return 1 key as a scalar
-    my $key = shift;
-    return $ph->{new}{$key} if exists $ph->{new}{$key};
-    return $ph->{disk}{$key};
-  } else {
-    # Return all data
-    my $out = (keys %{$ph->{new}}
-	       ? {%{$ph->{disk}}, %{$ph->{new}}}
-	       : $ph->{disk});
-    return wantarray ? %$out : $out;
-  }
-}
-
-sub _persistent_hash_restore {
-  my ($self, $name) = @_;
-  my $ph = $self->{phash}{$name} ||= {disk => {}, new => {}};
-  
-  my $file = $self->config_file($name) or die "No config file '$name'";
-  my $fh = IO::File->new("< $file") or die "Can't read $file: $!";
-  
-  $ph->{disk} = eval do {local $/; <$fh>};
-  die $@ if $@;
-}
-
 sub add_to_cleanup {
   my $self = shift;
   my %files = map {$self->localize_file_path($_), 1} @_;
-  $self->_persistent_hash_write('cleanup', \%files);
+  $self->{phash}{cleanup}->write(\%files);
 }
 
 sub cleanup {
   my $self = shift;
-  my $all = $self->_persistent_hash_read('cleanup');
+  my $all = $self->{phash}{cleanup}->read;
   return keys %$all;
 }
 
@@ -816,12 +757,11 @@ sub read_config {
   die if $@;
   ($self->{args}, $self->{config}, $self->{properties}) = @$ref;
   close $fh;
+}
 
-  for (qw(cleanup notes features config_data runtime_params)) {
-    next unless -e $self->config_file($_);
-    $self->_persistent_hash_restore($_);
-  }
-  $self->has_config_data(1) if keys(%{$self->config_data}) || keys(%{$self->feature});
+sub has_config_data {
+  my $self = shift;
+  return scalar grep $self->{phash}{$_}->has_data(), qw(config_data features);
 }
 
 sub _write_dumper {
@@ -843,7 +783,7 @@ sub write_config {
   $self->_write_dumper('prereqs', { map { $_, $self->$_() } @items });
   $self->_write_dumper('build_params', [$self->{args}, $self->{config}, $self->{properties}]);
 
-  $self->_persistent_hash_write($_) foreach qw(notes cleanup features config_data runtime_params);
+  $self->{phash}{$_}->write() foreach qw(notes cleanup features config_data runtime_params);
 }
 
 sub config         { shift()->{config} }
@@ -1306,7 +1246,7 @@ sub merge_args {
 
   # Extract our 'properties' from $cmd_args, the rest are put in 'args'.
   while (my ($key, $val) = each %args) {
-    $self->_persistent_hash_write('runtime_params', { $key => $val })
+    $self->{phash}{runtime_params}->access( $key => $val )
       if $self->valid_property($key);
     my $add_to = ( $key eq 'config' ? $self->{config}
                   : $additive{$key} ? $self->{properties}{$key}
