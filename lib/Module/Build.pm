@@ -1224,10 +1224,13 @@ requires tracing all dependencies backward, it runs into problems on
 NFS, and it's just generally flimsy.  It would be better to use an MD5
 signature or the like, if available.  See C<cons> for an example.
 
-The current dependency-checking is prone to errors.  You
-can make 'widowed' files by doing C<Build>, C<perl Build.PL>, and then
-C<Build realclean>.  Should be easy to fix, but it's got me wondering
-whether the dynamic declaration of dependencies is a good idea.
+When generating META.yml, you may see errors from Module::Info.  This
+is because to build the I<provides> section, Module::Info compiles
+each source file to determine what packages it contains.  If that
+module requires dependencies, they will not be loaded if they are part
+of the same distribution, because they might not have been built yet.
+Patches to fix this welcome.  The right solution may be to make C<use>
+not die if it encounters an error, but that might be hard to do.
 
 - make man pages and install them.
 - append to perllocal.pod
