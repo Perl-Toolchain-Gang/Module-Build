@@ -143,16 +143,25 @@ sub _parse_file {
         $vers{$pkg} = undef;
         push( @pkgs, $pkg );
 
+      # first non-comment line in undeclared package main is VERSION
+      } elsif ( !exists($vers{main}) && $pkg eq 'main' &&
+		$line =~ $VERS_REGEXP ) { 
+          my $v = $self->_evaluate_version_line( $line );
+	  $vers{$pkg} = $v;
+	  push( @pkgs, 'main' );
+
+      # first non-comement line in undeclared packge defines package main
+      } elsif ( !exists($vers{main}) && $pkg eq 'main' &&
+		$line =~ /\w+/ ) {
+	$vers{main} = '';
+	push( @pkgs, 'main' );
+
       } elsif ( $line =~ $VERS_REGEXP ) {
         # only first keep if this is the first $VERSION seen
         unless ( defined $vers{$pkg} && length $vers{$pkg} ) {
           my $v = $self->_evaluate_version_line( $line );
 	  $vers{$pkg} = $v;
         }
-
-      } elsif ( !exists($vers{main}) && $pkg eq 'main' && $line =~ /\w+/ ) {
-	$vers{main} = '';
-	push( @pkgs, 'main' );
 
       }
 
