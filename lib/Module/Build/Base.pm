@@ -2333,7 +2333,7 @@ sub install_base_relative {
 	     lib     => ['lib'],
 	     arch    => ['lib', $self->{config}{archname}],
 	     bin     => ['bin'],
-	     script  => ['script'],
+	     script  => ['bin'],
 	     bindoc  => ['man', 'man1'],
 	     libdoc  => ['man', 'man3'],
 	    );
