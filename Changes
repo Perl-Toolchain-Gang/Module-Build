@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+0.2603 (Bug fix for 0.26)
+
+ - Added documentation for the new_from_context() method.
+
 0.2602 (Bug fix for 0.26)   Thu Nov  4 11:19:29 CST 2004
 
  - The two bug fixes in 0.2601 gnashed against each other incorrectly,
