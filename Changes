@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.21_02
 
+ - Added a new config() method to get at the Build object's notion of
+   the %Config hash.
+
  - Test::Harness is starting to contend for the Most Crotchety Module
    Award.  Work around a few of its nits when setting harness
    switches. [Spotted by Diab Jerius]
