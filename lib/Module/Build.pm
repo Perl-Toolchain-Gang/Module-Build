@@ -497,6 +497,22 @@ For backward compatibility, you may use the parameter C<scripts>
 instead of C<script_files>.  Please consider this usage deprecated,
 though it will continue to exist for several version releases.
 
+=item test_files
+
+An optional parameter specifying a set of files that should be used as
+C<Test::Harness>-style regression tests to be run during the C<test>
+action.  May be given as an array reference of the files, or as a hash
+reference whose keys are the files (and whose values will currently be
+ignored).  If the argument is given as a single string (not in an
+array reference), that string will be treated as a C<glob()> pattern
+specifying the files to use.
+
+The default is to look for a F<test.pl> script in the top-level
+directory of the distribution, and any files matching the glob pattern
+C<*.t> in the F<t/> subdirectory.  If the C<recursive_test_files>
+property is true, then the C<t/> directory will be scanned recursively
+for C<*.t> files.
+
 =item autosplit
 
 An optional C<autosplit> argument specifies a file which should be run
