@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.19
 
+ - Fixed a problem in which add_to_cleanup() didn't note cleanup files
+   unless create_build_script() had been called already. [Dave Rolsky]
+
  - During 'Build dist', we no longer have to load each .pm file (via
    Module::Info) to determine the $VERSION numbers inside.  Instead,
    we call our internal version_from_file() method, which is the same
