@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.19
 
+ - Fixed some failing test code on Windows - open files can't be
+   deleted. [Andrew Savage]
+
  - When constructing the list in META.yml of packages provided by this
    distribution, we now use the same rules as the PAUSE scanner does
    when a single .pm file contains multiple VERSIONs.  [Andreas Koenig]
