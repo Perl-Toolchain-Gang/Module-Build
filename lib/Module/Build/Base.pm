@@ -2540,7 +2540,12 @@ sub install_map {
 	unless $type =~ /^(lib|bin)doc$/;
     }
   }
-
+  
+  # Write the packlist into the same place as ExtUtils::MakeMaker.
+  my $archdir = $self->install_destination('arch');
+  my @ext = split /::/, $self->module_name;
+  $map{write} = File::Spec->catdir($archdir, 'auto', @ext, '.packlist');
+  
   if (length(my $destdir = $self->{properties}{destdir} || '')) {
     foreach (keys %map) {
       # Need to remove volume from $map{$_} using splitpath, or else
