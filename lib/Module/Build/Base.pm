@@ -64,6 +64,7 @@ sub new {
 				   conflicts => {},
 				   perl => $perl,
 				   install_types => [qw(lib arch script)],
+				   installdirs => 'site',
 				   include_dirs => [],
 				   %input,
 				   %$cmd_properties,
@@ -78,7 +79,7 @@ sub new {
   $self->add_to_cleanup( @{delete $p->{add_to_cleanup}} )
     if $p->{add_to_cleanup};
   
-  $self->_set_install_destinations;
+  $self->_set_install_paths;
   $self->dist_name;
   $self->check_manifest;
   $self->check_prereq;
@@ -87,11 +88,11 @@ sub new {
   return $self;
 }
 
-sub _set_install_destinations {
+sub _set_install_paths {
   my $self = shift;
   my $c = $self->{config};
 
-  $self->{install_destinations} =
+  $self->{properties}{install_path} =
     {
      core   => {
 		lib     => $c->{installprivlib},
@@ -227,6 +228,7 @@ sub resume {
        config_dir
        build_script
        install_types
+       installdirs
        destdir
        debugger
        verbose
@@ -732,24 +734,33 @@ sub _call_action {
   return $self->$method();
 }
 
+sub _cull_arg {
+  my ($self, $args, $key, $val) = @_;
+
+  if ( exists $args->{$key} ) {
+    $args->{$key} = [ $args->{$key} ] unless ref $args->{$key};
+    push @{$args->{$key}}, $val;
+  } else {
+    $args->{$key} = $val;
+  }
+}
+
 sub cull_args {
   my $self = shift;
-  my ($action, %args);
-  foreach (@_) {
+  my ($action, %args, @argv);
+  while (@_) {
+    local $_ = shift;
     if ( /^(\w+)=(.*)/ ) {
-      if ( exists $args{$1} ) {
-        $args{$1} = [ $args{$1} ] unless ref $args{$1};
-        push @{$args{$1}}, $2;
-      } else {
-        $args{$1} = $2;
-      }
-    } elsif ( /^(\w+)$/ ) {
-      die "Error: multiple build actions given: '$action' and '$1'" if $action;
+      $self->_cull_arg(\%args, $1, $2);
+    } elsif ( /^--(\w+)$/ ) {
+      $self->_cull_arg(\%args, $1, shift());
+    } elsif ( /^(\w+)$/ and !defined($action)) {
       $action = $1;
     } else {
-      die "Malformed build parameter '$_'";
+      push @argv, $_;
     }
   }
+  $args{ARGV} = \@argv;
   return ($action, \%args);
 }
 
@@ -843,7 +854,7 @@ sub test_files {
   my $self = shift;
   
   my @tests;
-  if ($self->{args}{test_files}) {
+  if ($self->{args}{test_files}) {  # XXX use 'properties'
     @tests = $self->split_like_shell($self->{args}{test_files});
   } else {
     # Find all possible tests in t/ or test.pl
@@ -1074,8 +1085,10 @@ sub ACTION_manifypods {
 sub ACTION_diff {
   my $self = shift;
   $self->depends_on('build');
-  my @myINC = grep {$_ ne 'lib'} @INC;
-  my @flags = $self->split_like_shell($self->{args}{flags} || '');
+  my $local_lib = File::Spec->rel2abs('lib');
+  my @myINC = grep {$_ ne $local_lib} @INC;
+  my @flags = @{$self->{args}{ARGV}};
+  @flags = $self->split_like_shell($self->{args}{flags} || '') unless @flags;
   
   my $installmap = $self->install_map('blib');
   delete $installmap->{read};
@@ -1374,7 +1387,7 @@ sub make_tarball {
 sub install_destination {
   my ($self, $type) = @_;
   my $installdirs = $self->{properties}{installdirs} || 'site';
-  return $self->{install_destinations}{$installdirs}{$type};
+  return $self->{properties}{install_path}{$installdirs}{$type};
 }
 
 sub install_types {
