@@ -959,9 +959,14 @@ find for that action.
 =item build
 
 If you run the C<Build> script without any arguments, it runs the
-C<build> action.
+C<build> action, which in turn runs the C<code> and C<docs> actions.
 
 This is analogous to the MakeMaker 'make all' target.
+
+=item code
+
+This action builds your codebase.
+
 By default it just creates a C<blib/> directory and copies any C<.pm>
 and C<.pod> files from your C<lib/> directory into the C<blib/>
 directory.  It also compiles any C<.xs> files from C<lib/> and places
@@ -994,6 +999,13 @@ C<new()>.
 
 The C<.xs> support is currently in alpha.  Please let me know whether
 it works for you.
+
+=item docs
+
+This will generate documentation (ie: Unix man pages) for any binary and
+library files under B<blib/> that contain POD.  If there are no C<bindoc> or
+C<libdoc> installation targets defined (as will be the case on systems that
+don't support Unix manpages) this action does nothing.
 
 =item test
 
