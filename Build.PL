@@ -28,7 +28,7 @@ my $build = new Module::Build
 		  Archive::Tar => 0.23,
 		  ExtUtils::Install => 0.30,
 		  ExtUtils::ParseXS => 0,
-		  Module::Signature => 0.21,
+		  # Module::Signature => 0.21,
 		 },
    build_requires => {
 		      Test => 0,

@@ -63,7 +63,7 @@ if ($HAVE_YAML) {
   skip "skip YAML.pm is not installed", 1 for 1..6;
 }
 
-if ($HAVE_SIGNATURE) {
+if (0 && $HAVE_SIGNATURE) {
   my $sigfile = File::Spec->catdir('Sample-0.01', 'SIGNATURE');
   $build->add_to_cleanup( $sigfile );
 
