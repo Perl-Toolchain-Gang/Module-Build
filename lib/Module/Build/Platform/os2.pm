@@ -6,6 +6,8 @@ use Module::Build::Platform::Unix;
 use vars qw(@ISA);
 @ISA = qw(Module::Build::Platform::Unix);
 
+sub manpage_separator { '.' }
+
 sub need_prelink_c { 1 }
 
 # Apparently C compilation is pretty broken here, just disable it
