@@ -15,8 +15,7 @@ Revision history for Perl extension Module::Build.
     backticks and write the result to a .c file ourselves.  This
     avoids the need to do cross-platform shell redirection.
 
-  - We use the new ExtUtils::ParseXS module instead of xsubpp to
-    process XS files, if it's available.
+  - Oopsie - use $Config{ld} instead of $Config{cc} for linking.
 
   - Added a 'diff' action, which is useful for comparing the details
     of what you're about to install with what is already installed on
