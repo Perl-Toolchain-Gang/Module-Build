@@ -1,6 +1,13 @@
 Revision history for Perl extension Module::Build.
 
-0.11
+0.11  Fri Aug 23 18:50:46 AEST 2002
+
+  - 'module_version' and 'module_version_from' have been replaced by
+    'dist_version' and 'dist_version_from', which is what they really
+    meant in the first place.  'dist_name' has been added.
+
+  - 'module_name' is now just a way to set 'dist_name' and
+    'dist_version_from' in a convenient way.
 
   - The 'name' in META.yaml is now the distribution name, not the
     (incorrect) module name.
