@@ -4,7 +4,8 @@ use Module::Build;
 my $build = new Module::Build 
   (
    module_name => 'Module::Build',   
-   prereq => {Config         => 0,
+   prereq => {
+	      Config         => 0,
 	      File::Copy     => 0,
 	      File::Find     => 0,
 	      File::Path     => 0,
