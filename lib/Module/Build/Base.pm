@@ -689,10 +689,15 @@ sub ACTION_testdb {
 sub ACTION_build {
   my ($self) = @_;
   
-  # All installable stuff gets created in blib/
+  # All installable stuff gets created in blib/ .
+  # Create blib/arch to keep blib.pm happy
   my $blib = 'blib';
   $self->add_to_cleanup($blib);
-  File::Path::mkpath($blib);
+  File::Path::mkpath( File::Spec->catdir($blib, 'arch') );
+  
+  if ($self->{properties}{autosplit}) {
+    $self->autosplit_file($self->{properties}{autosplit}, $blib);
+  }
   
   $self->process_PL_files;
   
@@ -721,19 +726,25 @@ sub compile_support_files {
 sub process_xs_files {
   my $self = shift;
   my $files = $self->find_xs_files;
-  $self->lib_to_blib($files);
+  foreach my $file (@$files) {
+    $self->process_xs($file);
+  }
 }
 
 sub process_pod_files {
   my $self = shift;
   my $files = $self->find_pod_files;
-  $self->lib_to_blib($files);
+  foreach my $file (@$files) {
+    $self->copy_if_modified($file, 'blib');
+  }
 }
 
 sub process_pm_files {
   my $self = shift;
   my $files = $self->find_pm_files;
-  $self->lib_to_blib($files);
+  foreach my $file (@$files) {
+    $self->copy_if_modified($file, 'blib');
+  }
 }
 
 sub find_PL_files {
@@ -1080,32 +1091,6 @@ sub delete_filetree {
     $deleted++;
   }
   return $deleted;
-}
-
-sub lib_to_blib {
-  my ($self, $files, $to) = @_;
-  $to ||= 'blib';
-  
-  # Create $to/arch to keep blib.pm happy (what a load of hooie!)
-  File::Path::mkpath( File::Spec->catdir($to, 'arch') );
-
-  if ($self->{properties}{autosplit}) {
-    $self->autosplit_file($self->{properties}{autosplit}, $to);
-  }
-  
-  foreach my $file (@$files) {
-    if ($file =~ /\.p(m|od)$/) {
-      # No processing needed
-      $self->copy_if_modified($file, $to);
-
-    } elsif ($file =~ /\.xs$/) {
-      $self->process_xs($file);
-
-    } else {
-      warn "Ignoring file '$file', unknown extension\n";
-    }
-  }
-
 }
 
 sub autosplit_file {
