@@ -12,4 +12,4 @@ provides:
   Sample:
     file: lib/Sample.pm
     version: 0.01
-generated_by: Module::Build version 0.18_01
+generated_by: Module::Build version 0.18_02
