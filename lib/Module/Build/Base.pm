@@ -1657,7 +1657,7 @@ sub ACTION_distmeta {
   # If we're in the distdir, the metafile may exist and be non-writable.
   $self->delete_filetree($self->{metafile});
 
-  unless (eval {require YARML; 1}) {
+  unless (eval {require YAML; 1}) {
     warn <<EOM;
 \nCouldn't load YAML.pm, generating a minimal META.yml without it.
 Please check and edit the generated metadata, or consider installing YAML.pm.\n
