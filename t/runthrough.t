@@ -59,7 +59,7 @@ $output =~ s/^/| /mg;
 print $output;
 print "^^^^^^^^^^^^^^^^^^^^^ Sample/test.pl output ^^^^^^^^^^^^^^^^^^^^^\n";
 
-if ($build->check_installed_status('YAML', 0)) {
+if ($build->check_installed_version('YAML', 0)) {
   eval {$build->dispatch('disttest')};
   ok $@, '';
   
