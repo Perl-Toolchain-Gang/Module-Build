@@ -86,6 +86,50 @@ sub cwd {
   return Cwd::cwd;
 }
 
+sub prompt {
+  my $self = shift;
+  my ($mess, $def) = @_;
+  die "prompt() called without a prompt message" unless @_;
+
+  my $ISA_TTY = -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ;   # Pipe?
+  
+  ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
+
+  {
+    local $|=1;
+    print "$mess $dispdef";
+  }
+  my $ans;
+  if ($ISA_TTY) {
+    $ans = <STDIN>;
+    if ( defined $ans ) {
+      chomp $ans;
+    } else { # user hit ctrl-D
+      print "\n";
+    }
+  }
+  
+  unless (defined($ans) and length($ans)) {
+    print "$def\n";
+    $ans = $def;
+  }
+  
+  return $ans;
+}
+
+sub yorn {
+  my $self = shift;
+  die "yorn() called without a prompt message" unless @_;
+  
+  my $answer;
+  while (1) {
+    $answer = $self->prompt(@_);
+    return 1 if $answer =~ /^y/i;
+    return 0 if $answer =~ /^n/i;
+    print "Please answer 'y' or 'n'.\n";
+  }
+}
+
 sub resume {
   my $package = shift;
   my $self = bless {@_}, $package;
