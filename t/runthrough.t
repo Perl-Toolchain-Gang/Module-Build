@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 18 }
+BEGIN { plan tests => 19 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -9,6 +9,9 @@ use Config;
 my $HAVE_YAML = eval {require YAML; 1};
 
 ok(1);
+ok $INC{'Module/Build.pm'}, '/blib/', "Make sure version from blib/ is loaded";
+
+
 require File::Spec->catfile('t', 'common.pl');
 
 ######################### End of black magic.
