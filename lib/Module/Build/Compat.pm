@@ -1,5 +1,7 @@
 
 package Module::Build::Compat;
+$VERSION = '0.01';
+
 use strict;
 use File::Spec;
 
@@ -94,7 +96,7 @@ is already installed:
     # Workaround with old CPAN.pm and CPANPLUS.pm
     require ExtUtils::MakeMaker;
     ExtUtils::MakeMaker::WriteMakefile(
-      PREREQ_PM => { 'Module::Build::Compat' => 0 }
+      PREREQ_PM => { 'Module::Build::Compat' => 0.01 }
     );
     warn "Warning: prerequisite Module::Build::Compat is not found.\n";
     exit(0);
