@@ -2,8 +2,23 @@ Revision history for Perl extension Module::Build.
 
 0.17
 
- - Mention in the docs that it's useful to do "PL_FILES => {}" if
-   you're using both a Makefile.PL and a Build.PL. [Dom]
+ - When building blib/ , .PL files are now processed before doing
+   anything else.  This means .PL files can be used in any of the
+   other contexts.
+
+ - The locating and processing of .pm, .pod, .xs, .PL files and script
+   files are now isolated into their own overridable methods.
+
+ - The internal lib_to_blib() method has gone away, because processing
+   is now done by smaller specialized methods.  This method had some
+   duplicate assumptions about filenames that it's nice to get rid of.
+
+ - .PL files are no longer automatically processed in the c_source
+   directory.
+
+ - Mention in the docs that it's useful to do "PL_FILES => {}" in a
+   Makefile.PL if you're using both a Makefile.PL and a
+   Build.PL. [Dom]
 
  - Add several options to the 'license' field, so that we're in better
    sync with PAUSE and CPAN options. [Andreas Koenig]
@@ -15,6 +30,9 @@ Revision history for Perl extension Module::Build.
    whatever's in $^X.
 
  - Use the aforementioned perl to run scripts in run_perl_script().
+   This fixes the spurious warning "WARNING: Configuration was
+   initially created with 'foo', but we are now using 'bar'" that
+   appeared a lot in version 0.16.
 
 
 0.16  Mon Feb 24 13:06:47 CST 2003
