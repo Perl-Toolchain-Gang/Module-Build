@@ -7,10 +7,14 @@ use Module::Build;
 ok(1);
 
 use File::Spec;
+require File::Spec->catfile('t', 'common.pl');
 
 ######################### End of black magic.
 
 ok $INC{'Module/Build.pm'}, '/blib/', "Make sure Module::Build was loaded from blib/";
+
+# So 'test' and 'disttest' in Sample/ can see the not-yet-installed Module::Build.
+unshift @INC, $ENV{PERL5LIB} = File::Spec->catdir( Module::Build->cwd, 'blib', 'lib' );
 
 chdir 't';
 
@@ -68,23 +72,3 @@ chdir 't';
   $m->dispatch('realclean');
   chdir $cwd or die "Can't change back to $cwd: $!";
 }
-
-sub stdout_of {
-  my $subr = shift;
-  my $outfile = 'save_out';
-
-  local *SAVEOUT;
-  open SAVEOUT, ">&STDOUT" or die "Can't save STDOUT handle: $!";
-  open STDOUT, "> $outfile" or die "Can't create $outfile: $!";
-
-  $subr->();
-
-  open STDOUT, ">&SAVEOUT" or die "Can't restore STDOUT: $!";
-  return slurp($outfile);
-}
-
-sub slurp {
-  open my($fh), $_[0] or die "Can't open $_[0]: $!";
-  local $/;
-  return <$fh>;
-};
