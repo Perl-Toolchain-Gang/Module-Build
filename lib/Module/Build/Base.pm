@@ -35,6 +35,7 @@ sub new {
 				   build_script    => 'Build',
 				   base_dir        => $package->cwd,
 				   config_dir      => '_build',
+				   blib            => 'blib',
 				   requires        => {},
 				   recommends      => {},
 				   build_requires  => {},
@@ -43,27 +44,22 @@ sub new {
 				   install_types   => [qw( lib arch script bindoc libdoc )],
 				   installdirs     => 'site',
 				   include_dirs    => [],
-				   bindoc_dirs     => [ 'blib/script' ],
-				   libdoc_dirs     => [ 'blib/lib', 'blib/arch' ],
 				   %input,
 				  },
 		   }, $package;
+
+  my $p = $self->{properties};
+  $p->{bindoc_dirs} ||= [ "$p->{blib}/script" ];
+  $p->{libdoc_dirs} ||= [ "$p->{blib}/lib", "$p->{blib}/arch" ];
+
+  # Synonyms
+  $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
+  $p->{script_files} = delete $p->{scripts} if exists $p->{scripts};
 
   $self->cull_args(@ARGV);
   
   die "Too early to specify a build action '$self->{action}'.  Do 'Build $self->{action}' instead.\n"
     if $self->{action};
-
-  # 'args' are arbitrary user args.
-  # 'config' is Config.pm and its overridden values.
-  # 'properties' is stuff Module::Build needs in order to work.  They get saved in _build/.
-  # Anything else in $self doesn't get saved.
-
-  my $p = $self->{properties};
-
-  # Synonyms
-  $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
-  $p->{script_files} = delete $p->{scripts} if exists $p->{scripts};
 
   $self->add_to_cleanup( @{delete $p->{add_to_cleanup}} )
     if $p->{add_to_cleanup};
@@ -232,6 +228,7 @@ sub notes {
        test_files
        perl
        config_dir
+       blib
        build_script
        install_types
        install_sets
@@ -986,8 +983,8 @@ sub ACTION_test {
          $ENV{HARNESS_VERBOSE}) = ($p->{verbose} || 0) x 4;
 
   # Make sure we test the module in blib/
-  local @INC = (File::Spec->catdir($p->{base_dir}, 'blib', 'lib'),
-		File::Spec->catdir($p->{base_dir}, 'blib', 'arch'),
+  local @INC = (File::Spec->catdir($p->{base_dir}, $self->blib, 'lib'),
+		File::Spec->catdir($p->{base_dir}, $self->blib, 'arch'),
 		@INC);
   
   my $tests = $self->test_files;
@@ -1044,7 +1041,7 @@ sub ACTION_code {
   
   # All installable stuff gets created in blib/ .
   # Create blib/arch to keep blib.pm happy
-  my $blib = 'blib';
+  my $blib = $self->blib;
   $self->add_to_cleanup($blib);
   File::Path::mkpath( File::Spec->catdir($blib, 'arch') );
   
@@ -1106,7 +1103,7 @@ sub process_pod_files {
   my $self = shift;
   my $files = $self->find_pod_files;
   while (my ($file, $dest) = each %$files) {
-    $self->copy_if_modified(from => $file, to => File::Spec->catfile('blib', $dest) );
+    $self->copy_if_modified(from => $file, to => File::Spec->catfile($self->blib, $dest) );
   }
 }
 
@@ -1114,7 +1111,7 @@ sub process_pm_files {
   my $self = shift;
   my $files = $self->find_pm_files;
   while (my ($file, $dest) = each %$files) {
-    $self->copy_if_modified(from => $file, to => File::Spec->catfile('blib', $dest) );
+    $self->copy_if_modified(from => $file, to => File::Spec->catfile($self->blib, $dest) );
   }
 }
 
@@ -1123,7 +1120,7 @@ sub process_script_files {
   my $files = $self->find_script_files;
   return unless keys %$files;
 
-  my $script_dir = File::Spec->catdir('blib', 'script');
+  my $script_dir = File::Spec->catdir($self->blib, 'script');
   File::Path::mkpath( $script_dir );
   
   foreach my $file (keys %$files) {
@@ -1257,7 +1254,7 @@ sub manify_bin_pods {
   my $files   = $self->_find_pods($self->{properties}{bindoc_dirs});
   return unless keys %$files;
   
-  my $mandir = File::Spec->catdir( 'blib', 'bindoc' );
+  my $mandir = File::Spec->catdir( $self->blib, 'bindoc' );
   File::Path::mkpath( $mandir, 0, 0777 );
 
   foreach my $file (keys %$files) {
@@ -1276,7 +1273,7 @@ sub manify_lib_pods {
   my $files   = $self->_find_pods($self->{properties}{libdoc_dirs});
   return unless keys %$files;
   
-  my $mandir = File::Spec->catdir( 'blib', 'libdoc' );
+  my $mandir = File::Spec->catdir( $self->blib, 'libdoc' );
   File::Path::mkpath( $mandir, 0, 0777 );
 
   foreach my $file (keys %$files) {
@@ -1351,7 +1348,7 @@ sub ACTION_diff {
   my @flags = @{$self->{args}{ARGV}};
   @flags = $self->split_like_shell($self->{args}{flags} || '') unless @flags;
   
-  my $installmap = $self->install_map('blib');
+  my $installmap = $self->install_map;
   delete $installmap->{read};
 
   my $text_suffix = qr{\.(pm|pod)$};
@@ -1387,14 +1384,14 @@ sub ACTION_install {
   my ($self) = @_;
   require ExtUtils::Install;
   $self->depends_on('build');
-  ExtUtils::Install::install($self->install_map('blib'), 1, 0, $self->{args}{uninst}||0);
+  ExtUtils::Install::install($self->install_map, 1, 0, $self->{args}{uninst}||0);
 }
 
 sub ACTION_fakeinstall {
   my ($self) = @_;
   require ExtUtils::Install;
   $self->depends_on('build');
-  ExtUtils::Install::install($self->install_map('blib'), 1, 1, $self->{args}{uninst}||0);
+  ExtUtils::Install::install($self->install_map, 1, 1, $self->{args}{uninst}||0);
 }
 
 sub ACTION_versioninstall {
@@ -1688,6 +1685,7 @@ sub install_types {
 
 sub install_map {
   my ($self, $blib) = @_;
+  $blib ||= $self->blib;
 
   my %map;
   foreach my $type ($self->install_types) {
@@ -1888,7 +1886,7 @@ sub process_xs {
   my $archdir;
   {
     my @dirs = File::Spec->splitdir($file_base);
-    $archdir = File::Spec->catdir('blib','arch','auto', @dirs[1..$#dirs]);
+    $archdir = File::Spec->catdir($self->blib,'arch','auto', @dirs[1..$#dirs]);
   }
   
   # .xs -> .bs
