@@ -878,6 +878,18 @@ found.  This is usually the same as the current working directory,
 because the C<Build> script will C<chdir()> into this directory as
 soon as it begins execution.
 
+=item dist_name()
+
+Returns the name of the current distribution, as passed to the
+C<new()> method in a C<dist_name> or modified C<module_name>
+parameter.
+
+=item dist_version()
+
+Returns the version of the current distribution, as determined by the
+C<new()> method from a C<dist_version>, C<dist_version_from>, or
+C<module_name> parameter.
+
 =item up_to_date($source_file, $derived_file)
 
 =item up_to_date(\@source_files, \@derived_files)
