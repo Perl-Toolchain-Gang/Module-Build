@@ -1,0 +1,137 @@
+#!/usr/bin/perl
+
+use strict;
+use Module::Build 0.25;
+use Getopt::Long;
+
+my %opt_defs = (
+		module      => {type => '=s',
+				desc => 'The name of the module to configure (required)'},
+		feature     => {type => ':s',
+				desc => 'Print the value of a feature'},
+		config      => {type => ':s',
+				desc => 'Print the value of a config option'},
+		set_feature => {type => '=s%',
+				desc => "Set a feature to 'true' or 'false'"},
+		set_config  => {type => '=s%',
+				desc => 'Set a config option to the given value'},
+		help        => {type => '',
+				desc => 'Print a help message and exit'},
+	       );
+
+my %opts;
+GetOptions( \%opts, map "$_$opt_defs{$_}{type}", keys %opt_defs ) or die usage(%opt_defs);
+print usage(%opt_defs) and exit(0)
+  if $opts{help};
+
+my @exclusive = qw(feature config set_feature set_config);
+die "Exactly one of the options '" . join("', '", @exclusive) . "' must be specified\n" . usage(%opt_defs)
+  unless grep(exists $opts{$_}, @exclusive) == 1;
+
+die "Option --module is required\n" . usage(%opt_defs)
+  unless $opts{module};
+
+my $cf = load_config($opts{module});
+
+if (exists $opts{feature}) {
+
+  if (length $opts{feature}) {
+    print $cf->feature($opts{feature});
+  } else {
+    print " Features defined in $cf:\n";
+    foreach my $name (sort $cf->feature_names) {
+      print "  $name => ", $cf->feature($name), "\n";
+    }
+  }
+
+} elsif (exists $opts{config}) {
+
+  require Data::Dumper;
+  local $Data::Dumper::Terse = 1;
+
+  if (length $opts{config}) {
+    print Data::Dumper::Dumper($cf->config($opts{config})), "\n";
+  } else {
+    print " Configuration defined in $cf:\n";
+    foreach my $name (sort $cf->config_names) {
+      print "  $name => ", Data::Dumper::Dumper($cf->config($name)), "\n";
+    }
+  }
+
+} elsif (exists $opts{set_feature}) {
+  my %to_set = %{$opts{set_feature}};
+  while (my ($k, $v) = each %to_set) {
+    die "Feature value must be 0 or 1\n" unless $v =~ /^[01]$/;
+    $cf->set_feature($k, 0+$v); # Set to a number, not a string
+  }
+  $cf->write;
+  print "Feature" . 's'x(keys(%to_set)>1) . " saved\n";
+
+} elsif (exists $opts{set_config}) {
+
+  my %to_set = %{$opts{set_config}};
+  while (my ($k, $v) = each %to_set) {
+    $cf->set_config($k, $v);
+  }
+  print "Config value" . 's'x(keys(%to_set)>1) . " saved\n";
+}
+
+sub load_config {
+  my $mod = shift;
+
+  $mod =~ /^([\w:]+)$/
+    or die "Invalid module name '$mod'";
+  
+  my $cf = $mod . "::BuildConfig";
+  eval "require $cf";
+  die $@ if $@;
+
+  return $cf;
+}
+
+sub usage {
+  my %defs = @_;
+
+  my $out = "\nUsage: $0 [options]\n\n  Options include:\n";
+  
+  foreach my $name (sort keys %defs) {
+    $out .= "  --$name";
+    
+    for ($defs{$name}{type}) {
+      /^=s$/  and      $out .= " <string>";
+      /^=s%$/ and      $out .= " <string>=<value>";
+    }
+
+    pad_line($out, 35);
+    $out .= "$defs{$name}{desc}\n";
+  }
+
+  $out .= <<EOF;
+
+  Examples:
+   $0 --module Foo::Bar --feature bazzable
+   $0 --module Foo::Bar --set_config magic_number=42
+
+EOF
+
+  return $out;
+}
+
+sub pad_line {  $_[0] .= ' ' x ($_[1] - length($_[0]) + rindex($_[0], "\n")) }
+
+
+__END__
+
+=head1 NAME
+
+build_config - Query or change configuration of Perl modules
+
+=head1 SYNOPSIS
+
+  build_config -f <ModuleName>
+  build_config -f <ModuleName> <feature_name>
+  build_config
+
+=head1 DESCRIPTION
+
+The C<build_config> tool 
