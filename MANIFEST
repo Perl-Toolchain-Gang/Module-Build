@@ -35,6 +35,7 @@ t/lib/ModuleBuildOne.pm
 t/MANIFEST
 t/manifypods.t
 t/notes.t
+t/pod_parser.t
 t/runthrough.t
 t/Sample/bin/sample.pl
 t/Sample/Build.PL
