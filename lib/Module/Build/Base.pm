@@ -1510,6 +1510,18 @@ sub ACTION_distdir {
     return;
   }
   
+  if ($self->{properties}{sign}) {
+    warn "If you want to sign this distribution you need to include SIGNATURE in your MANIFEST file\n"
+      unless exists $dist_files->{SIGNATURE};
+    
+    unless (-e 'SIGNATURE') {
+      # just make a dummy file so manicopy() doesn't balk below
+      open my $fh, ">SIGNATURE" or die "Cannot write to SIGNATURE: $!";
+      close $fh;
+      $self->add_to_cleanup('SIGNATURE');
+    }
+  }
+  
   my $dist_dir = $self->dist_dir;
   $self->delete_filetree($dist_dir);
   $self->add_to_cleanup($dist_dir);
