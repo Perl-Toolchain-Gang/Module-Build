@@ -1320,8 +1320,9 @@ sub ACTION_test {
   my $tests = $self->find_test_files;
 
   if (@$tests) {
-    # Work around a Test::Harness bug that loses the particular perl we're running under
-    local $^X = $p->{perl} unless $Test::Harness::VERSION gt '2.01';
+    # Work around a Test::Harness bug that loses the particular perl
+    # we're running under.  $self->perl is trustworthy, but $^X isn't.
+    local $^X = $self->perl;
     Test::Harness::runtests(@$tests);
   } else {
     print("No tests defined.\n");
