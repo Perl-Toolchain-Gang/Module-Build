@@ -166,11 +166,27 @@ sub cwd {
 }
 
 sub find_perl_interpreter {
-  my $perl;
-  File::Spec->file_name_is_absolute($perl = $^X)
-    or -f ($perl = $Config::Config{perlpath})
-    or ($perl = $^X);
-  return $perl;
+  return $^X if File::Spec->file_name_is_absolute($^X);
+  my $proto = shift;
+  my $c = ref($proto) ? $proto->{config} : \%Config::Config;
+  my $exe = $c->{exe_ext};
+
+  my $thisperl = $^X;
+  if ($proto->os_type eq 'VMS') {
+    # VMS might have a file version at the end
+    $thisperl .= $exe unless $thisperl =~ m/$exe(;\d+)?$/i;
+  } elsif (defined $exe) {
+    $thisperl .= $exe unless $thisperl =~ m/$exe$/i;
+  }
+  
+  my @candidates = map File::Spec->catfile($_, $thisperl), File::Spec->path();
+  push @candidates, $c->{perlpath};
+  
+  my $myconfig = Config->myconfig;
+  foreach my $perl (@candidates) {
+    return $perl if -f $perl and `$perl -MConfig=myconfig -e print -e myconfig` eq $myconfig;
+  }
+  return;
 }
 
 sub base_dir { shift()->{properties}{base_dir} }
