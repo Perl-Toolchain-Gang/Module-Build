@@ -17,7 +17,7 @@ my $build = new Module::Build
 		Cwd            => 0,
 	       },
    recommends => {
-		  YAML => 0.30,
+		  YAML => 0.35,
 		  Archive::Tar => 0.22,
 		 },
    dynamic_config => 1,
