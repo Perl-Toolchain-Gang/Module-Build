@@ -11,3 +11,7 @@ CVS
 ^Module-
 ^t/_
 ^Makefile$
+
+^CPANTEST
+\.c$
+^t/save_out$
