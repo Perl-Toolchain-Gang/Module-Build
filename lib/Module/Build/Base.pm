@@ -64,7 +64,6 @@ sub new {
 				   recommends => {},
 				   build_requires => {},
 				   conflicts => {},
-				   script_files => [],
 				   perl => $perl,
 				   install_types => [qw(lib arch script)],
 				   include_dirs => [],
@@ -181,7 +180,11 @@ sub resume {
        dist_version_from
        requires
        recommends
+       pm_files
+       xs_files
+       pod_files
        PL_files
+       scripts
        script_files
        perl
        config_dir
@@ -785,14 +788,9 @@ sub process_PL_files {
   my $files = $self->find_PL_files;
   
   while (my ($file, $to) = each %$files) {
-    my @to = (defined $to ?
-	      (ref $to ? @$to : ($to)) :
-	      $file =~ /^(.*)\.PL$/);
-    
-    # XXX - needs to use File::Spec
-    if (grep {!-e $_ or  -M _ > -M $file} @to) {
+    unless ($self->up_to_date( $file, $to )) {
       $self->run_perl_script($file);
-      $self->add_to_cleanup(@to);
+      $self->add_to_cleanup(@$to);
     }
   }
 }
@@ -800,36 +798,37 @@ sub process_PL_files {
 sub process_xs_files {
   my $self = shift;
   my $files = $self->find_xs_files;
-  foreach my $file (@$files) {
-    $self->process_xs($file);
+  while (my ($from, $to) = each %$files) {
+    $self->copy_if_modified( from => $from, to => $to ) unless $from eq $to;
+    $self->process_xs($to);
   }
 }
 
 sub process_pod_files {
   my $self = shift;
   my $files = $self->find_pod_files;
-  foreach my $file (@$files) {
-    $self->copy_if_modified($file, 'blib');
+  while (my ($file, $dest) = each %$files) {
+    $self->copy_if_modified(from => $file, to => File::Spec->catfile('blib', $dest) );
   }
 }
 
 sub process_pm_files {
   my $self = shift;
   my $files = $self->find_pm_files;
-  foreach my $file (@$files) {
-    $self->copy_if_modified($file, 'blib');
+  while (my ($file, $dest) = each %$files) {
+    $self->copy_if_modified(from => $file, to => File::Spec->catfile('blib', $dest) );
   }
 }
 
 sub process_script_files {
   my $self = shift;
   my $files = $self->find_script_files;
-  return unless @$files;
+  return unless keys %$files;
 
   my $script_dir = File::Spec->catdir('blib', 'script');
   File::Path::mkpath( $script_dir );
   
-  foreach my $file (@$files) {
+  foreach my $file (keys %$files) {
     my $result = $self->copy_if_modified($file, $script_dir, 'flatten') or next;
     $self->fix_shebang_line($result);
     $self->make_executable($result);
@@ -838,27 +837,61 @@ sub process_script_files {
 
 sub find_PL_files {
   my $self = shift;
-  return $self->{properties}{PL_files} || { map {$_, undef} $self->rscan_dir('lib', qr{\.PL$}) };
+  if (my $files = $self->{properties}{PL_files}) {
+    # 'PL_files' is given as a Unix file spec, so we localize_file_path().
+    
+    if (UNIVERSAL::isa($files, 'ARRAY')) {
+      return { map {$_, /^(.*)\.PL$/}
+	       map $self->localize_file_path($_),
+	       @$files };
+
+    } elsif (UNIVERSAL::isa($files, 'HASH')) {
+      my %out;
+      while (my ($file, $to) = each %$files) {
+	$out{ $self->localize_file_path($file) } = [ map $self->localize_file_path($_),
+						     ref $to ? @$to : ($to) ];
+      }
+      return \%out;
+
+    } else {
+      die "'PL_files' must be a hash reference or array reference";
+    }
+  }
+  
+  return { map {$_, /^(.*)\.PL$/} @{ $self->rscan_dir('lib', qr{\.PL$}) } };
 }
 
-sub find_pm_files {
-  my $self = shift;
-  return $self->{properties}{pm_files} || $self->rscan_dir('lib', qr{\.pm$});
-}
-
-sub find_pod_files {
-  my $self = shift;
-  return $self->{properties}{pod_files} || $self->rscan_dir('lib', qr{\.pod$});
-}
-
-sub find_xs_files {
-  my $self = shift;
-  return $self->{properties}{xs_files} || $self->rscan_dir('lib', qr{\.xs$});
-}
+sub find_pm_files { shift->_find_file_by_type('pm') }
+sub find_pod_files { shift->_find_file_by_type('pod') }
+sub find_xs_files { shift->_find_file_by_type('xs') }
 
 sub find_script_files {
   my $self = shift;
-  return $self->{properties}{script_files} || [];
+  if (my $files = $self->{properties}{"script_files"}) {
+    $files = { map {$_, undef} @$files } if UNIVERSAL::isa($files, 'ARRAY');
+    
+    # Always given as a Unix file spec.  Values in the hash are
+    # meaningless, but we preserve if present.
+    return { map {$self->localize_file_path($_), $files->{$_}} keys %$files };
+  }
+  
+  # No default location for script files
+  return {};
+}
+
+sub _find_file_by_type {
+  my ($self, $type) = @_;
+  if (my $files = $self->{properties}{"${type}_files"}) {
+    # Always given as a Unix file spec
+    return { map $self->localize_file_path($_), %$files };
+  }
+  
+  return { map {$_, $_} @{ $self->rscan_dir('lib', qr{\.$type$}) } };
+}
+
+sub localize_file_path {
+  my ($self, $path) = @_;
+  return File::Spec->catfile( split qr{/}, $path );
 }
 
 sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
@@ -1158,7 +1191,7 @@ sub find_dist_packages {
   my $self = shift;
   
   # Only packages in .pm files are candidates for inclusion here.
-  my @pm_files = @{ $self->find_pm_files };
+  my @pm_files = keys %{ $self->find_pm_files };
   
   my %out;
   foreach my $file (@pm_files) {
@@ -1423,15 +1456,13 @@ sub do_system {
 }
 
 sub copy_if_modified {
-  my ($self, $file, $to, $flatten) = @_;
-
-  my $to_path;
-  if ($flatten) {
-    my $basename = File::Basename::basename($file);
-    $to_path = File::Spec->catfile($to, $basename);
-  } else {
-    $to_path = File::Spec->catfile($to, $file);
-  }
+  my $self = shift;
+  my %args = @_ > 3 ? @_ : ( from => shift, to_dir => shift, flatten => shift );
+  
+  my $file = $args{from};
+  my $to_path = $args{to} || File::Spec->catfile( $args{to_dir}, $args{flatten}
+						  ? File::Basename::basename($file)
+						  : $file );
   return if $self->up_to_date($file, $to_path); # Already fresh
   
   # Create parent directories

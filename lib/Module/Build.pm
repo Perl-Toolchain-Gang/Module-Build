@@ -400,14 +400,79 @@ files in the directory will be compiled to object files.  The
 directory will be added to the search path during the compilation and
 linking phases of any C or XS files.
 
+=item pm_files
+
+An optional parameter specifying the set of C<.pm> files in this
+distribution, specified as a hash reference whose keys are the files'
+locations in the distributions, and whose values are their logical
+locations based on their package name, i.e. where they would be found
+in a "normal" Module::Build-style distribution.  This parameter is
+mainly intended to support alternative layouts of files.
+
+For instance, if you have an old-style MakeMaker distribution for a
+module called C<Foo::Bar> and a F<Bar.pm> file at the top level of the
+distribution, you could specify your layout in your C<Build.PL> like
+this:
+
+ my $build = Module::Build->new
+   ( module_name => 'Foo::Bar',
+     ...
+     pm_files => { 'Bar.pm' => 'lib/Foo/Bar.pm' },
+   );
+
+Note that the values should include C<lib/>, because this is where
+they would be found in a "normal" Module::Build-style distribution.
+
+Note also that the path specifications are I<always> given in
+Unix-like format, not in the style of the local system.
+
+=item pod_files
+
+Just like C<pm_files>, but used for specifying the set of C<.pod>
+files in your distribution.
+
+=item xs_files
+
+Just like C<pm_files>, but used for specifying the set of C<.xs>
+files in your distribution.
+
+=item PL_files
+
+An optional parameter specifying a set of C<.PL> files in your
+distribution.  These will be run as Perl scripts prior to processing
+the rest of the files in your distribution.  They are usually used as
+templates for creating other files dynamically, so that a file like
+C<lib/Foo/Bar.pm.PL> might create the file C<lib/Foo/Bar.pm>.
+
+The files are specified with the C<.PL> files as hash keys, and the
+file(s) they generate as hash values, like so:
+
+ my $build = Module::Build->new
+   ( module_name => 'Foo::Bar',
+     ...
+     PL_files => { 'lib/Bar.pm.PL' => 'lib/Bar.pm',
+                   'lib/Foo.PL' => [ 'lib/Foo1.pm', 'lib/Foo2.pm' ],
+                 },
+   );
+
+Note that the path specifications are I<always> given in Unix-like
+format, not in the style of the local system.
+
 =item script_files
 
-An array reference containing a list of files that should be installed
-as perl scripts when the module is installed.
+An optional parameter specifying a set of files that should be
+installed as executable perl scripts when the module is installed.
+May be given as an array reference of the files, or as a hash
+reference whose keys are the files (and whose values will currently be
+ignored).
+
+The default is to install no script files - in other words, there is
+no default location where Module::Build will look for script files to
+install.
 
 For backward compatibility, you may use the parameter C<scripts>
 instead of C<script_files>.  Please consider this usage deprecated,
-though it will continue to exists for several version releases.
+though it will continue to exist for several version releases.
 
 =item autosplit
 
@@ -662,6 +727,18 @@ For backward compatibility, the C<scripts()> method does exactly the
 same thing as C<script_files()>.  C<scripts()> is deprecated, but it
 will stay around for several versions to give people time to
 transition.
+
+=item copy_if_modified()
+
+Takes the file in the C<from> parameter and copies it to the file in
+the C<to> parameter, or the directory in the C<to_dir> parameter, if
+the file has changed since it was last copied (or if it doesn't exist
+in the new location).  By default the entire directory structure of
+C<from> will be copied into C<to_dir>; an optional C<flatten>
+parameter will copy into C<to_dir> without doing so.
+
+Any directories that need to be created in order to perform the
+copying will be automatically created.
 
 =item base_dir()
 
