@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.19
 
+ - A new 'create_makefile_pl' parameter lets you use
+   Module::Build::Compat during the 'distdir' (or 'dist') action to
+   automatically create a Makefile.PL for compatibility with
+   ExtUtils::MakeMaker.  The parameter's value should be one of the
+   styles named in the Module::Build::Compat documentation.
+   
  - Made the creation of the "install map" more generic.  (XXX - needs
    documentation)
 
