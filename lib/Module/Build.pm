@@ -1190,15 +1190,26 @@ what the C<manifest> action would do, without actually doing anything.
 =item dist
 
 This action is helpful for module authors who want to package up their
-module for distribution through a medium like CPAN.  It will create a
+module for source distribution through a medium like CPAN.  It will create a
 tarball of the files listed in F<MANIFEST> and compress the tarball using
 GZIP compression.
+
+By default, this action will use the external C<tar> and C<gzip>
+executables on Unix-like platforms, and the C<Archive::Tar> module
+elsewhere.  However, you can force it to use whatever executable you
+want by supplying an explicit C<tar> (and optional C<gzip>) parameter:
+
+ perl Build dist --tar C:\path\to\tar.exe --gzip C:\path\to\zip.exe
 
 =item ppmdist
 
 Generates a PPM binary distribution and a PPD description file.  This
 action also invokes the 'ppd' action, so it can accept the same
 C<codebase> argument described under that action.
+
+This uses the same mechanism as the C<dist> action to tar & zip its
+output, so you can supply C<tar> and/or C<gzip> parameters to affect
+the result.
 
 =item distsign
 
