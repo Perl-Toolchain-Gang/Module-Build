@@ -13,7 +13,7 @@ chdir 't';
 {
   my $build = new Module::Build
     (
-     module_name => 'Module::Build',
+     module_name => 'ModuleBuildOne',
     );
   ok $build;
 }
@@ -25,7 +25,7 @@ chdir 't';
   local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /ModuleBuildOne/};
   new Module::Build
     (
-     module_name => 'Module::Build',
+     module_name => 'ModuleBuildOne',
      requires => {ModuleBuildOne => 0},
     )->dispatch('realclean');
   ok $flagged, 0;
@@ -33,8 +33,9 @@ chdir 't';
   $flagged = 0;
   new Module::Build
     (
-     module_name => 'Module::Build',
+     module_name => 'ModuleBuildOne',
      requires => {ModuleBuildOne => 3},
     )->dispatch('realclean');
   ok $flagged, 1;
 }
+
