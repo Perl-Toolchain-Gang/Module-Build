@@ -139,7 +139,7 @@ realclean : force_do_it
 	$perl -e unlink -e shift $makefile
 
 force_do_it :
-
+	@
 EOF
 
   # XXX - user might be using a different subclass
