@@ -14,6 +14,8 @@ use IO::File ();
 use Text::ParseWords ();
 use Carp ();
 
+require Module::Build::ModuleInfo;
+
 #################### Constructors ###########################
 sub new {
   my $self = shift()->_construct(@_);
@@ -673,7 +675,8 @@ sub dist_version {
   
   my $version_from = File::Spec->catfile( split '/', $p->{dist_version_from} );
   
-  return $p->{dist_version} = $self->version_from_file($version_from);
+  my $pm_info = Module::Build::ModuleInfo->new_from_file( $version_from );
+  return $p->{dist_version} = $pm_info->version();
 }
 
 sub dist_author   { shift->_pod_parse('author')   }
@@ -694,65 +697,12 @@ sub _pod_parse {
   return $p->{$member} = $parser->$method();
 }
 
-sub find_module_by_name {
-  my ($self, $mod, $dirs) = @_;
-  my $file = File::Spec->catfile(split '::', $mod);
-  foreach (@$dirs) {
-    my $testfile = File::Spec->catfile($_, $file);
-    return $testfile if -e $testfile and !-d _;  # For stuff like ExtUtils::xsubpp
-    return "$testfile.pm" if -e "$testfile.pm";
-  }
-  return;
+sub version_from_file { # Method provided for backwards compatability
+  return Module::Build::ModuleInfo->new_from_file($_[1])->version();
 }
 
-sub _next_code_line {
-  my ($self, $fh, $pat) = @_;
-  my $inpod = 0;
-  
-  local $_;
-  while (<$fh>) {
-    $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
-    next if $inpod || /^\s*#/;
-    return wantarray ? ($_, /$pat/) : $_
-      if $_ =~ $pat;
-  }
-  return;
-}
-
-sub version_from_file {
-  my ($self, $file) = @_;
-
-  # Some of this code came from the ExtUtils:: hierarchy.
-  my $fh = IO::File->new($file) or die "Can't open '$file' for version: $!";
-
-  my $match = qr/([\$*])(([\w\:\']*)\bVERSION)\b.*\=/;
-  my ($v_line, $sigil, $var) = $self->_next_code_line($fh, $match) or return undef;
-
-  my $eval = qq{q#  Hide from _packages_inside()
-		 #; package Module::Build::Base::_version;
-		 no strict;
-		    
-		 local $sigil$var;
-		 \$$var=undef; do {
-		   $v_line
-		 }; \$$var
-		};
-  local $^W;
-
-  # version.pm will change the ->VERSION method, so we mitigate the
-  # potential effects here.  Unfortunately local(*UNIVERSAL::VERSION)
-  # will crash perl < 5.8.1.
-
-  my $old_version = \&UNIVERSAL::VERSION;
-  eval {require version};
-  my $result = eval $eval;
-  *UNIVERSAL::VERSION = $old_version;
-  $self->log_warn("Error evaling version line '$eval' in $file: $@\n") if $@;
-
-  # Unbless it if it's a version.pm object
-  $result = "$result" if UNIVERSAL::isa( $result, 'version' );
-
-  return $result;
+sub find_module_by_name { # Method provided for backwards compatability
+  return Module::Build::ModuleInfo->find_module_by_name(@_[1,2]);
 }
 
 sub _persistent_hash_write {
@@ -986,13 +936,13 @@ sub check_installed_status {
     # Don't try to load if it's already loaded
     
   } else {
-    my $file = $self->find_module_by_name($modname, \@INC);
-    unless ($file) {
+    my $pm_info = Module::Build::ModuleInfo->new_from_module( $modname );
+    unless (defined( $pm_info )) {
       @status{ qw(have message) } = ('<none>', "Prerequisite $modname isn't installed");
       return \%status;
     }
     
-    $status{have} = $self->version_from_file($file);
+    $status{have} = $pm_info->version();
     if ($spec and !$status{have}) {
       @status{ qw(have message) } = (undef, "Couldn't find a \$VERSION in prerequisite $modname");
       return \%status;
@@ -1512,8 +1462,8 @@ sub ACTION_testdb {
 sub ACTION_testcover {
   my ($self) = @_;
 
-  unless ($self->find_module_by_name('Devel::Cover', \@INC)) {
-    $self->log_warn("Cannot run testcover action unless Devel::Cover is installed.\n");
+  unless (Module::Build::ModuleInfo->find_module_by_name('Devel::Cover')) {
+    warn("Cannot run testcover action unless Devel::Cover is installed.\n");
     return;
   }
 
@@ -2007,7 +1957,8 @@ sub ACTION_diff {
       my @parts = File::Spec->splitdir($file);
       @parts = @parts[@localparts .. $#parts]; # Get rid of blib/lib or similar
       
-      my $installed = $self->find_module_by_name(join('::', @parts), \@myINC);
+      my $installed = Module::Build::ModuleInfo->find_module_by_name(
+                        join('::', @parts), \@myINC );
       if (not $installed) {
 	print "Only in lib: $file\n";
 	next;
@@ -2443,9 +2394,8 @@ sub find_dist_packages {
     or die "Can't find dist packages without a MANIFEST file - run 'manifest' action first";
 
   # Localize
-  my %dist_files = (map
-		    {$self->localize_file_path($_) => $_}
-		    keys %$manifest);
+  my %dist_files = map { $self->localize_file_path($_) => $_ }
+                       keys %$manifest;
 
   my @pm_files = grep {exists $dist_files{$_}} keys %{ $self->find_pm_files };
   
@@ -2454,26 +2404,15 @@ sub find_dist_packages {
     next if $file =~ m{^t/};  # Skip things in t/
     
     my $localfile = File::Spec->catfile( split m{/}, $file );
-    my $version = $self->version_from_file( $localfile );
+
+    my $pm_info = Module::Build::ModuleInfo->new_from_file( $localfile );
     
-    foreach my $package ($self->_packages_inside($localfile)) {
+    foreach my $package ($pm_info->packages_inside($localfile)) {
       $out{$package}{file} = $dist_files{$file};
-      $out{$package}{version} = $version if defined $version;
+      $out{$package}{version} = $pm_info->version( $package );
     }
   }
   return \%out;
-}
-
-sub _packages_inside {
-  # XXX this SUCKS SUCKS SUCKS!  Damn you perl!
-  my ($self, $file) = @_;
-  my $fh = IO::File->new($file) or die "Can't read $file: $!";
-  
-  my (@packages, $p);
-  push @packages, $p while (undef, $p) = 
-    $self->_next_code_line($fh, qr/^[\s\{;]*package\s+([\w:]+)/);
-  
-  return @packages;
 }
 
 sub make_tarball {
@@ -2684,10 +2623,10 @@ sub compile_xs {
   } else {
     # Ok, I give up.  Just use backticks.
     
-    my $xsubpp  = $self->find_module_by_name('ExtUtils::xsubpp', \@INC)
+    my $xsubpp = Module::Build::ModuleInfo->find_module_by_name('ExtUtils::xsubpp')
       or die "Can't find ExtUtils::xsubpp in INC (@INC)";
     
-    my $typemap =  $self->find_module_by_name('ExtUtils::typemap', \@INC);
+    my $typemap =  Module::Build::ModuleInfo->find_module_by_name('ExtUtils::typemap', \@INC);
     my $cf = $self->{config};
     my $perl = $self->{properties}{perl};
     

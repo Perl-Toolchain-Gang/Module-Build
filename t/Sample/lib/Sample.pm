@@ -29,3 +29,10 @@ $VERSION = ('0.01')[0];  # should be eval'd
 }
 
 1;
+
+
+package Sample::Ex;
+
+our $VERSION = 0.02;
+
+1;
