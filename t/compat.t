@@ -7,6 +7,9 @@ use File::Path;
 use Config;
 require File::Spec->catfile('t', 'common.pl');
 
+use Carp;  $SIG{__WARN__} = \&Carp::cluck;
+
+
 # Don't let our own verbosity/test_file get mixed up with our subprocess's
 my @makefile_keys = qw(TEST_VERBOSE HARNESS_VERBOSE TEST_FILES MAKEFLAGS);
 local  @ENV{@makefile_keys};
@@ -17,12 +20,14 @@ skip_test("Don't know how to invoke 'make'")
 
 my @makefile_types = qw(small passthrough traditional);
 my $tests_per_type = 10;
-plan tests => 27 + @makefile_types*$tests_per_type;
+plan tests => 30 + @makefile_types*$tests_per_type;
 ok(1);  # Loaded
 
 my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
 
-my $goto = File::Spec->catdir( Module::Build->cwd, 't', 'Sample' );
+my $startdir = Module::Build->cwd;
+
+my $goto = File::Spec->catdir( $startdir, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
 
 my $build = Module::Build->new_from_context;
@@ -93,7 +98,7 @@ foreach my $type (@makefile_types) {
   # Make sure various Makefile.PL arguments are supported
   Module::Build::Compat->create_makefile_pl('passthrough', $build);
 
-  my $libdir = File::Spec->catdir( Module::Build->cwd, 't', 'libdir' );
+  my $libdir = File::Spec->catdir( $startdir, 't', 'libdir' );
   my $result = $build->run_perl_script('Makefile.PL', [], 
 				       [
 					"LIB=$libdir",
@@ -123,6 +128,14 @@ foreach my $type (@makefile_types) {
   ok $ran_ok;
   $output =~ s/^/# /gm;  # Don't confuse our own test output
   ok $output, qr/# test\.+ok\s+# All/, 'Should be non-verbose';
+  
+  $output = stderr_of( sub { $ran_ok = $build->do_system(@make, 'install', "PREFIX=$libdir", "install_base=$libdir") } );
+  ok !$ran_ok;  # PREFIX should generate an error
+  ok $output, qr/PREFIX/, "Error should mention PREFIX";
+  
+  
+  $build->delete_filetree($libdir);
+  ok -e $libdir, undef, "Sample installation directory should be cleaned up";
   
   $build->do_system(@make, 'realclean');
   ok -e 'Makefile', undef, "Makefile shouldn't exist";

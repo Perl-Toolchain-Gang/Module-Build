@@ -22,15 +22,6 @@ my %makefile_to_build =
    LIB => sub { ('--install_path', 'lib='.shift()) },
   );
 
-# I sort of wonder whether we can use the same hash from above here.
-my %known_make_macros = 
-  (
-   TEST_VERBOSE => 'verbose',
-   VERBINST     => 'verbose',
-   UNINST       => 'uninst',
-   TEST_FILES   => sub { map {('test_files', $_)} Module::Build->split_like_shell(shift) },
-  );
-
 
 
 sub create_makefile_pl {
@@ -158,7 +149,7 @@ sub makefile_to_build_args {
 
 sub makefile_to_build_macros {
   my @out;
-  while (my ($macro, $trans) = each %known_make_macros) {
+  while (my ($macro, $trans) = each %makefile_to_build) {
     next unless exists $ENV{$macro};
     my $val = $ENV{$macro};
     push @out, ref($trans) ? $trans->($val) : ($trans => $val);
@@ -208,7 +199,7 @@ $action : force_do_it
 EOF
   }
   
-  $maketext .= "\n.EXPORT : " . join(' ', keys %known_make_macros) . "\n\n";
+  $maketext .= "\n.EXPORT : " . join(' ', keys %makefile_to_build) . "\n\n";
   
   return $maketext;
 }
