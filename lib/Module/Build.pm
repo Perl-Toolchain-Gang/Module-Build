@@ -492,7 +492,7 @@ version-specific installs.
 =head2 Default Commandline Options (F<.modulebuildrc>)
 
 When Module::Build starts up it will look for a file,
-C<'$ENV{HOME}/.modulebuildrc'>. If the file exists it will use the
+F<$ENV{HOME}/.modulebuildrc>. If the file exists it will use the
 options specified there as defaults, as if they were typed on the
 commandline. The defaults can be overridden by specifying new values
 on the commandline.
