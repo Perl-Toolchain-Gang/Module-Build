@@ -270,6 +270,7 @@ package %s;
 use strict;
 my $arrayref = eval do {local $/; <DATA>}
   or die "Couldn't load BuildConfig data: $@";
+close DATA;
 my ($notes, $features) = @$arrayref;
 
 sub get { $notes->{$_[1]} }
