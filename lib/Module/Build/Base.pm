@@ -991,10 +991,14 @@ sub ACTION_test {
   $self->depends_on('code');
   
   # Do everything in our power to work with all versions of Test::Harness
-  my $harness_switches = $p->{debugger} ? ' -w -d' : '';
-  local $Test::Harness::switches    = ($Test::Harness::switches    || '') . $harness_switches;
-  local $Test::Harness::Switches    = ($Test::Harness::Switches    || '') . $harness_switches;
-  local $ENV{HARNESS_PERL_SWITCHES} = ($ENV{HARNESS_PERL_SWITCHES} || '') . $harness_switches;
+  my @harness_switches = $p->{debugger} ? qw(-w -d) : ();
+  local $Test::Harness::switches    = join ' ', grep defined, $Test::Harness::switches, @harness_switches;
+  local $Test::Harness::Switches    = join ' ', grep defined, $Test::Harness::Switches, @harness_switches;
+  local $ENV{HARNESS_PERL_SWITCHES} = join ' ', grep defined, $ENV{HARNESS_PERL_SWITCHES}, @harness_switches;
+  
+  $Test::Harness::switches = undef   unless length $Test::Harness::switches;
+  $Test::Harness::Switches = undef   unless length $Test::Harness::Switches;
+  delete $ENV{HARNESS_PERL_SWITCHES} unless length $ENV{HARNESS_PERL_SWITCHES};
   
   local ($Test::Harness::verbose,
 	 $Test::Harness::Verbose,
