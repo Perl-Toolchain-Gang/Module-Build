@@ -27,11 +27,11 @@ my $build = new Module::Build
 		'Cwd'            => 0,
 	       },
    recommends => {
-		  YAML => 0.35,
+		  'YAML' => 0.35,
 		  'Archive::Tar' => '1.00',
 		  'ExtUtils::Install' => 0.30,
 		  'ExtUtils::ParseXS' => 2.02,
-		  # Module::Signature => 0.21,  # Our support isn't good enough yet
+		  # 'Module::Signature' => 0.21,  # Our support isn't good enough yet
 		 },
    build_requires => {
 		      Test => 0,
