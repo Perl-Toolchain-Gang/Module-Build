@@ -95,7 +95,7 @@ if ($have_yaml) {
   }
 
 } else {
-  skip_subtest("YAML.pm is not installed, or disabled") for 1..7;
+  skip_subtest("YAML_support feature is not enabled") for 1..7;
 }
 
 {
