@@ -12,6 +12,14 @@ Revision history for Perl extension Module::Build.
    got the impression I was a little more truculent toward MakeMaker
    than I really am.
 
+ - Added the formal concepts of "features" and "config notes" for
+   distributions.  This allows the module author to define a certain
+   set of features that the user can switch on and off (usually
+   according to whether they have the proper prerequisites for them),
+   and to save build-time configuration information in a standardized
+   format.  See the main documentation of Module::Build for more
+   details.
+
  - Added the 'get_options' parameter, which lets module authors
    declare certain command-line arguments their Build.PL can accept
    [David Wheeler]
