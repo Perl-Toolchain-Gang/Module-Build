@@ -923,7 +923,7 @@ sub known_actions {
   return wantarray ? sort keys %actions : \%actions;
 }
 
-sub _get_action_docs {
+sub get_action_docs {
   my ($self, $action, $actions) = @_;
   $actions ||= $self->known_actions;
   $@ = '';
@@ -950,7 +950,7 @@ sub _get_action_docs {
     while (<$fh>) {
       if (/^=item\s+\Q$action\E\b/o)  {
 	$found = 1;
-      } elsif (/^=item/) {
+      } elsif (/^=(item|back)/) {
 	last if $found > 1 and not $inlist;
       }
       next unless $found;
@@ -960,12 +960,17 @@ sub _get_action_docs {
       ++$found  if /^\w/; # Found descriptive text
     }
   }
-  ($@ = "Sorry, couldn't find any documentation to search.\n"), return
-    unless $files_found;
-  ($@ = "Couldn't find any docs for action '$action'.\n"), return
-    unless @docs;
+
+  unless ($files_found) {
+    $@ = "Couldn't find any documentation to search";
+    return;
+  }
+  unless (@docs) {
+    $@ = "Couldn't find any docs for action '$action'";
+    return;
+  }
   
-  return @docs;
+  return join '', @docs;
 }
 
 sub ACTION_help {
@@ -973,7 +978,8 @@ sub ACTION_help {
   my $actions = $self->known_actions;
   
   if (@{$self->{args}{ARGV}}) {
-    print $self->_get_action_docs($self->{args}{ARGV}[0], $actions), $@;
+    my $msg = $self->get_action_docs($self->{args}{ARGV}[0], $actions) || "$@\n";
+    print $msg;
     return;
   }
 
