@@ -62,6 +62,8 @@ sub cull_args {
 
 Use '__' instead of '::'.
 
+=back
+
 =cut
 
 sub manpage_separator {
