@@ -145,7 +145,7 @@ stabilizes.
 
 =over 4
 
-=item * Module::Build->new(...)
+=item * $m = Module::Build->new(...)
 
 Creates a new Module::Build object.  The C<module_name> argument is
 required, and should be a string like C<'Your::Module'>.  The
@@ -154,7 +154,18 @@ we'll look for the version string in the module specified by
 C<module_name>, parsing it out according to the same rules as
 C<ExtUtils::MakeMaker> and C<CPAN.pm>.
 
-=item * add_to_cleanup
+An optional C<c_source> argument specifies a directory which contains
+C source files that the rest of the build may depend on.  Any C<.c>
+files in the directory will be compiled to object files.  The
+directory will be added to the search path during the compilation and
+linking phases of any C or XS files.
+
+An optional C<autosplit> argument specifies a file which should be run
+through the C<Autosplit::autosplit()> function.  In general I don't
+consider this a great idea, and I may even go so far as to remove this
+feature later.  Let me know if I shouldn't.
+
+=item * $m->add_to_cleanup
 
 A C<Module::Build> method may call C<< $self->add_to_cleanup(@files) >>
 to tell C<Module::Build> that certain files should be removed when the
@@ -164,7 +175,7 @@ static lists can get difficult to manage.  I preferred to keep the
 responsibility for registering temporary files close to the code that
 creates them.
 
-=item * resume
+=item * Module::Build->resume
 
 You'll probably never call this method directly, it's only called from
 the auto-generated C<Build> script.  The C<new()> method is only
@@ -172,7 +183,7 @@ called once, when the user runs C<perl Build.PL>.  Thereafter, when
 the user runs C<Build test> or another action, the C<Module::Build>
 object is created using the C<resume()> method.
 
-=item * dispatch
+=item * $m->dispatch
 
 This method is also called from the auto-generated C<Build> script.
 It parses the command-line arguments into an action and an argument
@@ -182,7 +193,7 @@ C<ACTION_foo> method.  All arguments (including everything mentioned
 in L<ACTIONS> below) are contained in the C<< $self->{args} >> hash
 reference.
 
-=item * os_type
+=item * $m->os_type
 
 If you're subclassing Module::Build and some code needs to alter its
 behavior based on the current platform, you may only need to know
@@ -250,6 +261,11 @@ with C<.t> in a C<t/> directory.
 
 If you want tests to be 'verbose', i.e. show details of test execution
 rather than just summary information, pass the argument C<verbose=1>.
+
+In addition, if a file called C<visual.pl> exists in the top-level
+directory, this file will be executed as a Perl script and its output
+will be shown to the user.  This is a good place to put speed tests or
+other tests that don't use the C<Test::Harness> format for output.
 
 =item * clean
 
