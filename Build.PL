@@ -37,7 +37,8 @@ my $build = new Module::Build
 		      Test => 0,
 		     },
    sign => 1,
+   create_readme => 1,
   );
 
 $build->create_build_script;
-$build->notes(foo => 'bar');
+$build->notes(foo => 'bar');   # We set this here and verify it in t/notes.t
