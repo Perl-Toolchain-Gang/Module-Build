@@ -8,6 +8,7 @@ use File::Spec;
 use IO::File;
 use Config;
 use Module::Build;
+use Data::Dumper;
 
 my %makefile_to_build = 
   (
@@ -76,33 +77,38 @@ EOF
 EOF
     
   } elsif ($type eq 'traditional') {
+
+    my %MM_Args;
+    if (eval "use Tie::IxHash; 1") {
+      tie %MM_Args, 'Tie::IxHash'; # Don't care if it fails here
+    }
+    
+    my %name = ($build->module_name
+		? (NAME => $build->module_name)
+		: (DISTNAME => $build->dist_name));
+    
+    my %version = ($build->dist_version_from
+		   ? (VERSION_FROM => $build->dist_version_from)
+		   : (VERSION      => $build->dist_version)
+		  );
+    %MM_Args = (%name, %version);
+    
     my %prereq = ( %{$build->requires}, %{$build->build_requires} );
     delete $prereq{perl};
-    my $prereq = join "\n", map "\t\t    '$_' => '$prereq{$_}',", keys %prereq;
-    my $id = $build->installdirs eq 'core' ? 'perl' : $build->installdirs;
+    $MM_Args{PREREQ_PM} = \%prereq;
     
-    my ($name_key, $name) = ($build->module_name
-			     ? (NAME => $build->module_name)
-			     : (DISTNAME => $build->dist_name));
+    $MM_Args{INSTALLDIRS} = $build->installdirs eq 'core' ? 'perl' : $build->installdirs;
 
-    my %v = ($build->dist_version_from
-	     ? (VERSION_FROM => $build->dist_version_from)
-	     : (VERSION      => $build->dist_version)
-	    );
+    $MM_Args{PL_FILES} = {};
     
-    printf {$fh} <<'EOF', $name_key, $name, %v, $id, $prereq;
-
+    local $Data::Dumper::Terse = 1;
+    my $args = Data::Dumper::Dumper(\%MM_Args);
+    $args =~ s/\{(.*)\}/($1)/s;
+    
+    print $fh <<"EOF";
 use ExtUtils::MakeMaker;
 WriteMakefile
-  (
-   %-12s => '%s',
-   %-12s => '%s',
-   PL_FILES     => {},
-   INSTALLDIRS  => '%s',
-   PREREQ_PM    => {
-%s
-		   },
-  );
+$args;
 EOF
   }
 }
