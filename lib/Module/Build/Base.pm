@@ -2480,8 +2480,8 @@ sub make_tarball {
   
   if ($self->{args}{tar}) {
     my $tar_flags = $self->{properties}{verbose} ? 'cvf' : 'cf';
-    $self->do_system($self->{args}{tar}, $tar_flags, "$file.tar", $dir);
-    $self->do_system($self->{args}{gzip}, "$file.tar") if $self->{args}{gzip};
+    $self->do_system($self->split_like_shell($self->{args}{tar}), $tar_flags, "$file.tar", $dir);
+    $self->do_system($self->split_like_shell($self->{args}{gzip}), "$file.tar") if $self->{args}{gzip};
   } else {
     require Archive::Tar;
     # Archive::Tar versions >= 1.09 use the following to enable a compatibility
