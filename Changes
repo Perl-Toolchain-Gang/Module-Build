@@ -3,6 +3,12 @@ Revision history for Perl extension Module::Build.
 
 0.27_01 (Beta for 0.28)
 
+ - Let resume() return an object blessed into the appropriate class
+   if the user has provided a subclass, as specified by the
+   'build_class' property. This allows current() and new_from_context()
+   to behave more like factory methods returning objects of the correct
+   class based on context. [Ray Zimmerman]
+
  - M::B::ModuleInfo would not read the $VERSION in the assumed package
    'main' of a script unless the $VERSION line was the first non-empty
    line in the script. [David Wheeler]

@@ -73,7 +73,7 @@ foreach my $type (@makefile_types) {
   # Make sure custom builder subclass is used in the created
   # Makefile.PL - make sure it fails in the right way here.
   local @Foo::Builder::ISA = qw(Module::Build);
-  my $foo_builder = Foo::Builder->new_from_context();
+  my $foo_builder = bless( Module::Build->new_from_context, 'Foo::Builder' );
   foreach my $style ('passthrough', 'small') {
     Module::Build::Compat->create_makefile_pl($style, $foo_builder);
     ok -e 'Makefile.PL';

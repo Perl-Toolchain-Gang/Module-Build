@@ -40,7 +40,20 @@ sub resume {
   my $self = shift()->_construct(@_);
   
   $self->read_config;
-  
+
+  # When called from current() or new_from_context(), we may need to
+  # re-bless ourself into the appropriate build_class.
+  if ( $self->build_class ne ref($self) ) {
+    my $config_dir = $self->config_dir || '_build';
+    my $build_lib = File::Spec->catdir( $config_dir, 'lib' );
+    unshift( @INC, $build_lib );
+    if ( eval "require @{[$self->build_class]}" ) {
+      $self = bless( $self, $self->build_class );
+    } else {
+      die "Failed to re-bless into '@{[$self->build_class]}': $@";
+    }
+  }
+
   unless ($self->_perl_is_same($self->{properties}{perl})) {
     my $perl = $self->find_perl_interpreter;
     $self->log_warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
