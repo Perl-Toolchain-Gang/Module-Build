@@ -81,7 +81,9 @@ if ($have_yaml) {
   # Make sure all of the above was done by the new version of Module::Build
   my $fh = IO::File->new(File::Spec->catfile($goto, 'META.yml'));
   my $contents = do {local $/; <$fh>};
-  ok $contents, "/Module::Build version ". $build->VERSION ."/";
+
+  $contents =~ /Module::Build version ([0-9_.]+)/m;
+  ok $1 == $build->VERSION, 1, "Got $1, expected ". $build->VERSION;
   
   if ($build->check_installed_status('Archive::Tar', 0)
       or $build->isa('Module::Build::Platform::Unix')) {
@@ -139,6 +141,6 @@ EOF
 eval {$build->dispatch('realclean')};
 ok $@, '';
 
-ok -e $build->build_script, undef;
-ok -e $build->config_dir, undef;
-ok -e $build->dist_dir, undef;
+ok not -e $build->build_script;
+ok not -e $build->config_dir;
+ok not -e $build->dist_dir;
