@@ -1,6 +1,10 @@
 Revision history for Perl extension Module::Build.
 
 0.05
+  - Added prerequisite checking
+XXX Needs docs
+XXX Needs to write _build/prereq
+
   - Fixed an unlikely-to-occur bug with misquoted strings in the
     'Build' script (Dave Rolsky)
 
