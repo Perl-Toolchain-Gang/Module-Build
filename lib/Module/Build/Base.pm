@@ -59,10 +59,19 @@ sub new {
 				  },
 		    new_cleanup => {},
 		   }, $package;
+  my $p = $self->{properties};
 
   # Synonyms
-  for ($self->{properties}) {
-    $_->{requires} = delete $_->{prereq} if exists $_->{prereq};
+  $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
+
+  # Shortcuts
+  if (exists $p->{module_name}) {
+    ($p->{dist_name} = $p->{module_name}) =~ s/::/-/g
+      unless exists $p->{dist_name};
+    $p->{dist_version_from} = join( '/', 'lib', split '::', $p->{module_name} ) . '.pm'
+      unless exists $p->{dist_version_from} or exists $p->{dist_version};
+    
+    delete $p->{module_name};
   }
 
   $self->check_manifest;
@@ -91,8 +100,9 @@ sub resume {
   my %valid_properties = map {$_ => 1}
     qw(
        module_name
-       module_version
-       module_version_from
+       dist_name
+       dist_version
+       dist_version_from
        requires
        recommends
        PL_files
@@ -149,21 +159,17 @@ sub find_version {
   my ($self) = @_;
   my $p = $self->{properties};
 
-  return if exists $p->{module_version};
+  return if exists $p->{dist_version};
   
   my $version_from;
-  if (exists $p->{module_version_from}) {
-    # module_version_from is always a Unix-style path
-    $version_from = File::Spec->catfile( split '/', delete $p->{module_version_from} );
-  } elsif (exists $p->{module_name}) {
-    my $search_path = File::Spec->catdir($p->{base_dir}, 'lib');
-    $version_from = $self->find_module_by_name($p->{module_name}, [$search_path]);
-    die "Can't find '$p->{module_name}' in $search_path for version check" unless defined $version_from;
+  if (exists $p->{dist_version_from}) {
+    # dist_version_from is always a Unix-style path
+    $version_from = File::Spec->catfile( split '/', delete $p->{dist_version_from} );
   } else {
-    die "Must supply either 'module_version', 'module_version_from', or 'module_name' parameter";
+    die "Must supply either 'dist_version', 'dist_version_from', or 'module_name' parameter";
   }
 
-  $p->{module_version} = $self->version_from_file($version_from);
+  $p->{dist_version} = $self->version_from_file($version_from);
 }
 
 sub find_module_by_name {
@@ -437,7 +443,7 @@ sub create_build_script {
   $self->rm_previous_build_script;
 
   print("Creating new '$self->{properties}{build_script}' script for ",
-	"'$self->{properties}{module_name}' version '$self->{properties}{module_version}'\n");
+	"'$self->{properties}{dist_name}' version '$self->{properties}{dist_version}'\n");
   open my $fh, ">$self->{properties}{build_script}" or die "Can't create '$self->{properties}{build_script}': $!";
   $self->print_build_script($fh);
   close $fh;
@@ -736,9 +742,7 @@ sub ACTION_manifest {
 
 sub dist_dir {
   my ($self) = @_;
-
-  (my $dist_dir = $self->{properties}{module_name}) =~ s/::/-/;
-  return "$dist_dir-$self->{properties}{module_version}";
+  return "$self->{properties}{dist_name}-$self->{properties}{dist_version}";
 }
 
 sub write_metadata {
@@ -750,14 +754,11 @@ sub write_metadata {
     die "Unknown license type '$p->{license}";
   }
 
-  # XXX Distribution name should be settable independently
-  (my $name = $p->{module_name}) =~ s/::/-/g;
-
   my %metadata = (
 		  distribution_type => 'module',
 		  dynamic_config => 0,
-		  name => $name,
-		  version => $p->{module_version},
+		  name => $p->{dist_name},
+		  version => $p->{dist_version},
 		  license => $p->{license},
 		  generated_by => (ref($self) || $self) . " version " . $self->VERSION,
 		 );
