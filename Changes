@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.22_01
 
+ - Added a documentation reference to Michael Schwern's wiki for tips
+   on conversion from MakeMaker to M::B. [Randy Sims]
+
  - The @INC of the parent process is now propagated to child processes
    when processing *.PL files. [Reported by Jaap Karssenberg]
 
