@@ -6,6 +6,9 @@ use Config;
 use Module::Build;
 use File::Spec;
 
+print("1..0 # Skipped: no compiler found\n"), exit(0) unless Module::Build->current->have_c_compiler;
+plan tests => 10;
+
 require File::Spec->catfile('t', 'common.pl');
 
 ######################### End of black magic.
@@ -15,9 +18,6 @@ my $build_dir = File::Spec->catdir('t','XSTest');
 chdir $build_dir or die "Can't change to $build_dir : $!";
 
 my $m = Module::Build->new_from_context;
-
-print("1..0 # Skipped: no compiler found\n"), exit(0) unless $m->have_c_compiler;
-plan tests => 10;
 ok(1);
 
 eval {$m->dispatch('clean')};
