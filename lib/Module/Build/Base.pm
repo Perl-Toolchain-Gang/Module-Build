@@ -2186,7 +2186,11 @@ sub ACTION_distmeta {
 
   # Since we're building ourself, we have to do some special stuff
   # here: the ConfigData module is found in blib/lib.
-  local @INC = (@INC, File::Spec->catdir($self->blib, 'lib'));
+  local @INC = @INC;
+  if ($self->module_name eq 'Module::Build') {
+    $self->depends_on('config_data');
+    push @INC, File::Spec->catdir($self->blib, 'lib');
+  }
   require Module::Build::ConfigData;  # Only works after the 'build'
   unless (Module::Build::ConfigData->feature('YAML_support')) {
     warn <<EOM;
