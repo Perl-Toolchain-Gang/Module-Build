@@ -1158,14 +1158,14 @@ sub _find_pods {
 
 sub contains_pod {
   my ($self, $file) = @_;
-  return 0 unless -T $file;  # Only look at text files
+  return '' unless -T $file;  # Only look at text files
   
   my $fh = IO::File->new( $file ) or die "Can't open $file: $!";
   while (my $line = <$fh>) {
     return 1 if $line =~ /^\=(?:head|pod|item)/;
   }
   
-  return 0;
+  return '';
 }
 
 # Adapted from ExtUtils::MM_Unix
