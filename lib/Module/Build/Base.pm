@@ -1183,6 +1183,7 @@ sub manify_bin_pods {
   foreach my $file (keys %$files) {
     my $manpage = $self->man1page_name( $file ) . '.' . $self->{config}{man1ext};
     my $outfile = File::Spec->catfile( $mandir, $manpage);
+    next if $self->up_to_date( $file, $outfile );
     print "Manifying $file -> $outfile\n";
     $parser->parse_from_file( $file, $outfile );
     $files->{$file} = $outfile;
@@ -1201,6 +1202,7 @@ sub manify_lib_pods {
   foreach my $file (keys %$files) {
     my $manpage = $self->man3page_name( $file ) . '.' . $self->{config}{man3ext};
     my $outfile = File::Spec->catfile( $mandir, $manpage);
+    next if $self->up_to_date( $file, $outfile );
     print "Manifying $file -> $outfile\n";
     $parser->parse_from_file( $file, $outfile );
     $files->{$file} = $outfile;
