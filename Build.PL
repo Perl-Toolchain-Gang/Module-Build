@@ -10,6 +10,7 @@ my $build = new Module::Build
 	      File::Path     => 0,
 	      File::Basename => 0,
 	      File::Spec     => 0,
+	      Data::Dumper   => 0,
 	     },
   );
 

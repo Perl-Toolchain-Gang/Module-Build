@@ -9,6 +9,7 @@ use File::Find ();
 use File::Path ();
 use File::Basename ();
 use File::Spec ();
+use Data::Dumper ();
 
 sub new {
   my $package = shift;
@@ -24,7 +25,8 @@ sub new {
   die "Too early to specify a build action '$action'.  Do ./$self->{build_script} $action instead.\n"
     if $action;
 
-  $self->{args} = {%Config, @_, %$args};
+  $self->{args} = {%Config, @_, %$args};   # XXX shouldn't contain %Config
+  $self->{config} = {%Config};
 
   $self->check_manifest;
   $self->check_prereq;
@@ -161,14 +163,9 @@ sub read_config {
   
   my $file = $self->config_file('build_params');
   open my $fh, $file or die "Can't read '$file': $!";
-  
-  while (<$fh>) {
-    if (/^(\w+)$/) {
-      $self->{args}{$1} = undef;
-    } elsif (/^(\w+)=(.*)/) {
-      $self->{args}{$1} = $2;
-    }
-  }
+  my $ref = eval do {local $/; <$fh>};
+  die if $@;
+  ($self->{args}, $self->{config}) = @{$ref}[0,1];
   close $fh;
   
   my $cleanup_file = $self->config_file('cleanup');
@@ -189,18 +186,9 @@ sub write_config {
   
   my $file = $self->config_file('build_params');
   open my $fh, ">$file" or die "Can't create '$file': $!";
-  
-  foreach my $key (sort keys %{$self->{args}} ) {
-    if (!defined $self->{args}{$key}) {
-      print $fh "$key\n";
-
-    } elsif ($self->{args}{$key} =~ /\n/) {
-      warn "Sorry, can't handle newlines in config data '$key' (yet)\n";
-
-    } else {
-      print $fh "$key=$self->{args}{$key}\n";
-    }
-  }
+  local $Data::Dumper::Terse = 1;
+  print $fh Data::Dumper::Dumper([$self->{args}, $self->{config}]);
+  close $fh;
 }
 
 sub check_prereq {
@@ -286,7 +274,7 @@ sub print_build_script {
   my $quoted_INC = join ', ', map "'$_'", @myINC;
 
   print $fh <<EOF;
-$self->{args}{startperl} -w
+$self->{config}{startperl} -w
 
 BEGIN { \@INC = ($quoted_INC) }
 
@@ -594,8 +582,8 @@ sub install_map {
   my ($self, $blib) = @_;
   my $lib  = File::Spec->catfile($blib,'lib');
   my $arch = File::Spec->catfile($blib,'arch');
-  return {$lib  => $self->{args}{sitelib},
-	  $arch => $self->{args}{sitearch},
+  return {$lib  => $self->{config}{sitelib},
+	  $arch => $self->{config}{sitearch},
 	  read  => ''};  # To keep ExtUtils::Install quiet
 }
 
@@ -667,18 +655,18 @@ sub autosplit_file {
 
 sub compile_c {
   my ($self, $file) = @_;
-  my $args = $self->{args}; # For convenience
+  my $cf = $self->{config}; # For convenience
 
   # File name, minus the suffix
   (my $file_base = $file) =~ s/\.[^.]+$//;
-  my $obj_file = "$file_base$args->{obj_ext}";
+  my $obj_file = "$file_base$cf->{obj_ext}";
   return $obj_file if $self->up_to_date($file, $obj_file);
   
   $self->add_to_cleanup($obj_file);
-  my $coredir = File::Spec->catdir($args->{archlib}, 'CORE');
+  my $coredir = File::Spec->catdir($cf->{archlib}, 'CORE');
   my $include_dirs = $self->{include_dirs} ? join ' ', map {"-I$_"} @{$self->{include_dirs}} : '';
-  $self->do_system("$args->{cc} $include_dirs -c $args->{ccflags} -I$coredir -o $obj_file $file")
-    or die "error building $args->{dlext} file from '$file'";
+  $self->do_system("$cf->{cc} $include_dirs -c $cf->{ccflags} -I$coredir -o $obj_file $file")
+    or die "error building $cf->{dlext} file from '$file'";
 
   return $obj_file;
 }
@@ -686,14 +674,14 @@ sub compile_c {
 sub run_perl_script {
   my ($self, $script, $preargs, $postargs) = @_;
   $preargs ||= '';   $postargs ||= '';
-  return $self->do_system("$self->{args}{perl5} $preargs $script $postargs");
+  return $self->do_system("$self->{config}{perl5} $preargs $script $postargs");
 }
 
 # A lot of this looks Unixy, but actually it may work fine on Windows.
 # I'll see what people tell me about their results.
 sub process_xs {
   my ($self, $file) = @_;
-  my $args = $self->{args}; # For convenience
+  my $cf = $self->{config}; # For convenience
 
   # File name, minus the suffix
   (my $file_base = $file) =~ s/\.[^.]+$//;
@@ -707,7 +695,7 @@ sub process_xs {
     my $typemap =  $self->module_name_to_file('ExtUtils::typemap');
     
     # XXX the '> $file_base.c' isn't really a post-arg, it's redirection.  Fix later.
-    $self->run_perl_script($xsubpp, "-I$args->{archlib} -I$args->{privlib}", 
+    $self->run_perl_script($xsubpp, "-I$cf->{archlib} -I$cf->{privlib}", 
 			   "-noprototypes -typemap '$typemap' $file > $file_base.c")
       or die "error building .c file from '$file'";
   }
@@ -734,13 +722,13 @@ sub process_xs {
   $self->copy_if_modified("$file_base.bs", $archdir, 1);
   
   # .o -> .(a|bundle)
-  my $lib_file = File::Spec->catfile($archdir, File::Basename::basename("$file_base.$args->{dlext}"));
-  unless ($self->up_to_date("$file_base$args->{obj_ext}", $lib_file)) {
-    my $linker_flags = $args->{extra_linker_flags} || '';
+  my $lib_file = File::Spec->catfile($archdir, File::Basename::basename("$file_base.$cf->{dlext}"));
+  unless ($self->up_to_date("$file_base$cf->{obj_ext}", $lib_file)) {
+    my $linker_flags = $cf->{extra_linker_flags} || '';
     my $objects = $self->{objects} || [];
-    $self->do_system("$args->{shrpenv} $args->{cc} $args->{lddlflags} -o $lib_file ".
-		     "$file_base$args->{obj_ext} @$objects $linker_flags")
-      or die "error building $args->{obj_ext} file from '$file_base.$args->{dlext}'";
+    $self->do_system("$cf->{shrpenv} $cf->{cc} $cf->{lddlflags} -o $lib_file ".
+		     "$file_base$cf->{obj_ext} @$objects $linker_flags")
+      or die "error building $file_base$cf->{obj_ext} from '$file_base.$cf->{dlext}'";
   }
 }
 
