@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-BEGIN { plan tests => 49 }
+BEGIN { plan tests => 85 }
 use Module::Build;
 ok(1);
 
@@ -157,7 +157,7 @@ chdir 't';
 
 # Test shell emulation stuff
 {
-  my @words = Module::Build->split_like_shell(q{one t'wo th'ree f"o\"ur " "five" });
+  my @words = Module::Build::Base->split_like_shell(q{one t'wo th'ree f"o\"ur " "five" });
   ok @words, 4;
   ok $words[0], 'one';
   ok $words[1], 'two three';
@@ -173,10 +173,54 @@ chdir 't';
   # Test some Win32-specific stuff
   my $win = 'Module::Build::Platform::Windows';
   eval "use $win; 1" or die $@;
-  
-  @words = $win->split_like_shell(q{foo "\bar\baz" "b\"nai"});
-  ok @words, 3;
-  ok $words[0], 'foo';
-  ok $words[1], '\bar\baz';
-  ok $words[2], 'b"nai';
+
+  my @tests = (
+    { 'a" "b\\c" "d'         => [ 'a b\c d'       ] },
+    { '"a b\\c d"'           => [ 'a b\c d'       ] },
+    { '"a b"\\"c d"'         => [ 'a b"c', 'd'    ] },
+    { '"a b"\\\\"c d"'       => [ 'a b\c d'       ] },
+    { '"a"\\"b" "a\\"b"'     => [ 'a"b a"b'       ] },
+    { '"a"\\\\"b" "a\\\\"b"' => [ 'a\b', 'a\b'    ] },
+    { '"a"\\"b a\\"b"'       => [ 'a"b', 'a"b'    ] },
+    { 'a"\\"b" "a\\"b'       => [ 'a"b', 'a"b'    ] },
+    { 'a"\\"b"  "a\\"b'      => [ 'a"b', 'a"b'    ] },
+    { 'a           b'        => [ 'a', 'b'        ] },
+    { 'a"\\"b a\\"b'         => [ 'a"b a"b'       ] },
+    { '"a""b" "a"b"'         => [ 'a"b ab'        ] },
+    { '\\"a\\"'              => [ '"a"'           ] },
+    { '"a"" "b"'             => [ 'a"', 'b'       ] },
+    { 'a"b'                  => [ 'ab'            ] },
+    { 'a""b'                 => [ 'ab'            ] },
+    { 'a"""b'                => [ 'a"b'           ] },
+    { 'a""""b'               => [ 'a"b'           ] },
+    { 'a"""""b'              => [ 'a"b'           ] },
+    { 'a""""""b'             => [ 'a""b'          ] },
+    { '"a"b"'                => [ 'ab'            ] },
+    { '"a""b"'               => [ 'a"b'           ] },
+    { '"a"""b"'              => [ 'a"b'           ] },
+    { '"a""""b"'             => [ 'a"b'           ] },
+    { '"a"""""b"'            => [ 'a""b'          ] },
+    { '"a""""""b"'           => [ 'a""b'          ] },
+    { ''                     => [                 ] },
+    { ' '                    => [                 ] },
+    { '""'                   => [ ''              ] },
+    { '" "'                  => [ ' '             ] },
+    { '""a'                  => [ 'a'             ] },
+    { '""a b'                => [ 'a', 'b'        ] },
+    { 'a""'                  => [ 'a'             ] },
+    { 'a"" b'                => [ 'a', 'b'        ] },
+    { '"" a'                 => [ '', 'a'         ] },
+    { 'a ""'                 => [ 'a', ''         ] },
+    { 'a "" b'               => [ 'a', '', 'b'    ] },
+    { 'a " " b'              => [ 'a', ' ', 'b'   ] },
+    { 'a " b " c'            => [ 'a', ' b ', 'c' ] },
+    { 'a "\\b\\c" "d\\"e"'   => [ 'a', '\b\c', 'd"e' ] },
+  );
+
+  local $" = ', ';
+  foreach my $test ( @tests ) {
+      my( $string, $expected ) = %$test;
+      my @result = $win->split_like_shell( $string );
+      ok array_eq( \@result, $expected );
+  }
 }
