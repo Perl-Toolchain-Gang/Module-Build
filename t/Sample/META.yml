@@ -7,4 +7,7 @@ requires: {}
 recommends: {}
 build_requires: {}
 conflicts: {}
+provides:
+  Sample:
+    file: lib/Sample.pm
 generated_by: Module::Build version 0.17
