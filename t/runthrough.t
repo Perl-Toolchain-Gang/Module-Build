@@ -1,19 +1,22 @@
-######################### We start with some black magic to print on failure.
-
 use Test;
-BEGIN { plan tests => 10 }
+BEGIN { plan tests => 11 }
 use Module::Build;
 use File::Spec;
 use File::Path;
 my $HAVE_YAML = eval {require YAML; 1};
 
 ok(1);
+require File::Spec->catfile('t', 'common.pl');
 
 ######################### End of black magic.
 
+# So 'test' and 'disttest' can see the not-yet-installed Module::Build.
+unshift @INC,     # For 'test'
+$ENV{PERL5LIB} =  # For 'disttest'
+File::Spec->catdir( Module::Build->cwd, 'blib', 'lib' );
+
 my $goto = File::Spec->catdir( Module::Build->cwd, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
-
 
 my $build = new Module::Build( module_name => 'Sample', license => 'perl' );
 ok $build;
@@ -21,11 +24,19 @@ ok $build;
 eval {$build->create_build_script};
 ok $@, '';
 
-eval {$build->dispatch('test')};
-ok $@, '';
+my $output = eval {
+  stdout_of( sub { $build->dispatch('test', verbose => 1) } )
+};
+ok $output, qr/all tests successful/i;
+
+
+# We prefix all lines with "| " so Test::Harness doesn't get confused.
+print "vvvvvvvvvvvvvvvvvvvvv Sample/test.pl output vvvvvvvvvvvvvvvvvvvvv\n";
+$output =~ s/^/| /mg;
+print $output;
+print "^^^^^^^^^^^^^^^^^^^^^ Sample/test.pl output ^^^^^^^^^^^^^^^^^^^^^\n";
 
 if ($HAVE_YAML) {
-
   eval {$build->dispatch('disttest')};
   ok $@, '';
   
@@ -42,8 +53,13 @@ if ($HAVE_YAML) {
   # else it could get into the tarball
   ok not -e File::Spec->catdir('Sample-0.01', 'blib');
 
+  # Make sure all of the above was done by the new version of Module::Build
+  open my($fh), File::Spec->catfile($goto, 'META.yml');
+  my $contents = do {local $/; <$fh>};
+  ok $contents, "/Module::Build version ". $build->VERSION ."/";
+  
 } else {
-  skip "skip YAML.pm is not installed", 1 for 1..5;
+  skip "skip YAML.pm is not installed", 1 for 1..6;
 }
 
 eval {$build->dispatch('realclean')};
