@@ -19,6 +19,13 @@ Revision history for Perl extension Module::Build.
  - Added a regression test for the 'dist' action to the t/runthrough.t
    test.
 
+ - Fixed a problem with File::Spec usage when creating the names of
+   'libdoc' manual pages - the code wasn't dealing with the volume or
+   file portions correctly on certain platforms.
+
+ - When creating the names of the 'libdoc' manual pages, we no longer
+   assume that pods are under 'blib/lib' or 'blib/arch'.
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
