@@ -1370,23 +1370,26 @@ sub find_dist_packages {
   foreach my $file (@pm_files) {
     next if $file =~ m{^t/};  # Skip things in t/
     
-    return unless $] >= 5.006;  # perl 5.6 required for Module::Info
-    return unless eval "use Module::Info 0.19; 1";
-    
     my $localfile = File::Spec->catfile( split m{/}, $file );
     my $version = $self->version_from_file( $localfile );
-
-    print "Scanning $localfile for packages\n";
-    my $module = Module::Info->new_from_file( $localfile );
-
-    foreach my $package ($module->packages_inside) {
-      $out{$package} = {
-			file => $file,
-			version => $version,
-		       };
+    
+    foreach my $package ($self->_packages_inside($localfile)) {
+      $out{$package}{file} = $file;
+      $out{$package}{version} = $version if defined $version;
     }
   }
   return \%out;
+}
+
+sub _packages_inside {
+  # XXX this SUCKS SUCKS SUCKS!  Damn you perl!
+  my ($self, $file) = @_;
+  my $fh = IO::File->new($file) or die "Can't read $file: $!";
+  my @packages;
+  while (defined(my $line = <$fh>)) {
+    push @packages, $1 if $line =~ /^[\s\{;]*package\s+([\w:]+)/;
+  }
+  return @packages;
 }
 
 sub make_tarball {
