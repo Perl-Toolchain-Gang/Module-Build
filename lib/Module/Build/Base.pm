@@ -1420,7 +1420,7 @@ sub ACTION_clean {
 sub ACTION_realclean {
   my ($self) = @_;
   $self->depends_on('clean');
-  $self->delete_filetree($self->{properties}{config_dir}, $self->{properties}{build_script});
+  $self->delete_filetree($self->config_file($self->build_script));
 }
 
 sub ACTION_ppd {
