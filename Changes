@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.16
 
+ - All three C compilers that perl supports on Windows environments
+   (MSVC, BCC, and GCC) are now supported by Module::Build.  We now
+   reportedly pass all tests on Windows.  [Randy W. Sims]
+
  - The "install" action accepts new "destdir" [motivated by Michael
    Schwern and Chip Salzenberg] and "uninst" parameters [by Dave
    Rolsky].  The former prepends an arbitrary directory to all
