@@ -428,7 +428,7 @@ sub check_installed_status {
   if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
     @conditions = (">= $spec");
   } else {
-    @conditions = split /\s*,\s*/, $self->{properties}{requires}{$modname};
+    @conditions = split /\s*,\s*/, $spec;
   }
   
   foreach (@conditions) {
