@@ -142,9 +142,7 @@ installed, and then the C<make> commands just pass through to the
 corresponding Module::Build actions.  That's what this module lets you
 do.
 
-A typical Makefile.PL is shown above in L<SYNOPSIS>.  See also
-L<FALLBACK> for some code that can help if the user doesn't have
-Module::Build installed yet.
+A typical Makefile.PL is shown above in L<SYNOPSIS>.
 
 So, some common scenarios are:
 
