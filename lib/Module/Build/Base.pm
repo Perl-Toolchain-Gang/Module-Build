@@ -120,7 +120,7 @@ sub _construct {
 
 ################## End constructors #########################
 
-sub log_info { shift; print @_; }
+sub log_info { print @_ unless shift()->quiet }
 sub log_warn { shift; Carp::carp @_; }
 sub log_verbose { shift()->log_info(@_) if $_[0]->verbose }
 
@@ -570,6 +570,7 @@ __PACKAGE__->add_property($_) for qw(
    bindoc_dirs
    libdoc_dirs
    get_options
+   quiet
 );
 
 sub mb_parents {
