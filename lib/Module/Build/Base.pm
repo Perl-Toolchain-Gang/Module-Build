@@ -96,6 +96,7 @@ sub _construct {
 				   installdirs     => 'site',
 				   install_path    => {},
 				   include_dirs    => [],
+				   create_packlist => 1,
 				   %input,
 				  },
 		   }, $package;
@@ -460,6 +461,7 @@ EOF
        bindoc_dirs
        libdoc_dirs
        get_options
+       create_packlist
       );
 
   sub valid_property { exists $valid_properties{$_[1]} }
@@ -2386,10 +2388,12 @@ sub install_map {
     }
   }
 
-  # Write the packlist into the same place as ExtUtils::MakeMaker.
-  my $archdir = $self->install_destination('arch');
-  my @ext = split /::/, $self->module_name;
-  $map{write} = File::Spec->catdir($archdir, 'auto', @ext, '.packlist');
+  if ($self->create_packlist) {
+    # Write the packlist into the same place as ExtUtils::MakeMaker.
+    my $archdir = $self->install_destination('arch');
+    my @ext = split /::/, $self->module_name;
+    $map{write} = File::Spec->catdir($archdir, 'auto', @ext, '.packlist');
+  }
   
   if (length(my $destdir = $self->{properties}{destdir} || '')) {
     foreach (keys %map) {

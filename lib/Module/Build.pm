@@ -427,6 +427,18 @@ the result in the F<README> file.  This is by no means the only
 recommended style for writing a README, but it seems to be one common
 one used on the CPAN.
 
+=item create_packlist
+
+If true, this parameter tells Module::Build to create a F<.packlist>
+file during the C<install> action, just like ExtUtils::MakeMaker does.
+The file is created in a subdirectory of the C<arch> installation
+location.  It is used by some other tools (CPAN, CPANPLUS, etc.) for
+determining what files are part of an install.
+
+The default value is true.  This parameter was introduced in
+Module::Build version 0.2609; previously no packlists were ever
+created by Module::Build.
+
 =item c_source
 
 An optional C<c_source> argument specifies a directory which contains
