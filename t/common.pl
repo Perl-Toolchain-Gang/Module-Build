@@ -63,15 +63,4 @@ sub find_in_path {
   return;
 }
 
-sub array_eq { # like Test::More::eq_array
-  my( $a1, $a2 ) = @_;
-  return 0 unless @$a1 == @$a2;
-
-  for my $i ( 0..$#{$a1} ) {
-    return 0 unless $a1->[$i] eq $a2->[$i];
-  }
-
-  return 1;
-}
-
 1;
