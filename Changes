@@ -1,6 +1,42 @@
 Revision history for Perl extension Module::Build.
 
-0.06
+0.07
+
+  - We now generate a 'META.yaml' metadata file during 'Build dist'.
+    This can be very useful for lots of things, none of which are
+    implemented yet.
+
+  - Added a 'dynamic_config' parameter, defaulting to false.  This
+    lets distribution systems (CPAN.pm, etc.) build, test, and install
+    "easy" modules without having to execute the Build.PL at runtime.
+    It's also a guarantee that the list of dependencies is exactly
+    what is present in the metadata file, and won't be changed during
+    the build process.
+
+  - Added support for "recommended" and "build-time requirement"
+    modules, besides those that are absolutely required.  Also added a
+    "conflicts" field.
+
+  - Changed the 'prereq' field to 'requires' (the old name will
+    continue to work).
+
+  - Added support for checking the installed version of perl as an
+    explicit dependency.
+
+  - Added a 'license' parameter to specify one of a fixed number of
+    licenses for the distribution.
+
+  - Fixed a bug in Module::Build::Compat that was preventing arguments
+    from being processed properly. [patch by Ilya Martynov]
+
+  - Make sure we're in the right directory when we write the cleanup
+    file, since various ExtUtils::Install errors might leave us in an
+    unknown directory. [patch by Ilya Martynov]
+
+  - Specified the 'license', 'recommends', and 'build_from_metadata'
+    values in Build.PL, and changed 'prereq' to 'requires'.
+
+0.06  Apr 2 2002 17:44
 
   - Added the Module::Build::Compat module for assisting and
     explaining compatibility with ExtUtils::Makemaker and cohorts.
