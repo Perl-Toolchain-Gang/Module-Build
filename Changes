@@ -1,5 +1,27 @@
 Revision history for Perl extension Module::Build.
 
+0.15  Fri Jan 17 15:00:24 CST 2003
+
+ - In link_c(), extra object files were mistakenly being treated as
+   output files, not input files, in the up-to-date check.  Fixed.
+
+ - In up_to_date(), don't make an unnecessary copy of the file lists
+   when they're specified as array references.
+
+ - Split off the C compilation phase into its own method,
+   compile_support_files(), for easier subclassing.
+
+ - Start a stub of a 'manifypods' action.
+
+ - Compiler optimizations weren't being included in C compilation
+   statements.  Fixed.
+
+ - The 'extra_linker_flags' parameter wasn't being honored.  Fixed.
+
+ - The 'ccflags' Config.pm entry wasn't being properly split into
+   separate arguments.  Fixed.
+
+
 0.14  Fri Dec 13 14:06:29 AEST 2002
 
   - Added support for MacPerl (Mac OS version 9 and below), which (as
