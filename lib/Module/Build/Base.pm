@@ -1515,11 +1515,12 @@ sub htmlify_pods {
   
   my $pods = $self->_find_pods([$self->blib]);
   if (-d $script) {
-    File::Find::finddepth( sub 
-                           {$pods->{$File::Find::name} = 
-                              "script::" . File::Basename::basename($File::Find::name) 
-                                if (-f $_ and not /\.bat$/ and $self->contains_pod($_));
-                          }, $script);
+    File::Find::finddepth( sub {
+			     $pods->{$File::Find::name} = 
+			       File::Spec->catfile("script",
+						   File::Basename::basename($File::Find::name) )
+				   if (-f $_ and not /\.bat$/ and $self->contains_pod($_));
+			   }, $script);
   }
   
   foreach my $pod (keys %$pods){
