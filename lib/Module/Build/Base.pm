@@ -11,7 +11,6 @@ use File::Spec ();
 use File::Compare ();
 use Data::Dumper ();
 use IO::File ();
-use IO::Dir ();
 use Text::ParseWords ();
 
 #################### Constructors ###########################
@@ -2132,10 +2131,11 @@ sub _files_in {
   my ($self, $dir) = @_;
   return unless -d $dir;
 
-  my $dh = IO::Dir->new( $dir ) or die "Can't read directory $dir: $!";
+  local *DH;
+  opendir DH, $dir or die "Can't read directory $dir: $!";
 
   my @files;
-  while (defined (my $file = $dh->read)) {
+  while (defined (my $file = readdir DH)) {
     my $full_path = File::Spec->catfile($dir, $file);
     next if -d $full_path;
     push @files, $full_path;

@@ -28,9 +28,9 @@ my $build = new ModuleBuildBuilder
 		'File::Spec'     => 0,
 		'ExtUtils::Install' => 0,
 		'IO::File'       => 0,
-		'IO::Dir'        => 0,
 		'Cwd'            => 0,
 		'Text::ParseWords' => 0,
+		'Pod::Man'       => 0,
 	       },
    recommends => {
 		  'Archive::Tar' => '1.08',
