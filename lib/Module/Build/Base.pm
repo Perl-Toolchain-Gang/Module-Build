@@ -1554,16 +1554,20 @@ sub ACTION_distdir {
   }
   
   my $dist_files = $self->_read_manifest('MANIFEST');
+  delete $dist_files->{SIGNATURE};  # Don't copy, create a fresh one
   unless (keys %$dist_files) {
     warn "No files found in MANIFEST - try running 'manifest' action?\n";
     return;
   }
+  warn "*** Did you forget to add $self->{metafile} to the MANIFEST?\n" unless exists $dist_files->{$self->{metafile}};
   
   my $dist_dir = $self->dist_dir;
   $self->delete_filetree($dist_dir);
   $self->add_to_cleanup($dist_dir);
-  ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'cp');
-  warn "*** Did you forget to add $self->{metafile} to the MANIFEST?\n" unless exists $dist_files->{$self->{metafile}};
+  
+  foreach my $file (keys %$dist_files) {
+    $self->copy_if_modified(from => $file, to_dir => $dist_dir, verbose => 0);
+  }
   
   $self->_sign_dir($dist_dir) if $self->{properties}{sign};
 }
@@ -1982,7 +1986,10 @@ sub do_system {
 
 sub copy_if_modified {
   my $self = shift;
-  my %args = @_ > 3 ? @_ : ( from => shift, to_dir => shift, flatten => shift );
+  my %args = (@_ > 3
+	      ? ( verbose => 1, @_ )
+	      : ( from => shift, to_dir => shift, flatten => shift )
+	     );
   
   my $file = $args{from};
   unless (defined $file and length $file) {
@@ -2005,7 +2012,7 @@ sub copy_if_modified {
   # Create parent directories
   File::Path::mkpath(File::Basename::dirname($to_path), 0, 0777);
   
-  print "$file -> $to_path\n";
+  print "$file -> $to_path\n" if $args{verbose};
   File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
   return $to_path;
 }
