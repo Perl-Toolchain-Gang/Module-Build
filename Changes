@@ -42,6 +42,9 @@ Revision history for Perl extension Module::Build.
    only once', and one in PPMMaker about $^V being undefined. [Blair
    Zajac]
 
+ - Added a couple temporary output files from HTML documentation
+   generation to the cleanup list.  [Toby Ovod-Everett]
+
  - The PodParser module will now only extract paragraphs in the
    'AUTHOR' section of the pod if they contain an '@' character.  This
    tends to do a better job, heuristically speaking, of returning
