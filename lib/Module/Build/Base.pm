@@ -37,21 +37,23 @@ sub new {
 }
 
 sub resume {
-  my $self = shift()->_construct(@_);
-  
+  my $package = shift;
+  my $self = $package->_construct(@_);
   $self->read_config;
 
-  # When called from current() or new_from_context(), we may need to
-  # re-bless ourself into the appropriate build_class.
-  if ( $self->build_class ne ref($self) ) {
+  # If someone called Module::Build->current() or
+  # Module::Build->new_from_context() and the correct class to use is
+  # actually a *subclass* of Module::Build, we may need to load that
+  # subclass here and re-delegate the resume() method to it.
+  unless ( UNIVERSAL::isa($package, $self->build_class) ) {
+    my $build_class = $self->build_class;
     my $config_dir = $self->config_dir || '_build';
     my $build_lib = File::Spec->catdir( $config_dir, 'lib' );
     unshift( @INC, $build_lib );
-    if ( eval "require @{[$self->build_class]}" ) {
-      $self = bless( $self, $self->build_class );
-    } else {
-      die "Failed to re-bless into '@{[$self->build_class]}': $@";
+    unless ( $build_class->can('new') ) {
+      eval "require $build_class; 1" or die "Failed to re-load '$build_class': $@";
     }
+    return $build_class->resume(@_);
   }
 
   unless ($self->_perl_is_same($self->{properties}{perl})) {
@@ -1227,7 +1229,7 @@ sub unparse_args {
   while (my ($k, $v) = each %$args) {
     push @out, (UNIVERSAL::isa($v, 'HASH')  ? map {+"--$k", "$_=$v->{$_}"} keys %$v :
 		UNIVERSAL::isa($v, 'ARRAY') ? map {+"--$k", $_} @$v :
-		($k, $v));
+		("--$k", $v));
   }
   return @out;
 }
