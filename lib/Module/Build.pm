@@ -856,8 +856,8 @@ This method may be called as a class or object method.
 
 =item script_files()
 
-Returns an array reference specifying the perl script files to be
-installed.  This corresponds to the C<script_files> parameter to the
+Returns a hash reference whose keys are the perl script files to be
+installed, if any.  This corresponds to the C<script_files> parameter to the
 C<new()> method.  With an optional argument, this parameter may be set
 dynamically.
 
