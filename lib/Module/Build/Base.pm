@@ -23,20 +23,13 @@ sub new {
   die "Too early to specify a build action '$action'.  Do 'Build $action' instead.\n"
     if $action;
 
-  my $cmd_config;
-  if ($cmd_args->{config}) {
-    # XXX need to hashify this string better (deal with quoted whitespace)
-    $cmd_config->{$1} = $2 while $cmd_args->{config} =~ /(\w+)=(\S+)/g;
-  } else {
-    $cmd_config = {};
-  }
-  delete $cmd_args->{config};
-
   # Extract our 'properties' from $cmd_args, the rest are put in 'args'
   my $cmd_properties = {};
   foreach my $key (keys %$cmd_args) {
     $cmd_properties->{$key} = delete $cmd_args->{$key} if __PACKAGE__->valid_property($key);
   }
+
+  my $cmd_config = delete $cmd_args->{config};
 
   # The following warning could be unnecessary if the user is running
   # an embedded perl, but there aren't too many of those around, and
@@ -761,6 +754,20 @@ sub cull_args {
     }
   }
   $args{ARGV} = \@argv;
+
+  # Hashify these parameters
+  for ('config', 'install_path') {
+    my %hash;
+    $args{$_} ||= [];
+    $args{$_} = [ $args{$_} ] unless ref $args{$_};
+    foreach my $arg ( @{$args{$_}} ) {
+      $arg =~ /(\w+)=(.+)/
+	or die "Malformed '$_' argument: '$arg'";
+      $hash{$1} = $2;
+    }
+    $args{$_} = \%hash;
+  }
+
   return ($action, \%args);
 }
 
