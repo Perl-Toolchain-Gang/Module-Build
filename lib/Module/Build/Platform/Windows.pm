@@ -1,7 +1,6 @@
 package Module::Build::Platform::Windows;
 
 use strict;
-use warnings;
 
 use File::Basename;
 use File::Spec;
