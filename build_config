@@ -62,7 +62,7 @@ if (exists $opts{feature}) {
   my %to_set = %{$opts{set_feature}};
   while (my ($k, $v) = each %to_set) {
     die "Feature value must be 0 or 1\n" unless $v =~ /^[01]$/;
-    $cf->set_feature($k, 0+$v); # Set to a number, not a string
+    $cf->set_feature($k, 0+$v); # Cast to a number, not a string
   }
   $cf->write;
   print "Feature" . 's'x(keys(%to_set)>1) . " saved\n";
@@ -128,10 +128,17 @@ build_config - Query or change configuration of Perl modules
 
 =head1 SYNOPSIS
 
-  build_config -f <ModuleName>
-  build_config -f <ModuleName> <feature_name>
-  build_config
+  # Get/set config/feature values
+  build_config --module Foo::Bar --feature bazzable
+  build_config --module Foo::Bar --set_config magic_number=42
+  
+  # Print a usage message
+  build_config --help
 
 =head1 DESCRIPTION
 
-The C<build_config> tool 
+The C<build_config> tool provides a command-line interface to the
+configuration of Perl modules.  
+
+... more docs to come ...
+
