@@ -753,7 +753,23 @@ the C<Build.PL> script:
  perl Build.PL sitelib=/my/secret/place/
 
 Under normal circumstances, you'll need superuser privileges to
-install into the default C<sitelib> directory.
+install into your system's default C<sitelib> directory.
+
+If you want to install everything into a temporary directory first
+(for instance, if you want to create a directory tree that a package
+manager like C<rpm> or C<dpkg> could create a package from), you can
+use the C<destdir> parameter:
+
+ perl Build.PL destdir=/tmp/foo
+
+or
+
+ Build install destdir=/tmp/foo
+
+This will effectively install to "$destdir/$sitelib",
+"$destdir/$sitearch", and the like, except that it will use
+C<File::Spec> to make the pathnames work correctly on whatever
+platform you're installing on.
 
 If you want the installation process to look around in C<@INC> for
 other versions of the stuff you're installing and try to delete it,
