@@ -887,6 +887,16 @@ same thing as C<script_files()>.  C<scripts()> is deprecated, but it
 will stay around for several versions to give people time to
 transition.
 
+=item add_build_element($type)
+
+Adds a new type of entry to the build process.  Accepts a single
+string specifying its type-name.  There must also be a method defined
+to process things of that type, e.g. if you add a build element called
+C<'foo'>, then you must also define a method called
+C<process_foo_files()>.
+
+See also L<Module::Build::Compat/Adding new elements to the build process>.
+
 =item copy_if_modified(%parameters)
 
 Takes the file in the C<from> parameter and copies it to the file in

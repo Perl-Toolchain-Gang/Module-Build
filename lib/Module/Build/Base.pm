@@ -257,6 +257,11 @@ sub notes        { shift()->_general_notes('notes', @_) }
 sub build_config { shift()->_general_notes('build_config', @_) }
 sub features     { shift()->_general_notes('features', @_) }
 
+sub add_build_element {
+  my $self = shift;
+  push @{$self->build_elements}, shift;
+}
+
 sub ACTION_build_config {
   my $self = shift;
   return unless $self->has_build_config;

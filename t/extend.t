@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 9 }
+BEGIN { plan tests => 11 }
 use Module::Build;
 ok 1;
 
@@ -37,4 +37,32 @@ $build->dispatch('realclean');
   ok @$files, 2;
   ok $files->[0], 'foo';
   ok $files->[1], 'bar';
+}
+
+
+{
+  # Make sure we can add new kinds of stuff to the build sequence
+
+  {
+    package FooTester;
+    @FooTester::ISA = qw(Module::Build);
+    
+    sub process_foo_files {
+      my $self = shift;
+      my $files = $self->_find_file_by_type('foo', File::Spec->curdir);
+      while (my ($file, $dest) = each %$files) {
+	$self->copy_if_modified(from => $file,
+				to => File::Spec->catfile($self->blib, 'lib', $dest) );
+      }
+    }
+  }
+
+  my $build = FooTester->new( module_name => 'Sample' );
+  ok $build;
+
+  $build->add_build_element('foo');
+  $build->dispatch('build');
+  ok -e File::Spec->catfile($build->blib, 'lib', 'test.foo');
+
+  $build->dispatch('realclean');
 }

@@ -128,7 +128,7 @@ you can do something the following in your F<Build.PL> file:
   
   my $build = $class->new( ... );
   
-  $build->add_build_elements('foo');
+  $build->add_build_element('foo');
 
 
 This creates a custom subclass of C<Module::Build> that knows how to
