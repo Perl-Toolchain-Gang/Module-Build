@@ -1,5 +1,5 @@
 use Test;
-BEGIN { plan tests => 13 }
+BEGIN { plan tests => 11 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -74,7 +74,7 @@ if (0 && $HAVE_SIGNATURE) {
 
   ok -e $sigfile;
 } else {
-  skip "skip Module::Signature is not installed", 1 for 1..2;
+  # skip "skip Module::Signature is not installed", 1 for 1..2;
 }
 
 eval {$build->dispatch('realclean')};
