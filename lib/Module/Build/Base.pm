@@ -641,8 +641,7 @@ sub check_installed_status {
     
     next if $op eq '>=' and !$version;  # Module doesn't have to actually define a $VERSION
     
-    unless (eval "\$status{have} $op \$version") {
-      warn $@ if $@;
+    unless ($self->compare_versions( $status{have}, $op, $version )) {
       $status{message} = "Version $status{have} is installed, but we need version $op $version";
       return \%status;
     }
@@ -650,6 +649,21 @@ sub check_installed_status {
   
   $status{ok} = 1;
   return \%status;
+}
+
+sub compare_versions {
+  my $self = shift;
+  my ($v1, $op, $v2) = @_;
+
+  # for alpha versions - this doesn't cover all cases, but should work for most:
+  $v1 =~ s/_(\d+)\z/$1/;
+  $v2 =~ s/_(\d+)\z/$1/;
+
+  my $eval_str = "\$v1 $op \$v2";
+  my $result   = eval $eval_str;
+  warn "error comparing versions: '$eval_str' $@" if $@;
+
+  return $result;
 }
 
 # I wish I could set $! to a string, but I can't, so I use $@
