@@ -5,6 +5,7 @@ use File::Spec;
 require File::Spec->catfile('t', 'common.pl');
 
 use Module::Build;
+skip_test("Skipping unless \$ENV{TEST_SIGNATURE} is true") unless $ENV{TEST_SIGNATURE};
 need_module('Module::Signature');
 plan tests => 6;
 
