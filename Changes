@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.21_01
 
+ - Added a recipe to the Module::Build::Cookbook describing how to
+   maintain compatibility with older versions of CPAN.pm [Jim Cromie]
+
  - Removed caveat about "looking for alternatives" in how hashes are
    specified on the command line, since an alternative has been found.
 
