@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 27 }
+BEGIN { plan tests => 28 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -96,6 +96,10 @@ if ($build->check_installed_version('YAML', 0)) {
 }
 
 {
+  # Make sure the 'script' file was recognized as a script.
+  my $scripts = $build->script_files;
+  ok $scripts->{script};
+  
   # Check that a shebang line is rewritten
   my $blib_script = File::Spec->catdir( qw( blib script script ) );
   ok -e $blib_script; 
