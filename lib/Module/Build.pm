@@ -518,8 +518,12 @@ for C<*.t> files.
 =item autosplit
 
 An optional C<autosplit> argument specifies a file which should be run
-through the C<Autosplit::autosplit()> function.  In general I don't
-consider this a great idea, because it's not always clear that
+through the C<Autosplit::autosplit()> function.  If multiple files
+should be split, the argument may be given as an array of the files to
+split.
+
+In general I don't consider autosplitting a great idea, because it's
+not always clear that
 autosplitting achieves its intended performance benefits.  It may even
 harm performance in environments like mod_perl, where as much as
 possible of a module's code should be loaded during startup.
