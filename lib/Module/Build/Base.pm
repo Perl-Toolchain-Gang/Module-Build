@@ -766,6 +766,7 @@ EOF
 
 sub ACTION_test {
   my ($self) = @_;
+  my $p = $self->{properties};
   require Test::Harness;
   
   $self->depends_on('build');
@@ -773,16 +774,16 @@ sub ACTION_test {
   # Do everything in our power to work with all versions of Test::Harness
   local ($Test::Harness::switches,
 	 $Test::Harness::Switches,
-         $ENV{HARNESS_PERL_SWITCHES}) = ($self->{properties}{debugger} ? '-w -d' : '') x 3;
+         $ENV{HARNESS_PERL_SWITCHES}) = ($p->{debugger} ? '-w -d' : '') x 3;
 
   local ($Test::Harness::verbose,
 	 $Test::Harness::Verbose,
 	 $ENV{TEST_VERBOSE},
-         $ENV{HARNESS_VERBOSE}) = ($self->{properties}{verbose} || 0) x 4;
+         $ENV{HARNESS_VERBOSE}) = ($p->{verbose} || 0) x 4;
 
   # Make sure we test the module in blib/
-  local @INC = (File::Spec->catdir('blib', 'lib'),
-		File::Spec->catdir('blib', 'arch'),
+  local @INC = (File::Spec->catdir($p->{base_dir}, 'blib', 'lib'),
+		File::Spec->catdir($p->{base_dir}, 'blib', 'arch'),
 		@INC);
   
   my $tests = $self->test_files;
