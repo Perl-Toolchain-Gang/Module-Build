@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.09
+0.09  Fri Jun 28 11:07:08 EST 2002
 
   - The 'distdir' action wasn't deleting the distribution directory
     before building it again.  This meant that, say, if you did 'Build
