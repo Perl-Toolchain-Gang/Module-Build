@@ -35,6 +35,7 @@ sub resume {
   my $self = bless {@_}, $package;
   
   $self->read_config;
+  $self->{new_cleanup} = [];
   my ($action, $args) = $self->cull_args(@ARGV);
   $self->{action} = $action || 'build';
   $self->{args} = {%{$self->{args}}, %$args};
@@ -70,6 +71,7 @@ sub module_name_to_file {
 sub version_from_file {
   my ($self, $file) = @_;
 
+  # Some of this code came from the ExtUtils:: hierarchy.
   open my($fh), $file or die "Can't open '$file' for version: $!";
   while (<$fh>) {
     if ( /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/ ) {
@@ -91,14 +93,45 @@ sub version_from_file {
   die "Couldn't find version string in '$self->{module_version_from}'";
 }
 
+sub add_to_cleanup {
+  my $self = shift;
+  push @{$self->{new_cleanup}}, @_;
+}
+
+sub write_cleanup {
+  my ($self) = @_;
+  return unless @{$self->{new_cleanup}};
+  
+  my $cleanup_file = File::Spec->catfile($self->{config_dir}, 'cleanup');
+  open my $fh, ">$cleanup_file" or die "Can't write '$cleanup_file': $!";
+  local $, = "\n";
+  # Might not need to re-write the old stuff.
+  print $fh @{$self->{cleanup}}, @{$self->{new_cleanup}};
+}
+
+sub config_file {
+  my ($self) = @_;
+  return File::Spec->catfile($self->{config_dir}, $_[1]);
+}
+
 sub read_config {
   my ($self) = @_;
   
   my $file = File::Spec->catfile($self->{config_dir}, 'build_params');
-  open my $fh, $file or die "Can't create '$file': $!";
+  open my $fh, $file or die "Can't read '$file': $!";
   
   while (<$fh>) {
     $self->{args}{$1} = $2 if /^(\w+)=(.*)/;
+  }
+  close $fh;
+  
+  my $cleanup_file = File::Spec->catfile($self->{config_dir}, 'cleanup');
+  if (-e $cleanup_file) {
+    open my $fh, $cleanup_file or die "Can't read '$file': $!";
+    $self->{cleanup} = [<$fh>];
+    chomp @{$self->{cleanup}};
+  } else {
+    $self->{cleanup} = [];
   }
 }
 
@@ -154,6 +187,7 @@ my \$build = resume $build_package (
   build_script => '$self->{build_script}',
 );
 \$build->dispatch;
+\$build->write_cleanup;
 
 EOF
 }
@@ -246,6 +280,7 @@ sub ACTION_build {
   # Currently we only copy .pm files, we don't handle .xs or .PL stuff.
   my $files = $self->rscan_dir('lib', qr{\.pm$});
   $self->copy_if_modified($files, 'blib');
+  $self->add_to_cleanup('blib');
 }
 
 sub ACTION_install {
@@ -264,8 +299,9 @@ sub ACTION_fakeinstall {
 
 sub ACTION_clean {
   my ($self) = @_;
-  # This stuff shouldn't be hard-coded here, it'll come from a data file of saved state info
-  $self->delete_filetree('blib');
+  foreach my $item (@{$self->{cleanup}}) {
+    $self->delete_filetree($item);
+  }
 }
 
 sub ACTION_realclean {

@@ -10,6 +10,9 @@ use strict;
 use vars qw($VERSION @ISA);
 $VERSION = '0.02';
 
+# This isn't very good at figuring out the OS type yet - it should have
+# some way to determine whether it's "Unixish", "Macish", "Windowsish", etc.
+
 eval "use Module::Build::Platform::$^O";
 if ($@) {
   #warn $@ unless $@ =~ /^Can't locate/;
@@ -29,7 +32,7 @@ __END__
 
 =head1 NAME
 
-Module::Build - Perl extension for blah blah blah
+Module::Build - Build and install Perl modules
 
 =head1 SYNOPSIS
 
@@ -42,6 +45,8 @@ Module::Build - Perl extension for blah blah blah
 
    ./Build clean
    ./Build realclean
+   ./Build fakeinstall
+   ./Build dist
 
 =head1 DESCRIPTION
 
@@ -90,7 +95,7 @@ what I didn't like about MakeMaker:
 =item *
 
 I don't like the core idea of MakeMaker, namely that C<make> should be
-involved in the build process, for these reasons:
+involved in the build process.  Here are my reasons:
 
 =over 4
 
