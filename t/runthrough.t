@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 24 }
+BEGIN { plan tests => 26 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -120,6 +120,12 @@ if ($HAVE_YAML) {
   ok -e $install_to;
 
   # XXX need to test the 'install_base' parameter somehow
+  $libdir = File::Spec->catdir('', 'foo', 'base');
+  eval {$build->dispatch('install', install_base => $libdir, destdir => $destdir)};
+  ok $@, '';
+  $install_to = File::Spec->catfile($destdir, $libdir, 'lib', 'Sample.pm');
+  print "Should have installed module as $install_to\n";
+  ok -e $install_to;  
 }
 
 sub strip_volume {

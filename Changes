@@ -1,12 +1,9 @@
 Revision history for Perl extension Module::Build.
 
-0.19 TODO:
+0.19
 
- - Add tests for verifying signatures as well as creating them.  Skip
-   signature tests if we're testing noninteractively, or if the user's
-   gpg setup isn't right, etc.
- 
- - Get the 'install_base' parameter working as documented.
+ - Got the 'install_base' parameter working as documented.  Provides
+   an easy way to install to local or alternative directory trees.
 
 0.18_03
 

@@ -1398,10 +1398,27 @@ sub make_tarball {
   Archive::Tar->create_archive("$dir.tar.gz", 1, @$files);
 }
 
+sub install_base_relative {
+  my ($self, $type) = @_;
+  my %map = (
+	     lib     => ['lib'],
+	     arch    => ['lib', $self->{config}{archname}],
+	     bin     => ['bin'],
+	     script  => ['script'],
+	     bindoc  => ['man', 'man1'],
+	     libdoc  => ['man', 'man3'],
+	    );
+  return unless exists $map{$type};
+  return File::Spec->catdir(@{$map{$type}});
+}
+
 sub install_destination {
   my ($self, $type) = @_;
   my $p = $self->{properties};
   
+  if ($p->{install_base}) {
+    return File::Spec->catdir($p->{install_base}, $self->install_base_relative($type));
+  }
   return $p->{install_path}{$type} if exists $p->{install_path}{$type};
   return $p->{install_sets}{ $p->{installdirs} }{$type};
 }
