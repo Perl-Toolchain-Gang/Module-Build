@@ -5,6 +5,11 @@ Revision history for Perl extension Module::Build.
  - Got the 'install_base' parameter working as documented.  Provides
    an easy way to install to local or alternative directory trees.
 
+ - Fixed a problem on Win32 in which C and XS files wouldn't be
+   compiled properly, and the user would see an error about 'Can't
+   locate object method "format_compiler_cmd"'.
+   (http://rt.cpan.org/Ticket/Display.html?id=2391)
+
 0.18_03
 
  - Added support for the 'install_path' parameter, which allows custom
