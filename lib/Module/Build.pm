@@ -496,6 +496,11 @@ Currently C<Module::Build> doesn't actually do anything with this flag
 something useful with it.  It can potentially bring lots of security,
 packaging, and convenience improvements.
 
+=item add_to_cleanup
+
+An array reference of files to be cleaned up when the C<clean> action
+is performed.  See also the add_to_cleanup() method.
+
 =item sign
 
 If a true value is specified for this parameter, C<Module::Signature>
@@ -540,13 +545,13 @@ when the C<realclean> action is performed.
 
 =item add_to_cleanup()
 
-A C<Module::Build> method may call C<< $self->add_to_cleanup(@files) >>
+You may call C<< $self->add_to_cleanup(@files) >>
 to tell C<Module::Build> that certain files should be removed when the
-user performs the C<Build clean> action.  I decided to make this a
-dynamic method, rather than a static list of files, because these
-static lists can get difficult to manage.  I preferred to keep the
-responsibility for registering temporary files close to the code that
-creates them.
+user performs the C<Build clean> action.  I decided to provide a
+dynamic method, rather than just use a static list of files, because these
+static lists can get difficult to manage.  I usually prefer to keep
+the responsibility for registering temporary files close to the code
+that creates them.
 
 =item resume()
 

@@ -77,8 +77,8 @@ sub new {
   $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
   $p->{script_files} = delete $p->{scripts} if exists $p->{scripts};
 
-  $self->add_to_cleanup( @{delete $p->{cleanup_files}} )
-    if $p->{cleanup_files};
+  $self->add_to_cleanup( @{delete $p->{add_to_cleanup}} )
+    if $p->{add_to_cleanup};
   
   $self->dist_name;
   $self->check_manifest;
