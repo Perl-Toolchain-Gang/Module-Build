@@ -40,7 +40,6 @@ t/lib/ModuleBuildOne.pm
 t/lib/Test/Builder.pm
 t/lib/Test/More.pm
 t/lib/Test/Simple.pm
-t/MANIFEST
 t/manifypods.t
 t/moduleinfo.t
 t/notes.t
