@@ -788,11 +788,59 @@ sub process_script_files {
   
   foreach my $file (@$files) {
     my $result = $self->copy_if_modified($file, $script_dir, 'flatten') or next;
-    require ExtUtils::MM;
-    ExtUtils::MM->fixin($result);
+    $self->fix_shebang_line($result);
     $self->make_executable($result);
   }
 }
+
+sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
+  my ($self, @files) = @_;
+  my $c = $self->{config};
+  
+  my ($does_shbang) = $c->{sharpbang} =~ /^\s*\#\!/;
+  for my $file (@files) {
+    my $FIXIN = IO::File->new($file) or die "Can't process '$file': $!";
+    local $/ = "\n";
+    chomp(my $line = <$FIXIN>);
+    next unless $line =~ s/^\s*\#!\s*//;     # Not a shbang file.
+    
+    my ($cmd, $arg) = (split(' ', $line, 2), '');
+    my $interpreter = $self->{properties}{perl};
+    
+    print STDOUT "Changing sharpbang in $file to $interpreter" if $self->{verbose};
+    my $shb = '';
+    $shb .= "$c->{sharpbang}$interpreter $arg\n" if $does_shbang;
+    
+    # I'm not smart enough to know the ramifications of changing the
+    # embedded newlines here to \n, so I leave 'em in.
+    $shb .= qq{
+eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
+    if 0; # not running under some shell
+} unless $self->os_type eq 'Windows'; # this won't work on win32, so don't
+    
+    my $FIXOUT = IO::File->new(">$file.new")
+      or die "Can't create new $file: $!\n";
+    
+    # Print out the new #! line (or equivalent).
+    local $\;
+    undef $/; # Was localized above
+    print $FIXOUT $shb, <$FIXIN>;
+    close $FIXIN;
+    close $FIXOUT;
+    
+    rename($file, "$file.bak")
+      or die "Can't rename $file to $file.bak: $!";
+    
+    rename("$file.new", $file)
+      or die "Can't rename $file.new to $file: $!";
+    
+    unlink "$file.bak"
+      or warn "Couldn't clean up $file.bak, leaving it there";
+    
+    $self->do_system($c->{eunicefix}, $file) if $c->{eunicefix} ne ':';
+  }
+}
+
 
 sub ACTION_manifypods {
   my $self = shift;
