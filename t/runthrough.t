@@ -15,6 +15,7 @@ require File::Spec->catfile('t', 'common.pl');
 
 my $start_dir = Module::Build->cwd;
 
+# Would be nice to just have a 'base_dir' parameter for M::B->new()
 my $goto = File::Spec->catdir( $start_dir, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
 

@@ -19,9 +19,10 @@ Revision history for Perl extension Module::Build.
    Rolsky]
  
  - For authors who use Module::Signature to sign their distributions,
-   the META.yml file is now created before generating the signature.
-   This fixes an out-of-order problem in signature creation. [Dave
-   Rolsky and Richard Clamp]
+   we now create the SIGNATURE file right in the distribution
+   directory, rather than creating it in the top-level directory and
+   copying it into place.  This solves problems related to having
+   files get out of date with respect to their signatures.
  
  - The distribution directory (e.g. Sample-Module-0.13/ ) will now be
    deleted during the 'clean' or 'realclean' actions.
