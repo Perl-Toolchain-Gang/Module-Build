@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.18
+0.18  Tue Apr  8 13:24:23 CDT 2003
 
  - We now rewrite the shebang lines of scripts ourselves, rather than
    relying on MakeMaker routines to do it.  MakeMaker changed the way
