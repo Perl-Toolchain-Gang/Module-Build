@@ -292,31 +292,39 @@ sub version_from_file {
   return undef;
 }
 
+sub _write_cleanup {
+  my $self = shift;
+  my @to_write = keys %{ $self->{add_to_cleanup} }
+    or return;
+  
+  my $file = $self->config_file('cleanup');
+  my $fh = IO::File->new(">> $file") or die "Can't write to $file: $!";
+  print $fh "$_\n" foreach @to_write;
+  close $fh;
+  
+  @{ $self->{cleanup} }{ @to_write } = ();
+  $self->{add_to_cleanup} = {};
+}
+
+sub cleanup_is_flushed {
+  my $self = shift;
+  return ! keys %{ $self->{add_to_cleanup} };
+}
+
 sub add_to_cleanup {
   my $self = shift;
 
-  # $self->{cleanup} contains files that are written in the 'cleanup'
-  # file.  $self->{add_to_cleanup} is a buffer that we haven't written
-  # yet (and may never write if we don't ever create the cleanup file).
-
-  my @new_files = grep {!exists $self->{cleanup}{$_}} @_, keys %{$self->{add_to_cleanup}};
-  return unless @new_files;
+  # $self->{cleanup} contains files that are already written in the
+  # 'cleanup' file.  $self->{add_to_cleanup} is a buffer that we
+  # haven't written yet (and may never write if we don't ever create
+  # the cleanup file).
   
-  if ( my $file = $self->config_file('cleanup') ) {
-    # A state file exists on disk, so save immediately
-
-    my $fh = IO::File->new(">> $file") or die "Can't append to $file: $!";
-    print $fh "$_\n" foreach @new_files;
-    $self->{add_to_cleanup} = {};
-    
-    @{$self->{cleanup}}{ @new_files } = ();
-    
-  } else {
-    # No state file is being used.  Maybe it will later, but for now
-    # just (re-)save in memory.
-
-    @{$self->{add_to_cleanup}}{ @new_files } = ();
-  }
+  my @new_files = grep {!exists $self->{cleanup}{$_}} @_
+    or return;
+  
+  @{$self->{add_to_cleanup}}{ @new_files } = ();
+  
+  $self->_write_cleanup if $self->config_file('cleanup');
 }
 
 sub cleanup {
@@ -368,6 +376,8 @@ sub write_config {
   my @items = qw(requires build_requires conflicts recommends);
   print $fh Data::Dumper::Dumper( { map {$_,$self->{properties}{$_}} @items } );
   close $fh;
+  
+  $self->_write_cleanup;
 }
 
 sub prereq_failures {
