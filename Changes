@@ -50,6 +50,9 @@ Revision history for Perl extension Module::Build.
    to '.'.  Previously it was '::', inherited from Unix. [Yitzchak
    Scott-Thoennes]
 
+ - Added documentation for the 'code' and 'docs' actions. [Steve
+   Purkis and Mark Stosberg]
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
