@@ -58,6 +58,10 @@ Revision history for Perl extension Module::Build.
  - Fixed a fatal bug when building META.yml with YAML.pm and
    'dynamic_config' is set. [Reported by Jaap Karssenberg]
 
+ - In the second example code for the Module::Build->subclass()
+   method, the Module::Build module needed to be loaded before calling
+   its methods. [John Peacock]
+
 
 0.24  Wed Feb 25 15:57:00 CST 2004
 
