@@ -3,7 +3,8 @@
 use strict;
 use Test;
 
-BEGIN { plan tests => 7 }
+print("1..0 # Skipped: no compiler found\n"), exit(0) unless have_compiler();
+plan tests => 7;
 
 use Module::Build;
 use File::Spec;
@@ -36,3 +37,35 @@ ok $@, '';
 
 # Make sure blib/ is gone after 'realclean'
 ok not -e 'blib';
+
+#################################################################
+# Routines below were taken from ExtUtils::ParseXS
+
+use Config;
+sub have_compiler {
+  my %things;
+  foreach (qw(cc ld)) {
+    return 0 unless $Config{$_};
+    $things{$_} = (File::Spec->file_name_is_absolute($Config{cc}) ?
+                   $Config{cc} :
+                   find_in_path($Config{cc}));
+    return 0 unless $things{$_};
+    return 0 unless -x $things{$_};
+  }
+  return 1;
+}
+
+sub find_in_path {
+  my $thing = shift;
+  my @path = split $Config{path_sep}, $ENV{PATH};
+  my @exe_ext = $^O eq 'MSWin32' ?
+    split($Config{path_sep}, $ENV{PATHEXT} || '.com;.exe;.bat') :
+    ('');
+  foreach (@path) {
+    my $fullpath = File::Spec->catfile($_, $thing);
+    foreach my $ext ( @exe_ext ) {
+      return "$fullpath$ext" if -e "$fullpath$ext";
+    }
+  }
+  return;
+}
