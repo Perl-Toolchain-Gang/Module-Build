@@ -1459,10 +1459,11 @@ sub _sign_dir {
   # the right directory after a signature failure.  Would be nice if
   # Module::Signature took a directory argument.
   
+  my $start_dir = $self->cwd;
   chdir $dir or die "Can't chdir() to $dir: $!";
   eval {Module::Signature::sign()};
   my @err = $@ ? ($@) : ();
-  chdir $self->base_dir or push @err, "Can't chdir() back to " . $self->base_dir . ": $!";
+  chdir $start_dir or push @err, "Can't chdir() back to $start_dir: $!";
   die join "\n", @err if @err;
 }
 
@@ -1517,6 +1518,7 @@ sub ACTION_disttest {
 
   $self->depends_on('distdir');
 
+  my $start_dir = $self->cwd;
   my $dist_dir = $self->dist_dir;
   chdir $dist_dir or die "Cannot chdir to $dist_dir: $!";
   # XXX could be different names for scripts
@@ -1525,7 +1527,7 @@ sub ACTION_disttest {
   $self->run_perl_script('Build.PL') or die "Error executing 'Build.PL' in dist directory: $!";
   $self->run_perl_script('Build') or die "Error executing 'Build' in dist directory: $!";
   $self->run_perl_script('Build', [], ['test']) or die "Error executing 'Build test' in dist directory";
-  chdir $self->base_dir;
+  chdir $start_dir;
 }
 
 sub ACTION_manifest {
