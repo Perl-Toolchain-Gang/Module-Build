@@ -1151,8 +1151,8 @@ eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
 sub ACTION_builddocs {
   my $self = shift;
   require Pod::Man;
-  $self->manify_bin_pods();
-  $self->manify_lib_pods();
+  $self->manify_bin_pods() if $self->install_destination('bindoc');
+  $self->manify_lib_pods() if $self->install_destination('libdoc');
 }
 
 sub manify_bin_pods {
