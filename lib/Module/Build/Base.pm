@@ -759,7 +759,7 @@ sub check_installed_status {
   if ($modname eq 'perl') {
     $status{have} = $self->perl_version;
   
-  } elsif (eval { $status{have} = $modname->VERSION }) {
+  } elsif (eval { no strict; $status{have} = ${"${modname}::VERSION"} }) {
     # Don't try to load if it's already loaded
     
   } else {
