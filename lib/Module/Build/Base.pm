@@ -1074,9 +1074,7 @@ sub ACTION_code {
   }
   
   $self->process_PL_files;
-  
-  $self->compile_support_files;
-  
+  $self->process_support_files;
   $self->process_pm_files;
   $self->process_xs_files;
   $self->process_pod_files;
@@ -1089,7 +1087,7 @@ sub ACTION_build {
   $self->depends_on('docs');
 }
 
-sub compile_support_files {
+sub process_support_files {
   my $self = shift;
   my $p = $self->{properties};
   return unless $p->{c_source};
