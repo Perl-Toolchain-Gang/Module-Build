@@ -15,6 +15,9 @@ Revision history for Perl extension Module::Build.
    verbose(), license(), etc. now have auto-generated documentation in
    Module/Build.pm.
 
+ - Created a Cookbook entry for 'Adding new elements to the install
+   process'
+
 0.2601
 
  - Fixed some backslash problems with split_like_shell() on
