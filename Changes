@@ -3,7 +3,10 @@ Revision history for Perl extension Module::Build.
 0.18
 
  - Don't use ExtUtils::ParseXS when the perl version is less than 5.6,
-   because it won't work. [spotted by Dave Rolsky]
+   because it won't work.  This is actually a change in
+   ExtUtils::ParseXS, not Module::Build.  We therefore recommend
+   ExtUtils::ParseXS 2.02 (or to not install it).  [spotted by Dave
+   Rolsky]
 
  - Now works on VMS - the Build script's shebang-line-equivalent
    wasn't being formed correctly there - though just about everything
