@@ -34,7 +34,6 @@ t/extend.t
 t/files.t
 t/install.t
 t/lib/ModuleBuildOne.pm
-t/MANIFEST
 t/manifypods.t
 t/notes.t
 t/pod_parser.t
