@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.17
 
+ - Add several options to the 'license' field, so that we're in better
+   sync with PAUSE and CPAN options. [Andreas Koenig]
+
  - Created a find_perl_interpreter() method that tries to locate the
    currently executing perl interpreter.  Following a suggestion from
    Nicholas Clark <nick@ccl4.org> for Inline, we prefer an absolute
