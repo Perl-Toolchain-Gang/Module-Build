@@ -47,6 +47,9 @@ Revision history for Perl extension Module::Build.
    was that a couple environment variables (TEST_FILES, MAKEFLAGS)
    were being passed through to subprocesses, and confused them.
 
+ - Fixed an important typo in the documentation for the 'install_base'
+   parameter ('libdoc' and 'bindoc' were switched). [Ray Zimmerman]
+
  - The pass-through Makefiles (type 'small' or 'passthrough') now
    support the TEST_FILES parameter to 'make test'.
 
