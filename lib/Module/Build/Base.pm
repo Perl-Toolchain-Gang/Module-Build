@@ -948,7 +948,7 @@ sub get_action_docs {
     # Look for our action
     my ($found, $inlist) = (0, 0);
     while (<$fh>) {
-      if (/^=item\s+\Q$action\E\b/o)  {
+      if (/^=item\s+\Q$action\E\b/)  {
 	$found = 1;
       } elsif (/^=(item|back)/) {
 	last if $found > 1 and not $inlist;
