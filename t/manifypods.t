@@ -7,8 +7,9 @@ use File::Path qw( rmtree );
 use Test;
 use Module::Build;
 
-BEGIN { 
-  require File::Spec->catfile('t', 'common.pl');
+BEGIN {
+  my $common_pl = File::Spec->catfile('t', 'common.pl');
+  require $common_pl;
   skip_test("manpage_support feature is not enabled")
     unless Module::Build->current->feature('manpage_support');
   plan tests => 21;
