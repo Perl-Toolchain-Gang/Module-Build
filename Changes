@@ -21,7 +21,7 @@ Revision history for Perl extension Module::Build.
 
  - The installation process will now create man(1) and man(3) pages
    from POD in modules & scripts, and install them. [large patch by
-   Steve Purkis]
+   Steve Purkis, 5.005 fix by Mathieu Arnold]
 
  - version_from_file() now ignores $VERSION variables that are defined
    in POD or comments.  It can still be tricked by $VERSIONs in string
