@@ -1645,7 +1645,7 @@ sub ACTION_testpod {
     or die "The 'testpod' action requires Test::Pod version 0.95";
 
   my @files = sort keys %{$self->_find_pods($self->libdoc_dirs)},
-		   keys %{$self->_find_pods($self->bindoc_dirs)}
+                   keys %{$self->_find_pods($self->bindoc_dirs, exclude => [ qr/\.bat$/ ])}
     or die "Couldn't find any POD files to test\n";
 
   { package Module::Build::PodTester;  # Don't want to pollute the main namespace
@@ -1666,7 +1666,8 @@ sub ACTION_docs {
 sub manify_bin_pods {
   my $self    = shift;
   my $parser  = Pod::Man->new( section => 1 ); # binary manpages go in section 1
-  my $files   = $self->_find_pods($self->{properties}{bindoc_dirs});
+  my $files   = $self->_find_pods( $self->{properties}{bindoc_dirs},
+                                   exclude => [ qr/\.bat$/ ] );
   return unless keys %$files;
   
   my $mandir = File::Spec->catdir( $self->blib, 'bindoc' );
@@ -1702,13 +1703,17 @@ sub manify_lib_pods {
 }
 
 sub _find_pods {
-  my ($self, $dirs) = @_;
+  my ($self, $dirs, %args) = @_;
   my %files;
   foreach my $spec (@$dirs) {
     my $dir = $self->localize_file_path($spec);
     next unless -e $dir;
-    do { $files{$_} = File::Spec->abs2rel($_, $dir) if $self->contains_pod( $_ ) }
-      for @{ $self->rscan_dir( $dir ) };
+    FILE: foreach my $file ( @{ $self->rscan_dir( $dir ) } ) {
+      foreach my $regexp ( @{ $args{exclude} } ) {
+	next FILE if $file =~ $regexp;
+      }
+      $files{$file} = File::Spec->abs2rel($file, $dir) if $self->contains_pod( $file )
+    }
   }
   return \%files;
 }
@@ -1733,87 +1738,77 @@ sub ACTION_html {
 
 sub htmlify_pods {
   my $self = shift;
-  require Module::Build::PodParser;
-  
-  my $blib = $self->blib;
-  my $html = File::Spec::Unix->catdir($blib, 'html');
-  my $script = File::Spec::Unix->catdir($blib, 'script');
-  
-  unless (-d $html) {
-    File::Path::mkpath($html, 1, 0755) or die "Couldn't mkdir $html: $!";
-  }
-  
-  my $pods = $self->_find_pods([ @{$self->libdoc_dirs}, @{$self->libdoc_dirs} ]);
-  if (-d $script) {
-    File::Find::finddepth( sub {
-			     $pods->{$File::Find::name} = 
-			       File::Spec->catfile("script",
-						   File::Basename::basename($File::Find::name) )
-				   if (-f $_ and not /\.bat$/ and $self->contains_pod($_));
-			   }, $script);
-  }
-  
-  foreach my $pod (keys %$pods){
-    $self->_htmlify_pod(
-			path => $pod,
-			rel_path => $pods->{$pod},
-			htmldir => $html,
-			backlink => '__top',
-			css => ($^O =~ /Win32/) ? 'Active.css' : '',
-		       );
-  }
-}
 
-sub _htmlify_pod {
-  my ($self, %args) = @_;
+  require Module::Build::PodParser;
   require Pod::Html;
 
-  $self->add_to_cleanup('pod2htm*');
-  
-  my ($name, $path) = File::Basename::fileparse($args{rel_path}, qr{\..*});
-  my @dirs = File::Spec->splitdir($path);
-  my $isbin = shift @dirs eq 'script';
-  my $infile = File::Spec::Unix->abs2rel($args{path});
-    
-  my @rootdirs  = $isbin? ('bin') : ('site', 'lib');
-  
-  my $fulldir = File::Spec::Unix->catfile($args{htmldir}, @rootdirs, @dirs);
-  my $outfile = File::Spec::Unix->catfile($fulldir, $name . '.html');
+  my $pods = $self->_find_pods( [ @{$self->libdoc_dirs},
+                                  @{$self->bindoc_dirs} ],
+                                exclude => [ qr/\.(?:bat|com|html)$/ ] );
 
-  return if $self->up_to_date($infile, $outfile);
-    
-  unless (-d $fulldir){
-    File::Path::mkpath($fulldir, 1, 0755) 
-	or die "Couldn't mkdir $fulldir: $!";  
+  my $htmldir = File::Spec::Unix->catdir($self->blib, 'html');
+  unless (-d $htmldir) {
+    File::Path::mkpath($htmldir, 0, 0755) or die "Couldn't mkdir $htmldir: $!";
   }
-    
-  my $path2root = "../" x (@rootdirs+@dirs-1);
-  my $htmlroot = File::Spec::Unix->catdir($path2root, 'site');
-  my $podpath = join ":" => ($isbin ? qw(script lib) : qw(lib));
-  my $title = join('::', @dirs) . $name;
-    
-  {
-    my $fh = IO::File->new($infile);
-    my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
-    $title .= " - $abstract" if $abstract;
+
+  $self->add_to_cleanup('pod2htm*');
+
+  foreach my $pod (keys %$pods){
+
+    my $isbin = 0;
+    {
+      my @d = File::Spec->splitdir(
+		File::Spec->canonpath( (File::Spec->splitpath($pod))[1] ) );
+      $isbin = pop( @d ) eq 'script';
+    }
+
+    my @rootdirs = $isbin ? ('bin') : ('site', 'lib');
+
+    my ($name, $path) = File::Basename::fileparse($pods->{$pod}, qr{\..*});
+    my @dirs = File::Spec->splitdir( File::Spec->canonpath( $path ) );
+    pop( @dirs ) if $dirs[-1] eq File::Spec->curdir;
+
+    my $fulldir = File::Spec::Unix->catfile($htmldir, @rootdirs, @dirs);
+    my $outfile = File::Spec::Unix->catfile($fulldir, $name . '.html');
+    my $infile  = File::Spec::Unix->abs2rel($pod);
+
+    return if $self->up_to_date($infile, $outfile);
+
+    unless (-d $fulldir){
+      File::Path::mkpath($fulldir, 0, 0755)
+        or die "Couldn't mkdir $fulldir: $!";
+    }
+
+    my $path2root = "../" x (@rootdirs+@dirs);
+    my $htmlroot = File::Spec::Unix->catdir($path2root, 'site');
+    my $title = join('::', (@dirs, $name));
+
+    {
+      my $fh = IO::File->new($infile);
+      my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
+      $title .= " - $abstract" if $abstract;
+    }
+
+    my @opts = (
+                '--flush',
+                "--title=$title",
+                '--podpath=lib:script',
+                "--infile=$infile",
+                "--outfile=$outfile",
+                '--podroot=' . $self->blib,
+                "--htmlroot=$htmlroot",
+                eval {Pod::Html->VERSION(1.03); 1} ?
+		  ('--header', "--backlink=__top") : (),
+               );
+
+    # XXX: The logic below is wrong, it should apply only to ActiveState perl.
+    push( @opts, "--css=$path2root/Active.css" ) if ($^O =~ /Win32/);
+
+    print "HTMLifying $infile -> $outfile\n";
+    print "pod2html @opts\n" if $self->verbose;
+    Pod::Html::pod2html(@opts);	# or warn "pod2html @opts failed: $!";
+
   }
-  
-  my $blib = $self->blib;
-  my @opts = (
-	      '--flush',
-	      "--title=$title",
-	      "--podpath=$podpath",
-	      "--infile=$infile",
-	      "--outfile=$outfile",
-	      "--podroot=$blib",
-	      "--htmlroot=$htmlroot",
-	      eval {Pod::Html->VERSION(1.03); 1} ? ('--header', "--backlink=$args{backlink}") : (),
-	     );
-  push @opts, "--css=$path2root/$args{css}" if $args{css};
-    
-  print "Creating $outfile\n";
-  print "pod2html @opts\n" if $self->verbose;
-  Pod::Html::pod2html(@opts);	# or warn "pod2html @opts failed: $!";
 }
 
 # Adapted from ExtUtils::MM_Unix
