@@ -1,6 +1,10 @@
 Revision history for Perl extension Module::Build.
 
 0.05
+  - Added the 'testdb' action, and the 'debugger=1' argument to the
+    'test' action, both of which run tests under the perl
+    debugger. (Dave Rolsky)
+
   - Added prerequisite checking
 XXX Needs docs
 XXX Needs to write _build/prereq

@@ -1,5 +1,7 @@
 package Module::Build;
 
+# $Id $
+
 # This module doesn't do much of anything itself, it inherits from the
 # modules that do the real work.  The only real thing it has to do is
 # figure out which OS-specific module to pull in.  Many of the
@@ -272,10 +274,18 @@ with C<.t> in a C<t/> directory.
 If you want tests to be 'verbose', i.e. show details of test execution
 rather than just summary information, pass the argument C<verbose=1>.
 
+If you want to run tests under the perl debugger, pass the argument
+C<debugger=1>.
+
 In addition, if a file called C<visual.pl> exists in the top-level
 directory, this file will be executed as a Perl script and its output
 will be shown to the user.  This is a good place to put speed tests or
 other tests that don't use the C<Test::Harness> format for output.
+
+=item * testdb
+
+This is a synonym for the 'test' action with the C<debugger=1>
+argument.
 
 =item * clean
 

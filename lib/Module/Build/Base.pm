@@ -1,5 +1,7 @@
 package Module::Build::Base;
 
+# $Id $
+
 use strict;
 use Config;
 use File::Copy ();
@@ -372,7 +374,8 @@ sub ACTION_test {
   
   $self->depends_on('build');
   
-  $Test::Harness::verbose = $self->{args}{verbose} || 0;
+  local $Test::Harness::switches = '-w -d' if $self->{args}{debugger};
+  local $Test::Harness::verbose = $self->{args}{verbose} || 0;
   local $ENV{TEST_VERBOSE} = $self->{args}{verbose} || 0;
 
   # Make sure we test the module in blib/
@@ -397,6 +400,12 @@ sub ACTION_test {
   if (-e 'visual.pl') {
     $self->run_script('visual.pl', '-Mblib');
   }
+}
+
+sub ACTION_testdb {
+  my ($self) = @_;
+  local $self->{args}{debugger} = 1;
+  $self->depends_on('test');
 }
 
 sub ACTION_build {
