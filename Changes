@@ -2,6 +2,14 @@ Revision history for Perl extension Module::Build.
 
 0.16
 
+ - The "install" action accepts new "destdir" [motivated by Michael
+   Schwern and Chip Salzenberg] and "uninst" parameters [by Dave
+   Rolsky].  The former prepends an arbitrary directory to all
+   installation paths (useful for package management), and the latter
+   will tell ExtUtils::Install to remove any differing files that are
+   "shadowing" the stuff you're installing from a different location,
+   just like MakeMaker's "make install UNINST=1" command will do.
+
  - Made changes to the generated Makefile (from Module::Build::Compat)
    that much better support Windows platforms [after suggestions by
    James Freeman]
