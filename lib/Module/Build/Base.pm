@@ -286,6 +286,7 @@ sub notes        { shift()->_general_notes('notes', @_) }
 sub config_data { shift()->_general_notes('config_data', @_) }
 sub feature      { shift()->_general_notes('features', @_) }
 sub runtime_params { shift->_persistent_hash_read('runtime_params', @_ ? shift : ()) }
+sub current_action { shift->{action} }
 
 sub add_build_element {
   my $self = shift;

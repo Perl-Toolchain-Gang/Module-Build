@@ -647,6 +647,10 @@ as the body of the subclass.
 
 =over 4
 
+=item current_action()
+
+Returns the name of the currently-running action, such as "build" or "test".
+
 =item add_build_element($type)
 
 Adds a new type of entry to the build process.  Accepts a single
