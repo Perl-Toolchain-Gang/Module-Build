@@ -1407,6 +1407,10 @@ doesn't try to run your F<Build.PL> as a normal F<.PL> file:
 
  PL_FILES => {},
 
+You may also be interested in looking at the C<Module::Build::Compat>
+module, which can automatically create various kinds of F<Makefile.PL>
+compatibility layers.
+
 =head1 TO DO
 
 The current method of relying on time stamps to determine whether a
@@ -1415,15 +1419,6 @@ requires tracing all dependencies backward, it runs into problems on
 NFS, and it's just generally flimsy.  It would be better to use an MD5
 signature or the like, if available.  See C<cons> for an example.
 
-When generating META.yml, you may see errors from Module::Info.  This
-is because to build the I<provides> section, Module::Info compiles
-each source file to determine what packages it contains.  If that
-module requires dependencies, they will not be loaded if they are part
-of the same distribution, because they might not have been built yet.
-Patches to fix this welcome.  The right solution may be to make C<use>
-not die if it encounters an error, but that might be hard to do.
-
-- make man pages and install them.
 - append to perllocal.pod
 - write .packlist in appropriate location (needed for un-install)
 
