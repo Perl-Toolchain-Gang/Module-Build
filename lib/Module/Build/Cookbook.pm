@@ -181,14 +181,66 @@ so:
   ./Build test --config perlpath=/foo/perl
 
 
-=head2 Adding new types to the install process
+=head2 Adding new file types to the install process
 
 Sometimes you might have extra types of files that you want to install
 alongside the standard types like F<.pm> and F<.pod> files.  For
 instance, you might have a F<Foo.dat> file containing some data
-related to the C<Boo::Baz> module.  
+related to the C<Boo::Baz> module.  Assuming the data doesn't need to
+be created on the fly, the best place for it to end up is probably as
+F<Boo/Baz/Foo.dat> somewhere in perl's C<@INC> path so C<Boo::Baz> can
+access it easily at runtime.  The following code from a sample
+C<Build.PL> file demonstrates how to accomplish this:
 
-... more to come ...
+  use Module::Build;
+  my $build = new Module::Build
+    (
+     module_name => 'Boo::Baz',
+     ...
+    );
+  $build->add_build_element('dat');
+  $build->create_build_script;
+
+This will find all F<.dat> files in the F<lib/> directory, copy them
+to the F<blib/lib/> directory during the C<build> action, and install
+them during the C<install> action.
+
+If your extra files aren't in the C<lib/> directory, you can
+explicitly say where they are, just as you'd do with F<.pm> or F<.pod>
+files:
+
+  use Module::Build;
+  my $build = new Module::Build
+    (
+     module_name => 'Boo::Baz',
+     dat_files => {'some/dir/Foo.dat' => 'lib/Boo/Baz/Foo.dat'},
+     ...
+    );
+  $build->add_build_element('dat');
+  $build->create_build_script;
+
+If your extra files actually need to be created on the user's machine,
+you'll probably have to override the C<build> action to do so:
+
+  use Module::Build;
+  my $class = Module::Build->subclass(code => <<'EOF');
+    sub ACTION_build {
+      my $self = shift;
+      $self->SUPER::ACTION_build(@_);
+      ... create the .dat files here ...
+    }
+  EOF
+  my $build = $class->new
+    (
+     module_name => 'Boo::Baz',
+     ...
+    );
+  $build->add_build_element('dat');
+  $build->create_build_script;
+
+Please note that these examples use some capabilities of Module::Build
+that first appeared in version 0.26.  Before that it could certainly
+still be done, but the simple cases took a bit more work.
 
 =head1 AUTHOR
 
