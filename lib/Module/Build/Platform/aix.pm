@@ -6,25 +6,10 @@ use Module::Build::Platform::Unix;
 use vars qw(@ISA);
 @ISA = qw(Module::Build::Platform::Unix);
 
-sub need_prelink_c { 1 }
-
-sub link_c {
-  my ($self, $to, $file_base) = @_;
-  my $cf = $self->{config};
-
-  $file_base =~ tr/"//d; # remove any quotes
-  my $perl_inc = File::Spec->catdir($cf->{archlibexp}, 'CORE'); #location of perl.exp
-
-  # Massage some very naughty bits in %Config
-  local $cf->{lddlflags} = $cf->{lddlflags};
-  for ($cf->{lddlflags}) {
-    s/\Q$(BASEEXT)\E/$file_base/;
-    s/\Q$(PERL_INC)\E/$perl_inc/;
-  }
-
-  return $self->SUPER::link_c($to, $file_base);
-}
-
+# This class isn't necessary anymore, but we can't delete it, because
+# some people might still have the old copy in their @INC, containing
+# code we don't want to execute, so we have to make sure an upgrade
+# will replace it with this empty subclass.
 
 1;
 __END__

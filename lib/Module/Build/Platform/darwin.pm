@@ -6,19 +6,10 @@ use Module::Build::Platform::Unix;
 use vars qw(@ISA);
 @ISA = qw(Module::Build::Platform::Unix);
 
-sub compile_c {
-  my ($self, $file) = @_;
-
-  # Perhaps they'll fix this in later versions, so don't tinker if it's fixed
-  return $self->SUPER::compile_c($file) unless $self->{config}{ccflags} =~ /-flat_namespace/;
-
-  # -flat_namespace isn't a compile flag, it's a linker flag.  But
-  # it's mistakenly in Config.pm as both.  Make the correction here.
-  local $self->{config}{ccflags} = $self->{config}{ccflags};
-  $self->{config}{ccflags} =~ s/-flat_namespace//;
-  $self->SUPER::compile_c($file);
-}
-
+# This class isn't necessary anymore, but we can't delete it, because
+# some people might still have the old copy in their @INC, containing
+# code we don't want to execute, so we have to make sure an upgrade
+# will replace it with this empty subclass.
 
 1;
 __END__

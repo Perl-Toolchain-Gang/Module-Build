@@ -2449,34 +2449,6 @@ sub compile_c {
   return $obj_file;
 }
 
-# Most platforms don't need prelinking stuff done
-sub need_prelink_c { 0 }
-
-sub prelink_c {
-  my ($self, $to, $file_base) = @_;
-  my ($p, $args) = ($self->{properties}, $self->{args});
-
-  $file_base =~ tr/"//d; # remove any quotes
-  my $basename = File::Basename::basename($file_base);
-
-  print "ExtUtils::Mksymlists::Mksymlists('$file_base')\n";
-
-  require ExtUtils::Mksymlists;
-  ExtUtils::Mksymlists::Mksymlists( # dl. abbrev for dynamic library
-    NAME     => $args->{dl_name}      || $p->{module_name},
-    DLBASE   => $args->{dl_base}      || $basename,
-    DL_VARS  => $args->{dl_vars}      || [],
-    DL_FUNCS => $args->{dl_funcs}     || {},
-    FUNCLIST => $args->{dl_func_list} || [],
-    IMPORTS  => $args->{dl_imports}   || {},
-    FILE     => $file_base,
-  );
-
-  # *One* of these will be created by Mksymlists depending on $^O
-  local $_;
-  $self->add_to_cleanup("$file_base.$_") for qw(ext def opt);
-}
-
 sub link_c {
   my ($self, $to, $file_base) = @_;
   my $b = $self->_cbuilder;
