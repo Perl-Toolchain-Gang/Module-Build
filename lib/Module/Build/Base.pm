@@ -91,7 +91,7 @@ sub prompt {
   my ($mess, $def) = @_;
   die "prompt() called without a prompt message" unless @_;
 
-  my $ISA_TTY = -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ;   # Pipe?
+  my $INTERACTIVE = -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ;   # Pipe?
   
   ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
 
@@ -100,7 +100,7 @@ sub prompt {
     print "$mess $dispdef";
   }
   my $ans;
-  if ($ISA_TTY) {
+  if ($INTERACTIVE) {
     $ans = <STDIN>;
     if ( defined $ans ) {
       chomp $ans;
@@ -117,9 +117,9 @@ sub prompt {
   return $ans;
 }
 
-sub yorn {
+sub y_n {
   my $self = shift;
-  die "yorn() called without a prompt message" unless @_;
+  die "y_n() called without a prompt message" unless @_;
   
   my $answer;
   while (1) {
