@@ -230,22 +230,21 @@ sub version_from_file {
   # Some of this code came from the ExtUtils:: hierarchy.
   open my($fh), $file or die "Can't open '$file' for version: $!";
   while (<$fh>) {
-    if ( /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/ ) {
+    if ( my ($sigil, $var) = /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/ ) {
       my $eval = qq{
 		    package Module::Build::Base::_version;
 		    no strict;
 		    
-		    local $1$2;
-		    \$$2=undef; do {
+		    local $sigil$var;
+		    \$$var=undef; do {
 		      $_
-		    }; \$$2
+		    }; \$$var
 		   };
       local $^W;
       return scalar eval $eval;
     }
   }
   return undef;
-  #die "Couldn't find version string in '$file'";
 }
 
 sub add_to_cleanup {
@@ -983,9 +982,41 @@ sub link_c {
     my @linker_flags = $self->split_like_shell($cf->{extra_linker_flags} || '');
     my @lddlflags = $self->split_like_shell($cf->{lddlflags});
     my @shrp = $self->split_like_shell($cf->{shrpenv});
-    $self->do_system(@shrp, $cf->{cc}, @lddlflags, '-o', $lib_file,
+    $self->do_system(@shrp, $cf->{ld}, @lddlflags, '-o', $lib_file,
 		     "$file_base$cf->{obj_ext}", @$objects, @linker_flags)
       or die "error building $file_base$cf->{obj_ext} from '$file_base.$cf->{dlext}'";
+  }
+}
+
+sub compile_xs {
+  my ($self, $file) = @_;
+  (my $file_base = $file) =~ s/\.[^.]+$//;
+
+  print "$file -> $file_base.c\n";
+  
+  if (eval {require ExtUtils::ParseXS; 1}) {
+    
+    ExtUtils::ParseXS::process_file(
+				    filename => $file,
+				    prototypes => 0,
+				    output => "$file_base.c",
+				   );
+  } else {
+    # Ok, I give up.  Just use backticks.
+    
+    my $xsubpp  = $self->find_module_by_name('ExtUtils::xsubpp', \@INC)
+      or die "Can't find ExtUtils::xsubpp in INC (@INC)";
+    
+    my $typemap =  $self->find_module_by_name('ExtUtils::typemap', \@INC);
+    my $cf = $self->{config};
+    
+    my $command = (qq{$^X "-I$cf->{archlib}" "-I$cf->{privlib}" "$xsubpp" -noprototypes } .
+		   qq{-typemap "$typemap" "$file"});
+    
+    print $command;
+    open my($fh), "> $file_base.c" or die "Couldn't write $file_base.c: $!";
+    print $fh `$command`;
+    close $fh;
   }
 }
 
@@ -1034,33 +1065,7 @@ sub process_xs {
   # .xs -> .c
   unless ($self->up_to_date($file, "$file_base.c")) {
     $self->add_to_cleanup("$file_base.c");
-    
-    my $xsubpp  = $self->find_module_by_name('ExtUtils::xsubpp', \@INC)
-      or die "Can't find ExtUtils::xsubpp in INC (@INC)";
-    my $typemap =  $self->find_module_by_name('ExtUtils::typemap', \@INC);
-    
-    if (1) {
-      # Here we're trying to trick xsubpp into thinking it's been run as
-      # a command.  Oy, it hurts!
-
-      local @INC  = ($cf->{archlib}, $cf->{privlib}, @INC);
-      local @ARGV = ("-noprototypes", "-typemap", $typemap, $file);
-      local *CORE::GLOBAL::exit = sub {};
-      my $cwd = $self->cwd;
-      $self->stdout_to_file( sub { package xsubpp; do $xsubpp }, "$file_base.c" );
-      chdir $cwd or die "Can't chdir back to $cwd: $!";
-
-    } else {
-      # Ok, I give up.  Just use backticks.
-
-      my $command = (qq{$^X "-I$cf->{archlib}" "-I$cf->{privlib}" "$xsubpp" -noprototypes } .
-		     qq{-typemap "$typemap" "$file"});
-      
-      print $command;
-      open my($fh), "> $file_base.c" or die "Couldn't write $file_base.c: $!";
-      print $fh `$command`;
-      close $fh;
-    }
+    $self->compile_xs($file);
   }
   
   # .c -> .o
