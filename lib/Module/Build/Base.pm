@@ -74,13 +74,11 @@ sub resume {
 sub new_from_context {
   my ($package, %args) = @_;
   
-  # XXX Read the META.yml and see whether we need to run the Build.PL
+  # XXX Read the META.yml and see whether we need to run the Build.PL?
   
   # Run the Build.PL
-  $package->run_perl_script('Build.PL');
-  my $self = $package->resume;
-  $self->merge_args(undef, %args);
-  return $self;
+  $package->run_perl_script('Build.PL', [], [map {"--$_", $args{$_}} keys %args]);
+  return $package->resume;
 }
 
 sub current {
