@@ -1,6 +1,21 @@
 Revision history for Perl extension Module::Build.
 
-0.03
+0.04
+  - Reorganized some of the responsibilities of various methods, which
+    allows modules to be built and tested programmatically.
+
+  - The 'clean' action will now clean up files that were created more
+    recently than the on-disk cleanup registry was written.
+
+  - Undefined values from Config.pm are handled correctly now.
+
+  - The dispatch() method will now accept explicit dispatch
+    parameters, for use in a programmatic setting.
+
+  - $ENV{TEST_VERBOSE} will be set in test scripts if the 'verbose=1'
+    parameter is set.
+
+0.03  Sun Nov 11 14:58 CDT 2001
   - The 'perl Build.PL' step will now detect whether the current
     environment is "unixish", "windowsish", etc., and load the correct
     module (i.e. Module::Build::Platform::Unix).  More specific

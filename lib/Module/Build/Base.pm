@@ -15,6 +15,7 @@ sub new {
 		    build_script => 'Build',
 		    config_dir => '_build',
 		    @_,
+		    new_cleanup => {},
 		   }, $package;
   
   my ($action, $args) = $self->cull_args(@ARGV);
@@ -26,6 +27,8 @@ sub new {
   $self->find_version;
   $self->write_config;
   
+  $self->check_manifest;
+  
   return $self;
 }
 
@@ -34,10 +37,7 @@ sub resume {
   my $self = bless {@_}, $package;
   
   $self->read_config;
-  $self->{new_cleanup} = [];
-  my ($action, $args) = $self->cull_args(@ARGV);
-  $self->{action} = $action || 'build';
-  $self->{args} = {%{$self->{args}}, %$args};
+  $self->{new_cleanup} = {};
   return $self;
 }
 
@@ -95,15 +95,15 @@ sub version_from_file {
 
 sub add_to_cleanup {
   my $self = shift;
-  push @{$self->{new_cleanup}}, @_;
+  @{$self->{new_cleanup}}{@_} = ();
 }
 
 sub write_cleanup {
   my ($self) = @_;
-  return unless @{$self->{new_cleanup}};  # no new files
+  return unless %{$self->{new_cleanup}};  # no new files
   
   # Merge the new parameters into the old
-  @{$self->{cleanup}}{@{$self->{new_cleanup}}} = ();
+  @{ $self->{cleanup} }{ keys %{ $self->{new_cleanup} } } = ();
   
   # Write to the cleanup file
   my $cleanup_file = $self->config_file('cleanup');
@@ -123,7 +123,11 @@ sub read_config {
   open my $fh, $file or die "Can't read '$file': $!";
   
   while (<$fh>) {
-    $self->{args}{$1} = $2 if /^(\w+)=(.*)/;
+    if (/^(\w+)$/) {
+      $self->{args}{$1} = undef;
+    } elsif (/^(\w+)=(.*)/) {
+      $self->{args}{$1} = $2;
+    }
   }
   close $fh;
   
@@ -147,14 +151,17 @@ sub write_config {
   my $file = $self->config_file('build_params');
   open my $fh, ">$file" or die "Can't create '$file': $!";
   
-  foreach my $key (sort(keys %Config), sort keys %{$self->{args}} ) {
-    if ($self->{args}{$key} =~ /\n/) {
+  foreach my $key (sort keys %{$self->{args}} ) {
+    if (!defined $self->{args}{$key}) {
+      print $fh "$key\n";
+
+    } elsif ($self->{args}{$key} =~ /\n/) {
       warn "Sorry, can't handle newlines in config data '$key' (yet)\n";
-      next;
+
+    } else {
+      print $fh "$key=$self->{args}{$key}\n";
     }
-    print $fh "$key=$self->{args}{$key}\n";
   }
-  close $fh;
 }
 
 sub rm_previous_build_script {
@@ -199,8 +206,6 @@ EOF
 sub create_build_script {
   my ($self) = @_;
   
-  $self->check_manifest;
-  
   $self->rm_previous_build_script;
 
   print("Creating new '$self->{build_script}' script for ",
@@ -234,6 +239,15 @@ sub check_manifest {
 
 sub dispatch {
   my $self = shift;
+  
+  if (@_) {
+    $self->{action} = shift;
+    $self->{args} = {%{$self->{args}}, @_};
+  } else {
+    my ($action, $args) = $self->cull_args(@ARGV);
+    $self->{action} = $action || 'build';
+    $self->{args} = {%{$self->{args}}, %$args};
+  }
 
   my $action = "ACTION_$self->{action}";
   if ($self->can($action)) {
@@ -285,6 +299,7 @@ sub ACTION_test {
   $self->depends_on('build');
   
   $Test::Harness::verbose = $self->{args}{verbose} || 0;
+  local $ENV{TEST_VERBOSE} = $self->{args}{verbose} || 0;
   local @INC = (File::Spec->catdir('blib','lib'), @INC);
   
   if (-e 'test.pl') {
@@ -323,7 +338,7 @@ sub ACTION_fakeinstall {
 
 sub ACTION_clean {
   my ($self) = @_;
-  while (my ($item) = each %{$self->{cleanup}}) {
+  foreach my $item (keys %{$self->{cleanup}}, keys %{$self->{new_cleanup}}) {
     $self->delete_filetree($item);
   }
 }
