@@ -24,6 +24,7 @@ t/Sample/Build.PL
 t/Sample/MANIFEST
 t/Sample/META.yml
 t/Sample/lib/Sample.pm
+t/Sample/script
 t/Sample/test.pl
 t/XSTest/Build.PL
 t/XSTest/Changes
