@@ -36,6 +36,10 @@ Revision history for Perl extension Module::Build.
  - .PL files are now passed the names of their target files on the
    command line when they run.
 
+ - When YAML.pm wasn't installed, t/runthrough.t wasn't properly
+   skipping some tests that required YAML.  This is now fixed.
+   [Stephen J. Smith]
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
