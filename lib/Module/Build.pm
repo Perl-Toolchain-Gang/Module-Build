@@ -1056,6 +1056,51 @@ Currently this checks whether the file has a line beginning with
 '=pod', '=head', or '=item', but the exact semantics may change in the
 future.
 
+=item feature($name)
+
+=item feature($name => $value)
+
+With a single argument, returns true if the given feature is set.
+With two arguments, sets the given feature to the given boolean value.
+In this context, a "feature" is any optional functionality of an
+installed module.  For instance, if you write a module that could
+optionally support a MySQL or PostgreSQL backend, you might create
+features called C<mysql_support> and C<postgres_support>, and set them
+to true/false depending on whether the user has the proper databases
+installed and configured.
+
+Features set in this way using the Module::Build object will be
+available for querying during the build/test process and after
+installation via the generated C<...::BuildConfig> module, as 
+C<< ...::BuildConfig->feature($name) >>.
+
+The C<feature()> and C<build_config()> methods represent
+Module::Build's main support for configuration of installed modules.
+See also L<SAVING CONFIGURATION INFORMATION>.
+
+=item build_config($name)
+
+=item build_config($name => $value)
+
+With a single argument, returns the value of the configuration
+variable C<$name>.  With two arguments, sets the given configuration
+variable to the given value.  The value may be any perl scalar that's
+serializable with C<Data::Dumper>.  For instance, if you write a
+module that can use a MySQL or PostgreSQL backend, you might create
+configuration variables called C<mysql_connect> and
+C<postgres_connect>, and set each to an array of connection parameters
+for C<< DBI->connect() >>.
+
+Configuration values set in this way using the Module::Build object
+will be available for querying during the build/test process and after
+installation via the generated C<...::BuildConfig> module, as 
+C<< ...::BuildConfig->config($name) >>.
+
+The C<feature()> and C<build_config()> methods represent
+Module::Build's main support for configuration of installed modules.
+See also L<SAVING CONFIGURATION INFORMATION>.
+
+
 =back
 
 =head1 ACTIONS
@@ -1532,6 +1577,23 @@ This will effectively install to "/tmp/foo/$sitelib",
 "/tmp/foo/$sitearch", and the like, except that it will use
 C<File::Spec> to make the pathnames work correctly on whatever
 platform you're installing on.
+
+
+=head1 SAVING CONFIGURATION INFORMATION
+
+Module::Build provides a very convenient way to save configuration
+information that your installed modules (or your regression tests) can
+access.  If your Build process calls the C<feature()> or
+C<build_config()> methods, then a C<Foo::Bar::BuildConfig> module will
+automatically be created for you, where C<Foo::Bar> is the
+C<module_name> parameter as passed to C<new()>.  This module provides
+access to the data saved by these methods, and a way to update the
+values.  There is also a utility script called C<build_config>
+distributed with Module::Build that provides a command-line interface
+to this same functionality.  See also the generated
+C<Foo::Bar::BuildConfig> documentation, and the C<build_config>
+script's documentation, for more information.
+
 
 
 =head1 AUTOMATION
