@@ -681,7 +681,7 @@ sub test_files {
   
   my @tests;
   if ($self->{args}{test_files}) {
-    @tests = ($self->split_like_shell($self->{args}{test_files}));
+    @tests = $self->split_like_shell($self->{args}{test_files});
   } else {
     # Find all possible tests in t/ or test.pl
     push @tests, 'test.pl'                          if -e 'test.pl';
@@ -1026,6 +1026,7 @@ sub ACTION_disttest {
   my $dist_dir = $self->dist_dir;
   chdir $dist_dir or die "Cannot chdir to $dist_dir: $!";
   # XXX could be different names for scripts
+  # XXX doesn't propagate @INC
   $self->run_perl_script('Build.PL') or die "Error executing 'Build.PL' in dist directory: $!";
   $self->run_perl_script('Build') or die "Error executing 'Build' in dist directory: $!";
   $self->run_perl_script('Build', [], ['test']) or die "Error executing 'Build test' in dist directory";
