@@ -26,7 +26,8 @@ ok $m->notes('foo'), 'bar';
 
 ###################################
 # Make sure notes set before create_build_script() get preserved
-chdir Module::Build->localize_file_path('t/Sample');
+my $testdir = Module::Build->localize_file_path('t/Sample');
+chdir $testdir or die "Can't chdir($testdir): $!";
 $m = Module::Build->new(module_name => 'Sample');
 ok $m;
 $m->notes(foo => 'bar');
