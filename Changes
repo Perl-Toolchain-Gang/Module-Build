@@ -9,6 +9,11 @@ Revision history for Perl extension Module::Build.
    Pod::Text to generate a README from the main (dist_version_from)
    module file during the 'distdir' action.
 
+ - We now refuse to run the 'Build' script if it was created using a
+   different version of Module::Build.  This has caused a couple of
+   nasty bugs in the past, I don't want to know what it would cause in
+   the future.
+
 0.20_01  Mon Sep  8 21:25:39 CDT 2003
 
  - When signing distributions with Module::Signature, we now
