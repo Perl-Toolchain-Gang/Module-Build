@@ -8,6 +8,8 @@ Revision history for Perl extension Module::Build.
 
  - Add NetBSD to the list of Unix-like systems. [Adrian Bunk]
 
+ - Add SVR5 to the list of Unix-like systems. [Rafael Garcia-Suarez]
+
  - Fixed a spurious testing failure on non-Unix platforms that
    happened because we accidentally call localize_file_path() on empty
    strings in the test suite. [Spotted by Randy Sims on Windows]
