@@ -1275,11 +1275,9 @@ sub compile_c {
   
   my @include_dirs = map {"-I$_"} (@{$p->{include_dirs}},
 				   File::Spec->catdir($cf->{installarchlib}, 'CORE'));
-  push @include_dirs, $self->split_like_shell($p->{inc});
   
   my @extra_compiler_flags = $self->split_like_shell($p->{extra_compiler_flags});
   my @ccflags = $self->split_like_shell($cf->{ccflags});
-  push @ccflags, '-DPERL_POLLUTE' if $p->{pollute};
   my @optimize = $self->split_like_shell($cf->{optimize});
   my @cc = $self->split_like_shell($cf->{cc});
   
