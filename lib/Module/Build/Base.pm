@@ -3,6 +3,7 @@ package Module::Build::Base;
 # $Id$
 
 use strict;
+BEGIN { require 5.006 }
 use Config;
 use File::Copy ();
 use File::Find ();
@@ -541,7 +542,7 @@ sub dispatch {
   my $method = "ACTION_$self->{action}";
   print("No action '$self->{action}' defined.\n"), return unless $self->can($method);
 
-  return $self->$method;
+  return $self->$method();
 }
 
 sub cull_args {
@@ -628,18 +629,12 @@ sub ACTION_test {
 		File::Spec->catdir('blib', 'arch'),
 		@INC);
   
-  # Find all possible tests and run them
-  my @tests;
-  if ($self->{args}{test_files}) {
-    @tests = ($self->{args}{test_files});
-  } else {
-    push @tests, 'test.pl'                          if -e 'test.pl';
-    push @tests, @{$self->rscan_dir('t', qr{\.t$})} if -e 't' and -d _;
-  }
-  if (@tests) {
+  my $tests = $self->test_files;
+
+  if (@$tests) {
     # Work around a Test::Harness bug that loses the particular perl we're running under
     local $^X = $self->{config}{perlpath} unless $Test::Harness::VERSION gt '2.01';
-    Test::Harness::runtests(sort @tests);
+    Test::Harness::runtests(@$tests);
   } else {
     print("No tests defined.\n");
   }
@@ -649,6 +644,20 @@ sub ACTION_test {
   if (-e 'visual.pl') {
     $self->run_perl_script('visual.pl', '-Mblib');
   }
+}
+
+sub test_files {
+  my $self = shift;
+  
+  my @tests;
+  if ($self->{args}{test_files}) {
+    @tests = ($self->split_like_shell($self->{args}{test_files}));
+  } else {
+    # Find all possible tests in t/ or test.pl
+    push @tests, 'test.pl'                          if -e 'test.pl';
+    push @tests, @{$self->rscan_dir('t', qr{\.t$})} if -e 't' and -d _;
+  }
+  return [sort @tests];
 }
 
 sub ACTION_testdb {
@@ -980,7 +989,7 @@ sub depends_on {
   my $self = shift;
   foreach my $action (@_) {
     my $method = "ACTION_$action";
-    $self->$method;
+    $self->$method();
   }
 }
 
