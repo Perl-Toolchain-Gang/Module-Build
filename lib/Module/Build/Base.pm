@@ -553,6 +553,12 @@ sub prereq_failures {
 	next if !$status->{ok};
 	$status->{conflicts} = delete $status->{need};
 	$status->{message} = "Installed version '$status->{have}' of $modname conflicts with this distribution";
+
+      } elsif ($type eq 'recommends') {
+	next if $status->{ok};
+	$status->{message} = ($status->{have}
+			      ? "Version $status->{have} is installed, but we prefer to have $spec"
+			      : "Optional prerequisite $modname isn't installed");
       } else {
 	next if $status->{ok};
       }
@@ -572,9 +578,9 @@ sub check_prereq {
   
   foreach my $type (qw(requires build_requires conflicts recommends)) {
     next unless $failures->{$type};
-    my $prefix = $type eq 'recommends' ? 'WARNING' : 'ERROR';
+    my $prefix = $type eq 'recommends' ? '' : 'ERROR: ';
     while (my ($module, $status) = each %{$failures->{$type}}) {
-      warn "$prefix: $module: $status->{message}\n";
+      warn " * $prefix$status->{message}\n";
     }
   }
   
@@ -627,7 +633,7 @@ sub check_installed_status {
     
     $status{have} = $self->version_from_file($file);
     if ($spec and !$status{have}) {
-      @status{ qw(have message) } = (undef, "Couldn't find a \$VERSION in prerequisite '$file'");
+      @status{ qw(have message) } = (undef, "Couldn't find a \$VERSION in prerequisite $modname");
       return \%status;
     }
   }
@@ -644,7 +650,7 @@ sub check_installed_status {
     next if $op eq '>=' and !$version;  # Module doesn't have to actually define a $VERSION
     
     unless ($self->compare_versions( $status{have}, $op, $version )) {
-      $status{message} = "Version $status{have} is installed, but we need version $op $version";
+      $status{message} = "Version $status{have} of $modname is installed, but we need version $op $version";
       return \%status;
     }
   }
