@@ -1850,7 +1850,7 @@ sub htmlify_pods {
     File::Path::mkpath($html, 1, 0755) or die "Couldn't mkdir $html: $!";
   }
   
-  my $pods = $self->_find_pods([$self->blib]);
+  my $pods = $self->_find_pods([ @{$self->libdoc_dirs}, @{$self->libdoc_dirs} ]);
   if (-d $script) {
     File::Find::finddepth( sub {
 			     $pods->{$File::Find::name} = 
