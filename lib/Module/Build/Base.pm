@@ -1617,6 +1617,28 @@ sub valid_licenses {
   return { map {$_, 1} qw(perl gpl artistic lgpl bsd open_source unrestricted restrictive unknown) };
 }
 
+sub _write_minimal_metadata {
+  my $self = shift;
+  my $p = $self->{properties};
+
+  open META, "> $self->{metafile}"
+    or die "Can't write $self->{metafile}: $!\n";
+
+  print META <<"END_OF_META";
+--- #YAML:1.0
+name: $p->{dist_name}
+version: $p->{dist_version}
+authored_by:
+@{[ join "\n", map "  - $_", @{$self->dist_author} ]}
+abstract: @{[ $self->dist_abstract ]}
+license: $p->{license}
+distribution_type: module
+generated_by: Module::Build version @{[ Module::Build->VERSION ]}, without YAML.pm
+END_OF_META
+
+  close META;
+}
+
 sub ACTION_distmeta {
   my ($self) = @_;
   return if $self->{wrote_metadata};
@@ -1632,18 +1654,25 @@ sub ACTION_distmeta {
     die "Unknown license type '$p->{license}";
   }
 
-  unless (eval {require YAML; 1}) {
-    warn "Couldn't load YAML.pm: $@\n";
-    return;
+  # If we're in the distdir, the metafile may exist and be non-writable.
+  $self->delete_filetree($self->{metafile});
+
+  unless (eval {require YARML; 1}) {
+    warn <<EOM;
+\nCouldn't load YAML.pm, generating a minimal META.yml without it.
+Please check and edit the generated metadata, or consider installing YAML.pm.\n
+EOM
+
+    return $self->_write_minimal_metadata();
   }
 
   # We use YAML::Node to get the order nice in the YAML file.
   my $node = YAML::Node->new({});
   
-  $node->{name} = $p->{dist_name};
-  $node->{version} = $p->{dist_version};
-  $node->{license} = $p->{license};
-  $node->{distribution_type} = 'module';
+  foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
+    (my $name = $_) =~ s/^dist_//;
+    $node->{$name} = $self->$_();
+  }
 
   foreach (qw(requires recommends build_requires conflicts dynamic_config)) {
     $node->{$_} = $p->{$_} if exists $p->{$_};
@@ -1653,9 +1682,6 @@ sub ACTION_distmeta {
 
   $node->{generated_by} = "Module::Build version " . Module::Build->VERSION;
   
-  # If we're in the distdir, the metafile may exist and be non-writable.
-  $self->delete_filetree($self->{metafile});
-
   # YAML API changed after version 0.30
   my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
   return $self->{wrote_metadata} = $yaml_sub->($self->{metafile}, $node );
