@@ -121,8 +121,17 @@ sub _construct {
 ################## End constructors #########################
 
 sub log_info { print @_ unless shift()->quiet }
-sub log_warn { shift; Carp::carp @_; }
 sub log_verbose { shift()->log_info(@_) if $_[0]->verbose }
+sub log_warn {
+  # Try to make our call stack invisible
+  shift;
+  if (@_ and $_[-1] !~ /\n$/) {
+    my (undef, $file, $line) = caller();
+    warn @_, " at $file line $line.\n";
+  } else {
+    warn @_;
+  }
+}
 
 sub _set_install_paths {
   my $self = shift;
