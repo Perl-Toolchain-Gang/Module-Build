@@ -10,6 +10,7 @@ skip_test("Don't know how to invoke 'make'") unless $Config{make};
 plan tests => 23;
 ok(1);  # Loaded
 
+my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
 
 my $goto = File::Spec->catdir( Module::Build->cwd, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
@@ -29,17 +30,17 @@ foreach my $type (qw(small passthrough traditional)) {
   ok $result;
   ok -e 'Makefile', 1, "Makefile exists";
 
-  ok $build->do_system($Config{make});
+  ok $build->do_system(@make);
   
   # Can't let 'test' STDOUT go to our STDOUT, or it'll confuse Test::Harness.
   my $success;
   my $output = stdout_of( sub {
-			    $success = $build->do_system($Config{make}, 'test');
+			    $success = $build->do_system(@make, 'test');
 			  } );
   ok $success;
   ok uc $output, qr{DONE\.|SUCCESS};
   
-  ok $build->do_system($Config{make}, 'realclean');
+  ok $build->do_system(@make, 'realclean');
   $build->dispatch('realclean');
   ok not -e 'Makefile.PL';
 }
