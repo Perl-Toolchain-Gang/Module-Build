@@ -667,6 +667,7 @@ sub set_autofeatures {
 	}
 	warn "\n";
       }
+      $self->feature($name => 0);
     } else {
       warn "Feature '$name' enabled.\n\n";
       $self->feature($name => 1);
