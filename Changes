@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.20
+0.20  Tue Aug 26 14:34:07 CDT 2003
 
  - Separated the 'build' action into two separate actions, 'code' and
    'docs'.  This is similar to MakeMaker's separation of the 'all'
