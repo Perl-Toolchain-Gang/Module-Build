@@ -22,6 +22,9 @@ Revision history for Perl extension Module::Build.
    weren't sorted, but returned in an apparently random order.  Now
    they're sorted.  [Martyn Peck]
 
+ - Documented the 'tar' and 'gzip' parameters to the 'dist' and
+   'ppmdist' actions.
+
 0.24
 
  - Fixed a problem with incude_dirs not being propagated to the 'ccs'
