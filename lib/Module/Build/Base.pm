@@ -528,6 +528,8 @@ __PACKAGE__->add_property(include_dirs => []);
 __PACKAGE__->add_property('config', {});
 __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(build_class => 'Module::Build');
+__PACKAGE__->add_property(html_css => ($^O =~ /Win32/) ? 'Active.css' : '');
+__PACKAGE__->add_property(html_backlink => '__top');
 __PACKAGE__->add_property($_) for qw(
    base_dir
    dist_name
@@ -1877,17 +1879,23 @@ sub htmlify_pods {
 			   }, $script);
   }
   
+  my %opts = (
+	      css => $self->html_css,
+	      backlink => $self->html_backlink,
+	      htmldir => $html,
+	     );
+
   foreach my $pod (keys %$pods){
     $self->_htmlify_pod(
 			path => $pod,
 			rel_path => $pods->{$pod},
-			htmldir => $html,
-			backlink => '__top',
-			css => ($^O =~ /Win32/) ? 'Active.css' : '',
+			%opts,
 		       );
   }
 }
 
+# The distinction here between htmlify_pods() and _htmlify_pod() is a
+# little silly.
 sub _htmlify_pod {
   my ($self, %args) = @_;
   require Pod::Html;

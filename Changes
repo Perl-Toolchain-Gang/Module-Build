@@ -59,6 +59,10 @@ Revision history for Perl extension Module::Build.
 
  - Eliminated an undefined-variable warning when testing under perl 5.005
 
+ - When building HTML documentation, 'html_backlink' and 'html_css'
+   properties are now first-class properties, so they can be set from
+   the command line. [Suggested by Sagar R. Shah]
+
  - Have script_files default to everything in bin.  I believe this is
    the least surprising behavior. [Suggested by Michael Schwern]
 
