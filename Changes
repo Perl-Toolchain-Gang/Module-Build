@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.21_02
 
+ - On OS/2, disable C compilation, since apparently it isn't working
+   there. [Reported by Ilya Zakharevich]
+
  - Inserted a comment into auto-generated Makefile.PLs saying it was
    auto-generated
 
