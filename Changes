@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.17
 
+ - Mention in the docs that it's useful to do "PL_FILES => {}" if
+   you're using both a Makefile.PL and a Build.PL. [Dom]
+
  - Add several options to the 'license' field, so that we're in better
    sync with PAUSE and CPAN options. [Andreas Koenig]
 
