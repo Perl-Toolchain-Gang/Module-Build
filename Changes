@@ -5,6 +5,12 @@ Revision history for Perl extension Module::Build.
  - Fixed a problem with incude_dirs not being propagated to the 'ccs'
    file when compiling XS files on Win32. [Randy Sims and Steve Hay]
 
+ - In 0.23, Module::Build::Compat->fake_makefile() started choking
+   when no 'build_class' parameter was supplied in the Makefile.PL.
+   Since these Makefile.PLs still exist on CPAN, we now default
+   'build_class' to 'Module::Build', which was the old 0.22 behavior
+   anyway.  [Reported by Martin Titz and Jeremy Seitz]
+
 0.23  Sun Feb  8 22:01:18 CST 2004
 
  - Fixed a compatibility problem in pass-through Makefiles (created by
