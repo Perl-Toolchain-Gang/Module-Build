@@ -677,13 +677,14 @@ sub set_autofeatures {
 
 sub prereq_failures {
   my ($self, $info) = @_;
-  $info ||= $self->{properties};
-
   my @types = qw(requires recommends build_requires conflicts);
+
+  $info ||= {map {$_, $self->$_()} @types};
+
   my $out;
 
   foreach my $type (@types) {
-    my $prereqs = $info->$type();
+    my $prereqs = $info->{$type};
     while ( my ($modname, $spec) = each %$prereqs ) {
       my $status = $self->check_installed_status($modname, $spec);
       
