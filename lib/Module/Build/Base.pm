@@ -155,6 +155,7 @@ sub find_perl_interpreter {
 }
 
 sub base_dir { shift()->{properties}{base_dir} }
+sub installdirs { shift()->{properties}{installdirs} }
 
 sub prompt {
   my $self = shift;
