@@ -1095,7 +1095,7 @@ sub copy_if_modified {
   } else {
     $to_path = File::Spec->catfile($to, $file);
   }
-  return if -e $to_path and -M $to_path < -M $file;  # Already fresh
+  return if $self->up_to_date($file, $to_path); # Already fresh
   
   # Create parent directories
   File::Path::mkpath(File::Basename::dirname($to_path), 0, 0777);
@@ -1116,8 +1116,8 @@ sub up_to_date {
     $most_recent_source = -M $file if -M $file < $most_recent_source;
   }
   
-  foreach my $file (@derived) {
-    return 0 if -M $file > $most_recent_source;
+  foreach my $derived (@derived) {
+    return 0 if -M $derived > $most_recent_source;
   }
   return 1;
 }
