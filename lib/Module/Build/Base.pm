@@ -276,7 +276,7 @@ sub ACTION_build_config {
   return if $self->up_to_date([$self->config_file('build_config'), $self->config_file('features')], $notes_pm);
 
   print "Writing config notes to $notes_pm\n";
-  
+  File::Path::mkpath(File::Basename::dirname($notes_pm));
   my $fh = IO::File->new("> $notes_pm") or die "Can't create '$notes_pm': $!";
 
   printf $fh <<'EOF', $notes_name;
