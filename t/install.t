@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 29 }
+BEGIN { plan tests => 31 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -130,11 +130,10 @@ ok $@, '';
 					      '--install_base', $basedir])};
   ok $@, '';
   
-  my $relpath = $build->install_base_relative('lib');
-  $install_to = File::Spec->catfile($destdir, $basedir, $relpath, 'Sample.pm');
-  print "# Should have installed module as $install_to\n";
-  ok -e $install_to;
-  
+  my $relpath = $build->install_base_relative('script');
+  $install_to = File::Spec->catfile($destdir, $basedir, $relpath, 'sample.pl');
+  ok -e $install_to, 1, "Should install script as $install_to";
+
   eval {$build->dispatch('realclean')};
   ok $@, '';
 }
@@ -154,6 +153,16 @@ ok $@, '';
   $pms = $build->_find_file_by_type('pod', 'awefawef');
   ok $pms;
   ok keys %$pms, 0;
+}
+
+{
+  # Make sure install_path overrides install_base
+  my $build = new Module::Build( module_name => 'Sample',
+				 install_base => 'foo',
+				 install_path => { lib => 'bar' },
+				 license => 'perl' );
+  ok $build;
+  ok $build->install_destination('lib'), 'bar';
 }
 
 sub strip_volume {

@@ -2368,10 +2368,10 @@ sub install_destination {
   my ($self, $type) = @_;
   my $p = $self->{properties};
   
+  return $p->{install_path}{$type} if exists $p->{install_path}{$type};
   if ($p->{install_base}) {
     return File::Spec->catdir($p->{install_base}, $self->install_base_relative($type));
   }
-  return $p->{install_path}{$type} if exists $p->{install_path}{$type};
   return $p->{install_sets}{ $p->{installdirs} }{$type};
 }
 
