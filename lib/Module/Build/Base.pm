@@ -1394,8 +1394,7 @@ sub find_test_files {
 	      map glob,
 	      $self->split_like_shell($files)];
     
-    # Always given as a Unix file spec.  Values in the hash are
-    # meaningless, but we preserve if present.
+    # Always given as a Unix file spec.
     return [ map $self->localize_file_path($_), @$files ];
     
   } else {
