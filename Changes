@@ -21,6 +21,9 @@ Revision history for Perl extension Module::Build.
    command invocation.  It's usually empty, but not always, so we
    didn't notice for a while. [Richard Clamp]
 
+ - The have_c_compiler() now also tests whether the linker seems to
+   work too.
+
 0.21  Wed Oct 15 20:47:05 CDT 2003
 
  - Added a have_c_compiler() method.
