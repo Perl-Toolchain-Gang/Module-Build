@@ -16,6 +16,8 @@ Revision history for Perl extension Module::Build.
 
   - Add a generated_by entry to the META.yaml file.
 
+  - Skip a few tests if YAML isn't installed.
+
 0.09  Fri Jun 28 11:07:08 EST 2002
 
   - The 'distdir' action wasn't deleting the distribution directory
