@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.21_02
 
+ - Test::Harness is starting to contend for the Most Crotchety Module
+   Award.  Work around a few of its nits when setting harness
+   switches. [Spotted by Diab Jerius]
+
  - Changed the manpage separator on OS/2 to '.'. [Randy Sims]
 
  - Now the Build script will die() if we're run from the wrong
