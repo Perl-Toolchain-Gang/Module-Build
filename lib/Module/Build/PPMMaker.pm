@@ -74,7 +74,7 @@ EOF
   # unfortunately, seems to indicate that a module works with _only_
   # that version of Perl, and so is only appropriate when a module
   # uses XS.
-  if (keys %{$self->find_xs_files}) {
+  if (keys %{$build->find_xs_files}) {
     my $perl_version = $self->_ppd_version($build->perl_version);
     $ppd .= sprintf(<<'EOF', $perl_version, $^O, $self->{archname});
         <PERLCORE VERSION="%s" />
