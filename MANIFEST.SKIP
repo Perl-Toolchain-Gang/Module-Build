@@ -1,0 +1,9 @@
+^_build
+^blib
+CVS
+^Build$
+~$
+^configs
+^testbed
+^MANIFEST\.SKIP$
+\.bak$
