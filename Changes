@@ -1,13 +1,43 @@
 Revision history for Perl extension Module::Build.
 
-0.22
+0.22  Sat Jan 10 22:05:39 CST 2004
+
+ - On Unixish platforms, the syntax "FOO=BAR /bin/baz arg arg" now
+   works when present in $Config{ld}.  This solves a problem on Mac OS
+   X 10.3. [Reported by Adam Foxson]
+
+ - The have_c_compiler() now also tests whether the linker seems to
+   work too.
+
+ - Fixed a problem with creating the distribution tarball in which
+   permissions would usually be all read-only.  We now use our own
+   file-copying routines rather than those in ExtUtils::Manifest,
+   because those do some annoying extra permissions-setting stuff for
+   no apparent reason.  It makes me happy that this was a very very
+   easy patch to make.  [Reported by Thomas Klausner]
+
+ - The compile_c() method now includes $Config{cccdlflags} in its
+   command invocation.  It's usually empty, but not always, so we
+   didn't notice for a while. [Richard Clamp]
+
+ - On some platforms it's common to have a $Config{make} defined, but
+   no 'make' utility actually available.  We now detect this and skip
+   some 'make' compatibility tests. [Randy Sims]
+
+ - Fixed a spurious testing failure on non-Unix platforms that
+   happened because we accidentally call localize_file_path() on empty
+   strings in the test suite. [Spotted by Randy Sims on Windows]
+
+ - Made the 'name', 'abstract', 'author', and 'version' properties
+   required when building a PPD file. [Spotted by Randy Sims, Dave
+   Rolsky, & Glenn Linderman]
 
  - When building a 'traditional' Makefile.PL with
    Module::Build::Compat, we now use 'VERSION_FROM' when possible,
    rather than always using 'VERSION'.  This way the Makefile.PL
    doesn't have to get modified every release.
 
- - Made some fixups to the 'PPM' info-file that improve compatibility
+ - Made some fixups to the 'PPM' info-file, improving compatibility
    with ActiveState's PPM tools. [Randy Sims, Glenn Linderman]
 
  - The 'dist_author' property can now accept multiple authors, see the
@@ -24,12 +54,12 @@ Revision history for Perl extension Module::Build.
  - The 'dist' action now accepts an optional 'tar' parameter to use a
    system utility for building the tarball, and a 'gzip' parameter for
    compressing it.  If these are used, Archive::Tar won't be invoked.
-
-0.21_02  Tue Dec 23 17:05:11 CST 2003
+   This was added because Archive::Tar is producing some very
+   non-cross-platform tarballs that many tar utilities can't handle.
 
  - During testing, if YAML.pm isn't installed, then we won't try
-   making a tarball with Archive::Tar either, since this would invoke
-   YAML to create the META.yml file.
+   making a tarball either, since this would invoke YAML to create the
+   META.yml file.
 
  - Fixed a problem with chmod() being called incorrectly on MacOS
    (i.e. MacPerl, not Mac OS X).  [Spotted by Paul Sanford Toney]
@@ -45,12 +75,12 @@ Revision history for Perl extension Module::Build.
    Award.  Work around a few of its nits when setting harness
    switches. [Spotted by Diab Jerius]
 
- - Changed the manpage separator on OS/2 to '.'. [Ilya Zakharevich]
-
  - Now the Build script will die() if we're run from the wrong
-   directory, rather than trying to chdir() to the right directory and
-   do its work there.  See
+   directory, rather than trying to chdir() to what it thinks is the
+   right directory and do its work there.  See
    https://rt.cpan.org/Ticket/Display.html?id=4039 . [Chris Dolan]
+
+ - Changed the manpage separator on OS/2 to '.'. [Ilya Zakharevich]
 
  - On OS/2, disable C compilation, since apparently it isn't working
    there. [Reported by Ilya Zakharevich]
@@ -65,14 +95,6 @@ Revision history for Perl extension Module::Build.
 
  - Moved the documentation for 'codebase' to the section where it's
    relevant. [Randy Sims, Glenn Linderman]
-
- - Made the 'name', 'abstract', 'author', and 'version' properties
-   required when building a PPD file. [Spotted by Randy Sims, Dave
-   Rolsky, & Glenn Linderman]
-
-0.21_01  Wed Dec 17 07:51:49 CST 2003
-
-(A snapshot just because it's been so long since anything has been released)
 
  - Fixed a have_c_compiler() failure on some platforms, we now define
    a boot_compilet() function (since we're compiling a library, not an
@@ -91,9 +113,10 @@ Revision history for Perl extension Module::Build.
  - Added support for building XS (and C in general) stuff on AIX.
    This was done by a small reorganization of prelink_c() method from
    Windows.pm to Build.pm, and it is only invoked for the platforms
-   that need it invoked.  AIX also massages some very naughty bits in
-   $Config{lddlflags} that should never have been put there, but alas,
-   they're there.
+   that need it invoked.  AIX also massages some very naughty bits
+   (MakeMaker macro variables) in $Config{lddlflags} that should never
+   have been put there, but alas, they're there, so we find & resolve
+   them.
 
  - Added OS/2 ($^O = 'os2') to the list of Unix-like platforms.  This
    basically means that most platform-specific operations will be done
@@ -107,35 +130,9 @@ Revision history for Perl extension Module::Build.
  - Updated my email address in the documentation to a more recent
    variant.
 
- - On some platforms it's common to have a $Config{make} defined, but
-   no 'make' utility available.  We now detect this and skip some
-   'make' compatibility tests. [Randy Sims]
-
  - Add NetBSD to the list of Unix-like systems. [Adrian Bunk]
 
  - Add SVR5 to the list of Unix-like systems. [Rafael Garcia-Suarez]
-
- - Fixed a spurious testing failure on non-Unix platforms that
-   happened because we accidentally call localize_file_path() on empty
-   strings in the test suite. [Spotted by Randy Sims on Windows]
-
- - Fixed a problem with creating the distribution tarball in which
-   permissions would usually be all read-only.  We now use our own
-   file-copying routines rather than those in ExtUtils::Manifest,
-   because those do some annoying extra permissions-setting stuff for
-   no apparent reason.  It makes me happy that this was a very very
-   easy patch to make.  [Reported by Thomas Klausner]
-
- - The compile_c() method now includes $Config{cccdlflags} in its
-   command invocation.  It's usually empty, but not always, so we
-   didn't notice for a while. [Richard Clamp]
-
- - The have_c_compiler() now also tests whether the linker seems to
-   work too.
-
- - On Unixish platforms, the syntax "FOO=BAR /bin/baz arg arg" now
-   works when present in $Config{ld}.  This solves a problem on Mac OS
-   X 10.3. [Reported by Adam Foxson]
 
  - We now use Pod::Parser to find the ABSTRACT and AUTHOR when it's
    available on the system. [initial patch by Randy Sims]
