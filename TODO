@@ -1,5 +1,7 @@
 -------------------------- TO DO: --------------------------------
 
+* Figure out how to make the build process work on MacOS
+
 * Add a 'diff' action that compares to previously installed version
 
 * Add a 'distsign' action that uses Module::Signature to provide
