@@ -1057,7 +1057,7 @@ sub ACTION_test {
   # This will get run and the user will see the output.  It doesn't
   # emit Test::Harness-style output.
   if (-e 'visual.pl') {
-    $self->run_perl_script('visual.pl', '-Mblib');
+    $self->run_perl_script('visual.pl', '-Mblib='.$self->blib);
   }
 }
 
