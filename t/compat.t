@@ -53,7 +53,7 @@ foreach my $type (@makefile_types) {
   test_makefile_creation($build, [], 'INSTALLDIRS=vendor', 1);
   
   1 while unlink 'Makefile.PL';
-  ok -e 'Makefile.PL', undef;
+  ok (! -e 'Makefile.PL', 1);
 }
 
 {
@@ -135,13 +135,13 @@ foreach my $type (@makefile_types) {
   
   
   $build->delete_filetree($libdir);
-  ok -e $libdir, undef, "Sample installation directory should be cleaned up";
+  ok (! -e $libdir, 1, "Sample installation directory should be cleaned up");
   
   $build->do_system(@make, 'realclean');
-  ok -e 'Makefile', undef, "Makefile shouldn't exist";
+  ok (! -e 'Makefile', 1, "Makefile shouldn't exist");
 
   1 while unlink 'Makefile.PL';
-  ok -e 'Makefile.PL', undef;
+  ok (! -e 'Makefile.PL', 1);
 }
 
 #########################################################
@@ -155,6 +155,6 @@ sub test_makefile_creation {
   
   if ($cleanup) {
     $build->do_system(@make, 'realclean');
-    ok -e 'Makefile', undef, "Makefile shouldn't exist";
+    ok (! -e 'Makefile', 1, "Makefile shouldn't exist");
   }
 }
