@@ -4,11 +4,15 @@ use strict;
 
 use File::Spec;
 use File::Path qw( rmtree );
-
 use Test;
-BEGIN { plan tests => 21 }
-
 use Module::Build;
+
+BEGIN { 
+  require File::Spec->catfile('t', 'common.pl');
+  skip_test("manpage_support feature is not enabled")
+    unless Module::Build->current->feature('manpage_support');
+  plan tests => 21;
+}
 
 my $start = Module::Build->cwd;
 my $install = File::Spec->catdir( $start, 't', '_tmp' );

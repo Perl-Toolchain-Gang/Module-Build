@@ -30,7 +30,6 @@ my $build = new ModuleBuildBuilder
 		'IO::File'       => 0,
 		'Cwd'            => 0,
 		'Text::ParseWords' => 0,
-		'Pod::Man'       => 0,
 	       },
    recommends => {
 		  'Archive::Tar' => '1.08',
@@ -55,7 +54,12 @@ my $build = new ModuleBuildBuilder
 		     {
 		      description => "Can compile/link C & XS code",
 		      requires => { 'ExtUtils::CBuilder' => 0.02 },
-		     }
+		     },
+		     manpage_support =>
+		     {
+		      description => "Can create Unix man pages",
+		      requires => { 'Pod::Man' => 0 },
+		     },
 		    },
 
    add_to_cleanup => ['t/Sample/pod2htm*'],
