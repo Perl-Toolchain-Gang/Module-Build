@@ -688,15 +688,16 @@ sub ACTION_testdb {
 
 sub ACTION_build {
   my ($self) = @_;
-
+  
   # All installable stuff gets created in blib/
   my $blib = 'blib';
   $self->add_to_cleanup($blib);
   File::Path::mkpath($blib);
   
+  $self->process_PL_files;
+  
   $self->compile_support_files;
   
-  $self->process_PL_files;
   $self->process_pm_files;
   $self->process_xs_files;
   $self->process_pod_files;
@@ -707,8 +708,6 @@ sub compile_support_files {
   my $self = shift;
 
   if ($self->{properties}{c_source}) {
-    $self->process_PL_files($self->{properties}{c_source}); # XXX this doesn't work anymore
-    
     my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.c(pp)?$});
     
     push @{$self->{include_dirs}}, $self->{properties}{c_source};
