@@ -2038,13 +2038,13 @@ Module::Build::Base - Default methods for Module::Build
 
 =head1 SYNOPSIS
 
-  please see the Module::Build documentation
+  Please see the Module::Build documentation.
 
 =head1 DESCRIPTION
 
 The C<Module::Build::Base> module defines the core functionality of
 C<Module::Build>.  Its methods may be overridden by any of the
-platform-independent modules in the C<Module::Build::Platform::>
+platform-dependent modules in the C<Module::Build::Platform::>
 namespace, but the intention here is to make this base module as
 platform-neutral as possible.  Nicely enough, Perl has several core
 tools available in the C<File::> namespace for doing this, so the task
