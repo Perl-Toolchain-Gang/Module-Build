@@ -7,10 +7,11 @@ CVS
 ^testbed
 ^MANIFEST\.SKIP$
 \.bak$
-^patches
+^patch
 ^Module-
 ^t/_
 ^t/Sample/save_out$
+^t/Sample/SIGNATURE
 ^\.
 ^Makefile$
 
