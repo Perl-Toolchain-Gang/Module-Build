@@ -290,6 +290,9 @@ sub feature { $features->{$_[1]} }
 sub set_config { $config->{$_[1]} = $_[2] }
 sub set_feature { $features->{$_[1]} = $_[2] }
 
+sub feature_names { keys %%$features }
+sub config_names  { keys %%$config }
+
 sub write {
   my $file = __FILE__;
   require IO::File;
