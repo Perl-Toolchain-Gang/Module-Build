@@ -18,6 +18,8 @@ sub make_tarball {
   $self->do_system("$gzip '$dir.tar'");
 }
 
+sub _startperl { "#! " . shift()->perl }
+
 1;
 __END__
 

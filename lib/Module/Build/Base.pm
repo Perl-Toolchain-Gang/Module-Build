@@ -719,6 +719,8 @@ sub make_executable {
   }
 }
 
+sub _startperl { shift()->{config}{startperl} }
+
 sub print_build_script {
   my ($self, $fh) = @_;
   
@@ -733,9 +735,10 @@ sub print_build_script {
   }
 
   my $quoted_INC = join ",\n", map "     '$_'", @myINC;
+  my $shebang = $self->_startperl;
 
   print $fh <<EOF;
-$self->{config}{startperl}
+$shebang
 
 BEGIN {
   \$^W = 1;  # Use warnings
