@@ -5,6 +5,9 @@ Revision history for Perl extension Module::Build.
  - Don't build man pages when there's nowhere to install them, such as
    on Win32 or Mac systems.
 
+ - Improved comparisons of version strings containing underscore
+   characters (indicating "beta" status). [Steve Purkis]
+
  - Added documentation for the 'dist_author', 'dist_abstract', and
    'codebase' parameters to new(), and for the 'ppd' action. [Dave
    Rolsky]
