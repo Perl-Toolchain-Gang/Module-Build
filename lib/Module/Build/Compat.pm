@@ -146,7 +146,11 @@ sub run_build_pl {
 
 sub fake_makefile {
   my ($self, %args) = @_;
-  
+  unless (exists $args{build_class}) {
+    warn "Unknown 'build_class', defaulting to 'Module::Build'\n";
+    $args{build_class} = 'Module::Build';
+  }
+
   my $perl = $args{build_class}->find_perl_interpreter;
   my $os_type = $args{build_class}->os_type;
   my $noop = ($os_type eq 'Windows' ? 'rem' :

@@ -8,7 +8,7 @@ require File::Spec->catfile('t', 'common.pl');
 
 skip_test("Don't know how to invoke 'make'")
   unless $Config{make} and find_in_path($Config{make});
-plan tests => 2 + 3*13;
+plan tests => 5 + 3*13;
 ok(1);  # Loaded
 
 my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
@@ -42,6 +42,19 @@ foreach my $type (qw(small passthrough traditional)) {
   1 while unlink 'Makefile.PL';
   ok -e 'Makefile.PL', undef;
 }
+
+{
+  # Make sure fake_makefile() can run without 'build_class', as it may be
+  # in older-generated Makefile.PLs
+  my $warning = '';
+  local $SIG{__WARN__} = sub { $warning = shift; };
+  my $maketext = eval { Module::Build::Compat->fake_makefile(makefile => 'Makefile') };
+  ok $@, '';
+  ok $maketext, qr/^realclean/m;
+  ok $warning, qr/build_class/;
+}
+
+#########################################################
 
 sub test_makefile_creation {
   my ($build, $preargs, $postargs, $cleanup) = @_;
