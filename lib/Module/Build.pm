@@ -1664,7 +1664,11 @@ Module::Build directly:
   use lib qw(/nonstandard/library/path);
   use My::Builder;  # Or whatever you want to call it
   
-  my $m = My::Builder->new(module_name => 'Next::Big::Thing');
+  my $m = My::Builder->new
+    (module_name=> 'Next::Big::Thing',  # All the regular args...
+     license=> 'perl',
+     dist_author=> 'A N Other <me@here.net.au>',
+     requires=> {Carp => 0});
   $m->create_build_script;
 
 This is relatively straightforward, and is the best way to do things
@@ -1692,7 +1696,11 @@ creating a separate file for your module:
      },
     );
   
-  my $m = $class->new(module_name => 'Module::Build');
+  my $m = $class->new
+    (module_name=> 'Next::Big::Thing',  # All the regular args...
+     license=> 'perl',
+     dist_author=> 'A N Other <me@here.net.au>',
+     requires=> {Carp => 0});
   $m->create_build_script;
 
 Behind the scenes, this actually does create a C<.pm> file, since the
