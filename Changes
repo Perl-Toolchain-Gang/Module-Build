@@ -1,16 +1,17 @@
 Revision history for Perl extension Module::Build.
 
 0.05
+  - Reorganized the docs a bit.
+
   - Added the 'testdb' action, and the 'debugger=1' argument to the
     'test' action, both of which run tests under the perl
-    debugger. (Dave Rolsky)
+    debugger. (idea: Dave Rolsky)
 
-  - Added prerequisite checking
-XXX Needs docs
+  - Added prerequisite checking (Dave Rolsky)
 XXX Needs to write _build/prereq
 
   - Fixed an unlikely-to-occur bug with misquoted strings in the
-    'Build' script (Dave Rolsky)
+    'Build' script (spot: Dave Rolsky)
 
   - We're more careful about shush-ing warnings that
     ExtUtils::Manifest might emit (Dave Rolsky)
@@ -19,7 +20,6 @@ XXX Needs to write _build/prereq
 
   - Added the 'distcheck', 'skipcheck', 'distclean', 'distdir', and
     'disttest' actions (Dave Rolsky)
-XXX Needs docs
 
   - We're a little more aggressive about cleaning up temporary files -
     we'll try to clean them up even when we don't have write permission

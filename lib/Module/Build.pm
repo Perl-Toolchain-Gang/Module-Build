@@ -121,13 +121,17 @@ C<Module::Build> for its installation process, do the following:
    ./Build test
    ./Build install
 
-Other actions so far include:
+Actions defined so far include:
 
-   ./Build clean
-   ./Build realclean
-   ./Build fakeinstall
-   ./Build dist
-   ./Build help
+  build                          help        
+  clean                          install     
+  dist                           manifest    
+  distcheck                      realclean   
+  distclean                      skipcheck   
+  distdir                        test        
+  disttest                       testdb      
+  fakeinstall                                
+
 
 It's like the C<MakeMaker> metaphor, except that C<Build> is a short
 Perl script, not a long Makefile.  State is stored in a directory called
@@ -155,16 +159,53 @@ this module in the first place was so that subclassing is possible
 (and easy), I will certainly write more docs as the interface
 stabilizes.
 
+=head2 $m = Module::Build->new(...)
+
+Creates a new Module::Build object.  Arguments to the new() method are
+listed below.  The only required argument is the C<module_name> argument.
+
 =over 4
 
-=item * $m = Module::Build->new(...)
+=item * module_name
 
-Creates a new Module::Build object.  The C<module_name> argument is
-required, and should be a string like C<'Your::Module'>.  The
-C<module_version> argument is optional - if not explicitly provided,
-we'll look for the version string in the module specified by
+The C<module_name> argument is required, and should be a string like
+C<'Your::Module'>.  We use it for several purposes, including finding
+the version string for this distribution, and creating a
+suitably-named distribution directory.
+
+=item * module_version
+
+The C<module_version> argument is optional - if not explicitly
+provided, we'll look for the version string in the module specified by
 C<module_name>, parsing it out according to the same rules as
 C<ExtUtils::MakeMaker> and C<CPAN.pm>.
+
+=item * module_version_from
+
+Allows you to specify an alternate file for finding the module
+version, instead of looking in the file specified by C<module_name>.
+
+=item * prereq
+
+An optional C<prereq> argument specifies any module prerequisites that
+the current module depends on.  The prerequisites are given in a hash
+reference, where the keys are the module names and the values are
+version specifiers:
+
+ prereq => {Foo::Module => '2.4',
+            Bar::Module => 0,
+            Ken::Module => '>= 1.2, != 1.5, < 2.0'},
+
+These three version specifiers have different effects.  The value
+C<'2.4'> means that B<at least> version 2.4 of C<Foo::Module> must be
+installed.  The value C<0> means that B<any> version of C<Bar::Module>
+is acceptable, even if C<Bar::Module> doesn't define a version.  The
+more verbose value C<'E<gt>= 1.2, != 1.5, E<lt> 2.0'> means that
+C<Ken::Module>'s version must be B<at least> 1.2, B<less than> 2.0,
+and B<not equal to> 1.5.  The list of criteria is separated by commas,
+and all criteria must be satisfied.
+
+=item * c_source
 
 An optional C<c_source> argument specifies a directory which contains
 C source files that the rest of the build may depend on.  Any C<.c>
@@ -172,12 +213,16 @@ files in the directory will be compiled to object files.  The
 directory will be added to the search path during the compilation and
 linking phases of any C or XS files.
 
+=item * autosplit
+
 An optional C<autosplit> argument specifies a file which should be run
 through the C<Autosplit::autosplit()> function.  In general I don't
 consider this a great idea, and I may even go so far as to remove this
 feature later.  Let me know if I shouldn't.
 
-=item * $m->add_to_cleanup
+=back
+
+=head2 $m->add_to_cleanup
 
 A C<Module::Build> method may call C<< $self->add_to_cleanup(@files) >>
 to tell C<Module::Build> that certain files should be removed when the
@@ -187,7 +232,7 @@ static lists can get difficult to manage.  I preferred to keep the
 responsibility for registering temporary files close to the code that
 creates them.
 
-=item * Module::Build->resume
+=head2 Module::Build->resume
 
 You'll probably never call this method directly, it's only called from
 the auto-generated C<Build> script.  The C<new()> method is only
@@ -195,7 +240,7 @@ called once, when the user runs C<perl Build.PL>.  Thereafter, when
 the user runs C<Build test> or another action, the C<Module::Build>
 object is created using the C<resume()> method.
 
-=item * $m->dispatch
+=head2 $m->dispatch
 
 This method is also called from the auto-generated C<Build> script.
 It parses the command-line arguments into an action and an argument
@@ -205,7 +250,7 @@ C<ACTION_foo> method.  All arguments (including everything mentioned
 in L<ACTIONS> below) are contained in the C<< $self->{args} >> hash
 reference.
 
-=item * $m->os_type
+=head2 $m->os_type
 
 If you're subclassing Module::Build and some code needs to alter its
 behavior based on the current platform, you may only need to know
@@ -215,8 +260,6 @@ will return a string like C<Windows>, C<Unix>, C<MacOS>, C<VMS>, or
 whatever is appropriate.  If you're running on an unknown platform, it
 will return C<undef> - there shouldn't be many unknown platforms
 though.
-
-=back
 
 
 =head1 ACTIONS
@@ -241,6 +284,12 @@ C<Config.pm> parameters.
 The following build actions are provided by default.
 
 =over 4
+
+=item * help
+
+This action will simply print out a message that is meant to help you
+use the build process.  It will show you a list of available build
+actions too.
 
 =item * build
 
@@ -324,34 +373,65 @@ This is just like the C<install> action, but it won't actually do
 anything, it will just report what it I<would> have done if you had
 actually run the C<install> action.
 
+=item * manifest
+
+This is an action intended for use by module authors, not people
+installing modules.  It will bring the F<MANIFEST> up to date with the
+files currently present in the distribution.  You may use a
+F<MANIFEST.SKIP> file to exclude certain files or directories from
+inclusion in the F<MANIFEST>.  F<MANIFEST.SKIP> should contain a bunch
+of regular expressions, one per line.  If a file in the distribution
+directory matches any of the regular expressions, it won't be included
+in the F<MANIFEST>.
+
+The following is a reasonable F<MANIFEST.SKIP> starting point, you can
+add your own stuff to it:
+
+   ^_build
+   ^Build$
+   ^blib
+   ~$
+   \.bak$
+   ^MANIFEST\.SKIP$
+   CVS
+
+See the L<distcheck> and L<skipcheck> actions if you want to find out
+what the C<manifest> action would do, without actually doing anything.
+
 =item * dist
 
 This action is helpful for module authors who want to package up their
 module for distribution through a medium like CPAN.  It will create a
-tarball of the files listed in MANIFEST and compress the tarball using
+tarball of the files listed in F<MANIFEST> and compress the tarball using
 GZIP compression.
 
-=item * manifest
+=item * distcheck
 
-This is an action intended for use by module authors, not people
-installing modules.  It will bring the MANIFEST up to date with the
-files currently present in the distribution.  You may use a
-MANIFEST.SKIP file to exclude certain files or directories from
-inclusion in the MANIFEST.  MANIFEST.SKIP should contain a bunch of
-regular expressions, one per line.  If a file in the distribution
-directory matches any of the regular expressions, it won't be included
-in the MANIFEST.
+Reports which files are in the build directory but not in the
+F<MANIFEST> file, and vice versa. (See L<manifest> for details)
 
-(Note to self: it would be nice to have a 'fake_manifest' action that
-would just go through the motions of adding to MANIFEST but not
-actually do anything.  Currently ExtUtils::Manifest doesn't support
-it, though.)
+=item * skipcheck
 
-=item * help
+Reports which files are skipped due to the entries in the
+F<MANIFEST.SKIP> file (See L<manifest> for details)
 
-This action will simply print out a message that is meant to help you
-use the build process.  It will show you a list of available build
-actions too.
+=item * distclean
+
+Performs the 'realclean' action and then the 'distcheck' action.
+
+=item * distdir
+
+Creates a directory called C<$(DISTNAME)-$(VERSION)> (if that
+directory already exists, it will be removed first).  Then copies all
+the files listed in the F<MANIFEST> file to that directory.  This
+directory is what people will see when they download your distribution
+and unpack it.
+
+=item * disttest
+
+Performs the 'distdir' action, then switches into that directory and
+runs a C<perl Build.PL>, followed by the 'build' and 'test' actions in
+that directory.
 
 =back
 
@@ -468,7 +548,7 @@ worrying about backward compatibility.
 Finally, Perl is said to be a language for system administration.
 Could it really be the case that Perl isn't up to the task of building
 and installing software?  Absolutely not - see the C<Cons> package for
-one example, at L<http://www.dsmit.com/cons/> .
+one example, at L<"http://www.dsmit.com/cons/"> .
 
 =back
 
