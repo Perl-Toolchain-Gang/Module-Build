@@ -555,7 +555,7 @@ sub write_config {
   $self->_write_dumper('prereqs', { map { $_, $self->$_() } @items });
   $self->_write_dumper('build_params', [$self->{args}, $self->{config}, $self->{properties}]);
 
-  $self->_persistent_hash_write('cleanup');
+  $self->_persistent_hash_write($_) foreach qw(notes cleanup);
 }
 
 sub requires       { shift()->{properties}{requires} }
