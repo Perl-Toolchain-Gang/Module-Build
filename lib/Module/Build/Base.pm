@@ -712,7 +712,7 @@ sub print_build_script {
 
   my @myINC = @INC;
   for (@myINC, values %q) {
-    $_ = File::Spec->rel2abs($_);
+    $_ = File::Spec->canonpath( File::Spec->rel2abs($_) );
     s/([\\\'])/\\$1/g;
   }
 
@@ -723,11 +723,16 @@ sub print_build_script {
 $shebang
 
 use strict;
+use Cwd;
+use File::Spec;
 
 BEGIN {
   \$^W = 1;  # Use warnings
-  my \$start_dir = '$q{base_dir}';
-  chdir(\$start_dir) or die "Cannot chdir to \$start_dir: \$!";
+  my \$curdir = File::Spec->canonpath( Cwd::cwd() );
+  unless (\$curdir eq '$q{base_dir}') {
+    die ('This script must be run from $q{base_dir}, not '."\$curdir\\n".
+	 "Please re-run the Build.PL script here.\\n");
+  }
   \@INC = 
     (
 $quoted_INC
