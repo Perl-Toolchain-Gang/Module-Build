@@ -611,7 +611,6 @@ sub ACTION_dist {
   
   my $dist_dir = $self->dist_dir;
   
-  $self->write_metadata('metadata.yaml');
   $self->make_tarball($dist_dir);
   $self->delete_filetree($dist_dir);
 }
@@ -641,7 +640,10 @@ sub ACTION_distclean {
 
 sub ACTION_distdir {
   my ($self) = @_;
-  
+
+  my $metafile = 'META.yaml';
+  $self->write_metadata($metafile);
+
   my $dist_dir = $self->dist_dir;
   
   require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
@@ -649,6 +651,7 @@ sub ACTION_distdir {
   
   my $dist_files = ExtUtils::Manifest::maniread('MANIFEST');
   ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'best');
+  warn "*** Did you forget to add $metafile to the MANIFEST?\n" unless exists $dist_files->{$metafile};
 }
 
 sub ACTION_disttest {
@@ -684,7 +687,12 @@ sub write_metadata {
   my ($self, $file) = @_;
   my $p = $self->{properties};
 
-  local $p->{license} ||= 'unknown';
+  $p->{license} ||= 'unknown';
+  unless (grep /^$p->{license}$/, qw(perl gpl restrictive unknown)) {
+    warn "Uknown license type '$p->{license}', setting to 'unknown'\n";
+    $p->{license} = 'unknown';
+  }
+
   my %metadata = (
 		  distribution_type => 'module',
 		  name => $p->{module_name},
@@ -692,7 +700,8 @@ sub write_metadata {
 		  license => $p->{license},
 		 );
   
-  foreach (qw(prereq build_depends recommends conflicts)) {
+  $metadata{requires} = $p->{prereq} if $p->{prereq}; # A synonym
+  foreach (qw(requires build_depends recommends conflicts)) {
     $metadata{$_} = $p->{$_} if $p->{$_};
   }
   
@@ -705,6 +714,7 @@ sub make_tarball {
   
   require Archive::Tar;
   my $files = $self->rscan_dir($dir);
+  
   print "Creating $dir.tar.gz\n";
   Archive::Tar->create_archive("$dir.tar.gz", 1, @$files);
 }
