@@ -25,6 +25,10 @@ Revision history for Perl extension Module::Build.
    wouldn't be available via the pass-through Makefiles created by
    Module::Build::Compat. [Reported by Jaap Karssenberg]
 
+ - We now use Data::Dumper instead of our own ad-hoc serialization
+   routines to create the 'traditional' Makefile.PL
+   arguments. [Suggested by Yuval Kojman]
+
 0.22  Sat Jan 10 22:05:39 CST 2004
 
  - On Unixish platforms, the syntax "FOO=BAR /bin/baz arg arg" now
