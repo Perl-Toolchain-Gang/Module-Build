@@ -17,6 +17,7 @@ my %makefile_to_build =
    TEST_FILES   => 'test_files',
    INC     => sub { map "extra_compiler_flags=-I$_", Module::Build->split_like_shell(shift) },
    POLLUTE => sub { 'extra_compiler_flags=-DPERL_POLLUTE' },
+   INSTALLDIRS => sub {local $_ = shift; 'installdirs=' . /^perl$/ ? 'core' : $_ }
   );
 
 sub create_makefile_pl {

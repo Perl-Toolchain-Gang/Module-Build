@@ -1303,9 +1303,36 @@ sub make_tarball {
 
 sub install_destination {
   my ($self, $type) = @_;
-  return (   $self->{config}{"installsite$type"}
-	  || $self->{config}{"install$type"}
-	  || $self->{config}{"installsite${type}dir"} );
+  my $c = $self->{config};
+
+  my %map = ( core => {
+		       arch   => $c->{installarchlib},
+		       lib    => $c->{installprivlib},
+		       bin    => $c->{installbin},
+		       script => $c->{installscript},
+		       man1   => $c->{installman1dir},
+		       man3   => $c->{installman3dir},
+		      },
+	      site => {
+		       arch   => $c->{installsitearch},
+		       lib    => $c->{installsitelib},
+		       bin    => $c->{installsitebin},
+		       script => $c->{installscript},
+		       man1   => $c->{installsiteman1dir},
+		       man3   => $c->{installsiteman3dir},
+		      },
+	    vendor => {
+		       arch   => $c->{installvendorarch},
+		       lib    => $c->{installvendorlib},
+		       bin    => $c->{installvendorbin},
+		       script => $c->{installscript},
+		       man1   => $c->{installvendorman1dir},
+		       man3   => $c->{installvendorman3dir},
+		      },
+	    );
+  
+  my $installdirs = $self->{properties}{installdirs} || 'site';
+  return $map{$installdirs}{$type};
 }
 
 sub install_types {
