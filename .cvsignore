@@ -1,6 +1,6 @@
 Makefile
 CPANTEST.RPT
-META.yaml
+META.yml
 Module-Build-*
 _build
 blib
