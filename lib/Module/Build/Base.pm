@@ -9,6 +9,7 @@ use File::Find ();
 use File::Path ();
 use File::Basename ();
 use File::Spec ();
+use File::Compare ();
 use Data::Dumper ();
 
 sub new {
@@ -255,10 +256,8 @@ sub add_to_cleanup {
   return unless @need_to_write;
   
   if ( my $file = $self->config_file('cleanup') ) {
-    if ( !$self->{cleanup_fh} ) {
-      open $self->{cleanup_fh}, ">> $file" or die "Can't append to $file: $!";
-    }
-    print {$self->{cleanup_fh}} "$_\n" foreach @need_to_write;
+    open my($fh), ">> $file" or die "Can't append to $file: $!";
+    print $fh "$_\n" foreach @need_to_write;
   }
   
   @{$self->{cleanup}}{ @need_to_write } = ();
@@ -618,8 +617,12 @@ sub ACTION_test {
   
   # Find all possible tests and run them
   my @tests;
-  push @tests, 'test.pl'                          if -e 'test.pl';
-  push @tests, @{$self->rscan_dir('t', qr{\.t$})} if -e 't' and -d _;
+  if ($self->{args}{test_files}) {
+    @tests = ($self->{args}{test_files});
+  } else {
+    push @tests, 'test.pl'                          if -e 'test.pl';
+    push @tests, @{$self->rscan_dir('t', qr{\.t$})} if -e 't' and -d _;
+  }
   if (@tests) {
     # Work around a Test::Harness bug that loses the particular perl we're running under
     local $^X = $self->{config}{perlpath} unless $Test::Harness::VERSION gt '2.01';
@@ -666,6 +669,45 @@ sub ACTION_build {
   $self->lib_to_blib($files, 'blib');
 }
 
+# For systems that don't have 'diff' executable, should use Algorithm::Diff
+sub ACTION_diff {
+  my $self = shift;
+  $self->depends_on('build');
+  my @myINC = grep {$_ ne 'lib'} @INC;
+  my @flags = $self->split_like_shell($self->{args}{flags} || '');
+  
+  my $installmap = $self->install_map('blib');
+  delete $installmap->{read};
+
+  my $text_suffix = qr{\.(pm|pod)$};
+
+  while (my $localdir = each %$installmap) {
+    my $files = $self->rscan_dir($localdir, sub {-f});
+    
+    foreach my $file (@$files) {
+      my @parts = File::Spec->splitdir($file);
+      my @localparts = File::Spec->splitdir($localdir);
+      @parts = @parts[@localparts .. $#parts]; # Get rid of blib/lib or similar
+      
+      my $installed = $self->find_module_by_name(join('::', @parts), \@myINC);
+      if (not $installed) {
+	print "Only in lib: $file\n";
+	next;
+      }
+      
+      my $status = File::Compare::compare($installed, $file);
+      next if $status == 0;  # Files are the same
+      die "Can't compare $installed and $file: $!" if $status == -1;
+      
+      if ($file !~ /$text_suffix/) {
+	print "Binary files $file and $installed differ\n";
+      } else {
+	$self->do_system('diff', @flags, $installed, $file);
+      }
+    }
+  }
+}
+
 sub process_PL_files {
   my ($self, $dir) = @_;
   my $p = $self->{properties}{PL_files};
@@ -706,12 +748,6 @@ sub ACTION_clean {
 sub ACTION_realclean {
   my ($self) = @_;
   $self->depends_on('clean');
-  if ($self->{cleanup_fh}) {
-    # On Windows, you can't delete a directory with files open inside,
-    # so we close the cleanup file.
-    close $self->{cleanup_fh};
-    delete $self->{cleanup_fh};
-  }
   $self->delete_filetree($self->{properties}{config_dir}, $self->{properties}{build_script});
 }
 
@@ -774,9 +810,9 @@ sub ACTION_disttest {
   my $dist_dir = $self->dist_dir;
   chdir $dist_dir or die "Cannot chdir to $dist_dir: $!";
   # XXX could be different names for scripts
-  $self->do_system("$^X Build.PL") or die "Error executing '$^X Build.PL' in dist directory: $!";
+  $self->do_system($^X, 'Build.PL') or die "Error executing '$^X Build.PL' in dist directory: $!";
   $self->do_system('./Build') or die "Error executing './Build' in dist directory: $!";
-  $self->do_system('./Build test') or die "Error executing './Build test' in dist directory: $!";
+  $self->do_system('./Build', 'test') or die "Error executing './Build test' in dist directory: $!";
   chdir $self->{properties}{base_dir};
 }
 
@@ -856,8 +892,11 @@ sub depends_on {
 sub rscan_dir {
   my ($self, $dir, $pattern) = @_;
   my @result;
-  my $subr = $pattern ? sub {push @result, $File::Find::name if /$pattern/}
-                      : sub {push @result, $File::Find::name};
+  my $subr = !$pattern ? sub {push @result, $File::Find::name} :
+             !ref($pattern) || (ref $pattern eq 'Regexp') ? sub {push @result, $File::Find::name if /$pattern/} :
+	     ref($pattern) eq 'CODE' ? sub {push @result, $File::Find::name if $pattern->()} :
+	     die "Unknown pattern type";
+  
   File::Find::find({wanted => $subr, no_chdir => 1}, $dir);
   return \@result;
 }
@@ -915,36 +954,67 @@ sub compile_c {
   # File name, minus the suffix
   (my $file_base = $file) =~ s/\.[^.]+$//;
   my $obj_file = "$file_base$cf->{obj_ext}";
+  $self->add_to_cleanup($obj_file);
   return $obj_file if $self->up_to_date($file, $obj_file);
   
-  $self->add_to_cleanup($obj_file);
   my $coredir = File::Spec->catdir($cf->{archlib}, 'CORE');
-  my $include_dirs = $self->{include_dirs} ? join ' ', map {"-I$_"} @{$self->{include_dirs}} : '';
-  $self->do_system("$cf->{cc} $include_dirs -c $cf->{ccflags} -I$coredir -o $obj_file $file")
+  my @include_dirs = $self->{include_dirs} ? map {"-I$_"} @{$self->{include_dirs}} : ();
+  my @ccflags = split ' ', $cf->{ccflags};
+  $self->do_system($cf->{cc}, @include_dirs, '-c', @ccflags, "-I$coredir", '-o', $obj_file, $file)
     or die "error building $cf->{dlext} file from '$file'";
 
   return $obj_file;
 }
 
 sub link_c {
-  my ($self, $archdir, $file_base) = @_;
+  my ($self, $to, $file_base) = @_;
   my $cf = $self->{config}; # For convenience
 
-  my $lib_file = File::Spec->catfile($archdir, File::Basename::basename("$file_base.$cf->{dlext}"));
+  my $lib_file = File::Spec->catfile($to, File::Basename::basename("$file_base.$cf->{dlext}"));
+  $self->add_to_cleanup($lib_file);
   my $objects = $self->{objects} || [];
 
   unless ($self->up_to_date("$file_base$cf->{obj_ext}", [$lib_file, @$objects])) {
-    my $linker_flags = $cf->{extra_linker_flags} || '';
-    $self->do_system("$cf->{shrpenv} $cf->{cc} $cf->{lddlflags} -o $lib_file ".
-		     "$file_base$cf->{obj_ext} @$objects $linker_flags")
+    my @linker_flags = $self->split_like_shell($cf->{extra_linker_flags} || '');
+    my @lddlflags = $self->split_like_shell($cf->{lddlflags});
+    my @shrp = $self->split_like_shell($cf->{shrpenv});
+    $self->do_system(@shrp, $cf->{cc}, @lddlflags, '-o', $lib_file,
+		     "$file_base$cf->{obj_ext}", @$objects, @linker_flags)
       or die "error building $file_base$cf->{obj_ext} from '$file_base.$cf->{dlext}'";
+  }
+}
+
+sub split_like_shell {
+  my $self = shift;
+  local $_ = shift;
+  return wantarray ? () : '' unless defined() && length();
+  
+  return split ' ', $_;  # XXX This is naive - needs a fix
+}
+
+sub stdout_to_file {
+  my ($self, $coderef, $redirect) = @_;
+  local *SAVE;
+  if ($redirect) {
+    open SAVE, ">&STDOUT" or die "Can't save STDOUT handle: $!";
+    open STDOUT, "> $redirect" or die "Can't create '$redirect': $!";
+  }
+
+  $coderef->();
+
+  if ($redirect) {
+    close STDOUT;
+    open STDOUT, ">&SAVE" or die "Can't restore STDOUT: $!";
   }
 }
 
 sub run_perl_script {
   my ($self, $script, $preargs, $postargs) = @_;
-  $preargs ||= '';   $postargs ||= '';
-  return $self->do_system("$self->{config}{perlpath} $preargs $script $postargs");
+  foreach ($preargs, $postargs) {
+    $_ = [ $self->split_like_shell($_) ] unless ref();
+  }
+  
+  return $self->do_system($self->{config}{perlpath}, @$preargs, $script, @$postargs);
 }
 
 # A lot of this looks Unixy, but actually it may work fine on Windows.
@@ -965,9 +1035,18 @@ sub process_xs {
     my $typemap =  $self->find_module_by_name('ExtUtils::typemap', \@INC);
     
     # XXX the '> $file_base.c' isn't really a post-arg, it's redirection.  Fix later.
-    $self->run_perl_script($xsubpp, "-I$cf->{archlib} -I$cf->{privlib}", 
-			   "-noprototypes -typemap '$typemap' $file > $file_base.c")
-      or die "error building .c file from '$file'";
+    
+    # Here we're trying to trick xsubpp into thinking it's been run as
+    # a command.  Oy, it hurts!
+    local @INC  = ($cf->{archlib}, $cf->{privlib}, @INC);
+    local @ARGV = ("-noprototypes", "-typemap", $typemap, $file);
+    local *CORE::GLOBAL::exit = sub {warn "NOT EXITING!"};
+    $self->stdout_to_file( sub { package xsubpp; do $xsubpp }, "$file_base.c" );
+
+#    $self->run_perl_script($xsubpp,
+#			   ["-I$cf->{archlib}", "-I$cf->{privlib}"], 
+#			   ["-noprototypes", "-typemap", $typemap, $file, ">", "$file_base.c"]);
+#      or die "error building .c file from '$file'";
   }
   
   # .c -> .o
@@ -996,9 +1075,9 @@ sub process_xs {
 }
 
 sub do_system {
-  my ($self, $cmd, $silent) = @_;
-  print "$cmd\n" unless $silent;
-  return !system($cmd);
+  my ($self, @cmd) = @_;
+  print "@cmd\n";
+  return !system(@cmd);
 }
 
 sub copy_if_modified {
@@ -1037,7 +1116,6 @@ sub up_to_date {
   }
   return 1;
 }
-
 
 #sub is_newer_than {
 #  my ($self, $one, $two) = @_;
