@@ -11,10 +11,15 @@ Revision history for Perl extension Module::Build.
 
 0.19 (Future release)
 
- - Fixed a problem with check_installed_status() when installed
-   version contains non-numeric characters like underscores.
+ - Moved INSTALL to INSTALL.txt to increase compatibility with various
+   odd versions of 'make' during 'make install' on case-insensitive
+   filesystems (like nmake on Win32, often).  Only affects the
+   Makefile compatibility layer.  [reported by Andrew Savage]
 
 0.18_02  Sun Jun  1 18:32:22 CDT 2003
+
+ - Fixed a problem with check_installed_status() when installed
+   version contains non-numeric characters like underscores.
 
  - Fixed a problem with a bareword 'File::Spec' in one of the test
    scripts that caused it not to compile under 5.8.0 (but is fine
