@@ -1814,13 +1814,21 @@ sub have_c_compiler {
   my ($self) = @_;
   return $self->{properties}{have_compiler} if defined $self->{properties}{have_compiler};
   
-  my $tmpfile = $self->config_file('compilet.c');
+  my $c_file = $self->config_file('compilet.c');
   {
-    my $fh = IO::File->new("> $tmpfile") or die "Can't create $tmpfile: $!";
+    my $fh = IO::File->new("> $c_file") or die "Can't create $c_file: $!";
     print $fh "int main() { return 0; }\n";
   }
-
-  return $self->{properties}{have_compiler} = 0 + eval { $self->compile_c($tmpfile); 1 };
+  
+  my ($obj_file, $lib_file);
+  eval {
+    $obj_file = $self->compile_c($c_file);
+    (my $file_base = $obj_file) =~ s/\.[^.]+$//;
+    $lib_file = $self->link_c($self->config_dir, $file_base);
+  };
+  unlink for grep defined, $c_file, $obj_file, $lib_file;
+  
+  return $self->{properties}{have_compiler} = $@ ? 0 : 1;
 }
 
 sub compile_c {
@@ -1867,6 +1875,8 @@ sub link_c {
 		     "$file_base$cf->{obj_ext}", @$objects, @linker_flags)
       or die "error building $file_base$cf->{obj_ext} from '$file_base.$cf->{dlext}'";
   }
+  
+  return $lib_file;
 }
 
 sub compile_xs {
