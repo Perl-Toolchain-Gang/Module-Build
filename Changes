@@ -50,6 +50,9 @@ Revision history for Perl extension Module::Build.
    builder module wouldn't be loaded at the right time.  This has been
    fixed.  [Reported by Toby Ovod-Everett]
 
+ - In M::B-generated 'traditional' Makefile.PLs, the entries in
+   'PREREQ_PM' are now sorted ASCIIbetically rather than randomly.
+
  - The install_types() method will now return any additional types
    given as 'install_path' arguments, as well as all elements of the
    current 'install_sets' entry.  This makes it easier to add new
