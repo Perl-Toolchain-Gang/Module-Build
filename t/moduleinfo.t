@@ -1,7 +1,7 @@
 
 use strict;
 use Test;
-BEGIN { plan tests => 17 }
+BEGIN { plan tests => 18 }
 
 use Module::Build::ModuleInfo;
 ok(1);
@@ -29,6 +29,8 @@ $pm_info =
     Module::Build::ModuleInfo->new_from_file( 't/Sample/bin/sample.pl' );
 ok( defined( $pm_info ) );
 
+# find $VERSION in non-declared package main of script
+ok( $pm_info->version('main'), '0.01' );
 
 # fail on invalid module name
 $pm_info = Module::Build::ModuleInfo->new_from_module( 'Foo::Bar' );

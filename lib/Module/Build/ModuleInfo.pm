@@ -144,7 +144,8 @@ sub _parse_file {
         push( @pkgs, $pkg );
 
       } elsif ( $line =~ $VERS_REGEXP ) {
-        unless ( defined( $vers{$pkg} ) ) { # only first VERSION
+        # only first keep if this is the first $VERSION seen
+        unless ( defined $vers{$pkg} && length $vers{$pkg} ) {
           my $v = $self->_evaluate_version_line( $line );
 	  $vers{$pkg} = $v;
         }
