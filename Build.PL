@@ -14,6 +14,7 @@ my $build = new Module::Build
 		File::Basename => 0,
 		File::Spec     => 0,
 		Data::Dumper   => 0,
+		Cwd            => 0,
 	       },
    recommends => {
 		  YAML => 0.30,
