@@ -1012,13 +1012,21 @@ sub test_files {
   
   my @tests;
   if ($self->{args}{test_files}) {  # XXX use 'properties'
-    @tests = $self->split_like_shell($self->{args}{test_files});
+    @tests = (map { -d $_ ? $self->expand_test_dir($_) : $_ }
+	      map glob,
+	      $self->split_like_shell($self->{args}{test_files}));
   } else {
     # Find all possible tests in t/ or test.pl
     push @tests, 'test.pl'                          if -e 'test.pl';
-    push @tests, @{$self->rscan_dir('t', qr{\.t$})} if -e 't' and -d _;
+    push @tests, $self->expand_test_dir('t')        if -e 't' and -d _;
   }
   return [sort @tests];
+}
+
+sub expand_test_dir {
+  my ($self, $dir) = @_;
+  return @{$self->rscan_dir($dir, qr{\.t$})} if $self->{properties}{recursive_test_files};
+  return glob File::Spec->catfile($dir, "*.t");
 }
 
 sub ACTION_testdb {
