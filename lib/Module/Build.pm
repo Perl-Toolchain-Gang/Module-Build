@@ -1476,7 +1476,12 @@ pages belonging to the 'man1' category.
 
 =back
 
-=head3 installdirs
+Four other parameters let you control various aspects of how
+installation paths are determined:
+
+=over 4
+
+=item installdirs
 
 The default destinations for these installable things come from
 entries in your system's C<Config.pm>.  You can select from three
@@ -1517,7 +1522,7 @@ unfortunately there's no such thing as "installsitescript" or
 general location right.  In the future, if C<Config.pm> adds some more
 appropriate entries, we'll start using those.)
 
-=head3 install_path
+=item install_path
 
 Once the defaults have been set, you can override them.  You can set
 individual entries by using the C<install_path> parameter:
@@ -1535,7 +1540,7 @@ or this:
 
  Build install --install_path lib=/foo/lib --install_path arch=/foo/lib/arch
 
-=head3 install_base
+=item install_base
 
 You can also set the whole bunch of installation paths by supplying the
 C<install_base> parameter to point to a directory on your system.  For
@@ -1560,7 +1565,7 @@ C<installdirs=site> layout.
 The exact layout under the directory you specify may vary by system -
 we try to do the "sensible" thing on each platform.
 
-=head3 destdir
+=item destdir
 
 If you want to install everything into a temporary directory first
 (for instance, if you want to create a directory tree that a package
@@ -1578,6 +1583,7 @@ This will effectively install to "/tmp/foo/$sitelib",
 C<File::Spec> to make the pathnames work correctly on whatever
 platform you're installing on.
 
+=back
 
 =head1 SAVING CONFIGURATION INFORMATION
 
