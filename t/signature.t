@@ -7,12 +7,12 @@ require File::Spec->catfile('t', 'common.pl');
 use Module::Build;
 skip_test("Skipping unless \$ENV{TEST_SIGNATURE} is true") unless $ENV{TEST_SIGNATURE};
 need_module('Module::Signature');
-plan tests => 6;
+plan tests => 7;
 
-{
-  my $base_dir = File::Spec->catdir( Module::Build->cwd, 't', 'Sample' );
-  chdir $base_dir or die "can't chdir to $base_dir: $!";
-}
+
+my $base_dir = File::Spec->catdir( Module::Build->cwd, 't', 'Sample' );
+chdir $base_dir or die "can't chdir to $base_dir: $!";
+
 
 my $build = new Module::Build( module_name => 'Sample',
 			       requires => { 'File::Spec' => 0 },
@@ -23,7 +23,12 @@ my $build = new Module::Build( module_name => 'Sample',
 {
   eval {$build->dispatch('distdir')};
   ok $@, '';
-  ok -e File::Spec->catfile($build->dist_dir, 'SIGNATURE');
+  chdir $build->dist_dir or die "Can't chdir to ", $build->dist_dir, ": $!";
+  ok -e 'SIGNATURE';
+  
+  # Make sure the signature actually verifies
+  ok Module::Signature::verify() == Module::Signature::SIGNATURE_OK();
+  chdir $base_dir or die "can't chdir back to $base_dir: $!";
 }
 
 {
