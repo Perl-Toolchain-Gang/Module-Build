@@ -60,7 +60,7 @@ ok $@, '';
     <AUTHOR>A. U. Thor, a.u.thor\@a.galaxy.far.far.away</AUTHOR>
     <IMPLEMENTATION>
         <PERLCORE VERSION="$perl_version" />
-        <OS VALUE="$^O" />
+        <OS NAME="$^O" />
         <ARCHITECTURE NAME="$Config{archname}" />
         <CODEBASE HREF="/path/to/codebase-xs" />
     </IMPLEMENTATION>
