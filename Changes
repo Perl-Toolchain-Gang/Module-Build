@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.19
+
+ - check_installed_status() now works as both a class method and an
+   object method (and is documented so).  [Spotted by Dave Rolsky]
+
 0.18  Tue Apr  8 13:24:23 CDT 2003
 
  - We now rewrite the shebang lines of scripts ourselves, rather than
