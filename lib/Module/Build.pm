@@ -156,7 +156,9 @@ this module in the first place was so that subclassing is possible
 (and easy), I will certainly write more docs as the interface
 stabilizes.
 
-=head2 $m = Module::Build->new(...)
+=over 4
+
+=item new()
 
 Creates a new Module::Build object.  Arguments to the new() method are
 listed below.  Most arguments are optional, but you must provide
@@ -167,7 +169,7 @@ version.
 
 =over 4
 
-=item * module_name
+=item module_name
 
 The C<module_name> is a shortcut for setting default values of
 C<dist_name> and C<dist_version_from>, reflecting the fact that the
@@ -180,7 +182,7 @@ used to set C<dist_version>.
 Setting C<module_name> won't override a C<dist_*> parameter you
 specify explicitly.
 
-=item * dist_name
+=item dist_name
 
 Specifies the name for this distribution.  Most authors won't need to
 set this directly, they can use C<module_name> to set C<dist_name> to
@@ -188,14 +190,14 @@ a reasonable default.  However, some agglomerative distributions like
 C<libwww-perl> or C<bioperl> have names that don't correspond directly
 to a module name, so C<dist_name> can be set independently.
 
-=item * dist_version
+=item dist_version
 
 Specifies a version number for the distribution.  See C<module_name>
 or C<dist_version_from> for ways to have this set automatically from a
 C<$VERSION> variable in a module.  One way or another, a version
 number needs to be set.
 
-=item * dist_version_from
+=item dist_version_from
 
 Specifies a file to look for the distribution version in.  Most
 authors won't need to set this directly, they can use C<module_name>
@@ -212,30 +214,30 @@ variable.  Quite ugly, really, but all the modules on CPAN depend on
 this process, so there's no real opportunity to change to something
 better.
 
-=item * license
+=item license
 
 Specifies the licensing terms of your distribution.  Valid options include:
 
 =over 4
 
-=item * perl
+=item perl
 
 The distribution may be copied and redistributed under the same terms
 as perl itself (this is by far the most common licensing option for
 modules on CPAN).  This is a dual license, in which the user may
 choose between either the GPL or the Artistic license.
 
-=item * gpl
+=item gpl
 
 The distribution is distributed under the terms of the Gnu Public
 License.
 
-=item * artistic
+=item artistic
 
 The distribution is licensed under the Artistic License, as specified
 by the F<Artistic> file in the standard perl distribution.
 
-=item * restrictive
+=item restrictive
 
 The distribution may not be redistributed without special arrangement
 with the author.
@@ -252,7 +254,7 @@ another license to be recognized - I just started out with a small set
 to keep things simple, figuring I'd let people with actual working
 knowledge in this area tell me what to do.
 
-=item * requires
+=item requires
 
 An optional C<requires> argument specifies any module prerequisites that
 the current module depends on.  The prerequisites are given in a hash
@@ -293,7 +295,7 @@ transitioning from C<ExtUtils::MakeMaker>.  The C<requires> term is
 preferred, but the C<prereq> term will remain valid in future
 distributions.
 
-=item * recommends
+=item recommends
 
 This is just like the C<prereq> argument, except that modules listed
 in this section aren't essential, just a good idea.  We'll just print
@@ -308,7 +310,7 @@ Automated tools like CPAN.pm should inform the user when recommended
 modules aren't installed, and it should offer to install them if it
 wants to be helpful.
 
-=item * build_requires
+=item build_requires
 
 Modules listed in this section are necessary to build and install the
 given module, but are not necessary for regular usage of it.  This is
@@ -316,13 +318,13 @@ actually an important distinction - it allows for tighter control over
 the body of installed modules, and facilitates correct dependency
 checking on binary/packaged distributions of the module.
 
-=item * conflicts
+=item conflicts
 
 Modules listed in this section conflict in some serious way with the
 given module.  C<Module::Build> will refuse to install the given
 module if
 
-=item * c_source
+=item c_source
 
 An optional C<c_source> argument specifies a directory which contains
 C source files that the rest of the build may depend on.  Any C<.c>
@@ -330,14 +332,14 @@ files in the directory will be compiled to object files.  The
 directory will be added to the search path during the compilation and
 linking phases of any C or XS files.
 
-=item * autosplit
+=item autosplit
 
 An optional C<autosplit> argument specifies a file which should be run
 through the C<Autosplit::autosplit()> function.  In general I don't
 consider this a great idea, and I may even go so far as to remove this
 feature later.  Let me know if I shouldn't.
 
-=item * dynamic_config
+=item dynamic_config
 
 A boolean flag indicating whether the F<Build.PL> file must be
 executed, or whether this module can be built, tested and installed
@@ -354,7 +356,7 @@ packaging, and convenience improvements.
 
 =back
 
-=head2 $m->create_build_script
+=item create_build_script()
 
 Creates an executable script called C<Build> in the current directory
 that will be used to execute further user actions.  This script is
@@ -363,7 +365,7 @@ by C<ExtUtils::MakeMaker>.  This method also creates some temporary
 data in a directory called C<_build/>.  Both of these will be removed
 when the C<realclean> action is performed.
 
-=head2 $m->add_to_cleanup
+=item add_to_cleanup()
 
 A C<Module::Build> method may call C<< $self->add_to_cleanup(@files) >>
 to tell C<Module::Build> that certain files should be removed when the
@@ -373,7 +375,7 @@ static lists can get difficult to manage.  I preferred to keep the
 responsibility for registering temporary files close to the code that
 creates them.
 
-=head2 Module::Build->resume
+=item resume()
 
 You'll probably never call this method directly, it's only called from
 the auto-generated C<Build> script.  The C<new()> method is only
@@ -381,7 +383,7 @@ called once, when the user runs C<perl Build.PL>.  Thereafter, when
 the user runs C<Build test> or another action, the C<Module::Build>
 object is created using the C<resume()> method.
 
-=head2 $m->dispatch
+=item dispatch()
 
 This method is also called from the auto-generated C<Build> script.
 It parses the command-line arguments into an action and an argument
@@ -391,7 +393,7 @@ C<ACTION_foo> method.  All arguments (including everything mentioned
 in L<ACTIONS> below) are contained in the C<< $self->{args} >> hash
 reference.
 
-=head2 $m->os_type
+=item os_type()
 
 If you're subclassing Module::Build and some code needs to alter its
 behavior based on the current platform, you may only need to know
@@ -402,7 +404,7 @@ whatever is appropriate.  If you're running on an unknown platform, it
 will return C<undef> - there shouldn't be many unknown platforms
 though.
 
-=head2 $m->prereq_failures
+=item prereq_failures()
 
 Returns a data structure containing information about any failed
 prerequisites (of any of the types described above), or C<undef> if
@@ -450,7 +452,7 @@ Examples:
     }
   }
 
-=head2 $m->check_installed_status($module, $version)
+=item check_installed_status($module, $version)
 
 This method returns a hash reference indicating whether a version
 dependency on a certain module is satisfied.  The C<$module> argument
@@ -475,7 +477,7 @@ the C<have> value will be C<undef> - this is why we don't use C<undef>
 for the case when C<$module> isn't installed at all.
 
 
-=head2 $m->check_installed_version($module, $version)
+=item check_installed_version($module, $version)
 
 Like C<check_installed_status()>, but simply returns true or false
 depending on whether module C<$module> statisfies the dependency
@@ -504,6 +506,8 @@ true.
 In general you might prefer to use C<check_installed_status> if you
 need detailed information, or this method if you just need a yes/no
 answer.
+
+=back
 
 =head1 ACTIONS
 
@@ -540,13 +544,13 @@ The following build actions are provided by default.
 
 =over 4
 
-=item * help
+=item help
 
 This action will simply print out a message that is meant to help you
 use the build process.  It will show you a list of available build
 actions too.
 
-=item * build
+=item build
 
 If you run the C<Build> script without any arguments, it runs the
 C<build> action.
@@ -585,7 +589,7 @@ C<new()>.
 The C<.xs> support is currently in alpha.  Please let me know whether
 it works for you.
 
-=item * test
+=item test
 
 This will use C<Test::Harness> to run any regression tests and report
 their results.  Tests can be defined in the standard places: a file
@@ -603,25 +607,25 @@ directory, this file will be executed as a Perl script and its output
 will be shown to the user.  This is a good place to put speed tests or
 other tests that don't use the C<Test::Harness> format for output.
 
-=item * testdb
+=item testdb
 
 This is a synonym for the 'test' action with the C<debugger=1>
 argument.
 
-=item * clean
+=item clean
 
 This action will clean up any files that the build process may have
 created, including the C<blib/> directory (but not including the
 C<_build/> directory and the C<Build> script itself).
 
-=item * realclean
+=item realclean
 
 This action is just like the C<clean> action, but also removes the
 C<_build> directory and the C<Build> script.  If you run the
 C<realclean> action, you are essentially starting over, so you will
 have to re-create the C<Build> script again.
 
-=item * install
+=item install
 
 This action will use C<ExtUtils::Install> to install the files from
 C<blib/> into the correct system-wide module directory.  The directory
@@ -639,13 +643,13 @@ the C<Build.PL> script:
 Under normal circumstances, you'll need superuser privileges to
 install into the default C<sitelib> directory.
 
-=item * fakeinstall
+=item fakeinstall
 
 This is just like the C<install> action, but it won't actually do
 anything, it will just report what it I<would> have done if you had
 actually run the C<install> action.
 
-=item * manifest
+=item manifest
 
 This is an action intended for use by module authors, not people
 installing modules.  It will bring the F<MANIFEST> up to date with the
@@ -670,28 +674,28 @@ add your own stuff to it:
 See the L<distcheck> and L<skipcheck> actions if you want to find out
 what the C<manifest> action would do, without actually doing anything.
 
-=item * dist
+=item dist
 
 This action is helpful for module authors who want to package up their
 module for distribution through a medium like CPAN.  It will create a
 tarball of the files listed in F<MANIFEST> and compress the tarball using
 GZIP compression.
 
-=item * distcheck
+=item distcheck
 
 Reports which files are in the build directory but not in the
 F<MANIFEST> file, and vice versa. (See L<manifest> for details)
 
-=item * skipcheck
+=item skipcheck
 
 Reports which files are skipped due to the entries in the
 F<MANIFEST.SKIP> file (See L<manifest> for details)
 
-=item * distclean
+=item distclean
 
 Performs the 'realclean' action and then the 'distcheck' action.
 
-=item * distdir
+=item distdir
 
 Creates a directory called C<$(DISTNAME)-$(VERSION)> (if that
 directory already exists, it will be removed first).  Then copies all
@@ -707,7 +711,7 @@ must have the C<YAML> module installed in order to create it.  You
 should also ensure that the F<META.yaml> file is listed in your
 F<MANIFEST> - if it's not, a warning will be issued.
 
-=item * disttest
+=item disttest
 
 Performs the 'distdir' action, then switches into that directory and
 runs a C<perl Build.PL>, followed by the 'build' and 'test' actions in
