@@ -1,6 +1,7 @@
 Build.PL
 Changes
 INSTALL
+INSTALL.txt
 MANIFEST
 META.yml
 Makefile.PL
@@ -8,6 +9,7 @@ README
 lib/Module/Build.pm
 lib/Module/Build/Base.pm
 lib/Module/Build/Compat.pm
+lib/Module/Build/Cookbook.pm
 lib/Module/Build/PPMMaker.pm
 lib/Module/Build/Platform/Amiga.pm
 lib/Module/Build/Platform/Default.pm
