@@ -1,6 +1,12 @@
 Revision history for Perl extension Module::Build.
 
-0.21_01
+0.21_01  Wed Dec 17 07:51:49 CST 2003
+
+(A snapshot just because it's been so long since anything has been released)
+
+ - Fixed a have_c_compiler() failure on some platforms, we now define
+   a boot_compilet() function (since we're compiling a library, not an
+   executable). [Randy Sims]
 
  - Added a recipe to the Module::Build::Cookbook describing how to
    maintain compatibility with older versions of CPAN.pm [Jim Cromie]
