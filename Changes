@@ -2,11 +2,24 @@ Revision history for Perl extension Module::Build.
 
 0.19
 
+ - The pass-through Makefile created by Module::Build::Compat now
+   supports MakeMaker options like POLLUTE=1 and INC.  We also just
+   warn & skip when we see any unknown MM parameters, rather than
+   dying.  [Dave Rolsky]
+
+ - The pass-through Makefile doesn't include 'recommended' M::B
+   dependencies in the Makefile anymore, since they're not strictly
+   necessary.  In particular, this makes installing M::B itself
+   easier.
+
  - A new 'create_makefile_pl' parameter lets you use
    Module::Build::Compat during the 'distdir' (or 'dist') action to
    automatically create a Makefile.PL for compatibility with
    ExtUtils::MakeMaker.  The parameter's value should be one of the
    styles named in the Module::Build::Compat documentation.
+
+ - When compiling C code, we now respect 'pollute' and 'inc'
+   parameters. (XXX - needs docs) [Dave Rolsky]
    
  - Made the creation of the "install map" more generic.  (XXX - needs
    documentation)
