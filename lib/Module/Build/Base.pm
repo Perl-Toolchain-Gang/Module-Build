@@ -815,7 +815,7 @@ sub write_metadata {
 		  generated_by => (ref($self) || $self) . " version " . $self->VERSION,
 		 );
   
-  foreach (qw(requires build_depends recommends conflicts dynamic_config)) {
+  foreach (qw(requires build_requires recommends conflicts dynamic_config)) {
     $metadata{$_} = $p->{$_} if exists $p->{$_};
   }
   
