@@ -1454,17 +1454,15 @@ sub ACTION_html {
   $self->depends_on('build');
   require Pod::Html;
   require Module::Build::PodParser;
-  my $cwd = $self->cwd;
-  $cwd =~ s!^\w:!!;
-  $cwd =~ s!(\\|:)!/!g;
-  my $html_base = $Config{installhtmldir} ? 
-    File::Basename::basename($Config{installhtmldir}) : 'html';
-  my $blib = File::Spec::Unix->catdir($cwd, 'blib');
-  my $html = File::Spec::Unix->catdir($blib, $html_base);
+  
+  my $blib = $self->blib;
+  my $html = File::Spec::Unix->catdir($blib, 'html');
   my $script = File::Spec::Unix->catdir($blib, 'script');
+  
   unless (-d $html) {
     File::Path::mkpath($html, 1, 0755) or die "Couldn't mkdir $html: $!";
   }
+  
   my $pods = $self->_find_pods([$self->blib]);
   if (-d $script) {
     File::Find::finddepth( sub 
@@ -1493,13 +1491,15 @@ sub ACTION_html {
     my $outfile = File::Spec::Unix->catfile($fulldir, $name . '.html');
     
     my $htmlroot = File::Spec::Unix->catdir($path2root, 'site', 'lib');
-    my $podpath = join ":" => map { File::Spec::Unix->catdir($blib, $_) }  
-      ($isbin ? qw(bin lib) : qw(lib));
-    my $package = join('::', @dirs) . $name;
-    my $fh = IO::File->new($infile);
-    my $parser = Module::Build::PodParser->new(fh => $fh);
-    my $abstract = $parser->get_abstract();
-    my $title =  $abstract ? "$package - $abstract" : $package;
+    my $podpath = join ":" => ($isbin ? qw(bin lib) : qw(lib));
+    my $title = join('::', @dirs) . $name;
+    
+    {
+      my $fh = IO::File->new($infile);
+      my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
+      $title .= " - $abstract" if $abstract;
+    }
+    
     my @opts = (
 		'--header',
                 '--flush',
@@ -1612,13 +1612,11 @@ sub ACTION_versioninstall {
 }
 
 sub ACTION_htmlinstall {
-  return unless my $destdir = $Config{installhtmldir};
   my $self = shift;
+  return unless my $destdir = $self->config->{installhtmldir};
   $self->depends_on('html');
-  my $cwd = $self->cwd;
-  my $blib = File::Spec->catdir($cwd, 'blib');
-  my $html_base = File::Spec->catdir($blib,
-                                     File::Basename::basename($destdir));
+  
+  my $html_base = File::Spec->catdir($self->blib, 'html');
   my @files;
   File::Find::finddepth(sub 
                         {push @files, $File::Find::name 
