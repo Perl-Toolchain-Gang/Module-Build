@@ -12,7 +12,7 @@ use File::Path ();
 use File::Basename ();
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.13';
+$VERSION = '0.14';
 
 # Okay, this is the brute-force method of finding out what kind of
 # platform we're on.  I don't know of a systematic way.  These values
@@ -115,14 +115,14 @@ This illustrates initial configuration and the running of three
 'actions'.  In this case the actions run are 'build' (the default
 action), 'test', and 'install'.  Actions defined so far include:
 
-  build                          help        
-  clean                          install     
+  build                          fakeinstall 
+  clean                          help        
+  diff                           install     
   dist                           manifest    
   distcheck                      realclean   
   distclean                      skipcheck   
   distdir                        test        
   disttest                       testdb      
-  fakeinstall                                
 
 You can run the 'help' action for a complete list of actions.
 
@@ -662,6 +662,13 @@ directory, this file will be executed as a Perl script and its output
 will be shown to the user.  This is a good place to put speed tests or
 other tests that don't use the C<Test::Harness> format for output.
 
+To override the choice of tests to run, you may pass a C<test_files>
+argument whose value is a whitespace-separated list of test scripts to
+run.  This is especially useful in development, when you only want to
+run a single test to see whether you've squashed a certain bug yet:
+
+ ./Build test verbose=1 test_files=t/something_failing.t
+
 =item testdb
 
 This is a synonym for the 'test' action with the C<debugger=1>
@@ -679,6 +686,20 @@ This action is just like the C<clean> action, but also removes the
 C<_build> directory and the C<Build> script.  If you run the
 C<realclean> action, you are essentially starting over, so you will
 have to re-create the C<Build> script again.
+
+=item diff
+
+This action will compare the files about to be installed with their
+installed counterparts.  For .pm and .pod files, a diff will be shown
+(this currently requires a 'diff' program to be in your PATH).  For
+other files like compiled binary files, we simply report whether they
+differ.
+
+A C<flags> parameter may be passed to the action, which will be passed
+to the 'diff' program.  Consult your 'diff' documentation for the
+parameters it will accept - a good one is C<-u>:
+
+ ./Build diff flags=-u
 
 =item install
 
