@@ -49,6 +49,12 @@ Revision history for Perl extension Module::Build.
    need to have an explicit 'install_types' data member, so it has
    been removed.
 
+ - If the author uses a custom builder subclass created dynamically
+   through the subclass() method, passthrough Makefile.PLs (of type
+   'passthrough' or 'small') didn't work properly, because the custom
+   builder module wouldn't be loaded at the right time.  This has been
+   fixed.  [Reported by Toby Ovod-Everett]
+
 0.24  Wed Feb 25 15:57:00 CST 2004
 
  - Fixed a problem with incude_dirs not being propagated to the 'ccs'
