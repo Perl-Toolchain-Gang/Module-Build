@@ -570,6 +570,15 @@ generated PPD.
 
 =back
 
+=item subclass()
+
+This creates a new C<Module::Build> subclass on the fly, as described
+in the L<SUBCLASSING> section.  The caller must provide either a
+C<class> or C<code> parameter, or both.  The C<class> parameter
+indicates the name to use for the new subclass, and defaults to
+C<MyModuleBuilder>.  The C<code> parameter specifies Perl code to use
+as the body of the subclass.
+
 =item create_build_script()
 
 Creates an executable script called C<Build> in the current directory
@@ -1391,6 +1400,8 @@ creating a separate file for your module:
 Behind the scenes, this actually does create a C<.pm> file, since the
 code you provide must persist after Build.PL is run if it is to be
 very useful.
+
+See also the documentation for the C<subclass()> method.
 
 
 =head1 MOTIVATIONS
