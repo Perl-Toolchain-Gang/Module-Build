@@ -1935,6 +1935,7 @@ sub _write_default_maniskip {
 
 # Avoid temp and backup files.
 ~$
+\.tmp$
 \.old$
 \.bak$
 \#$
