@@ -507,6 +507,34 @@ In general you might prefer to use C<check_installed_status> if you
 need detailed information, or this method if you just need a yes/no
 answer.
 
+=item prompt()
+
+Asks the user a question and returns their response as a string.  The
+first argument specifies the message to display to the user (for
+example, C<"Where do you keep your money?">).  The second argument,
+which is optional, specifies a default answer (for example,
+C<"wallet">).  The user will be asked the question once.
+
+If the current session doesn't seem to be interactive (i.e. if
+C<STDIN> and C<STDOUT> look like they're attached to files or
+something and not terminals), we'll just use the default without
+letting the user provide an answer.
+
+=item y_n()
+
+Asks the user a yes/no question using C<prompt()> and returns true or
+false accordingly.  The user will be asked the question repeatedly
+until they give an answer that looks like "yes" or "no".
+
+The first argument specifies the message to display to the user (for
+example, C<"Shall I invest your money for you?">), and the second
+argument specifies the default answer (for example, C<"y">).
+
+Note that the default is specified as a string like C<"y"> or C<"n">,
+and the return value is a Perl boolean value like 1 or 0.  I thought
+about this for a while and this seemed like the most useful way to do
+it.
+
 =back
 
 =head1 ACTIONS
