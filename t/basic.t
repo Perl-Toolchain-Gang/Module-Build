@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-BEGIN { plan tests => 20 }
+BEGIN { plan tests => 23 }
 use Module::Build;
 ok(1);
 
@@ -110,11 +110,13 @@ chdir 't';
 # Make sure 'config' entries are respected on the command line
 {
   my $cwd = Cwd::cwd();
+  use Config;
   
   chdir 'Sample';
-  eval {$build->run_perl_script('Build.PL', [], ['--config', "foocakes=barcakes"])};
+  eval {Module::Build->run_perl_script('Build.PL', [], ['--config', "foocakes=barcakes"])};
   ok $@, '';
   
   my $b = Module::Build->resume();
+  ok $b->config->{cc}, $Config{cc};
   ok $b->config->{foocakes}, 'barcakes';
 }
