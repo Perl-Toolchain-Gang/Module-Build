@@ -20,6 +20,12 @@ Revision history for Perl extension Module::Build.
  - The 'autosplit' parameter now accepts an array reference if
    multiple files should be split. [Jaap Karssenberg]
 
+ - find_perl_interpreter() will now use $^X (if absolute), $ENV{PATH}
+   (if $^X isn't absolute), and $Config{perlpath}, in that order.
+   Also, we now make darn sure the result is the same version of perl,
+   by checking Config::myconfig() for a match against the current
+   perl.  [Reported by Edward Sabol]
+
 0.23  Sun Feb  8 22:01:18 CST 2004
 
  - Fixed a compatibility problem in pass-through Makefiles (created by
