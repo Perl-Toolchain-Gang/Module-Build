@@ -10,6 +10,10 @@ Revision history for Perl extension Module::Build.
    which sometimes gets automatically created on Mac systems) when
    'recursive_test_files' is in effect. [Tom Insam]
 
+ - Fixed a split_like_shell() bug introduced in 0.2603 for Windows, in
+   which an array reference passed as an argument was returned as an
+   array reference, rather than as a list. [Spotted by Steve Hay]
+
 0.2603 (Bug fix for 0.26)   Mon Nov 15 10:28:00 CST 2004
 
  - Added documentation for the new_from_context() method.

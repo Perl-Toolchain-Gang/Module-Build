@@ -51,10 +51,18 @@ my @win_splits =
    { 'a " b " c'            => [ 'a', ' b ', 'c' ] },
 );
 
-plan tests => 1 + 2*@unix_splits + 2*@win_splits;
+plan tests => 7 + 2*@unix_splits + 2*@win_splits;
 
 use Module::Build;
 ok(1);
+
+# Should always return an array unscathed
+foreach my $platform ('', '::Platform::Unix', '::Platform::Windows') {
+  my $pkg = "Module::Build$platform";
+  my @result = $pkg->split_like_shell(['foo', 'bar', 'baz']);
+  ok @result, 3, "Split using $pkg";
+  ok "@result", "foo bar baz", "Split using $pkg";
+}
 
 
 use Module::Build::Platform::Unix;

@@ -265,6 +265,8 @@ sub split_like_shell {
   
   (my $self, local $_) = @_;
   
+  return @$_ if defined() && UNIVERSAL::isa($_, 'ARRAY');
+  
   my @argv;
   return @argv unless defined() && length();
   
