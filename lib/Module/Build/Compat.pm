@@ -115,17 +115,30 @@ sub run_build_pl {
 sub fake_makefile {
   my $makefile = $_[1];
   my $build = File::Spec->catfile( '.', 'Build' );
+  my $perl = Module::Build->find_perl_interpreter;
 
-  return <<"EOF";
-all :
-	$^X $build
-realclean :
-	$^X $build realclean
-	$^X -e unlink -e shift $makefile
-.DEFAULT :
-	$^X $build \$@
-.PHONY   : install manifest
+  # Start with a couple special actions
+  my $maketext = <<"EOF";
+all : force_do_it
+	$perl $build
+realclean : force_do_it
+	$perl $build realclean
+	$perl -e unlink -e shift $makefile
+
+force_do_it :
+
 EOF
+
+  # XXX - user might be using a different subclass
+  foreach my $action (Module::Build->known_actions) {
+    next if $action =~ /^(all|realclean|force_do_it)$/;  # Don't double-define
+    $maketext .= <<"EOF";
+$action : force_do_it
+	$perl $build $action
+EOF
+  }
+  
+  return $maketext;
 }
 
 sub fake_prereqs {
