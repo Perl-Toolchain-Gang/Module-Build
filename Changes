@@ -24,6 +24,9 @@ Revision history for Perl extension Module::Build.
 
  - Added docs for run_perl_script().
 
+ - Added some stuff to the docs about why PREFIX is unsupported, and
+   what to use instead. [Steve Purkis]
+
  - The simple get/set accessor methods for all the 'parameters' like
    verbose(), license(), etc. now have auto-generated documentation in
    Module/Build.pm.

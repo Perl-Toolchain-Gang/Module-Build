@@ -624,12 +624,11 @@ system, you'll install as follows:
  libdoc  => /home/ken/man/man3
 
 Note that this is I<different> from how MakeMaker's C<PREFIX>
-parameter works.  C<PREFIX> tries to create a mini-replica of a
-C<site>-style installation under the directory you specify, which is
-not always possible (and the results are not always pretty in this
-case).  C<install_base> just gives you a default layout under the
-directory you specify, which may have little to do with the
-C<installdirs=site> layout.
+parameter works.  Module::Build doesn't support MakeMaker's C<PREFIX>
+option.  See L</"Why PREFIX is not supported"> for more details.
+C<install_base> just gives you a default layout under the directory
+you specify, which may have little to do with the C<installdirs=site>
+layout.
 
 The exact layout under the directory you specify may vary by system -
 we try to do the "sensible" thing on each platform.
@@ -654,6 +653,102 @@ platform you're installing on.
 
 =back
 
+=head1 Alternatives to PREFIX
+
+Module::Build offers L</install_base> as a simple, predictable, and
+user-configurable alternative to ExtUtils::MakeMaker's C<PREFIX>.
+What's more, MakeMaker will soon accept C<INSTALL_BASE> -- we strongly
+urge you to make the switch.
+
+Here's a quick comparison of the two when installing modules to your
+home directory on a unix box:
+
+MakeMaker [*]:
+
+  % perl Makefile.PL PREFIX=/home/spurkis
+  PERL5LIB=/home/spurkis/lib/perl5/5.8.5:/home/spurkis/lib/perl5/site_perl/5.8.5
+  PATH=/home/spurkis/bin
+  MANPATH=/home/spurkis/man
+
+Module::Build:
+
+  % perl Build.PL install_base=/home/spurkis
+  PERL5LIB=/home/spurkis/lib/perl5
+  PATH=/home/spurkis/bin
+  MANPATH=/home/spurkis/man
+
+[*] Note that MakeMaker's behaviour cannot be guaranteed in even this
+common scenario, and differs among different versions of MakeMaker.
+
+In short, using C<install_base> is similar to the following MakeMaker usage:
+
+  perl Makefile.PL PREFIX=/home/spurkis LIB=/home/spurkis/lib/perl5
+
+See L</How Installation Paths are Determined> for details on other
+installation options available and how to configure them.
+
+=head2 Why PREFIX is not supported
+
+First, it is necessary to understand the original idea behind
+C<PREFIX>.  If, for example, the default installation locations for
+your machine are F</usr/local/lib/perl5/5.8.5> for modules,
+F</usr/local/bin> for executables, F</usr/local/man/man1> and
+F</usr/local/man/man3> for manual pages, etc., then they all share the
+same "prefix" F</usr/local>.  MakeMaker's C<PREFIX> mechanism was
+intended as a way to change an existing prefix that happened to occur
+in all those paths - essentially a C<< s{/usr/local}{/foo/bar} >> for
+each path.
+
+However, the real world is more complicated than that.  The C<PREFIX>
+idea is fundamentally broken when your machine doesn't jibe with
+C<PREFIX>'s worldview.  A design decision was made not to support it
+in Module::Build, here's a summary of the reasons why:
+
+=over 4
+
+=item *
+
+Many systems have Perl configs that make little sense with PREFIX.
+For example, OS X, where core modules go in
+F</System/Library/Perl/...>, user-installed modules go in
+F</Library/Perl/...>, and man pages go in F</usr/share/man/...>.
+Install L<Foo::Bar> on OS X with C<PREFIX=/home/spurkis> and you get
+things like F</home/spurkis/Library/Perl/5.8.1/Foo/Bar.pm> and
+F</home/spurkis/usr/share/man/man3/Foo::Bar.3pm>.  Not too pretty.
+
+=item *
+
+The PREFIX logic is too complicated and hard to predict for the user.
+It's hard to document what exactly is going to happen.  You can't give
+a user simple instructions like "run perl Makefile.PL PREFIX=~ and
+then set PERL5LIB=~/lib/perl5".
+
+=item *
+
+The results from PREFIX will change if your configuration of Perl
+changes (for example, if you upgrade Perl).  This means your modules
+will end up in different places.
+
+=item *
+
+The results from PREFIX can change with different releases of
+MakeMaker.  The logic of PREFIX is subtle and it has been altered in
+the past (mostly to limit damage in the many "edge cases" when its
+behavior was undesirable).
+
+=item *
+
+PREFIX imposes decisions made by the person who configured Perl onto
+the person installing a module.  The person who configured Perl could
+have been you or it could have been some guy at Redhat.
+
+=back
+
+=head2 PREFIX will be supported
+
+The current maintainer of MakeMaker has offered to implement C<PREFIX>
+pass-through support in Module::Build B<for backwards compatability
+only>.  You are still strongly recommended to use C<install_base>.
 
 =head1 MOTIVATIONS
 
