@@ -37,17 +37,15 @@ sub run_build_pl {
 }
 
 sub fake_makefile {
-  # XXX - this currently isn't shell-safe (curdir could contain spaces
-  # or metachars), and 'rm -f' isn't cross-platform shell code.
-  my $out = "THISFILE = $_[1]\n";
-  my $build = File::Spec->catfile( File::Spec->curdir, 'Build' );
+  my $makefile = $_[1];
+  my $build = File::Spec->catfile( '.', 'Build' );
 
-  return $out . <<"EOF";
+  return <<"EOF";
 all :
 	$build
 realclean :
 	$build realclean
-	rm -f \$(THISFILE)
+	$^X -e unlink -e shift $makefile
 .DEFAULT :
 	$build \$@
 .PHONY   : install manifest
