@@ -18,6 +18,9 @@ Revision history for Perl extension Module::Build.
  - Created a Cookbook entry for 'Adding new elements to the install
    process'
 
+ - We now add META.yml to the MANIFEST when META.yml is created, not
+   when MANIFEST is created. [Spotted by Ron Savage]
+
 0.2601
 
  - Fixed some backslash problems with split_like_shell() on
