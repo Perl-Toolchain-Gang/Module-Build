@@ -1539,7 +1539,7 @@ sub script_files {
   }
   return $self->{properties}{script_files};
 }
-*scripts = \&script_files;
+BEGIN { *scripts = \&script_files; }
 
 sub valid_licenses {
   return { map {$_, 1} qw(perl gpl artistic lgpl bsd open_source unrestricted restrictive unknown) };
