@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.21_01
 
+ - Pass-through Makefiles will now die() when they're given a PREFIX
+   parameter, and suggest using 'destdir' or 'install_base' instead.
+   Previously they just ignored the parameter and tried to install to
+   the default location, which is clearly not what the user wanted.
+
  - Updated my email address in the documentation to a more recent
    variant.
 
