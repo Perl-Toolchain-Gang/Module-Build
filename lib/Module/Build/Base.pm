@@ -85,7 +85,7 @@ sub _set_install_paths {
   my $self = shift;
   my $c = $self->{config};
 
-  $self->{properties}{install_path} =
+  $self->{properties}{install_sets} =
     {
      core   => {
 		lib     => $c->{installprivlib},
@@ -221,6 +221,8 @@ sub resume {
        config_dir
        build_script
        install_types
+       install_sets
+       install_path
        installdirs
        destdir
        debugger
@@ -1393,8 +1395,10 @@ sub make_tarball {
 
 sub install_destination {
   my ($self, $type) = @_;
-  my $installdirs = $self->{properties}{installdirs} || 'site';
-  return $self->{properties}{install_path}{$installdirs}{$type};
+  my $p = $self->{properties};
+  
+  return $p->{install_path}{$type} if exists $p->{install_path}{$type};
+  return $p->{install_sets}{ $p->{installdirs} }{$type};
 }
 
 sub install_types {
