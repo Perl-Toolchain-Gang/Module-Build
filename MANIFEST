@@ -4,6 +4,7 @@ MANIFEST
 README
 lib/Module/Build.pm
 lib/Module/Build/Base.pm
+lib/Module/Build/Compat.pm
 lib/Module/Build/Platform/Amiga.pm
 lib/Module/Build/Platform/Default.pm
 lib/Module/Build/Platform/EBCDIC.pm
