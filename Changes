@@ -1,5 +1,34 @@
 Revision history for Perl extension Module::Build.
 
+0.03
+  - The 'perl Build.PL' step will now detect whether the current
+    environment is "unixish", "windowsish", etc., and load the correct
+    module (i.e. Module::Build::Platform::Unix).  More specific
+    modules may also be written for particular values of $^O.
+
+  - Module::Build will now process any .xs files in the lib/
+    directory.  Please let me know whether this works or not with your
+    distribution & platform.  I'll be trying out various distributions
+    on my platform.
+
+  - Corrected some embarassing errors in the POD documentation.  Also
+    added a long documentation section on the various build actions
+    (test, install, build, etc.) and added some neato ASCII art.
+
+  - Added a 'cleanup' mechanism - any method may call the
+    $self->add_to_cleanup(@files) method to register files which need
+    to be cleaned up during 'Build clean'.
+
+  - Added a 'Build help' action that gives a little syntax help, and
+    lists all the actions available.
+
+  - Fixed a bug in which 'blib/' wasn't properly being added to @INC
+    when running 'Build test'.
+
+  - For the 'Build dist' action, we'll use the 'tar' and 'gzip'
+    programs (as specified by Config.pm) on Unix platforms, otherwise
+    we'll use Archive::Tar and Compress::Zlib.
+ 
 0.02  Wed Sep  5 00:53:04 CDT 2001
   - Added POD documentation.
 

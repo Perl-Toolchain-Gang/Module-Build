@@ -1,7 +1,16 @@
 Build.PL
 Changes
 lib/Module/Build/Base.pm
+lib/Module/Build/Platform/Amiga.pm
 lib/Module/Build/Platform/Default.pm
+lib/Module/Build/Platform/EBCDIC.pm
+lib/Module/Build/Platform/MacOS.pm
+lib/Module/Build/Platform/MPEiX.pm
+lib/Module/Build/Platform/RiscOS.pm
+lib/Module/Build/Platform/Unix.pm
+lib/Module/Build/Platform/VMS.pm
+lib/Module/Build/Platform/VOS.pm
+lib/Module/Build/Platform/Windows.pm
 lib/Module/Build.pm
 MANIFEST
 README
