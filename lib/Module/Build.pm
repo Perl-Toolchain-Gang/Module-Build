@@ -780,12 +780,12 @@ all the key=value pairs in C<Config.pm> are available in
 C<< $self->{config} >>.  If the user wishes to override any of the
 values in C<Config.pm>, she may specify them like so:
 
-  perl Build.PL config='sitelib=/foo perlpath=/wacky/stuff'
+  perl Build.PL config='cc=gcc ld=gcc'
 
 Not the greatest interface, I'm looking for alternatives.  Speak now!
 Maybe:
 
-  perl Build.PL config-sitelib=/foo config-perlpath=/wacky/stuff
+  perl Build.PL config=cc:gcc config=ld:gcc
 
 or something.
 
