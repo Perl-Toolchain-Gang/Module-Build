@@ -42,12 +42,12 @@ sub fake_makefile {
 
   return <<"EOF";
 all :
-	$build
+	$^X $build
 realclean :
-	$build realclean
+	$^X $build realclean
 	$^X -e unlink -e shift $makefile
 .DEFAULT :
-	$build \$@
+	$^X $build \$@
 .PHONY   : install manifest
 EOF
 }
