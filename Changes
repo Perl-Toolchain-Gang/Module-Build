@@ -7,6 +7,9 @@ Revision history for Perl extension Module::Build.
    make) didn't like a '@' by itself on a line, so we stole some
    'NOOP' code from MakeMaker to fix it. [Reported by Mathieu Arnold]
 
+ - Documented the 'test_files' parameter to new(). [Reported by Tony
+   Bowden]
+
 0.22  Sat Jan 10 22:05:39 CST 2004
 
  - On Unixish platforms, the syntax "FOO=BAR /bin/baz arg arg" now
