@@ -750,10 +750,13 @@ sub write_metadata {
     die "Unknown license type '$p->{license}";
   }
 
+  # XXX Distribution name should be settable independently
+  (my $name = $p->{module_name}) =~ s/::/-/g;
+
   my %metadata = (
 		  distribution_type => 'module',
 		  dynamic_config => 0,
-		  name => $p->{module_name},
+		  name => $name,
 		  version => $p->{module_version},
 		  license => $p->{license},
 		  generated_by => (ref($self) || $self) . " version " . $self->VERSION,
