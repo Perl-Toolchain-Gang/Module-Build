@@ -7,6 +7,7 @@ lib/Module/Build/Authoring.pod
 lib/Module/Build/Base.pm
 lib/Module/Build/Compat.pm
 lib/Module/Build/Cookbook.pm
+lib/Module/Build/ModuleInfo.pm
 lib/Module/Build/Platform/aix.pm
 lib/Module/Build/Platform/Amiga.pm
 lib/Module/Build/Platform/cygwin.pm
@@ -41,6 +42,7 @@ t/lib/Test/More.pm
 t/lib/Test/Simple.pm
 t/MANIFEST
 t/manifypods.t
+t/moduleinfo.t
 t/notes.t
 t/parents.t
 t/pod_parser.t
