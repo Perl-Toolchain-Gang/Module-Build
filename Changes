@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.21_02
+0.21_02  Tue Dec 23 17:05:11 CST 2003
 
  - During testing, if YAML.pm isn't installed, then we won't try
    making a tarball with Archive::Tar either, since this would invoke
