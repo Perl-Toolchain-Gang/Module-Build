@@ -497,7 +497,8 @@ $self->{config}{startperl}
 
 BEGIN {
   \$^W = 1;  # Use warnings
-  chdir('$base_dir') or die 'Cannot chdir to $base_dir: '.\$!;
+  my \$start_dir = '$base_dir';
+  chdir(\$start_dir) or die "Cannot chdir to \$start_dir: \$!";
   \@INC = ($quoted_INC);
 }
 
