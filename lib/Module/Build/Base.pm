@@ -1453,7 +1453,6 @@ sub ACTION_html {
 
 sub htmlify_pods {
   my $self = shift;
-  require Pod::Html;
   require Module::Build::PodParser;
   
   my $blib = $self->blib;
@@ -1486,6 +1485,7 @@ sub htmlify_pods {
 
 sub _htmlify_pod {
   my ($self, %args) = @_;
+  require Pod::Html;
   
   my ($name, $path) = File::Basename::fileparse($args{rel_path}, qr{\..*});
   my @dirs = File::Spec->splitdir($path);
@@ -1514,18 +1514,17 @@ sub _htmlify_pod {
     my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
     $title .= " - $abstract" if $abstract;
   }
-    
+  
   my $blib = $self->blib;
   my @opts = (
-	      '--header',
 	      '--flush',
-	      "--backlink=$args{backlink}",
 	      "--title=$title",
 	      "--podpath=$podpath",
 	      "--infile=$infile",
 	      "--outfile=$outfile",
 	      "--podroot=$blib",
 	      "--htmlroot=$htmlroot",
+	      Pod::Html->VERSION >= 1.03 ? ('--header', "--backlink=$args{backlink}") : (),
 	     );
   push @opts, "--css=$path2root/$args{css}" if $args{css};
     
