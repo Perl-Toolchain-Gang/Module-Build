@@ -908,9 +908,22 @@ parameters it will accept - a good one is C<-u>:
 =item install
 
 This action will use C<ExtUtils::Install> to install the files from
-C<blib/> into the system.  See L<How Installation Works> for details
+C<blib/> into the system.  See L<How Installation Paths are Determined> for details
 about how Module::Build determines where to install things, and how to
 influence this process.
+
+If you want the installation process to look around in C<@INC> for
+other versions of the stuff you're installing and try to delete it,
+you can use the C<uninst> parameter, which tells C<Module::Install> to
+do so:
+
+ Build install uninst=1
+
+This can be a good idea, as it helps prevent multiple versions of a
+module from being present on your system, which can be a confusing
+situation indeed.
+
+
 
 =item fakeinstall
 
@@ -1019,7 +1032,7 @@ that directory.
 
 =back
 
-=head2 How Installation Works
+=head2 How Installation Paths are Determined
 
 When you invoke Module::Build's C<build> action, it needs to figure
 out where to install things.  The nutshell version of how this works
@@ -1068,6 +1081,8 @@ pages belonging to the 'man1' category.
 
 =back
 
+=head3 installdirs
+
 The default destinations for these installable things come from
 entries in your system's C<Config.pm>.  You can select from three
 different sets of default locations by setting the C<installdirs>
@@ -1084,6 +1099,21 @@ parameter as follows:
  bin     => installbin      installsitebin      installvendorbin
  libdoc  => installman3dir  installsiteman3dir  installvendorman3dir
  bindoc  => installman1dir  installsiteman1dir  installvendorman1dir
+
+The default value of C<installdirs> is "site".  If you're creating
+vendor distributions of module packages, you may want to do something
+like this:
+
+ perl Build.PL installdirs=vendor
+
+or
+
+ Build install installdirs=vendor
+
+If you're installing an updated version of a module that was included
+with perl itself (i.e. a "core module"), then you may set
+C<installdirs> to "core" to overwrite the module in its present
+location.
 
 (Note that the 'script' line is different from MakeMaker -
 unfortunately there's no such thing as "installsitescript" or
@@ -1148,25 +1178,11 @@ or
 
  Build install destdir=/tmp/foo
 
-This will effectively install to "$destdir/$sitelib",
-"$destdir/$sitearch", and the like, except that it will use
+This will effectively install to "/tmp/foo/$sitelib",
+"/tmp/foo/$sitearch", and the like, except that it will use
 C<File::Spec> to make the pathnames work correctly on whatever
 platform you're installing on.
 
-=head3 uninst
-
-If you want the installation process to look around in C<@INC> for
-other versions of the stuff you're installing and try to delete it,
-you can use the C<uninst> parameter, which tells C<Module::Install> to
-do so:
-
- Build install uninst=1
-
-This can be a good idea, as it helps prevent multiple versions of a
-module from being present on your system, which can be a confusing
-situation indeed.
-
-=back
 
 =head1 AUTOMATION
 
