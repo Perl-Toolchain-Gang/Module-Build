@@ -8,7 +8,7 @@ package Module::Build;
 
 use strict;
 use vars qw($VERSION @ISA);
-$VERSION = '0.04';
+$VERSION = '0.03_1';
 
 # Okay, this is the brute-force method of finding out what kind of
 # platform we're on.  I don't know of a systematic way.  These values
@@ -53,19 +53,24 @@ my %OSTYPES = qw(
 		 mpeix     MPEiX
 		);
 
-if (eval "use Module::Build::Platform::$^O") {
+eval "use Module::Build::Platform::$^O";
+if (!$@) {
   @ISA = ("Module::Build::Platform::$^O");
+  #warn "Using Module::Build::Platform::$^O";
 
 } elsif (exists $OSTYPES{$^O}) {
   eval "use Module::Build::Platform::$OSTYPES{$^O}";
   die $@ if $@;
   @ISA = ("Module::Build::Platform::$OSTYPES{$^O}");
+  #warn "Using Module::Build::Platform::$OSTYPES{$^O}";
 
 } else {
   warn "Unknown OS type '$^O' - using default settings\n";
   eval "use Module::Build::Platform::Default";
   die $@ if $@;
   @ISA = qw(Module::Build::Platform::Default);
+  #warn "Using Module::Build::Platform::Default";
+
 }
 
 

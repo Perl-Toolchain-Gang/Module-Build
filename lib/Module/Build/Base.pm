@@ -430,7 +430,6 @@ sub lib_to_blib {
   }
 }
 
-
 # A lot of this looks Unixy, but actually it may work fine on Windows.
 # I'll see what people tell me about their results.
 sub process_xs {

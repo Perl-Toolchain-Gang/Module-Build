@@ -15,6 +15,17 @@ Revision history for Perl extension Module::Build.
   - $ENV{TEST_VERBOSE} will be set in test scripts if the 'verbose=1'
     parameter is set.
 
+  - Moved the test.pl script to t/basic.t
+
+  - Created the t/xs.t script, which tests building a module with a
+    .xs component.
+
+  - Fixed the loading of $^O-specific modules.
+
+  - Added a 'darwin' platform module, which removes -flat_namespace
+    from $Config{ccflags} while building .xs modules (it's a linker
+    flag, not a compiler flag).
+
 0.03  Sun Nov 11 14:58 CDT 2001
   - The 'perl Build.PL' step will now detect whether the current
     environment is "unixish", "windowsish", etc., and load the correct

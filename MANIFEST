@@ -11,6 +11,7 @@ lib/Module/Build/Platform/Unix.pm
 lib/Module/Build/Platform/VMS.pm
 lib/Module/Build/Platform/VOS.pm
 lib/Module/Build/Platform/Windows.pm
+lib/Module/Build/Platform/darwin.pm
 lib/Module/Build.pm
 MANIFEST
 README
