@@ -44,7 +44,8 @@ $_ = $m->localize_file_path($_) foreach %distro;
 
 $m->dispatch('build');
 
-ok( $m->dispatch('builddocs') );
+eval {$m->dispatch('builddocs')};
+ok $@, '';
 
 while (my ($from, $v) = each %distro) {
   if (!$v) {
