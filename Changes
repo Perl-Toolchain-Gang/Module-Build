@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.22_01
 
+ - The @INC of the parent process is now propagated to child processes
+   when processing *.PL files. [Reported by Jaap Karssenberg]
+
  - We now only attempt to fix the shebang line on a script if the
    shebang line matches the regex /perl/i .  This fixes some instances
    where people put shell scripts in their distributions. [Jaap
