@@ -1,9 +1,16 @@
 Revision history for Perl extension Module::Build.
 
-0.24_01
+0.25  Sun Apr 25 11:12:36 CDT 2004
 
  - During the 'distdir' action, if no MANIFEST.SKIP file exists, we
    will now create a reasonable default one. [Randy Sims]
+
+ - In Makefile compatibility mode, some arguments (like UNINST,
+   TEST_VERBOSE, etc.) given to 'make' are now recognized and passed
+   through to Module::Build. [Randy Sims]
+
+ - The regression tests now make sure that several pass-through
+   Makefile.PL parameters are dealt with correctly.
 
  - Added support for the 'LIB' parameter to passthrough
    Makefile.PLs. [Spotted by Jesse Erlbaum]
@@ -12,13 +19,6 @@ Revision history for Perl extension Module::Build.
    supposed to make it die with a helpful error message, but instead
    it just ignored it and blindly tried to install to the wrong place.
    This is now fixed.  [Spotted by Jesse Erlbaum]
-
- - In Makefile compatibility mode, some arguments (like UNINST,
-   TEST_VERBOSE, etc.) given to 'make' are now recognized and passed
-   through to Module::Build. [Randy Sims]
-
- - The regression tests now make sure that several pass-through
-   Makefile.PL parameters are dealt with correctly.
 
  - Added an extra_compiler_flags() accessor method.
 
