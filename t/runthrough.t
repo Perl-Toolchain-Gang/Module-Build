@@ -1,3 +1,5 @@
+use strict;
+
 use Test; 
 BEGIN { plan tests => 20 }
 use Module::Build;
