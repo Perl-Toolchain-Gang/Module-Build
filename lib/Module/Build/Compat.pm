@@ -1,4 +1,3 @@
-
 package Module::Build::Compat;
 $VERSION = '0.02';
 
