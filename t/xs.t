@@ -6,11 +6,17 @@ use Config;
 use Module::Build;
 use File::Spec;
 
-print("1..0 # Skipped: no compiler found\n"), exit(0) unless Module::Build->current->have_c_compiler;
-plan tests => 12;
-
 my $common_pl = File::Spec->catfile('t', 'common.pl');
 require $common_pl;
+
+{ local $SIG{__WARN__} = sub {};
+
+  my $have_c_compiler;
+  stderr_of( sub {$have_c_compiler = Module::Build->current->have_c_compiler} );
+  print("1..0 # Skipped: no compiler found\n"), exit(0) unless $have_c_compiler;
+}
+
+plan tests => 12;
 
 ######################### End of black magic.
 
