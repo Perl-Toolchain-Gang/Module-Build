@@ -10,13 +10,32 @@ Revision history for Perl extension Module::Build.
     getting deleted during the 'realclean' action, because we had a
     file open in that directory. [Spotted by Michael Schwern]
 
+  - delete_filetree() now always uses File::Path::rmtree(), regardless
+    of whether the thing being deleted is a file or a directory.  This
+    helps remove things on obscure platforms with strange locking
+    rules (or even not so obscure ones like MacOS).  It also now
+    reports the number of files or directories (without counting their
+    contents) deleted.
+
+  - rm_previous_build_script() is gone, replaced by calls to
+    delete_filetree().
+
+  - 'Build' now chdir()s in a BEGIN block, so the 'use Module::Build'
+    statement will work correctly.  Solves a problem on MacOS.  [Fix
+    by Michael Schwern]
+
+  - Fixed the way we call xsubpp for .xs files so that redirection
+    will work properly.  Now we use backticks and write the result to
+    a file ourselves.  [Suggested by Schwern]
+
   - Internally we now use the multi-argument form of system() to run
-    external commands (such as 'diff' or 'cc') whenever possible.
-    Note that this means we have to handle splitting some strings
-    (such as $Config{ccflags}) into argument lists like the shell
-    would, which is a drag.  However, the alternative would be to
-    handle shell quoting of all arguments to commands ourselves, which
-    is an even bigger drag across platforms.
+    external commands (such as 'diff' or 'cc') whenever possible (and
+    whenever we can't avoid system() altogether).  Note that this
+    means we have to handle splitting some strings (such as
+    $Config{ccflags}) into argument lists like the shell would, which
+    is a drag.  However, the alternative would be to handle shell
+    quoting of all arguments to commands ourselves, which is an even
+    bigger drag across platforms.
 
   - To handle the argument splitting mentioned above, a method
     split_like_shell() has been created.
