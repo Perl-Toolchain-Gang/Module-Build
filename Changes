@@ -1,5 +1,32 @@
 Revision history for Perl extension Module::Build.
 
+0.09
+
+  - The 'distdir' action wasn't deleting the distribution directory
+    before building it again.  This meant that, say, if you did 'Build
+    disttest' then 'Build dist', you'd end up with a blib/ directory
+    in your distribution.  I actually had this happen for version
+    0.08, and it's not nice to distribute a blib/ on CPAN.
+
+  - We now keep track of the 'base_dir', i.e. the top-level build
+    directory, so we can change back into it if we change out of it.
+    This necessitated a cwd() method, which uses the Cwd.pm module.
+    I'm aware of Cwd's limitations, particularly under taint-mode, but
+    I don't know a way around using it here.
+
+  - The 'dist_dir' action now changes back into 'base_dir' directory.
+
+  - We now do write_config() inside the create_build_script() method,
+    not inside the new() method.
+
+  - Simplified the find_version() method, and improved its error
+    messages.
+
+  - Renamed module_name_to_file() to find_module_by_name(), and added
+    a parameter specifying the directories to search in.  Previously
+    we searched in 'lib' and @INC, which wasn't correct in all
+    situations. 
+
 0.08  Wed Jun 26 20:30:56 EST 2002
 
   - Fixed the 'prereq' alias for the 'requires' parameter
