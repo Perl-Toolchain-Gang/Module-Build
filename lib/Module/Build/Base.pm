@@ -1614,7 +1614,11 @@ sub up_to_date {
 
   my $most_recent_source = time / (24*60*60);
   foreach my $file (@$source) {
-    $most_recent_source = -M $file if -M $file < $most_recent_source;
+    unless (-e $file) {
+      warn "Can't find source file $file for up-to-date check";
+      next;
+    }
+    $most_recent_source = -M _ if -M _ < $most_recent_source;
   }
   
   foreach my $derived (@$derived) {
