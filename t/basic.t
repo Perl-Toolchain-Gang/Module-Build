@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-BEGIN { plan tests => 18 }
+BEGIN { plan tests => 19 }
 use Module::Build;
 ok(1);
 
@@ -22,6 +22,7 @@ chdir 't';
      module_name => 'ModuleBuildOne',
     );
   ok $build;
+  ok $build->module_name, 'ModuleBuildOne';
 }
 
 # Make sure actions are defined, and known_actions works as class method
