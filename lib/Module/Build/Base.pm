@@ -276,6 +276,48 @@ sub dist_version {
   return $p->{dist_version} = $self->version_from_file($version_from);
 }
 
+sub dist_author {
+  my $self = shift;
+  my $p = $self->{properties};
+  return $p->{dist_author} if exists $p->{dist_author};
+  
+  # Figure it out from 'dist_version_from'
+  return unless $p->{dist_version_from};
+  my $fh = IO::File->new($p->{dist_version_from}) or return;
+  
+  <$fh> until /^=head1\s+AUTHOR/;
+  my $author = '';
+  while (<$fh>) {
+    last if /^=/;
+    $author .= $_;
+  }
+  
+  $author =~ /^\s+|\s+$/gs;
+  return $p->{dist_author} = $author;
+}
+
+sub dist_abstract {
+  my $self = shift;
+  my $p = $self->{properties};
+  return $p->{dist_abstract} if exists $p->{dist_abstract};
+  
+  # Figure it out from 'dist_version_from'
+  return unless $p->{dist_version_from};
+  my $fh = IO::File->new($p->{dist_version_from}) or return;
+  
+  (my $package = $self->dist_name) =~ s/-/::/g;
+  
+  my $inpod = 0;
+  while (<$fh>) {
+    $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
+    next unless $inpod;
+    
+    last if ($result) = /^(?:$package\s-\s)(.*)/;
+  }
+  
+  return $p->{dist_abstract} = $result;
+}
+
 sub find_module_by_name {
   my ($self, $mod, $dirs) = @_;
   my $file = File::Spec->catfile(split '::', $mod);
@@ -447,11 +489,29 @@ sub check_prereq {
   return 0;
 }
 
+sub perl_version {
+  my ($self) = @_;
+  # Check the current perl interpreter
+  # It's much more convenient to use $] here than $^V, but 'man
+  # perlvar' says I'm not supposed to.  Bloody tyrant.
+  return $^V ? $self->perl_version_to_float(sprintf "%vd", $^V) : $];
+}
+
 sub perl_version_to_float {
   my ($self, $version) = @_;
   $version =~ s/\./../;
   $version =~ s/\.(\d+)/sprintf '%03d', $1/eg;
   return $version;
+}
+
+sub _parse_conditions {
+  my ($self, $spec) = @_;
+
+  if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
+    return (">= $spec");
+  } else {
+    return split /\s*,\s*/, $spec;
+  }
 }
 
 sub check_installed_status {
@@ -462,7 +522,7 @@ sub check_installed_status {
     # Check the current perl interpreter
     # It's much more convenient to use $] here than $^V, but 'man
     # perlvar' says I'm not supposed to.  Bloody tyrant.
-    $status{have} = $^V ? $self->perl_version_to_float(sprintf "%vd", $^V) : $];
+    $status{have} = $self->perl_version;
     
   } else {
     my $file = $self->find_module_by_name($modname, \@INC);
@@ -478,12 +538,7 @@ sub check_installed_status {
     }
   }
   
-  my @conditions;
-  if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
-    @conditions = (">= $spec");
-  } else {
-    @conditions = split /\s*,\s*/, $spec;
-  }
+  my @conditions = $self->_parse_conditions($spec);
   
   foreach (@conditions) {
     unless ( /^\s*  (<=?|>=?|==|!=)  \s*  ([\w.]+)  \s*$/x ) {
@@ -634,7 +689,12 @@ sub cull_args {
   my ($action, %args);
   foreach (@_) {
     if ( /^(\w+)=(.*)/ ) {
-      $args{$1} = $2;
+      if ( exists $args{$1} ) {
+        $args{$1} = [ $args{$1} ] unless ref $args{$1};
+        push @{$args{$1}}, $2;
+      } else {
+        $args{$1} = $2;
+      }
     } elsif ( /^(\w+)$/ ) {
       die "Error: multiple build actions given: '$action' and '$1'" if $action;
       $action = $1;
@@ -1038,6 +1098,14 @@ sub ACTION_realclean {
   my ($self) = @_;
   $self->depends_on('clean');
   $self->delete_filetree($self->{properties}{config_dir}, $self->{properties}{build_script});
+}
+
+sub ACTION_ppd {
+  my ($self) = @_;
+  require Module::Build::PPMMaker;
+  my $ppd = Module::Build::PPMMaker->new(archname => $self->{config}{archname});
+  my $file = $ppd->make_ppd(%{$self->{args}}, build => $self);
+  $self->add_to_cleanup($file);
 }
 
 sub ACTION_dist {
