@@ -39,10 +39,10 @@ my %OSTYPES = qw(
 		 unicosmk  Unix
 		 solaris   Unix
 		 sunos     Unix
+		 cygwin    Unix
 		 
 		 dos       Windows
 		 MSWin32   Windows
-		 cygwin    Windows
 
 		 os390     EBCDIC
 		 os400     EBCDIC
