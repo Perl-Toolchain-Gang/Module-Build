@@ -17,6 +17,9 @@ Revision history for Perl extension Module::Build.
  - Changed the no-op command on Win32 from 'rem' to 'rem>nul' inside
    pass-through Makefiles. [Randy Sims]
 
+ - The 'autosplit' parameter now accepts an array reference if
+   multiple files should be split. [Jaap Karssenberg]
+
 0.23  Sun Feb  8 22:01:18 CST 2004
 
  - Fixed a compatibility problem in pass-through Makefiles (created by
