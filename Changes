@@ -12,6 +12,10 @@ Revision history for Perl extension Module::Build.
    got the impression I was a little more truculent toward MakeMaker
    than I really am.
 
+ - Added the 'get_options' parameter, which lets module authors
+   declare certain command-line arguments their Build.PL can accept
+   [David Wheeler]
+
  - Added the 'testcover' action, which runs a test suite using
    Devel::Cover.  [Dave Rolsky]
 
