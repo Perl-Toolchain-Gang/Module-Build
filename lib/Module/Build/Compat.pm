@@ -114,15 +114,14 @@ sub run_build_pl {
 
 sub fake_makefile {
   my $makefile = $_[1];
-  my $build = File::Spec->catfile( '.', 'Build' );
   my $perl = Module::Build->find_perl_interpreter;
 
   # Start with a couple special actions
   my $maketext = <<"EOF";
 all : force_do_it
-	$perl $build
+	$perl Build
 realclean : force_do_it
-	$perl $build realclean
+	$perl Build realclean
 	$perl -e unlink -e shift $makefile
 
 force_do_it :
@@ -134,7 +133,7 @@ EOF
     next if $action =~ /^(all|realclean|force_do_it)$/;  # Don't double-define
     $maketext .= <<"EOF";
 $action : force_do_it
-	$perl $build $action
+	$perl Build $action
 EOF
   }
   
