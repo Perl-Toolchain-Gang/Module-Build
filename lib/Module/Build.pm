@@ -261,18 +261,41 @@ choose between either the GPL or the Artistic license.
 
 =item gpl
 
-The distribution is distributed under the terms of the Gnu Public
-License.
+The distribution is distributed under the terms of the Gnu General
+Public License (http://www.opensource.org/licenses/gpl-license.php).
+
+=item lgpl
+
+The distribution is distributed under the terms of the Gnu Lesser
+General Public License
+(http://www.opensource.org/licenses/lgpl-license.php).
 
 =item artistic
 
 The distribution is licensed under the Artistic License, as specified
 by the F<Artistic> file in the standard perl distribution.
 
+=item bsd
+
+The distribution is licensed under the BSD License
+(http://www.opensource.org/licenses/bsd-license.php).
+
+=item open_source
+
+The distribution is licensed under some other Open Source
+Initiative-approved license listed at
+http://www.opensource.org/licenses/ .
+
+=item unrestricted
+
+The distribution is licensed under a license that is B<not> approved
+by www.opensource.org but that allows distribution without
+restrictions.
+
 =item restrictive
 
-The distribution may not be redistributed without special arrangement
-with the author.
+The distribution may not be redistributed without special permission
+from the author and/or copyright holder.
 
 =back
 
@@ -1050,6 +1073,15 @@ another?  Are you getting riled up yet??
 =back
 
 Please contact me if you have any questions or ideas.
+
+=head1 MIGRATION
+
+Note that if you want to provide both a F<Makefile.PL> and a
+F<Build.PL> for your distribution, you probably want to add the
+following to C<WriteMakefile> in your F<Makefile.PL> so that MakeMaker
+doesn't try to run your F<Build.PL> as a normal F<.PL> file:
+
+ PL_FILES => {},
 
 =head1 TO DO
 
