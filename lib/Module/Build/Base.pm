@@ -257,25 +257,48 @@ sub write_config {
   close $fh;
 }
 
+sub prereq_failures {
+  my $self = shift;
+
+  my @types = qw(requires recommends build_requires conflicts);
+  my $out;
+
+  foreach my $type (@types) {
+    while (my ($modname, $spec) = each %{$self->{properties}{$type}}) {
+      my $status = $self->check_installed_status($modname, $spec);
+      
+      if ($type eq 'conflicts') {
+	next if !$status->{ok};
+	$status->{conflicts} = delete $status->{need};
+	$status->{message} = "Installed version '$status->{have}' of $modname conflicts with this distribution";
+      } else {
+	next if $status->{ok};
+      }
+
+      $out->{$type}{$modname} = $status;
+    }
+  }
+
+  return $out;
+}
+
 sub check_prereq {
   my $self = shift;
 
-  my $pass = 1;
-  while (my ($modname, $spec) = each %{$self->{properties}{requires}}) {
-    my $thispass = $self->check_installed_version($modname, $spec);
-    warn "WARNING: $@\n" unless $thispass;
-    $pass &&= $thispass;
+  my $failures = $self->prereq_failures;
+  return 1 unless $failures;
+  
+  foreach my $type (qw(requires build_requires conflicts recommends)) {
+    next unless $failures->{$type};
+    my $prefix = $type eq 'recommends' ? 'WARNING' : 'ERROR';
+    while (my ($module, $status) = each %{$failures->{$type}}) {
+      warn "$prefix: $module: $status->{message}\n";
+    }
   }
-
-  while (my ($modname, $spec) = each %{$self->{properties}{recommends}}) {
-    warn "NOTE: $@\n" unless $self->check_installed_version($modname, $spec);
-  }
-
-  if (!$pass) {
-    warn "ERRORS FOUND IN PREREQUISITES.  You may wish to install the versions ".
-         "of the modules indicated above before proceeding with this installation.\n";
-  }
-  return $pass;
+  
+  warn "ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions ".
+       "of the modules indicated above before proceeding with this installation.\n";
+  return 0;
 }
 
 sub perl_version_to_float {
@@ -285,28 +308,27 @@ sub perl_version_to_float {
   return $version;
 }
 
-# I wish I could set $! to a string, but I can't, so I use $@
-sub check_installed_version {
+sub check_installed_status {
   my ($self, $modname, $spec) = @_;
-
-  my $installed_version;
+  my %status = (need => $spec);
+  
   if ($modname eq 'perl') {
     # Check the current perl interpreter
     # It's much more convenient to use $] here than $^V, but 'man
     # perlvar' says I'm not supposed to.  Bloody tyrant.
-    $installed_version = $^V ? $self->perl_version_to_float(sprintf "%vd", $^V) : $];
+    $status{have} = $^V ? $self->perl_version_to_float(sprintf "%vd", $^V) : $];
     
   } else {
     my $file = $self->find_module_by_name($modname, \@INC);
     unless ($file) {
-      $@ = "Prerequisite $modname isn't installed";
-      return 0;
+      @status{ qw(have message) } = ('<none>', "Prerequisite $modname isn't installed");
+      return \%status;
     }
-
-    $installed_version = $self->version_from_file($file);
-    if ($spec and !$installed_version) {
-      $@ = "Couldn't find a \$VERSION in prerequisite '$file'";
-      return 0;
+    
+    $status{have} = $self->version_from_file($file);
+    if ($spec and !$status{have}) {
+      @status{ qw(have message) } = (undef, "Couldn't find a \$VERSION in prerequisite '$file'");
+      return \%status;
     }
   }
   
@@ -319,20 +341,35 @@ sub check_installed_version {
   
   foreach (@conditions) {
     unless ( /^\s*  (<=?|>=?|==|!=)  \s*  ([\w.]+)  \s*$/x ) {
-      $@ = "Invalid prerequisite condition for $modname: $_";
-      return 0;
+      die "Invalid prerequisite condition '$_' for $modname";
     }
     if ($modname eq 'perl') {
       my ($op, $version) = ($1, $2);
       $_ = "$op " . $self->perl_version_to_float($version);
     }
-    unless (eval "\$installed_version $_") {
-      $@ = "$modname version $installed_version is installed, but we need version $_";
-      return 0;
+    unless (eval "\$status{have} $_") {
+      $status{message} = "Version $status{have} is installed, but we need version $_";
+      return \%status;
     }
   }
+  
+  $status{ok} = 1;
+  return \%status;
+}
 
-  return $installed_version ? $installed_version : '0 but true';
+# I wish I could set $! to a string, but I can't, so I use $@
+sub check_installed_version {
+  my ($self, $modname, $spec) = @_;
+  
+  my $status = $self->check_installed_status($modname, $spec);
+  
+  if ($status->{ok}) {
+    return $status->{have} if $status->{have} and $status->{have} ne '<none>';
+    return '0 but true';
+  }
+  
+  $@ = $status->{message};
+  return 0;
 }
 
 sub rm_previous_build_script {

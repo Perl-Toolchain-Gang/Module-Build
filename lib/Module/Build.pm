@@ -363,16 +363,84 @@ whatever is appropriate.  If you're running on an unknown platform, it
 will return C<undef> - there shouldn't be many unknown platforms
 though.
 
-=head2 $m->check_installed_version($module, $version)
+=head2 $m->prereq_failures
 
-This method returns true or false, depending on whether (at least)
-version C<$version> of module C<$module> is installed.  The C<$module>
-argument is given as a string like C<"Data::Dumper">, and the
+Returns a data structure containing information about any failed
+prerequisites (of any of the types described above), or C<undef> if
+all prerequisites are met.
+
+The data structure returned is a hash reference.  The top level keys
+are the type of prerequisite failed, one of "requires",
+"build_requires", "conflicts", or "recommends".  The associated values
+are hash references whose keys are the names of required (or
+conflicting) modules.  The associated values of those are hash
+references indicating some information about the failure.  For example:
+
+ {
+  have => '0.42',
+  need => '0.59',
+  message => 'Version 0.42 is installed, but we need version 0.59',
+ }
+
+or
+
+ {
+  have => '<none>',
+  need => '0.59',
+  message => 'Prerequisite Foo isn't installed',
+ }
+
+This hash has the same structure as the hash returned by the
+C<check_installed_status()> method, except that in the case of
+"conflicts" dependencies we change the "need" key to "conflicts" and
+construct a proper message.
+
+Examples:
+
+  # Check a required dependency on Foo::Bar
+  if ( $m->prereq_failures->{requires}{Foo::Bar} ) { ...
+
+  # Check whether there were any failures
+  if ( $m->prereq_failures ) { ...
+  
+  # Show messages for all failures
+  my $failures = $m->prereq_failures;
+  while (my ($type, $list) = each %$failures) {
+    while (my ($name, $hash) = each %$list) {
+      print "Failure for $name: $hash->{message}\n";
+    }
+  }
+
+=head2 $m->check_installed_status($module, $version)
+
+This method returns a hash reference indicating whether a version
+dependency on a certain module is satisfied.  The C<$module> argument
+is given as a string like C<"Data::Dumper"> or C<"perl">, and the
 C<$version> argument can take any of the forms described in L<prereq>
 above.  This allows very fine-grained version checking.
 
-If the check fails, we return false and set C<$@> to an informative
-error message.
+The returned hash reference has the following structure:
+
+ {
+  ok => $whether_the_dependency_is_satisfied,
+  have => $version_already_installed,
+  need => $version_requested, # Same as incoming $version argument
+  message => $informative_error_message,
+ }
+
+If no version of C<$module> is currently installed, the C<have> value
+will be the string C<< "<none>" >>.  Otherwise the C<have> value will
+simply be the version of the installed module.  Note that this means
+that if C<$module> is installed but doesn't define a version number,
+the C<have> value will be C<undef> - this is why we don't use C<undef>
+for the case when C<$module> isn't installed at all.
+
+
+=head2 $m->check_installed_version($module, $version)
+
+Like C<check_installed_status()>, but simply returns true or false
+depending on whether module C<$module> statisfies the dependency
+C<$version>.
 
 If the check succeeds, the return value is the actual version of
 C<$module> installed on the system.  This allows you to do the
@@ -385,11 +453,18 @@ following:
    die "Sorry, you must install DBI.\n";
  }
 
+If the check fails, we return false and set C<$@> to an informative
+error message.
+
 If C<$version> is any nontrue value (notably zero) and any version of
 C<$module> is installed, we return true.  In this case, if C<$module>
 doesn't define a version, or if its version is zero, we return the
 special value "0 but true", which is numerically zero, but logically
 true.
+
+In general you might prefer to use C<check_installed_status> if you
+need detailed information, or this method if you just need a yes/no
+answer.
 
 =head1 ACTIONS
 
