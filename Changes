@@ -19,7 +19,7 @@ XXX Needs docs
     don't have permission, we won't be able to remove them no matter
     how hard we try.
 
-0.04
+0.04   Fri Nov 16 16:55 2001
   - Added a 'manifest' action.  It's just like MakeMaker's 'make manifest', it
     brings your MANIFEST file up to date with your distribution directory.
 
