@@ -93,7 +93,7 @@ foreach my $test (@win_splits) {
 
 {
   # Make sure data can make a round-trip through unparse_args() and read_args()
-  my %args = (foo => 'bar', food => 'bard', config => {a => 1, b => 2});
+  my %args = (foo => 'bar', food => 'bard', config => {a => 1, b => 2}, ARGV => []);
   my ($args) = Module::Build->read_args( Module::Build->unparse_args(\%args) );
   is_deeply($args, \%args);
 }
