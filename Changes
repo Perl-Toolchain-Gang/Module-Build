@@ -1,5 +1,22 @@
 Revision history for Perl extension Module::Build.
 
+0.13
+
+  - 'cleanup' file lists are now written immediately, rather than at
+    program termination.  This helps avoid "phantom files" that don't
+    get handled by the 'realclean' action.  The internal
+    write_cleanup() method (which was never documented) is now gone.
+
+  - Now scan the 'c_source' directory for .cpp (C++) files as well as
+    .c files, and compiles them.
+
+  - The file 'META.yaml' has been re-named to 'META.yml' in order to
+    cooperate better with systems that can only handle 3 characters
+    after the dot.
+
+  - The t/xs.t test should give more informative error messages upon
+    failure.
+
 0.12  Thu Nov 14 18:31:47 AEST 2002
 
   - The META.yaml file was erroneously looking for 'build_depends'
