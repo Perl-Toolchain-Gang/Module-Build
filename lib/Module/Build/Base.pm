@@ -42,13 +42,10 @@ sub resume {
 	 "   but we are now using '$perl'.\n");
   }
   
-  # Use ->VERSION() for both thingies here, since version.pm may or
-  # may not be loaded
-  my $former_version = do {local $Foo::VERSION = $self->{properties}{mb_version}; Foo->VERSION};
-  my $mb_version = Module::Build->VERSION;
-  die(" * ERROR: Configuration was initially created with Module::Build version '$former_version',\n".
+  my $mb_version = $Module::Build::VERSION;
+  die(" * ERROR: Configuration was initially created with Module::Build version '$self->{properties}{mb_version}',\n".
       "   but we are now using version '$mb_version'.  Please re-run the Build.PL or Makefile.PL script.\n")
-    unless $mb_version eq $former_version;
+    unless $mb_version eq $self->{properties}{mb_version};
   
   $self->cull_args(@ARGV);
   $self->{action} ||= 'build';
@@ -92,7 +89,7 @@ sub _construct {
 				   recommends      => {},
 				   build_requires  => {},
 				   conflicts       => {},
-				   mb_version      => Module::Build->VERSION,
+				   mb_version      => $Module::Build::VERSION,
 				   build_elements  => [qw( PL support pm xs pod script )],
 				   installdirs     => 'site',
 				   install_path    => {},
@@ -2041,7 +2038,7 @@ author:
 @{[ join "\n", map "  - $_", @{$self->dist_author} ]}
 abstract: @{[ $self->dist_abstract ]}
 license: $p->{license}
-generated_by: Module::Build version @{[ Module::Build->VERSION ]}, without YAML.pm
+generated_by: Module::Build version $Module::Build::VERSION, without YAML.pm
 END_OF_META
 
   $fh->close();
@@ -2095,7 +2092,7 @@ EOM
   $node->{dynamic_config} = $p->{dynamic_config} if exists $p->{dynamic_config};
   $node->{provides} = $self->find_dist_packages;
 
-  $node->{generated_by} = "Module::Build version " . Module::Build->VERSION;
+  $node->{generated_by} = "Module::Build version $Module::Build::VERSION";
   
   # YAML API changed after version 0.30
   my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
