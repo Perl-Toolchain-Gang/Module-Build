@@ -2452,6 +2452,7 @@ sub make_tarball {
 
 sub install_base_relative {
   my ($self, $type) = @_;
+  # XXX - this won't handle additional build elements correctly
   my %map = (
 	     lib     => ['lib', 'perl5'],
 	     arch    => ['lib', 'perl5', $self->{config}{archname}],
