@@ -1,5 +1,12 @@
 Revision history for Perl extension Module::Build.
 
+0.19_05
+
+ - Changed the way the depends_on() method works inside action
+   subroutines - now each action will only run once per dispatch()
+   invocation (similar to how perl's require() function works).  This
+   helps avoid some difficult problems with dependency loops.
+
 0.19_04
 
  - Fixed yet another bug with installation directories, in which the
