@@ -14,8 +14,46 @@ use IO::File ();
 
 #################### Constructors ###########################
 sub new {
-  my $package = shift;
-  my %input = @_;
+  my $self = shift()->_construct(@_);
+
+  $self->cull_args(@ARGV);
+  
+  die "Too early to specify a build action '$self->{action}'.  Do 'Build $self->{action}' instead.\n"
+    if $self->{action};
+
+  $self->_set_install_paths;
+  $self->dist_name;
+  $self->check_manifest;
+  $self->check_prereq;
+  $self->dist_version;
+
+  return $self;
+}
+
+sub resume {
+  my $self = shift()->_construct(@_);
+  
+  $self->read_config;
+  
+  my $perl = $self->find_perl_interpreter;
+  warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
+       "   but we are now using '$perl'.\n")
+    unless $perl eq $self->{properties}{perl};
+  
+  $self->cull_args(@ARGV);
+  $self->{action} ||= 'build';
+  
+  return $self;
+}
+
+sub current {
+  # hmm, wonder what the right thing to do here is
+  local @ARGV;
+  return shift()->resume;
+}
+
+sub _construct {
+  my ($package, %input) = @_;
 
   my $args   = delete $input{args}   || {};
   my $config = delete $input{config} || {};
@@ -56,49 +94,10 @@ sub new {
   $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
   $p->{script_files} = delete $p->{scripts} if exists $p->{scripts};
 
-  $self->cull_args(@ARGV);
-  
-  die "Too early to specify a build action '$self->{action}'.  Do 'Build $self->{action}' instead.\n"
-    if $self->{action};
-
   $self->add_to_cleanup( @{delete $p->{add_to_cleanup}} )
     if $p->{add_to_cleanup};
   
-  $self->_set_install_paths;
-  $self->dist_name;
-  $self->check_manifest;
-  $self->check_prereq;
-  $self->dist_version;
-
   return $self;
-}
-
-sub resume {
-  my $package = shift;
-  my $self = bless {@_}, $package;
-  
-  $self->read_config;
-  
-  my $perl = $self->find_perl_interpreter;
-  warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
-       "   but we are now using '$perl'.\n")
-    unless $perl eq $self->{properties}{perl};
-  
-  $self->cull_args(@ARGV);
-  $self->{action} ||= 'build';
-  
-  return $self;
-}
-
-sub current {
-  my $package = shift;
-  # hmm, wonder what the right thing to do here is
-  local @ARGV;
-  return $package->resume(
-			  properties => {
-					 config_dir => '_build',
-					},
-			 );
 }
 
 ################## End constructors #########################
