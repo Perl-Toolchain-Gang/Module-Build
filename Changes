@@ -17,7 +17,12 @@ Revision history for Perl extension Module::Build.
  - Added experimental code to build a .ppd file, in support of
    ActiveState's "Perl Package Manager". [original patch by Dave
    Rolsky]
-
+ 
+ - During testing of modules, blib/lib and blib/arch are now added as
+   absolute paths, not relative.  This helps tests that load the
+   modules at runtime and may change the current working directory
+   (like Module::Build itself does during testing).
+ 
  - The $Config{cc} entry on some people's systems is something like
    'ccache gcc', so we now split that string using split_like_shell().
    [Richard Clamp]
