@@ -188,10 +188,9 @@ sub find_perl_interpreter {
     $thisperl .= $exe unless $thisperl =~ m/$exe$/i;
   }
   
-  my @candidates = map File::Spec->catfile($_, $thisperl), File::Spec->path();
-  push @candidates, $c->{perlpath};
-  
-  foreach my $perl (@candidates) {
+  foreach my $perl ( $c->{perlpath},
+		     map File::Spec->catfile($_, $thisperl), File::Spec->path()
+		   ) {
     return $perl if -f $perl and $proto->_perl_is_same($perl);
   }
   return;
