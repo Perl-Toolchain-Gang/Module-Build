@@ -13,9 +13,6 @@ require File::Spec->catfile('t', 'common.pl');
 
 ok $INC{'Module/Build.pm'}, '/blib/', "Make sure Module::Build was loaded from blib/";
 
-# So 'test' and 'disttest' in Sample/ can see the not-yet-installed Module::Build.
-add_search_path( File::Spec->catdir( Module::Build->cwd, 'blib', 'lib' ) );
-
 chdir 't';
 
 # Test object creation

@@ -16,9 +16,6 @@ require File::Spec->catfile('t', 'common.pl');
 
 my $start_dir = Module::Build->cwd;
 
-# So 'test' and 'disttest' can see the not-yet-installed Module::Build.
-add_search_path( File::Spec->catdir( $start_dir, 'blib', 'lib' ) );
-
 my $goto = File::Spec->catdir( $start_dir, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
 
