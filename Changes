@@ -11,6 +11,8 @@ Revision history for Perl extension Module::Build.
 
 0.19 (Future release)
 
+ - Fixed a problem with check_installed_status() when installed
+   version contains non-numeric characters like underscores.
 
 0.18_02  Sun Jun  1 18:32:22 CDT 2003
 
