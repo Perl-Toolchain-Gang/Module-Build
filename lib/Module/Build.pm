@@ -134,16 +134,16 @@ This illustrates initial configuration and the running of three
 action), 'test', and 'install'.  Actions defined so far include:
 
   build                          fakeinstall 
-  builddocs                      help        
-  clean                          install     
-  diff                           manifest    
-  dist                           ppd         
-  distcheck                      realclean   
-  distclean                      skipcheck   
-  distdir                        test        
-  distmeta                       testdb      
-  distsign                       versioninstall
-  disttest                                   
+  clean                          help        
+  diff                           install     
+  dist                           manifest    
+  distcheck                      ppd         
+  distclean                      realclean   
+  distdir                        skipcheck   
+  distmeta                       test        
+  distsign                       testdb      
+  disttest                       versioninstall
+  docs                                       
 
 You can run the 'help' action for a complete list of actions.
 

@@ -1165,7 +1165,7 @@ eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
 }
 
 
-sub ACTION_builddocs {
+sub ACTION_docs {
   my $self = shift;
   require Pod::Man;
   $self->manify_bin_pods() if $self->install_destination('bindoc');
@@ -1307,14 +1307,14 @@ sub ACTION_diff {
 sub ACTION_install {
   my ($self) = @_;
   require ExtUtils::Install;
-  $self->depends_on('build', 'builddocs');
+  $self->depends_on('build', 'docs');
   ExtUtils::Install::install($self->install_map('blib'), 1, 0, $self->{args}{uninst}||0);
 }
 
 sub ACTION_fakeinstall {
   my ($self) = @_;
   require ExtUtils::Install;
-  $self->depends_on('build', 'builddocs');
+  $self->depends_on('build', 'docs');
   ExtUtils::Install::install($self->install_map('blib'), 1, 1, $self->{args}{uninst}||0);
 }
 
@@ -1324,7 +1324,7 @@ sub ACTION_versioninstall {
   die "You must have only.pm 0.25 or greater installed for this operation: $@\n"
     unless eval { require only; 'only'->VERSION(0.25); 1 };
   
-  $self->depends_on('build', 'builddocs');
+  $self->depends_on('build', 'docs');
   
   my %onlyargs = map {exists($self->{args}{$_}) ? ($_ => $self->{args}{$_}) : ()}
     qw(version versionlib);
