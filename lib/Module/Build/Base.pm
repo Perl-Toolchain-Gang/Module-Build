@@ -794,6 +794,8 @@ sub create_build_script {
 }
 
 sub check_manifest {
+  return unless -e 'MANIFEST';
+  
   # Stolen nearly verbatim from MakeMaker.  But ExtUtils::Manifest
   # could easily be re-written into a modern Perl dialect.
 
