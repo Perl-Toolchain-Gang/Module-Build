@@ -25,7 +25,10 @@ t/MANIFEST
 t/Sample/Build.PL
 t/Sample/MANIFEST
 t/Sample/META.yml
+t/Sample/bin/sample.pl
 t/Sample/lib/Sample.pm
+t/Sample/lib/Sample/Docs.pod
+t/Sample/lib/Sample/NoPod.pm
 t/Sample/script
 t/Sample/test.pl
 t/XSTest/Build.PL
@@ -37,7 +40,10 @@ t/XSTest/test.pl
 t/basic.t
 t/common.pl
 t/compat.t
+t/install.t
 t/lib/ModuleBuildOne.pm
+t/manifypods.t
 t/runthrough.t
 t/signature.t
+t/versions.t
 t/xs.t
