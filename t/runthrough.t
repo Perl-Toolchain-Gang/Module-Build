@@ -1,5 +1,5 @@
 use Test; 
-BEGIN { plan tests => 19 }
+BEGIN { plan tests => 20 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -21,7 +21,9 @@ File::Spec->catdir( $start_dir, 'blib', 'lib' );
 my $goto = File::Spec->catdir( $start_dir, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
 
-my $build = new Module::Build( module_name => 'Sample', scripts => [ 'script' ],
+my $build = new Module::Build( module_name => 'Sample',
+			       script_files => [ 'script' ],
+			       requires => { 'File::Spec' => 0 },
 			       license => 'perl' );
 ok $build;
 
@@ -117,6 +119,29 @@ if (0 && $HAVE_SIGNATURE) {
   print "Should have installed to $install_to\n";
   ok -e $install_to;
 }
+
+{
+  # Check PPD
+  $build->dispatch('ppd', args => {codebase => '/path/to/codebase'});
+
+  my $ppd = slurp('Sample.ppd');
+
+  # This test is quite a hack since with XML you don't really want to
+  # do a strict string comparison, but absent an XML parser it's the
+  # best we can do.
+  ok $ppd, <<'EOF';
+<SOFTPKG NAME="Sample" VERSION="0,01,0,0">
+    <TITLE>Sample</TITLE>
+    <ABSTRACT>Foo foo sample foo</ABSTRACT>
+    <AUTHOR>Sample Man &lt;sample@example.com&gt;</AUTHOR>
+    <IMPLEMENTATION>
+        <DEPENDENCY NAME="File-Spec" VERSION="0,0,0,0" />
+        <CODEBASE HREF="/path/to/codebase" />
+    </IMPLEMENTATION>
+</SOFTPKG>
+EOF
+}
+
 
 eval {$build->dispatch('realclean')};
 ok $@, '';
