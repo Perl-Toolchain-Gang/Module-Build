@@ -77,7 +77,7 @@ sub ACTION_install {
   return $self->SUPER::ACTION_install(@_)
     if eval {ExtUtils::Install->VERSION('1.30'); 1};
     
-  no warnings 'redefine';
+  local $^W = 0; # Avoid a 'redefine' warning
   local *ExtUtils::Install::find = sub {
     my ($code, @dirs) = @_;
 
