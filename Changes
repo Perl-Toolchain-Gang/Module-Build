@@ -7,6 +7,12 @@ Revision history for Perl extension Module::Build.
    rather than always using 'VERSION'.  This way the Makefile.PL
    doesn't have to get modified every release.
 
+ - Made some fixups to the 'PPM' info-file that improve compatibility
+   with ActiveState's PPM tools. [Randy Sims, Glenn Linderman]
+
+ - The 'dist_author' property can now accept multiple authors, see the
+   docs for more info. [Randy Sims]
+
 0.21_02  Tue Dec 23 17:05:11 CST 2003
 
  - During testing, if YAML.pm isn't installed, then we won't try
