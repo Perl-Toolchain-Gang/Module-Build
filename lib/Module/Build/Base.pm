@@ -356,49 +356,22 @@ sub dist_version {
   return $p->{dist_version} = $self->version_from_file($version_from);
 }
 
-sub dist_author {
-  my $self = shift;
-  my $p = $self->{properties};
-  return $p->{dist_author} if exists $p->{dist_author};
-  
-  # Figure it out from 'dist_version_from'
-  return unless $p->{dist_version_from};
-  my $fh = IO::File->new($p->{dist_version_from}) or return;
-  
-  my @author;
-  local $_;
-  while (<$fh>) {
-    next unless /^=head1\s+AUTHOR/ ... /^=/;
-    next if /^=/;
-    push @author, $_;
-  }
-  return unless @author;
-  
-  my $author = join '', @author;
-  $author =~ s/^\s+|\s+$//g;
-  return $p->{dist_author} = $author;
-}
+sub dist_author   { shift->_pod_parse('author')   }
+sub dist_abstract { shift->_pod_parse('abstract') }
 
-sub dist_abstract {
-  my $self = shift;
+sub _pod_parse {
+  my ($self, $part) = @_;
   my $p = $self->{properties};
-  return $p->{dist_abstract} if exists $p->{dist_abstract};
+  my $member = "dist_$part";
+  return $p->{$member} if exists $p->{$member};
   
-  # Figure it out from 'dist_version_from'
   return unless $p->{dist_version_from};
   my $fh = IO::File->new($p->{dist_version_from}) or return;
   
-  (my $package = $self->dist_name) =~ s/-/::/g;
-  
-  my $result;
-  local $_;
-  while (<$fh>) {
-    next unless /^=(?!cut)/ .. /^cut/;  # in POD
-    last if ($result) = /^(?:$package\s-\s)(.*)/;
-  }
-  
-  $result =~ s/\s+$//;
-  return $p->{dist_abstract} = $result;
+  require Module::Build::PodParser;
+  my $parser = Module::Build::PodParser->new(fh => $fh);
+  my $method = "get_$part";
+  return $p->{$member} = $parser->$method();
 }
 
 sub find_module_by_name {
