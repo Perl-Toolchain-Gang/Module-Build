@@ -37,6 +37,9 @@ Revision history for Perl extension Module::Build.
    'small' or 'passthrough' Makefile.PL options in
    Module::Build::Compat. [Martyn Peck]
 
+ - Fixed a minor error in the POD structure of
+   Module::Build::Platform::VMS.
+
 0.24  Wed Feb 25 15:57:00 CST 2004
 
  - Fixed a problem with incude_dirs not being propagated to the 'ccs'
