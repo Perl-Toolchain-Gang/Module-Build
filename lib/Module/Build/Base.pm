@@ -528,8 +528,20 @@ sub version_from_file {
 		 }; \$$var
 		};
   local $^W;
+
+  # version.pm will change the ->VERSION method, so we mitigate the
+  # potential effects here.  Unfortunately local(*UNIVERSAL::VERSION)
+  # will crash perl < 5.8.1.
+
+  my $old_version = \&UNIVERSAL::VERSION;
+  eval {require version};
   my $result = eval $eval;
+  *UNIVERSAL::VERSION = $old_version;
   warn "Error evaling version line '$eval' in $file: $@\n" if $@;
+
+  # Unbless it if it's a version.pm object
+  $result = "$result" if UNIVERSAL::isa( $result, 'version' );
+
   return $result;
 }
 
