@@ -1123,6 +1123,7 @@ sub process_PL_files {
   my $files = $self->find_PL_files;
   
   while (my ($file, $to) = each %$files) {
+    local $ENV{'PERL5LIB'} = join $self->{config}{path_sep}, @INC;
     unless ($self->up_to_date( $file, $to )) {
       $self->run_perl_script($file, [], [@$to]);
       $self->add_to_cleanup(@$to);
