@@ -1340,6 +1340,11 @@ sub ACTION_test {
   local @INC = (File::Spec->catdir($p->{base_dir}, $self->blib, 'lib'),
 		File::Spec->catdir($p->{base_dir}, $self->blib, 'arch'),
 		@INC);
+
+  # Filter out duplicate @INC entries - some versions of Test::Harness
+  # will really explode the number of entries here
+  my %seen;
+  @INC = grep {not $seen{$_}++} @INC;
   
   my $tests = $self->find_test_files;
 

@@ -15,6 +15,13 @@ Revision history for Perl extension Module::Build.
    be set to something like "gzip -f --best" and it'll work
    correctly. [Spotted by Chris Dolan]
 
+ - Work around some bad mojo between Fedora Core [with its very long
+   @INC] and old versions of Test::Harness [with its propensity to
+   compound the number of @INC entries] that produced an "argument
+   list too long" error during testing.  The workaround is to filter
+   out Test::Harness' duplicate @INC entries before we call it
+   again. [assisted by Ville Skytta, David Golden, & Randy Sims]
+
 0.2607 (Bug fix release in 0.26 series)  Sat Dec 18 14:14:09 CST 2004
 
  - Instead of freezing @INC in the 'Build' script to the value it had
