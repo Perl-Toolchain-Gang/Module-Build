@@ -20,6 +20,9 @@ Revision history for Perl extension Module::Build.
    format.  See the main documentation of Module::Build for more
    details.
 
+ - Added an 'auto_features' capability, which simplifies the process
+   of defining features that depend on a set of prerequisites.
+
  - Added the 'get_options' parameter, which lets module authors
    declare certain command-line arguments their Build.PL can accept
    [David Wheeler]
