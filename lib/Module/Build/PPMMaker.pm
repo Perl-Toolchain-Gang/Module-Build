@@ -88,9 +88,9 @@ EOF
   # uses XS.
   if (keys %{$build->find_xs_files}) {
     my $perl_version = $self->_ppd_version($build->perl_version);
-    $ppd .= sprintf(<<'EOF', $perl_version, $^O, $self->{archname});
+    $ppd .= sprintf(<<'EOF', $perl_version, $^O, $self->_varchname($build->config) );
         <PERLCORE VERSION="%s" />
-        <OS VALUE="%s" />
+        <OS NAME="%s" />
         <ARCHITECTURE NAME="%s" />
 EOF
   }
@@ -123,6 +123,15 @@ sub _ppd_version {
   return join ',', (split(/\./, $version), (0)x4)[0..3];
 }
 
+sub _varchname {  # Copied from PPM.pm
+  my $config = shift;
+  my $varchname = $config->{archname};
+  # Append "-5.8" to architecture name for Perl 5.8 and later
+  if (length($^V) && ord(substr($^V,1)) >= 8) {
+    $varchname .= sprintf("-%d.%d", ord($^V), ord(substr($^V,1)));
+  }
+  return $varchname;
+}
 
 {
   my %escapes = (
