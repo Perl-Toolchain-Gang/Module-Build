@@ -534,6 +534,8 @@ sub write_config {
   $self->_persistent_hash_write($_) foreach qw(notes cleanup);
 }
 
+sub config         { shift()->{config} }
+
 sub requires       { shift()->{properties}{requires} }
 sub recommends     { shift()->{properties}{recommends} }
 sub build_requires { shift()->{properties}{build_requires} }
