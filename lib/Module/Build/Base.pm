@@ -830,7 +830,7 @@ sub _call_action {
   return if $self->{_completed_actions}{$action}++;
   local $self->{action} = $action;
   my $method = "ACTION_$action";
-  die "No action '$action' defined" unless $self->can($method);
+  die "No action '$action' defined, try running the 'help' action.\n" unless $self->can($method);
   return $self->$method();
 }
 
