@@ -15,20 +15,27 @@ sub make_ppd {
   my ($self, %args) = @_;
   my $build = delete $args{build};
 
-  die "Cannot create a PPD file unless codebase argument is given\n"
-    unless exists $args{codebase};
-  my @codebase = ref $args{codebase} ? @{$args{codebase}} : ($args{codebase});
+  my @codebase;
+  if (exists $args{codebase}) {
+    @codebase = ref $args{codebase} ? @{$args{codebase}} : ($args{codebase});
+  } else {
+    my $distfile = $build->dist_dir . ".tar.gz";
+    print "Using default codebase '$distfile'\n";
+    @codebase = ($distfile);
+  }
 
-  my $name         = $build->dist_name;
-  my $author       = $build->dist_author;
-  my $abstract     = $build->dist_abstract;
-  my $version      = $self->_ppd_version($build->dist_version);
+  my %dist;
+  foreach my $info (qw(name author abstract version)) {
+    my $method = "dist_$info";
+    $dist{$info} = $build->$method() or die "Can't determine distribution's $info\n";
+  }
+  $dist{version} = $self->_ppd_version($dist{version});
 
-  $self->_simple_xml_escape($_) foreach ($abstract, $author);
+  $self->_simple_xml_escape($_) foreach (@dist{'abstract', 'author'});
 
   # could add <LICENSE HREF=...> tag if we knew what the URLs were for
   # various licenses
-  my $ppd = sprintf(<<'EOF', $name, $version, $name, $abstract, $author);
+  my $ppd = sprintf(<<'EOF', @dist{qw(name version name abstract author)});
 <SOFTPKG NAME="%s" VERSION="%s">
     <TITLE>%s</TITLE>
     <ABSTRACT>%s</ABSTRACT>
@@ -95,7 +102,7 @@ EOF
 </SOFTPKG>
 EOF
 
-  my $ppd_file = "$name.ppd";
+  my $ppd_file = "$dist{name}.ppd";
   my $fh = IO::File->new(">$ppd_file")
     or die "Cannot write to $ppd_file: $!";
   print $fh $ppd;
