@@ -95,9 +95,10 @@ EOF
     
   } elsif ($type eq 'traditional') {
 
-    my %MM_Args;
+    my (%MM_Args, %prereq);
     if (eval "use Tie::IxHash; 1") {
       tie %MM_Args, 'Tie::IxHash'; # Don't care if it fails here
+      tie %prereq,  'Tie::IxHash'; # Don't care if it fails here
     }
     
     my %name = ($build->module_name
@@ -110,7 +111,9 @@ EOF
 		  );
     %MM_Args = (%name, %version);
     
-    my %prereq = ( %{$build->requires}, %{$build->build_requires} );
+    %prereq = ( %{$build->requires}, %{$build->build_requires} );
+    %prereq = map {$_, $prereq{$_}} sort keys %prereq;
+    
     delete $prereq{perl};
     $MM_Args{PREREQ_PM} = \%prereq;
     
