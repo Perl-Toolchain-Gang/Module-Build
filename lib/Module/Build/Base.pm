@@ -845,25 +845,27 @@ sub write_metadata {
     die "Unknown license type '$p->{license}";
   }
 
-  my %metadata = (
-		  distribution_type => 'module',
-		  dynamic_config => 0,
-		  name => $p->{dist_name},
-		  version => $p->{dist_version},
-		  license => $p->{license},
-		  generated_by => "Module::Build version " . Module::Build->VERSION,
-		 );
-  
-  foreach (qw(requires build_requires recommends conflicts dynamic_config)) {
-    $metadata{$_} = $p->{$_} if exists $p->{$_};
-  }
-  
   unless (eval {require YAML; 1}) {
     warn "Couldn't load YAML.pm: $@\n";
     return;
   }
-  return YAML::StoreFile($file, \%metadata) if $YAML::VERSION le '0.30';
-  return YAML::DumpFile( $file, \%metadata);
+
+  # We use YAML::Node to get the order nice in the YAML file.
+  my $node = YAML::Node->new({});
+  
+  $node->{name} = $p->{dist_name};
+  $node->{version} = $p->{dist_version};
+  $node->{license} = $p->{license};
+  $node->{distribution_type} = 'module';
+
+  foreach (qw(requires recommends build_requires conflicts dynamic_config)) {
+    $node->{$_} = $p->{$_} if exists $p->{$_};
+  }
+  
+  $node->{generated_by} = "Module::Build version " . Module::Build->VERSION;
+
+  return YAML::StoreFile($file, $node ) if $YAML::VERSION le '0.30';
+  return YAML::DumpFile( $file, $node );
 }
 
 sub make_tarball {
