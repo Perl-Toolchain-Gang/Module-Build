@@ -1058,6 +1058,24 @@ characters will do their special things.  If you supply multiple
 arguments, no shell will get involved and the command will be executed
 directly.
 
+=item run_perl_script($script, \@perlargs, \@scriptargs)
+
+Invokes the given perl script, named by the first argument, using the
+same C<perl> executable that's currently running.  The second
+argument, if present, is a reference to an array of arguments to pass
+to perl (e.g. C<-T>, C<-MFoo::Bar>, etc.).  The third argument, if
+present, is a reference to an array of arguments to pass to the script
+itself.
+
+C<run_perl_script()> may be run as either a class or object method,
+i.e. either of the following should work fine:
+
+  $b->run_perl_script($foo, \@perlargs, \@scriptargs);
+  Module::Build->run_perl_script($foo, \@perlargs, \@scriptargs);
+
+The former is a little more efficient because we won't have to
+re-search for the perl binary, though.
+
 =item have_c_compiler()
 
 Returns true if the current system seems to have a working C compiler.
