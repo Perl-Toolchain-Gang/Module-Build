@@ -292,15 +292,24 @@ sub version_from_file {
 
 sub add_to_cleanup {
   my $self = shift;
-  my @need_to_write = grep {!exists $self->{cleanup}{$_}} @_;
-  return unless @need_to_write;
+  my @new_files = grep {!exists $self->{cleanup}{$_}} @_, keys %{$self->{add_to_cleanup}};
+  return unless @new_files;
   
   if ( my $file = $self->config_file('cleanup') ) {
+    # A state file exists on disk, so we don't need to save in memory
+
     my $fh = IO::File->new(">> $file") or die "Can't append to $file: $!";
-    print $fh "$_\n" foreach @need_to_write;
+    print $fh "$_\n" foreach @new_files;
+    delete $self->{add_to_cleanup};
+    
+  } else {
+    # No state file is being used.  Maybe it will later, but for now
+    # just save in memory.
+
+    @{$self->{add_to_cleanup}}{ @new_files } = ();
   }
   
-  @{$self->{cleanup}}{ @need_to_write } = ();
+  @{$self->{cleanup}}{ @new_files } = ();
 }
 
 sub config_file {

@@ -1,5 +1,5 @@
 use Test; 
-BEGIN { plan tests => 13 }
+BEGIN { plan tests => 14 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -23,8 +23,12 @@ my $build = new Module::Build( module_name => 'Sample', scripts => [ 'script' ],
 			       license => 'perl' );
 ok $build;
 
+$build->add_to_cleanup('before_script');
+
 eval {$build->create_build_script};
 ok $@, '';
+
+ok grep $_ eq 'before_script', keys %{$build->{cleanup}};
 
 $build->add_to_cleanup('save_out');
 my $output = eval {
