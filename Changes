@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.20_03
+0.21
 
  - Added a have_c_compiler() method.
 
@@ -24,7 +24,8 @@ Revision history for Perl extension Module::Build.
    file portions correctly on certain platforms.
 
  - When creating the names of the 'libdoc' manual pages, we no longer
-   assume that pods are under 'blib/lib' or 'blib/arch'.
+   assume that pods are under the hard-coded paths 'blib/lib' or
+   'blib/arch'.
 
  - Fixed a crashing bug that could sometimes occur when the
    distribution contained no 'lib' directory. [Chris Dolan]
@@ -33,7 +34,7 @@ Revision history for Perl extension Module::Build.
    the lib/ directory and didn't explicitly name them in a hash
    reference to the new() constructor. [Chris Reinhardt, bug #4036]
 
- - .PL files are now passed the names of their target files on the
+ - .PL files are now passed the names of their target file(s) on the
    command line when they run.
 
  - When YAML.pm wasn't installed, t/runthrough.t wasn't properly
@@ -50,13 +51,17 @@ Revision history for Perl extension Module::Build.
    to '.'.  Previously it was '::', inherited from Unix. [Yitzchak
    Scott-Thoennes]
 
+ - Avoid a warning when Build.PL is run (i.e. when the new() method is
+   called) and no MANIFEST file exists. [Michael Schwern and Kevin
+   Ruscoe]
+
  - Added documentation for the 'code' and 'docs' actions. [Steve
    Purkis and Mark Stosberg]
 
  - The internal method compile_support_files() has been renamed to
    process_support_files() in order to make it consistent with other
    processing methods.  Note that it was never documented using the
-   old name.
+   old name.  It's still not documented, actually.  Maybe later.
 
  - Skip the 'write' pseudo-entry in the 'diff' action's installation
    map. [Chris Dolan]
@@ -67,14 +72,13 @@ Revision history for Perl extension Module::Build.
 
  - The process of building elements of the distribution is now driven
    by a list of build elements, paving the way for letting people add
-   their own types of build elements.
+   their own types of build elements in future versions of
+   Module::Build (or in the current version with some difficulty).
 
  - Fixed some linking errors on Cygwin. [Randy Sims, Terrence Brannon]
 
  - Fixed a line-ending problem with detecting the dist_abstract
    properly on Cygwin. [Randy Sims]
-
-0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
    called before 'distdir' - the signature would be generated twice.
@@ -97,9 +101,7 @@ Revision history for Perl extension Module::Build.
    like CPANPLUS and CPAN can use instead of running all tasks as
    sub-processes.  We also use it in the regression tests for
    Module::Build itself.  ** Note that this method is currently
-   undocumented because its name may change before version 0.21. **
-
-0.20_01  Mon Sep  8 21:25:39 CDT 2003
+   undocumented because its name may change in the future. **
 
  - When signing distributions with Module::Signature, we now
    automatically add the SIGNATURE file to the MANIFEST, avoiding an
