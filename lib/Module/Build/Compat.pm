@@ -37,6 +37,8 @@ sub run_build_pl {
 }
 
 sub fake_makefile {
+  # XXX - this currently isn't shell-safe (curdir could contain spaces
+  # or metachars), and 'rm -f' isn't cross-platform shell code.
   my $out = "THISFILE = $_[1]\n";
   my $build = File::Spec->catfile( File::Spec->curdir, 'Build' );
 
