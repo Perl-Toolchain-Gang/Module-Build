@@ -1,9 +1,11 @@
 ######################### We start with some black magic to print on failure.
 
 use Test;
-BEGIN { plan tests => 9 }
+BEGIN { plan tests => 11 }
 use Module::Build;
 ok(1);
+
+use File::Spec;
 
 ######################### End of black magic.
 
@@ -47,3 +49,27 @@ chdir 't';
   $m->dispatch('realclean');
 }
 
+# Test verbosity
+{
+  local *SAVEOUT;
+  open SAVEOUT, ">&STDOUT" or die "Can't save STDOUT handle: $!";
+  open STDOUT, "+> save_out" or die "Can't create save_out: $!";
+  
+  chdir 'Sample';
+  my $m = new Module::Build(module_name => 'Sample', verbose => 1);
+  eval {$m->dispatch('test')};
+  
+  close STDOUT;
+  open STDOUT, ">&SAVEOUT" or die "Can't restore STDOUT: $!";
+  
+  my @dirs = File::Spec->splitdir($m->cwd); pop @dirs;
+  my $t_dir = File::Spec->catdir(@dirs);
+  chdir $t_dir or die "Can't change back to $t_dir: $!";
+  open my($fh), "< save_out" or die "Can't read save_out: $!";
+  my $output = join '', <$fh>;
+
+  ok $@, '';
+  ok uc($output), '/OK 1/';  # Use uc() so we don't confuse the current test output
+
+  $m->dispatch('realclean');
+}

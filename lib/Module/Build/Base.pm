@@ -563,9 +563,15 @@ sub ACTION_test {
   
   $self->depends_on('build');
   
-  local $Test::Harness::switches = '-w -d' if $self->{properties}{debugger};
-  local $Test::Harness::verbose = $self->{properties}{verbose} || 0;
-  local $ENV{TEST_VERBOSE} = $self->{properties}{verbose} || 0;
+  # Do everything in our power to work with all versions of Test::Harness
+  local ($Test::Harness::switches,
+	 $Test::Harness::Switches,
+         $ENV{HARNESS_PERL_SWITCHES}) = ($self->{properties}{debugger} ? '-w -d' : '') x 3;
+
+  local ($Test::Harness::verbose,
+	 $Test::Harness::Verbose,
+	 $ENV{TEST_VERBOSE},
+         $ENV{HARNESS_VERBOSE}) = ($self->{properties}{verbose} || 0) x 4;
 
   # Make sure we test the module in blib/
   {
