@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.13
+0.13  Wed Nov 20 20:07:53 AEST 2002
 
   - 'cleanup' file lists are now written immediately, rather than at
     program termination.  This helps avoid "phantom files" that don't
