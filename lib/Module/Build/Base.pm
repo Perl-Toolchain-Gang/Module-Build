@@ -1657,7 +1657,7 @@ sub _htmlify_pod {
 	      "--outfile=$outfile",
 	      "--podroot=$blib",
 	      "--htmlroot=$htmlroot",
-	      Pod::Html->VERSION >= 1.03 ? ('--header', "--backlink=$args{backlink}") : (),
+	      eval {Pod::Html->VERSION(1.03); 1} ? ('--header', "--backlink=$args{backlink}") : (),
 	     );
   push @opts, "--css=$path2root/$args{css}" if $args{css};
     
