@@ -16,10 +16,11 @@ sub link_c {
   # use system(LIST). We fix it up here with 'env'.
   
   local $cf->{ld} = $cf->{ld};
+  my $env_start = qr/\s*\w+=/;
   if (ref $cf->{ld}) {
-    unshift @{$cf->{ld}}, 'env' if $cf->{ld}[0] =~ /^\s*\w+=/;
+    unshift @{$cf->{ld}}, 'env' if $cf->{ld}[0] =~ /^$env_start/;
   } else {
-    $cf->{ld} =~ s/^(\s*\w+=)/env $1/;
+    $cf->{ld} =~ s/^($env_start)/env $1/;
   }
   
   return $self->SUPER::link_c(@_);
