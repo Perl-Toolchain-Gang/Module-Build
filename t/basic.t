@@ -7,6 +7,7 @@ use Module::Build;
 ok(1);
 
 use File::Spec;
+use Cwd;
 require File::Spec->catfile('t', 'common.pl');
 
 ######################### End of black magic.
@@ -92,7 +93,6 @@ chdir 't';
 
 # Test verbosity
 {
-  require Cwd;
   my $cwd = Cwd::cwd();
 
   chdir 'Sample';
@@ -105,4 +105,16 @@ chdir 't';
   
   $m->dispatch('realclean');
   chdir $cwd or die "Can't change back to $cwd: $!";
+}
+
+# Make sure 'config' entries are respected on the command line
+{
+  my $cwd = Cwd::cwd();
+  
+  chdir 'Sample';
+  eval {$build->run_perl_script('Build.PL', [], ['--config', "foocakes=barcakes"])};
+  ok $@, '';
+  
+  my $b = Module::Build->resume();
+  ok $b->config->{foocakes}, 'barcakes';
 }
