@@ -1151,9 +1151,9 @@ sub make_tarball {
 
 sub install_map {
   my ($self, $blib) = @_;
-  my $lib     = File::Spec->catfile($blib,'lib');
-  my $arch    = File::Spec->catfile($blib,'arch');
-  my $script  = File::Spec->catfile($blib,'script');
+  my $lib     = File::Spec->catdir($blib,'lib');
+  my $arch    = File::Spec->catdir($blib,'arch');
+  my $script  = File::Spec->catdir($blib,'script');
   
   my %map = ($lib  => $self->{config}{sitelib},
 	     $arch => $self->{config}{sitearch});
