@@ -20,9 +20,11 @@ lib/Module/Build/Platform/Unix.pm
 lib/Module/Build/Platform/VMS.pm
 lib/Module/Build/Platform/VOS.pm
 lib/Module/Build/Platform/Windows.pm
+lib/Module/Build/Platform/aix.pm
 lib/Module/Build/Platform/cygwin.pm
 lib/Module/Build/Platform/darwin.pm
-lib/Module/Build/Platform/aix.pm
+lib/Module/Build/Platform/os2.pm
+lib/Module/Build/PodParser.pm
 t/MANIFEST
 t/Sample/Build.PL
 t/Sample/MANIFEST

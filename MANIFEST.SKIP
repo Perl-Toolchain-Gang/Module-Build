@@ -8,6 +8,7 @@ CVS
 ^testbed
 ^MANIFEST\.SKIP$
 \.bak$
+\.rej$
 ^patch
 ^Module-
 ^t/_
@@ -25,3 +26,4 @@ Makefile$
 ^t/save_out$
 (^|/)\.#
 ^website
+/Script$
