@@ -496,8 +496,8 @@ sub cleanup {
 
 sub config_file {
   my $self = shift;
-  return unless -d $self->{properties}{config_dir};
-  return File::Spec->catfile($self->{properties}{config_dir}, @_);
+  return unless -d $self->config_dir;
+  return File::Spec->catfile($self->config_dir, @_);
 }
 
 sub read_config {
