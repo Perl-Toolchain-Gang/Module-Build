@@ -7,7 +7,7 @@ use Config;
 require File::Spec->catfile('t', 'common.pl');
 
 skip_test("Don't know how to invoke 'make'") unless $Config{make};
-plan tests => 11;
+plan tests => 23;
 ok(1);  # Loaded
 
 
@@ -27,7 +27,18 @@ foreach my $type (qw(small passthrough traditional)) {
   Module::Build::Compat->create_makefile_pl($type, $build);
   my $result = $build->run_perl_script('Makefile.PL');
   ok $result;
+  ok -e 'Makefile', 1, "Makefile exists";
 
+  ok $build->do_system($Config{make});
+  
+  # Can't let 'test' STDOUT go to our STDOUT, or it'll confuse Test::Harness.
+  my $success;
+  my $output = stdout_of( sub {
+			    $success = $build->do_system($Config{make}, 'test');
+			  } );
+  ok $success;
+  ok uc $output, qr{DONE\.|SUCCESS};
+  
   ok $build->do_system($Config{make}, 'realclean');
   $build->dispatch('realclean');
   ok not -e 'Makefile.PL';
