@@ -35,10 +35,11 @@ sub resume {
   
   $self->read_config;
   
-  my $perl = $self->find_perl_interpreter;
-  warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
-       "   but we are now using '$perl'.\n")
-    unless $perl eq $self->{properties}{perl};
+  unless ($self->_perl_is_same($self->{properties}{perl})) {
+    my $perl = $self->find_perl_interpreter;
+    warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
+	 "   but we are now using '$perl'.\n");
+  }
   
   my $mb_version = Module::Build->VERSION;
   die(" * ERROR: Configuration was initially created with Module::Build version '$self->{properties}{mb_version}',\n".
@@ -75,14 +76,6 @@ sub _construct {
   my $args   = delete $input{args}   || {};
   my $config = delete $input{config} || {};
 
-  # The following warning could be unnecessary if the user is running
-  # an embedded perl, but there aren't too many of those around, and
-  # embedded perls aren't usually used to install modules, and the
-  # installation process sometimes needs to run external scripts
-  # (e.g. to run tests).
-  my $perl = $package->find_perl_interpreter
-    or warn "Warning: Can't locate your perl binary";
-
   my $self = bless {
 		    args => {%$args},
 		    config => {%Config, %$config},
@@ -95,7 +88,6 @@ sub _construct {
 				   recommends      => {},
 				   build_requires  => {},
 				   conflicts       => {},
-				   perl            => $perl,
 				   mb_version      => Module::Build->VERSION,
 				   build_elements  => [qw( PL support pm xs pod script )],
 				   install_types   => [qw( lib arch script bindoc libdoc )],
@@ -106,6 +98,15 @@ sub _construct {
 		   }, $package;
 
   my ($p, $c) = ($self->{properties}, $self->{config});
+
+  # The following warning could be unnecessary if the user is running
+  # an embedded perl, but there aren't too many of those around, and
+  # embedded perls aren't usually used to install modules, and the
+  # installation process sometimes needs to run external scripts
+  # (e.g. to run tests).
+  $p->{perl} = $self->find_perl_interpreter
+    or warn "Warning: Can't locate your perl binary";
+
   $p->{bindoc_dirs} ||= [ "$p->{blib}/script" ];
   $p->{libdoc_dirs} ||= [ "$p->{blib}/lib", "$p->{blib}/arch" ];
 
@@ -165,6 +166,11 @@ sub cwd {
   return Cwd::cwd();
 }
 
+sub _perl_is_same {
+  my ($self, $perl) = @_;
+  return `$perl -MConfig=myconfig -e print -e myconfig` eq Config->myconfig;
+}
+
 sub find_perl_interpreter {
   return $^X if File::Spec->file_name_is_absolute($^X);
   my $proto = shift;
@@ -182,9 +188,8 @@ sub find_perl_interpreter {
   my @candidates = map File::Spec->catfile($_, $thisperl), File::Spec->path();
   push @candidates, $c->{perlpath};
   
-  my $myconfig = Config->myconfig;
   foreach my $perl (@candidates) {
-    return $perl if -f $perl and `$perl -MConfig=myconfig -e print -e myconfig` eq $myconfig;
+    return $perl if -f $perl and $proto->_perl_is_same($perl);
   }
   return;
 }
