@@ -83,7 +83,7 @@ if ($have_yaml) {
   my $contents = do {local $/; <$fh>};
 
   $contents =~ /Module::Build version ([0-9_.]+)/m;
-  ok $1 == $build->VERSION, 1, "Got $1, expected ". $build->VERSION;
+  ok $1, $build->VERSION, "Got $1, expected ". $build->VERSION;
   
   if ($build->check_installed_status('Archive::Tar', 0)
       or $build->isa('Module::Build::Platform::Unix')) {
