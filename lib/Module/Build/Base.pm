@@ -358,8 +358,8 @@ sub version_from_file {
     $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
     next if $inpod || /^\s*#/;
     if ( my ($sigil, $var) = /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/ ) {
-      my $eval = qq{
-		    package Module::Build::Base::_version;
+      my $eval = qq{  q#  Hide from _packages_inside()
+		    #; package Module::Build::Base::_version;
 		    no strict;
 		    
 		    local $sigil$var;
