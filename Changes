@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2609
+0.2609  Wed Mar 16 22:18:35 CST 2005
 
  - The html docs that were created during the first invokation of
    './Build' were being found and treated as pod that needed to be
