@@ -86,9 +86,9 @@ foreach my $test (@win_splits) {
 
 {
   # Make sure read_args() functions properly as a class method
-  my @args = qw(foo=bar --food bard);
+  my @args = qw(foo=bar --food bard --foods=bards);
   my ($args) = Module::Build->read_args(@args);
-  is_deeply($args, {foo => 'bar', food => 'bard', ARGV => []});
+  is_deeply($args, {foo => 'bar', food => 'bard', foods => 'bards', ARGV => []});
 }
 
 {
