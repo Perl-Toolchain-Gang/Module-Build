@@ -11,6 +11,9 @@ Revision history for Perl extension Module::Build.
 
 0.19 (Future release)
 
+ - We now issue a warning & don't proceed if asked to make a distdir
+   and there's no MANIFEST or it's empty.
+
  - We now install scripts by default to $Config{installsitebin}
    instead of $Config{installscript}.  Neither is a great choice, but
    the former is likely to be [analogous to] /usr/local/bin, and the
