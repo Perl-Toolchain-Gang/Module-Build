@@ -615,6 +615,35 @@ it gets the distribution's version.  It looks for the first line
 matching C<$package\s-\s(.+)>, and uses the captured text as the
 abstract.
 
+=item auto_features
+
+This parameter supports the setting of features (see
+L<feature($name)>) automatically based on a set of prerequisites.  For
+instance, for a module that could optionally use either MySQL or
+PostgreSQL databases, you might use C<auto_features> like this:
+
+  my $b = Module::Build->new
+    (
+     ... other stuff here...
+     auto_features =>
+       {
+        pg_support =>
+        {
+           description => "Interface with Postgres databases",
+           requires => q{ DBD::Pg >= 23.3 && DateTime::Format::Pg },
+        },
+        mysql_support =>
+        {
+           description => "Interface with MySQL databases",
+           requires => q{ DBD::mysql >= 17.9 && DateTime::Format::Pg },
+        },
+     );
+
+For each feature named, the prerequisite options will be checked, and
+if there are no failures, the feature will be enabled (set to C<1>).
+Otherwise the failures will be displayed to the user and the feature
+will be disabled (set to C<0>).
+
 =item get_options
 
 You can pass arbitrary command-line options to F<Build.PL> or F<Build>, and they will be
