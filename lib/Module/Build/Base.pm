@@ -1510,7 +1510,7 @@ sub ACTION_distdir {
   my $dist_dir = $self->dist_dir;
   $self->delete_filetree($dist_dir);
   $self->add_to_cleanup($dist_dir);
-  ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'best');
+  ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'cp');
   warn "*** Did you forget to add $self->{metafile} to the MANIFEST?\n" unless exists $dist_files->{$self->{metafile}};
   
   $self->_sign_dir($dist_dir) if $self->{properties}{sign};
