@@ -5,6 +5,7 @@ use strict;
 use File::Spec;
 use IO::File;
 use Config;
+use Module::Build;
 
 my %makefile_to_build = 
   (
@@ -14,8 +15,8 @@ my %makefile_to_build =
    TEST_VERBOSE => 'verbose',
    VERBINST     => 'verbose',
    TEST_FILES   => 'test_files',
-   POLLUTE => 'pollute',
-   INC     => 'inc',
+   INC     => sub { map "extra_compiler_flags=-I$_", Module::Build->split_like_shell(shift) },
+   POLLUTE => sub { 'extra_compiler_flags=-DPERL_POLLUTE' },
   );
 
 sub create_makefile_pl {
@@ -93,7 +94,8 @@ sub makefile_to_build_args {
     if (exists $Config{lc($key)}) {
       push @out, 'config=' . lc($key) . "=$val";
     } elsif (exists $makefile_to_build{$key}) {
-      push @out, "$makefile_to_build{$key}=$val";
+      my $trans = $makefile_to_build{$key};
+      push @out, ref($trans) ? $trans->($val) : "$trans=$val";
     } else {
       warn "Unknown parameter '$key'";
     }
