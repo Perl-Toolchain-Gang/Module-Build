@@ -1303,6 +1303,11 @@ Runs the C<test> action using C<Devel::Cover>, generating a
 code-coverage report showing which parts of the code were actually
 exercised during the tests.
 
+To pass options to C<Devel::Cover>, set the C<$DEVEL_COVER_OPTIONS>
+environment variable:
+
+  DEVEL_COVER_OPTIONS=-ignore,Build ./Build testcover
+
 =item testdb
 
 This is a synonym for the 'test' action with the C<debugger=1>
