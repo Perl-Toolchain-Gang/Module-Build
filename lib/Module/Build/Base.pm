@@ -1030,20 +1030,28 @@ sub process_xs {
       or die "Can't find ExtUtils::xsubpp in INC (@INC)";
     my $typemap =  $self->find_module_by_name('ExtUtils::typemap', \@INC);
     
-    # Here we're trying to trick xsubpp into thinking it's been run as
-    # a command.  Oy, it hurts!
-#    local @INC  = ($cf->{archlib}, $cf->{privlib}, @INC);
-#    local @ARGV = ("-noprototypes", "-typemap", $typemap, $file);
-#    local *CORE::GLOBAL::exit = sub {warn "NOT EXITING!"};
-#    $self->stdout_to_file( sub { package xsubpp; do $xsubpp }, "$file_base.c" );
+    if (1) {
+      # Here we're trying to trick xsubpp into thinking it's been run as
+      # a command.  Oy, it hurts!
 
-    my $command = (qq{$^X "-I$cf->{archlib}" "-I$cf->{privlib}" "$xsubpp" -noprototypes } .
-		   qq{-typemap "$typemap" "$file"});
-    
-    print $command;
-    open my($fh), "> $file_base.c" or die "Couldn't write $file_base.c: $!";
-    print $fh `$command`;
-    close $fh;
+      local @INC  = ($cf->{archlib}, $cf->{privlib}, @INC);
+      local @ARGV = ("-noprototypes", "-typemap", $typemap, $file);
+      local *CORE::GLOBAL::exit = sub {};
+      my $cwd = $self->cwd;
+      $self->stdout_to_file( sub { package xsubpp; do $xsubpp }, "$file_base.c" );
+      chdir $cwd or die "Can't chdir back to $cwd: $!";
+
+    } else {
+      # Ok, I give up.  Just use backticks.
+
+      my $command = (qq{$^X "-I$cf->{archlib}" "-I$cf->{privlib}" "$xsubpp" -noprototypes } .
+		     qq{-typemap "$typemap" "$file"});
+      
+      print $command;
+      open my($fh), "> $file_base.c" or die "Couldn't write $file_base.c: $!";
+      print $fh `$command`;
+      close $fh;
+    }
   }
   
   # .c -> .o
