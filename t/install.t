@@ -47,7 +47,7 @@ $build->add_to_cleanup($destdir);
 }
 
 {
-  my $libdir = File::Spec->catdir('', 'foo', 'bar');
+  my $libdir = File::Spec->catdir(File::Spec->rootdir, 'foo', 'bar');
   eval {$build->dispatch('install', install_path => {lib => $libdir}, destdir => $destdir)};
   ok $@, '';
   my $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
@@ -56,7 +56,7 @@ $build->add_to_cleanup($destdir);
 }
 
 {
-  my $libdir = File::Spec->catdir('', 'foo', 'base');
+  my $libdir = File::Spec->catdir(File::Spec->rootdir, 'foo', 'base');
   eval {$build->dispatch('install', install_base => $libdir, destdir => $destdir)};
   ok $@, '';
   my $install_to = File::Spec->catfile($destdir, $libdir, 'lib', 'Sample.pm');
