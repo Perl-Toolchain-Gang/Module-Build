@@ -47,6 +47,8 @@ my $build = new Module::Build
 		      requires => { YAML => ' >= 0.35, < 0.49 ' },
 		     },
 		    },
+
+   add_to_cleanup => ['t/Sample/pod2htm*'],
   );
 
 $build->create_build_script;

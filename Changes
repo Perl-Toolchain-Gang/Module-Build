@@ -31,6 +31,11 @@ Revision history for Perl extension Module::Build.
    if there's no MANIFEST (i.e. explicitly say that a MANIFEST is
    required). [Spotted by Adrian Howard]
 
+ - The add_to_cleanup() method will now accept glob()-style patterns
+   in addition to explicit filenames.  Also documented the fact that
+   they can be specified in either Unix-style or native-style
+   notation.
+
  - Passing a PREFIX value to a pass-through Makefile 'make install'
    now has the same effect as passing it to 'perl Makefile.PL' (it
    dies with a helpful message).

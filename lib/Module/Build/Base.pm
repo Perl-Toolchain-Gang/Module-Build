@@ -590,7 +590,7 @@ sub _persistent_hash_restore {
 
 sub add_to_cleanup {
   my $self = shift;
-  my %files = map {$_, 1} @_;
+  my %files = map {$self->localize_file_path($_), 1} @_;
   $self->_persistent_hash_write('cleanup', \%files);
 }
 
@@ -1452,7 +1452,7 @@ sub _find_file_by_type {
 sub localize_file_path {
   my ($self, $path) = @_;
   return $path unless $path =~ m{/};
-  return File::Spec->catfile( split qr{/}, $path );
+  return File::Spec->catfile( split m{/}, $path );
 }
 
 sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
@@ -1619,7 +1619,7 @@ sub _htmlify_pod {
   my ($self, %args) = @_;
   require Pod::Html;
 
-  $self->add_to_cleanup('pod2htmd.x~~', 'pod2htmi.x~~');
+  $self->add_to_cleanup('pod2htm*');
   
   my ($name, $path) = File::Basename::fileparse($args{rel_path}, qr{\..*});
   my @dirs = File::Spec->splitdir($path);
@@ -1767,7 +1767,7 @@ sub ACTION_versioninstall {
 
 sub ACTION_clean {
   my ($self) = @_;
-  foreach my $item ($self->cleanup) {
+  foreach my $item (map glob($_), $self->cleanup) {
     $self->delete_filetree($item);
   }
 }

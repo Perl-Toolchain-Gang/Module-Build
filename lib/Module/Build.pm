@@ -750,13 +750,20 @@ when the C<realclean> action is performed.
 
 =item add_to_cleanup(@files)
 
-You may call C<< $self->add_to_cleanup(@files) >>
-to tell C<Module::Build> that certain files should be removed when the
-user performs the C<Build clean> action.  I decided to provide a
-dynamic method, rather than just use a static list of files, because these
-static lists can get difficult to manage.  I usually prefer to keep
-the responsibility for registering temporary files close to the code
-that creates them.
+You may call C<< $self->add_to_cleanup(@patterns) >> to tell
+C<Module::Build> that certain files should be removed when the user
+performs the C<Build clean> action.  The arguments to the method are
+patterns suitable for passing to Perl's C<glob()> function, specified
+in either Unix format or the current machine's native format.  It's
+usually convenient to use Unix format when you hard-code the filenames
+(e.g. in F<Build.PL>) and the native format when the names are
+programmatically generated (e.g. in a testing script).
+
+I decided to provide a dynamic method of the C<$build> object, rather
+than just use a static list of files named in the F<Build.PL>, because
+these static lists can get difficult to manage.  I usually prefer to
+keep the responsibility for registering temporary files close to the
+code that creates them.
 
 =item resume()
 
