@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+0.20_01
+
+ - In Module::Build::Compat, added support for the 'verbose' parameter
+   to Makefile.PL [spotted by Soren Andersen, fixed by Michael
+   Schwern]
+
 0.20  Tue Aug 26 14:34:07 CDT 2003
 
  - Separated the 'build' action into two separate actions, 'code' and
