@@ -1041,7 +1041,7 @@ influence this process.
 
 If you want the installation process to look around in C<@INC> for
 other versions of the stuff you're installing and try to delete it,
-you can use the C<uninst> parameter, which tells C<Module::Install> to
+you can use the C<uninst> parameter, which tells C<ExtUtils::Install> to
 do so:
 
  Build install uninst=1
