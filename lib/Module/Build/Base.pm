@@ -160,6 +160,18 @@ sub resume {
        "   but we are now using '$perl'.\n")
     unless $perl eq $self->{properties}{perl};
   
+
+  ($self->{action}, my $args) = $self->cull_args(@ARGV);
+  $self->{action} ||= 'build';
+  
+  # Extract our 'properties' from $args
+  my %p;
+  foreach my $key (keys %$args) {
+    $p{$key} = delete $args->{$key} if __PACKAGE__->valid_property($key);
+  }
+  $self->{args} = {%{$self->{args}}, %$args};
+  $self->{properties} = {%{$self->{properties}}, %p};
+
   return $self;
 }
 
@@ -479,9 +491,10 @@ sub print_build_script {
   my $quoted_INC = join ', ', map "'$_'", @myINC;
 
   print $fh <<EOF;
-$self->{config}{startperl} -w
+$self->{config}{startperl}
 
 BEGIN {
+  \$^W = 1;  # Use warnings
   chdir('$base_dir') or die 'Cannot chdir to $base_dir: '.\$!;
   \@INC = ($quoted_INC);
 }
@@ -542,22 +555,13 @@ sub check_manifest {
 sub dispatch {
   my $self = shift;
   
-  my (%p, $args, $action);
   if (@_) {
-    ($action, %p) = @_;
-    $args = $p{args} ? delete($p{args}) : {};
-  } else {
-    ($action, $args) = $self->cull_args(@ARGV);
-
-    # Extract our 'properties' from $args
-    foreach my $key (keys %$args) {
-      $p{$key} = delete $args->{$key} if __PACKAGE__->valid_property($key);
-    }
+    ($self->{action}, my %p) = @_;
+    my $args = $p{args} ? delete($p{args}) : {};
+    
+    $self->{args} = {%{$self->{args}}, %$args};
+    $self->{properties} = {%{$self->{properties}}, %p};
   }
-
-  $self->{action} = $action || 'build';
-  $self->{args} = {%{$self->{args}}, %$args};
-  $self->{properties} = {%{$self->{properties}}, %p};
 
   my $method = "ACTION_$self->{action}";
   print("No action '$self->{action}' defined.\n"), return unless $self->can($method);
