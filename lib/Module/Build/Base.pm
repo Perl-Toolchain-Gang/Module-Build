@@ -1341,11 +1341,10 @@ sub ACTION_test {
 		File::Spec->catdir($p->{base_dir}, $self->blib, 'arch'),
 		@INC);
 
-  # Filter out duplicate @INC entries - some versions of Test::Harness
-  # will really explode the number of entries here
-  my %seen;
-  @INC = grep {not $seen{$_}++} @INC;
-  
+  # Filter out duplicate and non-existent @INC entries - some versions
+  # of Test::Harness will really explode the number of entries here
+  @INC = grep {ref() || -d} @INC if @INC > 100;
+
   my $tests = $self->find_test_files;
 
   if (@$tests) {
