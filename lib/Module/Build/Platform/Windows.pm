@@ -255,18 +255,59 @@ sub manpage_separator {
 }
 
 sub split_like_shell {
-  # In Win32 command shells, the backslashes in the string "\bar\baz"
-  # should be preserved, because they often show up as parts of
-  # pathnames.  We double-up all these backslashes so shellwords() can
-  # still be used (making sure to avoid backslash-quote pairs, which
-  # should work the same as on Unix)
-
+  # As it turns out, Windows command-parsing is very different from
+  # Unix command-parsing.  Double-quotes mean different things,
+  # backslashes don't necessarily mean escapes, and so on.  So we
+  # can't use Text::ParseWords::shellwords() to break a command string
+  # into words.  The algorithm below was bashed out by Randy and Ken
+  # (mostly Randy), and there are a lot of regression tests, so we
+  # should feel free to adjust if desired.
+  
   (my $self, local $_) = @_;
-  if (defined() && length() && !ref()) {
-    s/\\(?!")/\\\\/g;
+  
+  my @argv;
+  return @argv unless defined() && length();
+  
+  my $arg = '';
+  my( $i, $quote_mode ) = ( 0, 0 );
+  
+  while ( $i < length() ) {
+    
+    my $ch      = substr( $_, $i  , 1 );
+    my $next_ch = substr( $_, $i+1, 1 );
+    
+    if ( $ch eq '\\' && $next_ch eq '"' ) {
+      $arg .= '"';
+      $i++;
+    } elsif ( $ch eq '\\' && $next_ch eq '\\' ) {
+      $arg .= '\\';
+      $i++;
+    } elsif ( $ch eq '"' && $next_ch eq '"' && $quote_mode ) {
+      $quote_mode = !$quote_mode;
+      $arg .= '"';
+      $i++;
+    } elsif ( $ch eq '"' && $next_ch eq '"' && !$quote_mode &&
+	      ( $i + 2 == length()  ||
+		substr( $_, $i + 2, 1 ) eq ' ' )
+	    ) { # for cases like: a"" => [ 'a' ]
+      push( @argv, $arg );
+      $arg = '';
+      $i += 2;
+    } elsif ( $ch eq '"' ) {
+      $quote_mode = !$quote_mode;
+    } elsif ( $ch eq ' ' && !$quote_mode ) {
+      push( @argv, $arg ) if $arg;
+      $arg = '';
+      ++$i while substr( $_, $i + 1, 1 ) eq ' ';
+    } else {
+      $arg .= $ch;
+    }
+    
+    $i++;
   }
-
-  return $self->SUPER::split_like_shell($_);
+  
+  push( @argv, $arg ) if defined( $arg ) && length( $arg );
+  return @argv;
 }
 
 1;
