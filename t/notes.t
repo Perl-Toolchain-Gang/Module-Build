@@ -1,7 +1,7 @@
 
 use strict;
 use Test;
-plan tests => 6;
+plan tests => 10;
 
 use Module::Build;
 ok(1);
@@ -23,4 +23,18 @@ ok $m->notes('foo'), 'foo';
 
 # Change back so we can run this test again successfully
 $m->notes(foo => 'bar');
+ok $m->notes('foo'), 'bar';
+
+###################################
+# Make sure notes set before create_build_script() get preserved
+chdir Module::Build->localize_file_path('t/Sample');
+$m = Module::Build->new(module_name => 'Sample');
+ok $m;
+$m->notes(foo => 'bar');
+ok $m->notes('foo'), 'bar';
+
+$m->create_build_script;
+
+$m = Module::Build->resume;
+ok $m;
 ok $m->notes('foo'), 'bar';
