@@ -78,12 +78,46 @@ sub new {
   $self->add_to_cleanup( @{delete $p->{add_to_cleanup}} )
     if $p->{add_to_cleanup};
   
+  $self->_set_install_destinations;
   $self->dist_name;
   $self->check_manifest;
   $self->check_prereq;
   $self->dist_version;
 
   return $self;
+}
+
+sub _set_install_destinations {
+  my $self = shift;
+  my $c = $self->{config};
+
+  $self->{install_destinations} =
+    {
+     core   => {
+		lib     => $c->{installprivlib},
+		arch    => $c->{installarchlib},
+		bin     => $c->{installbin},
+		script  => $c->{installscript},
+		bindoc  => $c->{installman1dir},
+		libdoc  => $c->{installman3dir},
+	       },
+     site   => {
+		lib     => $c->{installsitelib},
+		arch    => $c->{installsitearch},
+		bin     => $c->{installsitebin},
+		script  => $c->{installsitescript} || $c->{installsitebin},
+		bindoc  => $c->{installsiteman1dir},
+		libdoc  => $c->{installsiteman3dir},
+	       },
+     vendor => {
+		lib     => $c->{installvendorlib},
+		arch    => $c->{installvendorarch},
+		bin     => $c->{installvendorbin},
+		script  => $c->{installvendorscript} || $c->{installvendorbin},
+		bindoc  => $c->{installvendorman1dir},
+		libdoc  => $c->{installvendorman3dir},
+	       },
+    };
 }
 
 sub cwd {
@@ -1339,36 +1373,8 @@ sub make_tarball {
 
 sub install_destination {
   my ($self, $type) = @_;
-  my $c = $self->{config};
-
-  my %map = ( core => {
-		       arch   => $c->{installarchlib},
-		       lib    => $c->{installprivlib},
-		       bin    => $c->{installbin},
-		       script => $c->{installscript},
-		       man1   => $c->{installman1dir},
-		       man3   => $c->{installman3dir},
-		      },
-	      site => {
-		       arch   => $c->{installsitearch},
-		       lib    => $c->{installsitelib},
-		       bin    => $c->{installsitebin},
-		       script => $c->{installsitescript} || $c->{installsitebin},
-		       man1   => $c->{installsiteman1dir},
-		       man3   => $c->{installsiteman3dir},
-		      },
-	    vendor => {
-		       arch   => $c->{installvendorarch},
-		       lib    => $c->{installvendorlib},
-		       bin    => $c->{installvendorbin},
-		       script => $c->{installvendorscript} || $c->{installvendorbin},
-		       man1   => $c->{installvendorman1dir},
-		       man3   => $c->{installvendorman3dir},
-		      },
-	    );
-  
   my $installdirs = $self->{properties}{installdirs} || 'site';
-  return $map{$installdirs}{$type};
+  return $self->{install_destinations}{$installdirs}{$type};
 }
 
 sub install_types {
