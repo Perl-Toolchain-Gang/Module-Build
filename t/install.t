@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 17 }
+BEGIN { plan tests => 23 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -91,6 +91,23 @@ ok $@, '';
   
   eval {$build->dispatch('realclean')};
   ok $@, '';
+}
+
+{
+  # _find_file_by_type() isn't a public method, but this is currently
+  # the only easy way to test that it works properly.
+  my $pods = $build->_find_file_by_type('pod', 'lib');
+  ok keys %$pods, 1;
+  my $expect = $build->localize_file_path('lib/Sample/Docs.pod');
+  ok $pods->{$expect}, $expect;
+  
+  my $pms = $build->_find_file_by_type('awefawef', 'lib');
+  ok $pms;
+  ok keys %$pms, 0;
+  
+  $pms = $build->_find_file_by_type('pod', 'awefawef');
+  ok $pms;
+  ok keys %$pms, 0;
 }
 
 sub strip_volume {
