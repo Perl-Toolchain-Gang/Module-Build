@@ -9,3 +9,4 @@ ok 1;
 require Module::Build;
 print "\$INC{'Module/Build.pm'}: $INC{'Module/Build.pm'}\n";
 ok $INC{'Module/Build.pm'}, qr/blib/;
+print "Done.\n";
