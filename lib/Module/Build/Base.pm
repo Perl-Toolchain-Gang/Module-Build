@@ -424,8 +424,16 @@ sub check_installed_version {
   return 0;
 }
 
-sub make_build_script_executable {
-  chmod 0544, $_[0]->{properties}{build_script};
+sub make_executable {
+  # Perl's chmod() is mapped to useful things on various non-Unix
+  # platforms, so we use it in the base class even though it looks
+  # Unixish.
+
+  my $self = shift;
+  foreach (@_) {
+    my $current_mode = (stat $_)[2];
+    chmod $current_mode | 0111, $_;
+  }
 }
 
 sub print_build_script {
@@ -480,7 +488,7 @@ sub create_build_script {
   $self->print_build_script($fh);
   close $fh;
   
-  $self->make_build_script_executable;
+  $self->make_executable($p->{build_script});
 
   return 1;
 }
@@ -555,6 +563,21 @@ sub super_classes {
   return @super, map {$self->super_classes($_,$seen)} @super;
 }
 
+sub known_actions {
+  my ($self) = @_;
+
+  my %actions;
+  no strict 'refs';
+  
+  foreach my $class ($self->super_classes) {
+    foreach ( keys %{ $class . '::' } ) {
+      $actions{$1}++ if /ACTION_(\w+)/;
+    }
+  }
+
+  return sort keys %actions;
+}
+
 sub ACTION_help {
   my ($self) = @_;
 
@@ -566,19 +589,7 @@ sub ACTION_help {
  Actions defined:
 EOF
 
-  my %actions;
-  {
-    no strict 'refs';
-    
-    foreach my $class ($self->super_classes) {
-      #print "Checking $class\n";
-      foreach ( keys %{ $class . '::' } ) {
-	$actions{$1}++ if /ACTION_(\w+)/;
-      }
-    }
-  }
-
-  my @actions = sort keys %actions;
+  my @actions = $self->known_actions;
   # Flow down columns, not across rows
   @actions = map $actions[($_ + ($_ % 2) * @actions) / 2],  0..$#actions;
   
