@@ -544,8 +544,8 @@ To link your XS code against glib you might write something like:
  my build = Module::Build->new(
      module_name          => 'Spangly',
      dynamic_config       => 1,
-     extra_compiler_flags => `glib-config --cflags`,
-     extra_linker_flags   => `glib-config --libs`,
+     extra_compiler_flags => scalar `glib-config --cflags`,
+     extra_linker_flags   => scalar `glib-config --libs`,
  );
 
 =item dist_author
