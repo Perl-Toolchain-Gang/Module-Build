@@ -2,8 +2,8 @@ Revision history for Perl extension Module::Build.
 
 0.19_04
 
- - Don't build man pages when there's nowhere to install them, such as
-   on Win32 or Mac systems.
+ - Now we don't build man pages when there's nowhere to install them,
+   such as on some Win32 or most Mac systems.
 
  - Improved comparisons of version strings containing underscore
    characters (indicating "beta" status). [Steve Purkis]
