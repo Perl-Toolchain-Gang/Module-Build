@@ -822,7 +822,7 @@ $quoted_INC
 use $build_package;
 
 if (-e 'Build.PL' and not $build_package->up_to_date("Build.PL", \$0)) {
-   warn "Warning: Build.PL has been altered.  You may need to run 'perl Build.PL' again.\n";
+   warn "Warning: Build.PL has been altered.  You may need to run 'perl Build.PL' again.\\n";
 }
 
 # This should have just enough arguments to be able to bootstrap the rest.
