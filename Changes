@@ -16,6 +16,9 @@ Revision history for Perl extension Module::Build.
  - The Unix version now uses the safer multi-argument form of system()
    when building distribution tarballs.
 
+ - Added a regression test for the 'dist' action to the t/runthrough.t
+   test.
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
