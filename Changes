@@ -48,7 +48,7 @@ Revision history for Perl extension Module::Build.
 0.19_03
 
  - Added a notes() feature, which helps share data transparently
-   between the Build.PL and t/*.t scripts.  (XXX needs documentation)
+   between the Build.PL and t/*.t scripts.
 
 0.19_02
 
@@ -675,7 +675,6 @@ Revision history for Perl extension Module::Build.
     debugger. (idea: Dave Rolsky)
 
   - Added prerequisite checking (Dave Rolsky)
-XXX Needs to write _build/prereq
 
   - Fixed an unlikely-to-occur bug with misquoted strings in the
     'Build' script (spot: Dave Rolsky)
