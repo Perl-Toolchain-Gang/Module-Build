@@ -2,14 +2,9 @@
 
 use strict;
 use Test;
-
-print("1..0 # Skipped: no compiler found\n"), exit(0) unless have_compiler();
-plan tests => 11;
-
 use Config;
 use Module::Build;
 use File::Spec;
-ok(1);
 
 require File::Spec->catfile('t', 'common.pl');
 
@@ -19,11 +14,10 @@ require File::Spec->catfile('t', 'common.pl');
 my $build_dir = File::Spec->catdir('t','XSTest');
 chdir $build_dir or die "Can't change to $build_dir : $!";
 
-my $m = new Module::Build
-  (
-   module_name => 'XSTest',
-   dist_author => 'XSTest Author',
-  );
+my $m = Module::Build->new_from_context;
+
+print("1..0 # Skipped: no compiler found\n"), exit(0) unless $m->have_c_compiler;
+plan tests => 10;
 ok(1);
 
 eval {$m->dispatch('clean')};
@@ -63,7 +57,7 @@ ok $@, '';
 <SOFTPKG NAME="XSTest" VERSION="0,01,0,0">
     <TITLE>XSTest</TITLE>
     <ABSTRACT>Perl extension for blah blah blah</ABSTRACT>
-    <AUTHOR>XSTest Author</AUTHOR>
+    <AUTHOR>A. U. Thor, a.u.thor\@a.galaxy.far.far.away</AUTHOR>
     <IMPLEMENTATION>
         <PERLCORE VERSION="$perl_version" />
         <OS VALUE="$^O" />
@@ -80,36 +74,3 @@ ok $@, '';
 # Make sure blib/ is gone after 'realclean'
 ok not -e 'blib';
 
-#################################################################
-# Routines below were taken from ExtUtils::ParseXS
-
-use Config;
-sub have_compiler {
-  my %things;
-  foreach (qw(cc ld)) {
-    return 0 unless $Config{$_};
-    my $thing = (File::Spec->file_name_is_absolute($Config{cc}) ?
-		 $Config{cc} :
-		 find_in_path($Config{cc}));
-    return 0 unless $thing;
-    return 0 unless -x $thing;
-  }
-  return 1;
-}
-
-sub find_in_path {
-  my $thing = shift;
-  $thing = (Module::Build->split_like_shell($thing))[0]; # It may be something like 'ccache gcc'
-  
-  my @path = split $Config{path_sep}, $ENV{PATH};
-  my @exe_ext = $^O eq 'MSWin32' ?
-    split($Config{path_sep}, $ENV{PATHEXT} || '.com;.exe;.bat') :
-    ('');
-  foreach (@path) {
-    my $fullpath = File::Spec->catfile($_, $thing);
-    foreach my $ext ( @exe_ext ) {
-      return "$fullpath$ext" if -e "$fullpath$ext";
-    }
-  }
-  return;
-}
