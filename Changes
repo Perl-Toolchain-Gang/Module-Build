@@ -1,15 +1,51 @@
 Revision history for Perl extension Module::Build.
 
-0.19
+0.19  Wed Jul  9 22:34:02 CDT 2003
 
- - Got the 'install_base' parameter working as documented.  Provides
-   an easy way to install to local or alternative directory trees.
+ - Added support for the 'install_path' parameter, which allows custom
+   specification of where things should be installed.  This is a major
+   improvement to Module::Build's functionality.
+
+ - Added the 'install_base' parameter.  Provides an easy way to
+   install to local or alternative directory trees.
+
+ - We now install scripts by default to $Config{installsitebin}
+   instead of $Config{installscript}.  Neither is a great choice, but
+   the former is likely to be [analogous to] /usr/local/bin, and the
+   latter is likely to be [something like] /usr/bin .  If/when there's
+   a $Config{installsitescript}, we'll start using that automatically.
 
  - Fixed a problem on Win32 in which C and XS files wouldn't be
    compiled properly, and the user would see an error about 'Can't
    locate object method "format_compiler_cmd"'.
    (http://rt.cpan.org/Ticket/Display.html?id=2391)
 
+ - We now use the correct perl interpreter (via
+   Module::Build->find_perl_interpreter) in pass-through makefiles.
+
+ - The t/compat.t test now uses $Config{make} instead of just 'make'
+   to test makefile compatibility.  This fixes some failures on Win32.
+   We also skip this test entirely if no make utility is available.
+
+ - Alternative distribution layouts are now supported via the
+   'pm_files', 'pod_files', 'xs_files', 'PL_files', and 'script_files'
+   parameters to new().  This should help people transition from
+   MakeMaker, and might even help us write an automatic transition
+   tool.
+
+ - Added tests to t/runthrough.t that check to see installation is
+   happening correctly.
+
+ - Added experimental code to build a .ppd file, in support of
+   ActiveState's "Perl Package Manager". [original patch by Dave
+   Rolsky]
+ 
+ - For authors who use Module::Signature to sign their distributions,
+   we now create the SIGNATURE file right in the distribution
+   directory, rather than creating it in the top-level directory and
+   copying it into place.  This solves problems related to having
+   files get out of date with respect to their signatures.
+ 
  - We now don't depend on Module::Info to scan for packages during the
    'dist' action anymore, because it's way too aggressive about
    loading other modules that you may not want loaded.  We now just
@@ -18,12 +54,6 @@ Revision history for Perl extension Module::Build.
 
  - Silenced some annoying copyright/logo output from Microsoft 'nmake'
    during Makefile compatibility testing. [Randy W. Sims]
-
-0.18_03
-
- - Added support for the 'install_path' parameter, which allows custom
-   specification of where things should be installed.  This is a major
-   improvement to Module::Build's functionality.
 
  - Command-line arguments may now either be specified using the syntax
    '--foo foovalue' as well as the traditional syntax 'foo=foovalue'.
@@ -44,21 +74,12 @@ Revision history for Perl extension Module::Build.
  - We now issue a warning & don't proceed if asked to make a distdir
    and there's no MANIFEST or it's empty.
 
- - We now install scripts by default to $Config{installsitebin}
-   instead of $Config{installscript}.  Neither is a great choice, but
-   the former is likely to be [analogous to] /usr/local/bin, and the
-   latter is likely to be [something like] /usr/bin .  If/when there's
-   a $Config{installsitescript}, we'll start using that automatically.
-
  - Moved INSTALL to INSTALL.txt to increase compatibility with various
    odd versions of 'make' during 'make install' on case-insensitive
    filesystems (like nmake on Win32, often).  Only affects the
    Makefile compatibility layer.  [reported by Andrew Savige]
 
  - Module::Build->known_actions() now works as a class method.
-
- - We now use the correct perl interpreter (via
-   Module::Build->find_perl_interpreter) in pass-through makefiles.
 
  - Pass-through makefiles now list each action individually rather
    than using a ".DEFAULT" catch-all.  This improves compatibility
@@ -68,8 +89,6 @@ Revision history for Perl extension Module::Build.
  - We're now more aggressive about testing the pass-through makefiles,
    e.g. making sure they can run 'all' and 'test' targets, and making
    sure the Makefile itself actually exists.
-
-0.18_02  Sun Jun  1 18:32:22 CDT 2003
 
  - Fixed a problem with check_installed_status() when installed
    version contains non-numeric characters like underscores.
@@ -84,34 +103,9 @@ Revision history for Perl extension Module::Build.
    directories before prepending the destdir path.  The destdir path
    may still have a volume identifier on it.
 
- - The t/compat.t test now uses $Config{make} instead of just 'make'
-   to test makefile compatibility.  This fixes some failures on Win32.
-   We also skip this test entirely if no make utility is available.
-
-0.18_01  Thu May 22 12:20:00 CDT 2003
-
- - Alternative distribution layouts are now supported via the
-   'pm_files', 'pod_files', 'xs_files', 'PL_files', and 'script_files'
-   parameters to new().  This should help people transition from
-   MakeMaker, and might even help us write an automatic transition
-   tool.
-
- - Added tests to t/runthrough.t that check to see installation is
-   happening correctly.
-
  - Added an 'add_to_cleanup' parameter to new() that calls
    add_to_cleanup() immediately for the given files.
 
- - Added experimental code to build a .ppd file, in support of
-   ActiveState's "Perl Package Manager". [original patch by Dave
-   Rolsky]
- 
- - For authors who use Module::Signature to sign their distributions,
-   we now create the SIGNATURE file right in the distribution
-   directory, rather than creating it in the top-level directory and
-   copying it into place.  This solves problems related to having
-   files get out of date with respect to their signatures.
- 
  - The distribution directory (e.g. Sample-Module-0.13/ ) will now be
    deleted during the 'clean' or 'realclean' actions.
  
