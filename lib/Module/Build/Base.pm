@@ -12,6 +12,7 @@ use File::Compare ();
 use Data::Dumper ();
 use IO::File ();
 use Text::ParseWords ();
+use Carp ();
 
 #################### Constructors ###########################
 sub new {
@@ -40,8 +41,8 @@ sub resume {
   
   unless ($self->_perl_is_same($self->{properties}{perl})) {
     my $perl = $self->find_perl_interpreter;
-    warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
-	 "   but we are now using '$perl'.\n");
+    $self->warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
+		"   but we are now using '$perl'.\n");
   }
   
   my $mb_version = $Module::Build::VERSION;
@@ -98,7 +99,7 @@ sub _construct {
   # installation process sometimes needs to run external scripts
   # (e.g. to run tests).
   $p->{perl} = $self->find_perl_interpreter
-    or warn "Warning: Can't locate your perl binary";
+    or $self->warn("Warning: Can't locate your perl binary");
 
   $p->{bindoc_dirs} ||= [ "$p->{blib}/script" ];
   $p->{libdoc_dirs} ||= [ "$p->{blib}/lib", "$p->{blib}/arch" ];
@@ -116,6 +117,9 @@ sub _construct {
 }
 
 ################## End constructors #########################
+
+sub info { shift; print @_; }
+sub warn { shift; Carp::carp @_; }
 
 sub _set_install_paths {
   my $self = shift;
@@ -287,7 +291,7 @@ sub ACTION_config_data {
 
   return if $self->up_to_date([$self->config_file('config_data'), $self->config_file('features')], $notes_pm);
 
-  print "Writing config notes to $notes_pm\n";
+  $self->info("Writing config notes to $notes_pm\n");
   File::Path::mkpath(File::Basename::dirname($notes_pm));
   my $fh = IO::File->new("> $notes_pm") or die "Can't create '$notes_pm': $!";
 
@@ -617,7 +621,7 @@ sub subclass {
   
   my $filename = File::Spec->catfile($build_dir, 'lib', split '::', $opts{class}) . '.pm';
   my $filedir  = File::Basename::dirname($filename);
-  print "Creating custom builder $filename in $filedir\n";
+  $pack->info("Creating custom builder $filename in $filedir\n");
   
   File::Path::mkpath($filedir);
   die "Can't create directory $filedir: $!" unless -d $filedir;
@@ -742,7 +746,7 @@ sub version_from_file {
   eval {require version};
   my $result = eval $eval;
   *UNIVERSAL::VERSION = $old_version;
-  warn "Error evaling version line '$eval' in $file: $@\n" if $@;
+  $self->warn("Error evaling version line '$eval' in $file: $@\n") if $@;
 
   # Unbless it if it's a version.pm object
   $result = "$result" if UNIVERSAL::isa( $result, 'version' );
@@ -876,17 +880,17 @@ sub set_autofeatures {
   while (my ($name, $info) = each %$features) {
     my $failures = $self->prereq_failures($info);
     if ($failures) {
-      warn "Feature '$name' disabled because of the following prerequisite failures:\n";
+      $self->warn("Feature '$name' disabled because of the following prerequisite failures:\n");
       foreach my $type (qw(requires build_requires conflicts recommends)) {
 	next unless $failures->{$type};
 	while (my ($module, $status) = each %{$failures->{$type}}) {
-	  warn " * $status->{message}\n";
+	  $self->warn(" * $status->{message}\n");
 	}
-	warn "\n";
+	$self->warn("\n");
       }
       $self->feature($name => 0);
     } else {
-      warn "Feature '$name' enabled.\n\n";
+      $self->warn("Feature '$name' enabled.\n\n");
       $self->feature($name => 1);
     }
   }
@@ -936,12 +940,12 @@ sub check_prereq {
     next unless $failures->{$type};
     my $prefix = $type eq 'recommends' ? '' : 'ERROR: ';
     while (my ($module, $status) = each %{$failures->{$type}}) {
-      warn " * $prefix$status->{message}\n";
+      $self->warn(" * $prefix$status->{message}\n");
     }
   }
   
-  warn "ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions\n".
-       " of the modules indicated above before proceeding with this installation.\n\n";
+  $self->warn("ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions\n".
+	      " of the modules indicated above before proceeding with this installation.\n\n");
   return 0;
 }
 
@@ -1025,7 +1029,7 @@ sub compare_versions {
 
   my $eval_str = "\$v1 $op \$v2";
   my $result   = eval $eval_str;
-  warn "error comparing versions: '$eval_str' $@" if $@;
+  $self->warn("error comparing versions: '$eval_str' $@") if $@;
 
   return $result;
 }
@@ -1147,11 +1151,11 @@ sub create_build_script {
     = map $self->$_(), qw(build_script dist_name dist_version);
   
   if ( $self->delete_filetree($build_script) ) {
-    print "Removed previous script '$build_script'\n";
+    $self->info("Removed previous script '$build_script'\n");
   }
 
-  print("Creating new '$build_script' script for ",
-	"'$dist_name' version '$dist_version'\n");
+  $self->info("Creating new '$build_script' script for ",
+	      "'$dist_name' version '$dist_version'\n");
   my $fh = IO::File->new(">$build_script") or die "Can't create '$build_script': $!";
   $self->print_build_script($fh);
   close $fh;
@@ -1162,22 +1166,21 @@ sub create_build_script {
 }
 
 sub check_manifest {
+  my $self = shift;
   return unless -e 'MANIFEST';
   
   # Stolen nearly verbatim from MakeMaker.  But ExtUtils::Manifest
   # could easily be re-written into a modern Perl dialect.
 
-  print "Checking whether your kit is complete...\n";
   require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
   local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
   
   if (my @missed = ExtUtils::Manifest::manicheck()) {
-    print "Warning: the following files are missing in your kit:\n";
-    print "\t", join "\n\t", @missed;
-    print "\n";
-    print "Please inform the author.\n";
+    $self->warn("Warning: the following files are missing in your kit:\n",
+		"\t", join("\n\t", @missed), "\n",
+		"Please inform the author.\n");
   } else {
-    print "Looks good\n";
+    $self->info("Checking whether your kit is complete...\nLooks good\n");
   }
 }
 
@@ -1474,7 +1477,7 @@ sub ACTION_test {
     local $^X = $self->perl;
     Test::Harness::runtests(@$tests);
   } else {
-    print("No tests defined.\n");
+    $self->info("No tests defined.\n");
   }
 
   # This will get run and the user will see the output.  It doesn't
@@ -1509,7 +1512,7 @@ sub ACTION_testcover {
   my ($self) = @_;
 
   unless ($self->find_module_by_name('Devel::Cover', \@INC)) {
-    warn("Cannot run testcover action unless Devel::Cover is installed.\n");
+    $self->warn("Cannot run testcover action unless Devel::Cover is installed.\n");
     return;
   }
 
@@ -1718,7 +1721,7 @@ sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
     next unless $cmd =~ /perl/i;
     my $interpreter = $self->{properties}{perl};
     
-    print STDOUT "Changing sharpbang in $file to $interpreter" if $self->{verbose};
+    $self->info("Changing sharpbang in $file to $interpreter") if $self->{verbose};
     my $shb = '';
     $shb .= "$c->{sharpbang}$interpreter $arg\n" if $does_shbang;
     
@@ -1746,7 +1749,7 @@ eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
       or die "Can't rename $file.new to $file: $!";
     
     unlink "$file.bak"
-      or warn "Couldn't clean up $file.bak, leaving it there";
+      or $self->warn("Couldn't clean up $file.bak, leaving it there");
     
     $self->do_system($c->{eunicefix}, $file) if $c->{eunicefix} ne ':';
   }
@@ -1804,7 +1807,7 @@ sub manify_bin_pods {
     my $manpage = $self->man1page_name( $file ) . '.' . $self->{config}{man1ext};
     my $outfile = File::Spec->catfile( $mandir, $manpage);
     next if $self->up_to_date( $file, $outfile );
-    print "Manifying $file -> $outfile\n";
+    $self->info("Manifying $file -> $outfile\n");
     $parser->parse_from_file( $file, $outfile );
     $files->{$file} = $outfile;
   }
@@ -1824,7 +1827,7 @@ sub manify_lib_pods {
     my $manpage = $self->man3page_name( $relfile ) . '.' . $self->{config}{man3ext};
     my $outfile = File::Spec->catfile( $mandir, $manpage);
     next if $self->up_to_date( $file, $outfile );
-    print "Manifying $file -> $outfile\n";
+    $self->info("Manifying $file -> $outfile\n");
     $parser->parse_from_file( $file, $outfile );
     $files->{$file} = $outfile;
   }
@@ -1946,8 +1949,8 @@ sub _htmlify_pod {
 	     );
   push @opts, "--css=$path2root/$args{css}" if $args{css};
     
-  print "Creating $outfile\n";
-  print "pod2html @opts\n" if $self->verbose;
+  $self->info("Creating $outfile\n");
+  $self->info("pod2html @opts\n") if $self->verbose;
   Pod::Html::pod2html(@opts);	# or warn "pod2html @opts failed: $!";
 }
 
@@ -2118,14 +2121,14 @@ sub _add_to_manifest {
   close $fh;
   chmod($mode, $manifest);
 
-  print map "Added to $manifest: $_\n", @$lines;
+  $self->info(map "Added to $manifest: $_\n", @$lines);
 }
 
 sub _sign_dir {
   my ($self, $dir) = @_;
 
   unless (eval { require Module::Signature; 1 }) {
-    warn "Couldn't load Module::Signature for 'distsign' action:\n $@\n";
+    $self->warn("Couldn't load Module::Signature for 'distsign' action:\n $@\n");
     return;
   }
   
@@ -2199,7 +2202,7 @@ sub ACTION_distdir {
   die "No files found in MANIFEST - try running 'manifest' action?\n"
     unless ($dist_files and keys %$dist_files);
   
-  warn "*** Did you forget to add $self->{metafile} to the MANIFEST?\n"
+  $self->warn("*** Did you forget to add $self->{metafile} to the MANIFEST?\n")
     unless exists $dist_files->{$self->{metafile}};
   
   my $dist_dir = $self->dist_dir;
@@ -2209,7 +2212,7 @@ sub ACTION_distdir {
   foreach my $file (keys %$dist_files) {
     my $new = $self->copy_if_modified(from => $file, to_dir => $dist_dir, verbose => 0);
     chmod +(stat $file)[2], $new
-      or warn "Couldn't set permissions on $new: $!";
+      or $self->warn("Couldn't set permissions on $new: $!");
   }
   
   $self->_sign_dir($dist_dir) if $self->{properties}{sign};
@@ -2275,7 +2278,7 @@ sub ACTION_manifest {
 
   my $maniskip = 'MANIFEST.SKIP';
   unless ( -e 'MANIFEST' || -e $maniskip ) {
-    warn "File '$maniskip' does not exist: Creating a default '$maniskip'\n";
+    $self->warn("File '$maniskip' does not exist: Creating a default '$maniskip'\n");
     $self->_write_default_maniskip($maniskip);
   }
 
@@ -2365,7 +2368,7 @@ sub ACTION_distmeta {
   $self->{metafile} = 'META.yml';
   
   unless ($p->{license}) {
-    warn "No license specified, setting license = 'unknown'\n";
+    $self->warn("No license specified, setting license = 'unknown'\n");
     $p->{license} = 'unknown';
   }
   unless ($self->valid_licenses->{ $p->{license} }) {
@@ -2384,7 +2387,7 @@ sub ACTION_distmeta {
   }
   require Module::Build::ConfigData;  # Only works after the 'build'
   unless (Module::Build::ConfigData->feature('YAML_support')) {
-    warn <<EOM;
+    $self->warn(<<EOM);
 \nCouldn't load YAML.pm, generating a minimal META.yml without it.
 Please check and edit the generated metadata, or consider installing YAML.pm.\n
 EOM
@@ -2476,7 +2479,7 @@ sub make_tarball {
   my ($self, $dir, $file) = @_;
   $file ||= $dir;
   
-  print "Creating $file.tar.gz\n";
+  $self->info("Creating $file.tar.gz\n");
   
   if ($self->{args}{tar}) {
     my $tar_flags = $self->{properties}{verbose} ? 'cvf' : 'cf';
@@ -2579,7 +2582,7 @@ sub delete_filetree {
   my $deleted = 0;
   foreach (@_) {
     next unless -e $_;
-    print "Deleting $_\n";
+    $self->info("Deleting $_\n");
     File::Path::rmtree($_, 0, 0);
     die "Couldn't remove '$_': $!\n" if -e $_;
     $deleted++;
@@ -2621,9 +2624,9 @@ sub have_c_compiler {
   my $p = $self->{properties}; 
   return $p->{have_compiler} if defined $p->{have_compiler};
   
-  print "Checking if compiler tools configured... " if $p->{verbose};
+  $self->info("Checking if compiler tools configured... ") if $p->{verbose};
   my $have = $self->_cbuilder->have_compiler;
-  print($have ? "ok.\n" : "failed.\n") if $p->{verbose};
+  $self->info($have ? "ok.\n" : "failed.\n") if $p->{verbose};
   return $p->{have_compiler} = $have;
 }
 
@@ -2668,7 +2671,7 @@ sub link_c {
 sub compile_xs {
   my ($self, $file, %args) = @_;
   
-  print "$file -> $args{outfile}\n";
+  $self->info("$file -> $args{outfile}\n");
 
   if (eval {require ExtUtils::ParseXS; 1}) {
     
@@ -2690,7 +2693,7 @@ sub compile_xs {
     my $command = (qq{$perl "-I$cf->{installarchlib}" "-I$cf->{installprivlib}" "$xsubpp" -noprototypes } .
 		   qq{-typemap "$typemap" "$file"});
     
-    print $command;
+    $self->info($command);
     my $fh = IO::File->new("> $args{outfile}") or die "Couldn't write $args{outfile}: $!";
     print $fh `$command`;
     close $fh;
@@ -2776,7 +2779,7 @@ sub process_xs {
   $self->add_to_cleanup("$file_base.bs");
   unless ($self->up_to_date($file, "$file_base.bs")) {
     require ExtUtils::Mkbootstrap;
-    print "ExtUtils::Mkbootstrap::Mkbootstrap('$file_base')\n";
+    $self->info("ExtUtils::Mkbootstrap::Mkbootstrap('$file_base')\n");
     ExtUtils::Mkbootstrap::Mkbootstrap($file_base);  # Original had $BSLOADLIBS - what's that?
     {my $fh = IO::File->new(">> $file_base.bs")}  # create
     utime((time)x2, "$file_base.bs");  # touch
@@ -2789,7 +2792,7 @@ sub process_xs {
 
 sub do_system {
   my ($self, @cmd) = @_;
-  print "@cmd\n";
+  $self->info("@cmd\n");
   return !system(@cmd);
 }
 
@@ -2821,7 +2824,7 @@ sub copy_if_modified {
   # Create parent directories
   File::Path::mkpath(File::Basename::dirname($to_path), 0, 0777);
   
-  print "$file -> $to_path\n" if $args{verbose};
+  $self->info("$file -> $to_path\n") if $args{verbose};
   File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
   return $to_path;
 }
@@ -2836,7 +2839,7 @@ sub up_to_date {
   my $most_recent_source = time / (24*60*60);
   foreach my $file (@$source) {
     unless (-e $file) {
-      warn "Can't find source file $file for up-to-date check";
+      $self->warn("Can't find source file $file for up-to-date check");
       next;
     }
     $most_recent_source = -M _ if -M _ < $most_recent_source;
