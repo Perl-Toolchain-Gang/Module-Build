@@ -1837,11 +1837,14 @@ sub compile_c {
 				   File::Spec->catdir($cf->{installarchlib}, 'CORE'));
   
   my @extra_compiler_flags = $self->split_like_shell($p->{extra_compiler_flags});
+  my @cccdlflags = $self->split_like_shell($cf->{cccdlflags});
   my @ccflags = $self->split_like_shell($cf->{ccflags});
   my @optimize = $self->split_like_shell($cf->{optimize});
+  my @flags = (@include_dirs, @cccdlflags, @extra_compiler_flags, '-c', @ccflags, @optimize);
+  
   my @cc = $self->split_like_shell($cf->{cc});
   
-  $self->do_system(@cc, @include_dirs, @extra_compiler_flags, '-c', @ccflags, @optimize, '-o', $obj_file, $file)
+  $self->do_system(@cc, @flags, '-o', $obj_file, $file)
     or die "error building $cf->{dlext} file from '$file'";
 
   return $obj_file;
