@@ -126,21 +126,45 @@ action), 'test', and 'install'.  Actions defined so far include:
 
 You can run the 'help' action for a complete list of actions.
 
-It's like the C<MakeMaker> metaphor, except that C<Build> is a short
-Perl script, not a long Makefile.  State is stored in a directory called
-C<_build/>.
+When creating a C<Build.PL> script for a module, something like the
+following code will typically be used:
+
+  use Module::Build;
+  my $build = new Module::Build
+    (
+     module_name => 'Foo::Bar',
+     license => 'perl',
+     requires => {
+                  perl           => '5.6.1',
+                  Some::Module   => '1.23',
+                  Other::Module  => '>= 1.2, != 1.5, < 2.0',
+                 },
+    );
+  $build->create_build_script;
+
+A simple module could get away with something as short as this for its
+C<Build.PL> script:
+
+  use Module::Build;
+  Module::Build->new(
+     module_name => 'Foo::Bar',
+     license => 'perl',
+  )->create_build_script;
+
+The model used by C<Module::Build> is a lot like the C<MakeMaker>
+metaphor, with the following correspondences:
+
+   In ExtUtils::MakeMaker               In Module::Build
+  ------------------------             ---------------------------
+   Makefile.PL (initial script)         Build.PL (initial script)
+   Makefile (a long Makefile)           Build (a short perl script)
+   <none>                               _build/ (for saving state info)
 
 Any customization can be done simply by subclassing C<Module::Build>
 and adding a method called (for example) C<ACTION_test>, overriding
 the default 'test' action.  You could also add a method called
 C<ACTION_whatever>, and then you could perform the action C<Build
 whatever>.
-
-More actions will certainly be added to the core - it should be easy
-to do everything that the MakeMaker process can do.  It's going to
-take some time, though.  In the meantime, I may implement some
-pass-through functionality so that unknown actions are passed to
-MakeMaker.
 
 For information on providing backward compatibility with
 C<ExtUtils::MakeMaker>, see L<Module::Build::Compat>.
@@ -246,11 +270,16 @@ Note that you must still include the terms of your license in your
 documentation - this field only lets automated tools figure out your
 licensing restrictions.  Humans still need something to read.
 
-If you use a licensing option unknown to C<Module::Build>, an
-C<unknown> license type will be used.  Please let me know if you need
-another license to be recognized - I just started out with a small set
-to keep things simple, figuring I'd let people with actual working
-knowledge in this area tell me what to do.
+It is a fatal error to use a license other than the ones mentioned
+above.  This is not because I wish to impose licensing terms on you -
+please let me know if you would like another license option to be
+added to the list.  You may also use a license type of C<unknown> if
+you don't wish to specify your terms (but this is usually not a good
+idea for you to do!).
+
+I just started out with a small set of licenses to keep things simple,
+figuring I'd let people with actual working knowledge in this area
+tell me what to do.  So if that's you, drop me a line.
 
 =item requires
 
@@ -295,7 +324,7 @@ distributions.
 
 =item recommends
 
-This is just like the C<prereq> argument, except that modules listed
+This is just like the C<requires> argument, except that modules listed
 in this section aren't essential, just a good idea.  We'll just print
 a friendly warning if one of these modules aren't found, but we'll
 continue running.
@@ -455,7 +484,7 @@ Examples:
 This method returns a hash reference indicating whether a version
 dependency on a certain module is satisfied.  The C<$module> argument
 is given as a string like C<"Data::Dumper"> or C<"perl">, and the
-C<$version> argument can take any of the forms described in L<prereq>
+C<$version> argument can take any of the forms described in L<requires>
 above.  This allows very fine-grained version checking.
 
 The returned hash reference has the following structure:
@@ -515,7 +544,7 @@ C<"wallet">).  The user will be asked the question once.
 
 If the current session doesn't seem to be interactive (i.e. if
 C<STDIN> and C<STDOUT> look like they're attached to files or
-something and not terminals), we'll just use the default without
+something, not terminals), we'll just use the default without
 letting the user provide an answer.
 
 =item y_n()
