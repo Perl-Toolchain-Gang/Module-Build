@@ -386,6 +386,14 @@ Currently C<Module::Build> doesn't actually do anything with this flag
 something useful with it.  It can potentially bring lots of security,
 packaging, and convenience improvements.
 
+=item sign
+
+If a true value is specified for this parameter, C<Module::Signature>
+will be used (via the 'distsign' action) to create a SIGNATURE file
+for your distribution during the 'distdir' action.  The default is
+false.  In the future, the default may change to true if you have
+C<Module::Signature> installed on your system.
+
 =back
 
 =item create_build_script()
@@ -786,6 +794,11 @@ This action is helpful for module authors who want to package up their
 module for distribution through a medium like CPAN.  It will create a
 tarball of the files listed in F<MANIFEST> and compress the tarball using
 GZIP compression.
+
+=item distsign
+
+Uses C<Module::Signature> to create a SIGNATURE file for your
+distribution.
 
 =item distcheck
 

@@ -793,6 +793,7 @@ sub ACTION_realclean {
 sub ACTION_dist {
   my ($self) = @_;
   
+  $self->depends_on('distsign') if $self->{properties}{sign};
   $self->depends_on('distdir');
   
   my $dist_dir = $self->dist_dir;
@@ -808,6 +809,19 @@ sub ACTION_distcheck {
   local $^W; # ExtUtils::Manifest is not warnings clean.
   ExtUtils::Manifest::fullcheck();
 }
+
+sub ACTION_distsign {
+  my ($self) = @_;
+  
+  unless (eval { require Module::Signature; 1 }) {
+    warn "Couldn't load Module::Signature for 'distsign' action:\n $@\n";
+    return;
+  }
+  
+  Module::Signature::sign();
+}
+
+
 
 sub ACTION_skipcheck {
   my ($self) = @_;
