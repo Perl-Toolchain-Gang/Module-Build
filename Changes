@@ -2,6 +2,22 @@ Revision history for Perl extension Module::Build.
 
 0.14
 
+  - Added support for MacPerl (Mac OS version 9 and below), which (as
+    far as I know) was never natively supported by MakeMaker.  Still
+    lacks support for the 'test' action (because Test::Harness
+    requires forking, which MacPerl won't do) and compiling XS/C files
+    (because I don't know how to invoke a compiler on MacOS, and one
+    may not even be available).  This change is brought to you by
+    Michael Schwern and the letter '('.
+
+  - Improved processing of .xs files.  Now we use the new
+    ExtUtils::ParseXS module if it's available, otherwise we use
+    backticks and write the result to a .c file ourselves.  This
+    avoids the need to do cross-platform shell redirection.
+
+  - We use the new ExtUtils::ParseXS module instead of xsubpp to
+    process XS files, if it's available.
+
   - Added a 'diff' action, which is useful for comparing the details
     of what you're about to install with what is already installed on
     your system.  This uses File::Compare, which is in the core.
@@ -14,19 +30,16 @@ Revision history for Perl extension Module::Build.
     of whether the thing being deleted is a file or a directory.  This
     helps remove things on obscure platforms with strange locking
     rules (or even not so obscure ones like MacOS).  It also now
-    reports the number of files or directories (without counting their
-    contents) deleted.
+    reports the number of files or directories deleted (without
+    recursing directory contents).
 
   - rm_previous_build_script() is gone, replaced by calls to
     delete_filetree().
 
   - 'Build' now chdir()s in a BEGIN block, so the 'use Module::Build'
-    statement will work correctly.  Solves a problem on MacOS.  [Fix
-    by Michael Schwern]
-
-  - Fixed the way we call xsubpp for .xs files so that redirection
-    will work properly.  Now we use backticks and write the result to
-    a file ourselves.  [Suggested by Schwern]
+    statement will work correctly.  Solves a problem on MacOS, where
+    the 'Build' script may often be invoked from the wrong working
+    directory.  [Fix by Michael Schwern]
 
   - Internally we now use the multi-argument form of system() to run
     external commands (such as 'diff' or 'cc') whenever possible (and
@@ -35,10 +48,14 @@ Revision history for Perl extension Module::Build.
     $Config{ccflags}) into argument lists like the shell would, which
     is a drag.  However, the alternative would be to handle shell
     quoting of all arguments to commands ourselves, which is an even
-    bigger drag across platforms.
+    bigger drag across platforms and involves arbitrary filenames and
+    so on.
 
   - To handle the argument splitting mentioned above, a method
-    split_like_shell() has been created.
+    split_like_shell() has been created.  So far it's just doing naive
+    processing.  In practice, I've yet to actually see a %Config entry
+    that uses quotes & spaces, so the splitting task is usually not
+    very error-prone.
 
   - The 'test' action now takes a 'test_files' parameter, similar to
     the (undocumented) ExtUtils::MakeMaker TEST_FILES argument.  Handy
