@@ -490,7 +490,7 @@ sub print_build_script {
     s/([\\\'])/\\$1/g;
   }
 
-  my $quoted_INC = join ', ', map "'$_'", @myINC;
+  my $quoted_INC = join ",\n", map "     '$_'", @myINC;
 
   print $fh <<EOF;
 $self->{config}{startperl}
@@ -499,7 +499,10 @@ BEGIN {
   \$^W = 1;  # Use warnings
   my \$start_dir = '$base_dir';
   chdir(\$start_dir) or die "Cannot chdir to \$start_dir: \$!";
-  \@INC = ($quoted_INC);
+  \@INC = 
+    (
+$quoted_INC
+    );
 }
 
 use $build_package;
