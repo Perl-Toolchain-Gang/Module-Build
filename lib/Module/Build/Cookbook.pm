@@ -55,6 +55,24 @@ can do C<./Build> or C<perl Build> to run the script:
  ./Build test
  ./Build install
 
+=head2 Making a CPAN.pm-compatible distribution
+
+New versions of CPAN.pm understand how to use a F<Build.PL> script,
+but old versions don't.  If you want to help users who have old
+versions, do the following:
+
+Create a file in your distribution named F<Makefile.PL>, with the
+following contents:  
+
+ use Module::Build::Compat;
+ Module::Build::Compat->run_build_pl(args => \@ARGV);
+ Module::Build::Compat->write_makefile();
+
+Now CPAN will work as usual, ie: `perl Makefile.PL`, `make`, `make test`,
+and `make install`.
+
+Alternatively, see the C<create_makefile_pl> parameter to the C<<
+Module::Build->new() >> method.
 
 =head2 Installing modules using the programmatic interface
 
