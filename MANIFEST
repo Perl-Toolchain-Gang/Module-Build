@@ -38,4 +38,5 @@ t/common.pl
 t/compat.t
 t/lib/ModuleBuildOne.pm
 t/runthrough.t
+t/signature.t
 t/xs.t
