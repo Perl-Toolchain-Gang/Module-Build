@@ -27,6 +27,9 @@ Revision history for Perl extension Module::Build.
    parameter (as NAME) if it's available, otherwise it will continue
    to use the 'dist_name' (as DISTNAME). [Michael Schwern]
 
+ - Created read/write accessor methods for all our 'properties'.
+   [Michael Schwern]
+
  - The 'test_files' parameter can now be specified using glob() syntax
    (i.e. 't/*.t'), and the corresponding test_files() method is now a
    read/write accessor.
