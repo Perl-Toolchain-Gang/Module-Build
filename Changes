@@ -27,6 +27,9 @@ Revision history for Perl extension Module::Build.
     we searched in 'lib' and @INC, which wasn't correct in all
     situations. 
 
+  - Patched the docs to change "Build test" to "./Build test"
+    [Elizabeth Mattijsen]
+
 0.08  Wed Jun 26 20:30:56 EST 2002
 
   - Fixed the 'prereq' alias for the 'requires' parameter
