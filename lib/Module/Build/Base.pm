@@ -280,10 +280,37 @@ use strict;
 my $arrayref = eval do {local $/; <DATA>}
   or die "Couldn't load BuildConfig data: $@";
 close DATA;
-my ($notes, $features) = @$arrayref;
+my ($config, $features) = @$arrayref;
 
-sub get { $notes->{$_[1]} }
+sub config { $config->{$_[1]} }
 sub feature { $features->{$_[1]} }
+
+sub set_config { $config->{$_[1]} = $_[2] }
+sub set_feature { $features->{$_[1]} = $_[2] }
+
+sub write {
+  my $file = __FILE__;
+  require IO::File;
+  require Data::Dumper;
+
+  my $mode_orig = (stat __FILE__)[2] & 07777;
+  chmod($mode_orig | 0222, __FILE__); # Make it writeable
+  my $fh = IO::File->new(__FILE__, 'r+') or die "Can't rewrite ", __FILE__, ": $!";
+  seek($fh, 0, 0);
+  while (<$fh>) {
+    last if /^__DATA__$/;
+  }
+  die "Couldn't find __DATA__ token in ", __FILE__ if eof($fh);
+
+  local $Data::Dumper::Terse = 1;
+  seek($fh, tell($fh), 0);
+  $fh->print( Data::Dumper::Dumper([$config, $features]) );
+  truncate($fh, tell($fh));
+  $fh->close;
+
+  chmod($mode_orig, __FILE__)
+    or warn "Couldn't restore permissions on ", __FILE__, ": $!";
+}
 
 EOF
   print $fh "__DATA__\n";

@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 27 }
+BEGIN { plan tests => 29 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -80,13 +80,29 @@ $build->add_to_cleanup($destdir);
   
   if ($@) {
     ok $@, '';  # Show what the failure was
-    ok 1;
+    skip_subtest("Couldn't reload BuildConfig") for 1..3;
+
   } else {
-    ok( Sample::BuildConfig->get('foo'), 'bar' );
+
+    # Make sure the values are present
+    ok( Sample::BuildConfig->config('foo'), 'bar' );
     ok( Sample::BuildConfig->feature('baz') );
 
+    # Add a new value to the config set
+    Sample::BuildConfig->set_config(floo => 'bhlar');
+    ok( Sample::BuildConfig->config('floo'), 'bhlar' );
+
+    # Make sure it actually got written
+    Sample::BuildConfig->write;
+    delete $INC{'Sample/BuildConfig.pm'};
+    {
+      local $^W;  # Avoid warnings for subroutine redefinitions
+      require Sample::BuildConfig;
+    }
+    ok( Sample::BuildConfig->config('floo'), 'bhlar' );
   }
 }
+
 
 eval {$build->dispatch('realclean')};
 ok $@, '';
