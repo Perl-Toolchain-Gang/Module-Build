@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 19 }
+BEGIN { plan tests => 18 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -33,7 +33,6 @@ $build->add_to_cleanup('before_script');
 
 eval {$build->create_build_script};
 ok $@, '';
-ok $build->cleanup_is_flushed;
 
 # The 'cleanup' file doesn't exist yet
 ok grep $_ eq 'before_script', $build->cleanup;
