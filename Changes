@@ -21,6 +21,10 @@ Revision history for Perl extension Module::Build.
  - We now add META.yml to the MANIFEST when META.yml is created, not
    when MANIFEST is created. [Spotted by Ron Savage]
 
+ - Added some additional patterns to the suggested MANIFEST.SKIP
+   contents, and changed the docs so that we encourage the user to use
+   the MANIFEST.SKIP.  [Ron Savage]
+
 0.2602 (Bug fix for 0.26)   Thu Nov  4 11:19:29 CST 2004
 
  - The two bug fixes in 0.2601 gnashed against each other incorrectly,
