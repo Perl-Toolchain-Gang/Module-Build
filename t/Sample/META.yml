@@ -10,4 +10,5 @@ conflicts: {}
 provides:
   Sample:
     file: lib/Sample.pm
+    version: 0.01
 generated_by: Module::Build version 0.17
