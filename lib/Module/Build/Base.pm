@@ -321,8 +321,6 @@ sub write {
     or warn "Couldn't restore permissions on $me: $!";
 }
 
-__END__
-
 EOF
 
   printf $fh <<"EOF", $notes_name, $module_name;
