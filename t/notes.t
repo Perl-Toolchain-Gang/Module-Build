@@ -1,7 +1,7 @@
 
 use strict;
 use Test;
-plan tests => 5;
+plan tests => 6;
 
 use Module::Build;
 ok(1);
@@ -11,6 +11,7 @@ my $m = Module::Build->current;
 
 # This was set in Build.PL
 ok $m->notes('foo'), 'bar';
+ok $m->notes('baz'), 'grr';
 
 # Try setting & checking a new value
 $m->notes(argh => 'new');
