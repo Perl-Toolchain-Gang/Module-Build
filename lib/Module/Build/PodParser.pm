@@ -20,6 +20,11 @@ sub new {
     $self = bless {have_pod_parser => 0, @_}, $package;
   }
 
+  unless ($self->{fh}) {
+    die "No 'file' or 'fh' parameter given" unless $self->{file};
+    $self->{fh} = IO::File->new($self->{file}) or die "Couldn't open $self->{file}: $!";
+  }
+
   return $self;
 }
 
