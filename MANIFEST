@@ -1,5 +1,8 @@
-Build.pm
+Build.PL
 Changes
+lib/Module/Build/Base.pm
+lib/Module/Build/Platform/Default.pm
+lib/Module/Build.pm
 MANIFEST
-Makefile.PL
+README
 test.pl
