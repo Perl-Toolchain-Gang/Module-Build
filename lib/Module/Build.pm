@@ -518,9 +518,11 @@ is performed.  See also the add_to_cleanup() method.
 
 If a true value is specified for this parameter, C<Module::Signature>
 will be used (via the 'distsign' action) to create a SIGNATURE file
-for your distribution during the 'distdir' action.  The default is
-false.  In the future, the default may change to true if you have
-C<Module::Signature> installed on your system.
+for your distribution during the 'distdir' action, and to add the
+SIGNATURE file to the MANIFEST (therefore, don't add it yourself).
+
+The default value is false.  In the future, the default may change to
+true if you have C<Module::Signature> installed on your system.
 
 =item extra_compiler_flags
 
@@ -1103,7 +1105,8 @@ GZIP compression.
 =item distsign
 
 Uses C<Module::Signature> to create a SIGNATURE file for your
-distribution.
+distribution, and adds the SIGNATURE file to the distribution's
+MANIFEST.
 
 =item distmeta
 
