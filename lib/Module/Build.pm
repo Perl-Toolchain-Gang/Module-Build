@@ -1089,17 +1089,30 @@ you can set an individual entry like so:
 
   xxx how the fuck does this work?
 
-Or you can set the whole bunch of them by supplying the
+=item install_base
+
+You can set the whole bunch of them by supplying the
 C<install_base> parameter to a directory on your system.  For
-instance, if you set C<install_base> to "/usr/local/perl" on a Linux
+instance, if you set C<install_base> to "/home/ken" on a Linux
 system, you'll install as follows:
 
- lib     => /usr/local/perl/lib
- arch    => /usr/local/perl/lib/i386-linux
- script  => /usr/local/perl/scripts
- bin     => /usr/local/perl/bin
- libdoc  => /usr/local/perl/man1
- bindoc  => /usr/local/perl/man3
+ lib     => /home/ken/lib
+ arch    => /home/ken/lib/i386-linux
+ script  => /home/ken/scripts
+ bin     => /home/ken/bin
+ libdoc  => /home/ken/man/man1
+ bindoc  => /home/ken/man/man3
+
+Note that this is I<different> from how MakeMaker's C<PREFIX>
+parameter works.  C<PREFIX> tries to create a mini-replica of a
+C<site>-style installation under the directory you specify, which is
+not always possible (and the results are not always pretty in this
+case).  C<install_base> just gives you a default layout under the
+directory you specify, which may have little to do with the
+C<installdirs=site> layout.
+
+The exact layout under the directory you specify may vary by system -
+we try to do the "sensible" thing on each platform.
 
 =item destdir
 
