@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.20_03
+
+ - Added documentation for the requires(), recommends(),
+   build_requires(), and conflicts() methods.
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
