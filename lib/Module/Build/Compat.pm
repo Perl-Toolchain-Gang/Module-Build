@@ -4,6 +4,7 @@ $VERSION = '0.02';
 
 use strict;
 use File::Spec;
+use IO::File;
 use Config;
 
 my %makefile_to_build = 
@@ -54,7 +55,7 @@ EOF
 
 sub fake_prereqs {
   my $file = File::Spec->catfile('_build', 'prereqs');
-  open my $fh, "< $file" or die "Can't read $file: $!";
+  my $fh = IO::File->new("< $file") or die "Can't read $file: $!";
   my $prereqs = eval do {local $/; <$fh>};
   close $fh;
   

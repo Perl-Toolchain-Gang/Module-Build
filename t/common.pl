@@ -15,7 +15,7 @@ sub stdout_of {
 }
 
 sub slurp {
-  open my($fh), $_[0] or die "Can't open $_[0]: $!";
+  my $fh = IO::File->new($_[0]) or die "Can't open $_[0]: $!";
   local $/;
   return <$fh>;
 }

@@ -56,7 +56,7 @@ if ($HAVE_YAML) {
   ok not -e File::Spec->catdir('Sample-0.01', 'blib');
 
   # Make sure all of the above was done by the new version of Module::Build
-  open my($fh), File::Spec->catfile($goto, 'META.yml');
+  my $fh = IO::File->new(File::Spec->catfile($goto, 'META.yml'));
   my $contents = do {local $/; <$fh>};
   ok $contents, "/Module::Build version ". $build->VERSION ."/";
   
