@@ -79,14 +79,16 @@ if (0 && $HAVE_SIGNATURE) {
   # skip "skip Module::Signature is not installed", 1 for 1..2;
 }
 
-my $blib_script = File::Spec->catdir( qw( blib script script ) );
-ok -e $blib_script; 
-
-my $fh = IO::File->new($blib_script);
-my $first_line = <$fh>;
-print "# rewritten shebang?\n$first_line";
-
-ok $first_line ne "#!perl -w\n";
+{
+  my $blib_script = File::Spec->catdir( qw( blib script script ) );
+  ok -e $blib_script; 
+  
+  my $fh = IO::File->new($blib_script);
+  my $first_line = <$fh>;
+  print "# rewritten shebang?\n$first_line";
+  
+  ok $first_line ne "#!perl -w\n";
+}
 
 eval {$build->dispatch('realclean')};
 ok $@, '';
