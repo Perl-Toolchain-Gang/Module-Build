@@ -556,9 +556,9 @@ sub prereq_failures {
 
       } elsif ($type eq 'recommends') {
 	next if $status->{ok};
-	$status->{message} = ($status->{have}
-			      ? "Version $status->{have} is installed, but we prefer to have $spec"
-			      : "Optional prerequisite $modname isn't installed");
+	$status->{message} = ($status->{have} eq '<none>'
+			      ? "Optional prerequisite $modname isn't installed"
+			      : "Version $status->{have} is installed, but we prefer to have $spec");
       } else {
 	next if $status->{ok};
       }
