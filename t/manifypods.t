@@ -7,7 +7,7 @@ use File::Spec;
 use File::Path qw( rmtree );
 
 use Test;
-BEGIN { plan tests => 15 }
+BEGIN { plan tests => 17 }
 
 use Module::Build;
 
@@ -79,3 +79,6 @@ my $m2 = new Module::Build
 
 ok( $m2->{properties}->{libdoc_dirs}->[0], 'foo', 'override libdoc_dirs' );
 
+# Make sure we can find our own action documentation (interface here isn't public yet)
+ok  $m2->_get_action_docs('build');
+ok !$m2->_get_action_docs('foo');
