@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.25_01
 
+ - Fixed a fatal error that would occur on perl 5.005 when building
+   HTML documentation, because its version of Pod::Html was old and
+   didn't like some of the parameters we fed it. [Spotted by Blair
+   Zajac]
+
  - The final line of the pass-through Makefile was missing its
    trailing newline, which is now fixed. [Chip Salzenberg]
 
