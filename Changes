@@ -16,6 +16,10 @@ Revision history for Perl extension Module::Build.
  - Enhanced the 'help' action - 'Build help foo' will now show the POD
    documentation for the 'foo' action.
 
+ - Changed the documentation for the 'autosplit' parameter to give
+   reasons why it may not be a good idea to use, but no longer
+   threaten to remove it.  [Suggested by Martyn J. Pearce]
+
 0.19_04
 
  - Fixed yet another bug with installation directories, in which the
