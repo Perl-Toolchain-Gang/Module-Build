@@ -1495,11 +1495,14 @@ sub htmlify_pods {
     my $path2root = "../" x (@rootdirs+@dirs-1);
     
     my $fulldir = File::Spec::Unix->catfile($html, @rootdirs, @dirs);
+    my $outfile = File::Spec::Unix->catfile($fulldir, $name . '.html');
+
+    next if $self->up_to_date($infile, $outfile);
+    
     unless (-d $fulldir){
       File::Path::mkpath($fulldir, 1, 0755) 
           or die "Couldn't mkdir $fulldir: $!";  
     }
-    my $outfile = File::Spec::Unix->catfile($fulldir, $name . '.html');
     
     my $htmlroot = File::Spec::Unix->catdir($path2root, 'site');
     my $podpath = join ":" => ($isbin ? qw(bin lib) : qw(lib));
