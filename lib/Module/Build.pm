@@ -787,6 +787,28 @@ This is just like the C<install> action, but it won't actually do
 anything, it will just report what it I<would> have done if you had
 actually run the C<install> action.
 
+=item versioninstall
+
+If you have the C<only.pm> module installed on your system, you can
+use this action to install a module into the version-specific library
+trees. This means that you can have several versions of the same
+module installed and C<use> a specific one like this:
+
+ use only MyModule => 0.55;
+
+To override the default installation libraries in C<only::config>,
+specify the C<versionlib> parameter when you run the C<Build.PL> script:
+
+ perl Build.PL versionlib=/my/version/place/
+
+To override which version the module is installed as, specify the
+C<versionlib> parameter when you run the C<Build.PL> script:
+
+ perl Build.PL version=0.50
+
+See the C<only.pm> documentation for more information on
+version-specific installs.
+
 =item manifest
 
 This is an action intended for use by module authors, not people

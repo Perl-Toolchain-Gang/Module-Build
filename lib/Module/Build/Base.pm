@@ -783,6 +783,27 @@ sub ACTION_fakeinstall {
   ExtUtils::Install::install($self->install_map('blib'), 1, 1, $self->{args}{uninst}||0);
 }
 
+sub ACTION_versioninstall {
+  my ($self) = @_;
+
+  die "You must have only.pm installed for this operation\n"
+    unless eval { require only; 1 };
+  
+  if (defined $self->{args}{versionlib}) {
+    $only::config::versionlib = $self->{args}{versionlib};
+    $only::config::versionarch = 
+      File::Spec->catdir($self->{args}{versionlib},
+                         $self->{config}{archname});
+  }
+  my @args = ();
+  if (defined $self->{args}{version}) {
+    push @args, $self->{args}{version};
+  }
+  $self->depends_on('build');
+  local @ARGV = @args;
+  only::install();
+}
+
 sub ACTION_clean {
   my ($self) = @_;
   foreach my $item (keys %{$self->{cleanup}}) {
