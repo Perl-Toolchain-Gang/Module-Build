@@ -719,8 +719,12 @@ sub write_metadata {
     $metadata{$_} = $p->{$_} if exists $p->{$_};
   }
   
-  require YAML;
-  YAML::StoreFile($file, \%metadata);
+  unless (eval {require YAML; 1}) {
+    warn "Couldn't load YAML.pm: $@\n";
+    return;
+  }
+  return YAML::StoreFile($file, \%metadata) if $YAML::VERSION le '0.30';
+  return YAML::DumpFile( $file, \%metadata);
 }
 
 sub make_tarball {
