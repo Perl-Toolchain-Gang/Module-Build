@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2608  Tue Jan  4 21:44:57 CST 2005
+0.2608
 
  - Add workaround for test files because Devel::Cover causes
    require to fail when the argument to require is an expression
