@@ -6,6 +6,10 @@ Revision history for Perl extension Module::Build.
    'Build.PL' being lost in subsequent actions. [Reported by Mathieu
    Arnold]
 
+ - version_from_file() now ignores $VERSION variables that are defined
+   in POD or comments.  It can still be tricked by $VERSIONs in string
+   literals, though.  [Steve Purkis]
+
 0.19  Wed Jul  9 22:34:02 CDT 2003
 
  - Added support for the 'install_path' parameter, which allows custom
