@@ -58,6 +58,9 @@ Revision history for Perl extension Module::Build.
    processing methods.  Note that it was never documented using the
    old name.
 
+ - Skip the 'write' pseudo-entry in the 'diff' action's installation
+   map. [Chris Dolan]
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
