@@ -7,6 +7,14 @@ Revision history for Perl extension Module::Build.
    files.  This allows authors to do last-minute alterations of the
    files without affecting the originals. [Dave Rolsky]
 
+ - If the author uses XS files in nonstandard locations, the copied
+   versions of those files will now be cleaned up properly.
+
+ - In invoking the 'test' action or invoking 'xsubpp', we now use the
+   same perl executable as we use everywhere else, rather than blindly
+   using $^X or $Config{perlpath} (neither of which are very
+   reliable).
+
 0.19_05
 
  - Changed the way the depends_on() method works inside action
