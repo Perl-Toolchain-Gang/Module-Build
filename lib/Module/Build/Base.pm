@@ -86,7 +86,7 @@ sub _construct {
 				  },
 		   }, $package;
 
-  my $p = $self->{properties};
+  my ($p, $c) = ($self->{properties}, $self->{config});
   $p->{bindoc_dirs} ||= [ "$p->{blib}/script" ];
   $p->{libdoc_dirs} ||= [ "$p->{blib}/lib", "$p->{blib}/arch" ];
 
@@ -96,6 +96,12 @@ sub _construct {
 
   $self->add_to_cleanup( @{delete $p->{add_to_cleanup}} )
     if $p->{add_to_cleanup};
+
+  # perl 5.8.0-RC[1-4] had some broken %Config entries, and
+  # unfortunately Red Hat 9 shipped it.  Fix 'em up here.
+  for (qw(siteman1 siteman3 vendorman1 vendorman3)) {
+    $c->{"install${_}dir"} ||= $c->{"install${_}"};
+  }
   
   return $self;
 }
