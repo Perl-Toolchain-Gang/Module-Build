@@ -56,6 +56,7 @@ sub new {
 				   conflicts => {},
 				   PL_files => {},
 				   scripts => [],
+				   perl => $^X,
 				   %input,
 				   %$cmd_properties,
 				  },
@@ -151,6 +152,7 @@ sub resume {
        recommends
        PL_files
        scripts
+       perl
        config_dir
        build_script
        debugger
@@ -469,6 +471,9 @@ my \$build = resume $build_package (
     build_script => '$build_script',
   },
 );
+warn "WARNING: '\$0' script was created with \$build->{properties}{perl}, but\\n".
+     "we are now using \$^X\\n" unless \$^X eq \$build->{properties}{perl};
+
 \$build->dispatch;
 EOF
 }
@@ -865,7 +870,7 @@ sub ACTION_disttest {
   # XXX could be different names for scripts
   $self->run_perl_script('Build.PL') or die "Error executing 'Build.PL' in dist directory: $!";
   $self->run_perl_script('Build') or die "Error executing 'Build' in dist directory: $!";
-  $self->run_perl_script('Build', [], ['test']) or die "Error executing 'Build test' in dist directory: $!";
+  $self->run_perl_script('Build', [], ['test']) or die "Error executing 'Build test' in dist directory";
   chdir $self->base_dir;
 }
 
@@ -939,13 +944,19 @@ sub install_map {
   my ($self, $blib) = @_;
   my $lib     = File::Spec->catfile($blib,'lib');
   my $arch    = File::Spec->catfile($blib,'arch');
-  my $scripts = File::Spec->catfile($blib,'script');
+  my $script  = File::Spec->catfile($blib,'script');
   
   my %map = ($lib  => $self->{config}{sitelib},
-	     $arch => $self->{config}{sitearch},
-	     read  => '');  # To keep ExtUtils::Install quiet
+	     $arch => $self->{config}{sitearch});
   
-  $map{$scripts} = $self->{config}{installscript};
+  $map{$script} = $self->{config}{installscript}
+    if @{$self->{properties}{scripts}};
+  
+  if (length(my $destdir = $self->{properties}{destdir} || '')) {
+    s/^/$destdir/ foreach values %map;
+  }
+  
+  $map{read} = '';  # To keep ExtUtils::Install quiet
   
   return \%map;
 }
