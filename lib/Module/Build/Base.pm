@@ -136,17 +136,20 @@ EOF
 
 sub find_version {
   my ($self) = @_;
-  return if exists $self->{properties}{module_version};
+  my $p = $self->{properties};
+
+  return if exists $p->{module_version};
   
-  if (exists $self->{properties}{module_version_from}) {
-    my $version = $self->version_from_file($self->{properties}{module_version_from});
-    $self->{properties}{module_version} = $version;
-    delete $self->{properties}{module_version_from};
+  if (exists $p->{module_version_from}) {
+    my $version = $self->version_from_file($p->{module_version_from});
+    $p->{module_version} = $version;
+    delete $p->{module_version_from};
   } else {
     # Try to find the version in 'module_name'
-    my $chief_file = $self->module_name_to_file($self->{properties}{module_name});
-    die "Can't find module '$self->{properties}{module_name}' for version check" unless defined $chief_file;
-    $self->{properties}{module_version} = $self->version_from_file($chief_file);
+    die "No module_name parameter supplied" unless $p->{module_name};
+    my $chief_file = $self->module_name_to_file($p->{module_name});
+    die "Can't find module '$p->{module_name}' for version check" unless defined $chief_file;
+    $p->{module_version} = $self->version_from_file($chief_file);
   }
 }
 
@@ -262,41 +265,61 @@ sub check_prereq {
   return $pass;
 }
 
-# I wish I could set $!, but I can't.
+sub perl_version_to_float {
+  my ($self, $version) = @_;
+  $version =~ s/\./../;
+  $version =~ s/\.(\d+)/sprintf '%03d', $1/eg;
+  return $version;
+}
+
+# I wish I could set $! to a string, but I can't, so I use $@
 sub check_installed_version {
   my ($self, $modname, $spec) = @_;
 
-  my $file = $self->module_name_to_file($modname);
-  unless ($file) {
-    $@ = "Prerequisite $modname isn't installed";
-    return 0;
-  }
+  my $installed_version;
+  if ($modname eq 'perl') {
+    # Check the current perl interpreter
+    # It's much more convenient to use $] here than $^V, but 'man
+    # perlvar' says I'm not supposed to.  Bloody tyrant.
+    $installed_version = $^V ? $self->perl_version_to_float(sprintf "%vd", $^V) : $];
+    
+  } else {
+    my $file = $self->module_name_to_file($modname);
+    unless ($file) {
+      $@ = "Prerequisite $modname isn't installed";
+      return 0;
+    }
 
-  my $version = $self->version_from_file($file);
-  if ($spec and !$version) {
-    $@ = "Couldn't find a \$VERSION in prerequisite '$file'";
-    return 0;
+    $installed_version = $self->version_from_file($file);
+    if ($spec and !$installed_version) {
+      $@ = "Couldn't find a \$VERSION in prerequisite '$file'";
+      return 0;
+    }
   }
-
+  
   my @conditions;
   if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
     @conditions = (">= $spec");
   } else {
     @conditions = split /\s*,\s*/, $self->{properties}{prereq}{$modname};
   }
-
+  
   foreach (@conditions) {
-    if ($_ !~ /^\s*  (<=?|>=?|==|!=)  \s*  [\w.]+  \s*$/x) {
+    unless ( /^\s*  (<=?|>=?|==|!=)  \s*  ([\w.]+)  \s*$/x ) {
       $@ = "Invalid prerequisite condition for $modname: $_";
       return 0;
     }
-    unless (eval "\$version $_") {
-      $@ = "$modname version $version is installed, but we need version $_";
+    if ($modname eq 'perl') {
+      my ($op, $version) = ($1, $2);
+      $_ = "$op " . $self->perl_version_to_float($version);
+    }
+    unless (eval "\$installed_version $_") {
+      $@ = "$modname version $installed_version is installed, but we need version $_";
       return 0;
     }
   }
 
-  return $version ? $version : '0 but true';
+  return $installed_version ? $installed_version : '0 but true';
 }
 
 sub rm_previous_build_script {
@@ -587,6 +610,7 @@ sub ACTION_dist {
   
   my $dist_dir = $self->dist_dir;
   
+  $self->write_metadata('metadata.yaml');
   $self->make_tarball($dist_dir);
   $self->delete_filetree($dist_dir);
 }
@@ -653,6 +677,26 @@ sub dist_dir {
 
   (my $dist_dir = $self->{properties}{module_name}) =~ s/::/-/;
   return "$dist_dir-$self->{properties}{module_version}";
+}
+
+sub write_metadata {
+  my ($self, $file) = @_;
+  my $p = $self->{properties};
+
+  local $p->{license} ||= 'unknown';
+  my %metadata = (
+		  distribution_type => 'module',
+		  name => $p->{module_name},
+		  version => $p->{module_version},
+		  license => $p->{license},
+		 );
+  
+  foreach (qw(prereq build_depends recommends conflicts)) {
+    $metadata{$_} = $p->{$_} if $p->{$_};
+  }
+  
+  require YAML;
+  YAML::StoreFile($file, \%metadata);
 }
 
 sub make_tarball {
