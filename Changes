@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.21_02
 
+ - Inserted a comment into auto-generated Makefile.PLs saying it was
+   auto-generated
+
  - Fixed some annoying behavior in generated passthrough Makefile.PLs
    when the user chose not to install Module::Build, or if
    installation failed. [Reported by Ilya Zakharevich and Richard
