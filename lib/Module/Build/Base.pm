@@ -740,6 +740,8 @@ sub print_build_script {
   print $fh <<EOF;
 $shebang
 
+use strict;
+
 BEGIN {
   \$^W = 1;  # Use warnings
   my \$start_dir = '$q{base_dir}';
@@ -752,8 +754,12 @@ $quoted_INC
 
 use $build_package;
 
+if (-e 'Build.PL' and not $build_package->up_to_date("Build.PL", \$0)) {
+   warn "Warning: Build.PL has been altered.  You may need to run 'perl Build.PL' again.\n";
+}
+
 # This should have just enough arguments to be able to bootstrap the rest.
-my \$build = resume $build_package (
+my \$build = $build_package->resume (
   properties => {
     config_dir => '$q{config_dir}',
   },
