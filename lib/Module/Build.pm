@@ -577,6 +577,13 @@ To link your XS code against glib you might write something like:
      extra_linker_flags   => scalar `glib-config --libs`,
  );
 
+=item include_dirs
+
+Specifies any additional directories in which to search for C header
+files.  May be given as a string indicating a single directory, or as
+a list reference indicating multiple directories.
+
+
 =item dist_author
 
 This should be something like "John Doe <jdoe@example.com>", or if
@@ -1597,7 +1604,7 @@ signature or the like, if available.  See C<cons> for an example.
 
 =head1 AUTHOR
 
-Ken Williams, ken@mathforum.org
+Ken Williams, kwilliams@cpan.org
 
 Development questions, bug reports, and patches should be sent to the
 Module-Build mailing list at module-build-general@lists.sourceforge.net .
