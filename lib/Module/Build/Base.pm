@@ -1960,7 +1960,7 @@ sub ACTION_distcheck {
   require ExtUtils::Manifest;
   local $^W; # ExtUtils::Manifest is not warnings clean.
   my ($missing, $extra) = ExtUtils::Manifest::fullcheck();
-  die "MANIFEST appears to be out of sync with the distribution!\n"
+  die "MANIFEST appears to be out of sync with the distribution\n"
     if @$missing || @$extra;
 }
 
