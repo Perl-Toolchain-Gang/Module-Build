@@ -2288,6 +2288,8 @@ sub link_c {
 sub compile_xs {
   my ($self, $file, %args) = @_;
   
+  print "$file -> $args{outfile}\n";
+
   if (eval {require ExtUtils::ParseXS; 1}) {
     
     ExtUtils::ParseXS::process_file(
@@ -2364,7 +2366,6 @@ sub process_xs {
 
   # .xs -> .c
   $self->add_to_cleanup($c_file);
-  print "$file -> $c_file\n";
   
   unless ($self->up_to_date($file, $c_file)) {
     $self->compile_xs($file, outfile => $c_file);
