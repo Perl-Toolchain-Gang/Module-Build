@@ -16,6 +16,9 @@ Revision history for Perl extension Module::Build.
    (ick, yuck) scan the .pm files with a regular expression to find
    "package Foo::Bar;" statements.
 
+ - Silenced some annoying copyright/logo output from Microsoft 'nmake'
+   during Makefile compatibility testing. [Randy W. Sims]
+
 0.18_03
 
  - Added support for the 'install_path' parameter, which allows custom
