@@ -6,20 +6,24 @@ use Config;
 use Module::Build;
 use File::Spec;
 
+my $common_pl = File::Spec->catfile('t', 'common.pl');
+require $common_pl;
+
 { local $SIG{__WARN__} = sub {};
-  if (      !Module::Build->current->feature('C_support') ) {
+
+  my $have_c_compiler;
+  stderr_of( sub {$have_c_compiler = Module::Build->current->have_c_compiler} );
+
+  if ( !Module::Build->current->feature('C_support') ) {
     print("1..0 # Skipped: C_support not enabled\n");
     exit(0);
-  } elsif ( !Module::Build->current->have_c_compiler ) {
+  } elsif ( !$have_c_compiler ) {
     print("1..0 # Skipped: C_support enabled, but no compiler found\n");
     exit(0);
   }
 }
 
 plan tests => 12;
-
-my $common_pl = File::Spec->catfile('t', 'common.pl');
-require $common_pl;
 
 ######################### End of black magic.
 
