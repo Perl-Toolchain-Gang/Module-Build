@@ -13,10 +13,6 @@ use Data::Dumper ();
 use IO::File ();
 use Text::ParseWords ();
 
-# We use this to store the most-recently created M::B objects.
-# Typically there's only one.
-my @INSTANCE;
-
 #################### Constructors ###########################
 sub new {
   my $self = shift()->_construct(@_);
@@ -33,13 +29,7 @@ sub new {
   $self->set_autofeatures;
   $self->dist_version;
 
-  push @INSTANCE, $self;
   return $self;
-}
-
-sub instance {
-  die "No new Module::Build objects have been created in this process" unless @INSTANCE;
-  return $INSTANCE[-1];
 }
 
 sub resume {
