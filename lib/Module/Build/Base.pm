@@ -82,7 +82,7 @@ sub new {
 
 sub cwd {
   require Cwd;
-  return Cwd::cwd;
+  return Cwd::cwd();
 }
 
 sub base_dir { shift()->{properties}{base_dir} }
@@ -863,9 +863,9 @@ sub ACTION_disttest {
   my $dist_dir = $self->dist_dir;
   chdir $dist_dir or die "Cannot chdir to $dist_dir: $!";
   # XXX could be different names for scripts
-  $self->do_system($^X, 'Build.PL') or die "Error executing '$^X Build.PL' in dist directory: $!";
-  $self->do_system('./Build') or die "Error executing './Build' in dist directory: $!";
-  $self->do_system('./Build', 'test') or die "Error executing './Build test' in dist directory: $!";
+  $self->run_perl_script('Build.PL') or die "Error executing 'Build.PL' in dist directory: $!";
+  $self->run_perl_script('Build') or die "Error executing 'Build' in dist directory: $!";
+  $self->run_perl_script('Build', [], ['test']) or die "Error executing 'Build test' in dist directory: $!";
   chdir $self->base_dir;
 }
 
