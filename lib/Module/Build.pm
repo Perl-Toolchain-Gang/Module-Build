@@ -384,6 +384,14 @@ Modules listed in this section conflict in some serious way with the
 given module.  C<Module::Build> will refuse to install the given
 module if
 
+=item create_makefile_pl
+
+This parameter lets you use Module::Build::Compat during the
+C<distdir> (or C<dist>) action to automatically create a Makefile.PL
+for compatibility with ExtUtils::MakeMaker.  The parameter's value
+should be one of the styles named in the Module::Build::Compat
+documentation.
+
 =item c_source
 
 An optional C<c_source> argument specifies a directory which contains
