@@ -11,6 +11,9 @@ Revision history for Perl extension Module::Build.
    'build_class' to 'Module::Build', which was the old 0.22 behavior
    anyway.  [Reported by Martin Titz and Jeremy Seitz]
 
+ - Added documentation for the 'include_dirs' parameter to
+   new(). [Steve Hay]
+
 0.23  Sun Feb  8 22:01:18 CST 2004
 
  - Fixed a compatibility problem in pass-through Makefiles (created by
