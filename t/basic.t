@@ -72,7 +72,7 @@ chdir 't';
   local $Foo::Module::VERSION = '1.01_02';
   $info = Module::Build->check_installed_status('Foo::Module', '1.01_02');
   ok $info->{ok}, 1;
-  print $info->{message}, "\n";
+  print "# $info->{message}\n" if $info->{message};
 }
 
 # Test verbosity
