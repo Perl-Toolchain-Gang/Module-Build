@@ -406,6 +406,15 @@ for compatibility with ExtUtils::MakeMaker.  The parameter's value
 should be one of the styles named in the Module::Build::Compat
 documentation.
 
+=item create_readme
+
+This parameter tells Module::Build to automatically create a F<README>
+file at the top level of your distribution.  Currently it will simply
+use C<Pod::Text> on the file indicated by C<dist_version_from> and put
+the result in the F<README> file.  This is by no means the only
+recommended style for writing a README, but it seems to be one common
+one used on the CPAN.
+
 =item c_source
 
 An optional C<c_source> argument specifies a directory which contains
