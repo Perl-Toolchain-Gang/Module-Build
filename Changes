@@ -11,6 +11,16 @@ Revision history for Perl extension Module::Build.
 
 0.19 (Future release)
 
+ - Command-line arguments may now either be specified using the syntax
+   '--foo foovalue' as well as the traditional syntax 'foo=foovalue'.
+   The former is often more convenient for shell tab-completion when
+   the value is a filename (as in 'Build test --test_files t/basic.t').
+
+ - Command-line arguments may now include non-named parameters, which
+   make some actions more natural.  For instance, the 'diff' action
+   may now be invoked as 'Build diff -u' rather than as
+   'Build diff flags=-u'.
+
  - Pass-through Makefile.PLs now convert unknown Makefile.PL
    parameters to lower-case and hand them to Build.PL, rather than
    ignoring them.  This means we only have to account for the
