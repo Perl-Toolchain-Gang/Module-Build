@@ -1710,7 +1710,7 @@ sub make_tarball {
   my $files = $self->rscan_dir($dir);
   
   print "Creating $dir.tar.gz\n";
-  Archive::Tar->create_archive("$dir.tar.gz", 1, grep !-d, @$files);
+  Archive::Tar->create_archive("$dir.tar.gz", 1, @$files);
 }
 
 sub install_base_relative {
