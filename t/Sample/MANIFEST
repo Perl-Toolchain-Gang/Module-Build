@@ -1,6 +1,9 @@
-lib/Sample.pm
 Build.PL
-META.yml
 MANIFEST
-test.pl
+META.yml
+bin/sample.pl
+lib/Sample.pm
+lib/Sample/Docs.pod
+lib/Sample/NoPod.pm
 script
+test.pl

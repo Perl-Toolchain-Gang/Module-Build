@@ -31,17 +31,19 @@ sub new {
 		    args => {%$args},
 		    config => {%Config, %$config},
 		    properties => {
-				   build_script => 'Build',
-				   base_dir => $package->cwd,
-				   config_dir => '_build',
-				   requires => {},
-				   recommends => {},
-				   build_requires => {},
-				   conflicts => {},
-				   perl => $perl,
-				   install_types => [qw(lib arch script)],
-				   installdirs => 'site',
-				   include_dirs => [],
+				   build_script    => 'Build',
+				   base_dir        => $package->cwd,
+				   config_dir      => '_build',
+				   requires        => {},
+				   recommends      => {},
+				   build_requires  => {},
+				   conflicts       => {},
+				   perl            => $perl,
+				   install_types   => [qw( lib arch script bindoc libdoc )],
+				   installdirs     => 'site',
+				   include_dirs    => [],
+				   bindoc_dirs     => [ 'blib/script' ],
+				   libdoc_dirs     => [ 'blib/lib', 'blib/arch' ],
 				   %input,
 				  },
 		   }, $package;
@@ -93,16 +95,16 @@ sub _set_install_paths {
 		arch    => $c->{installsitearch},
 		bin     => $c->{installsitebin} || $c->{installbin},
 		script  => $c->{installsitescript} || $c->{installsitebin} || $c->{installscript},
-		bindoc  => $c->{installsiteman1dir},
-		libdoc  => $c->{installsiteman3dir},
+		bindoc  => $c->{installsiteman1dir} || $c->{installman1dir},
+		libdoc  => $c->{installsiteman3dir} || $c->{installman3dir},
 	       },
      vendor => {
 		lib     => $c->{installvendorlib},
 		arch    => $c->{installvendorarch},
 		bin     => $c->{installvendorbin} || $c->{installbin},
 		script  => $c->{installvendorscript} || $c->{installvendorbin} || $c->{installscript},
-		bindoc  => $c->{installvendorman1dir},
-		libdoc  => $c->{installvendorman3dir},
+		bindoc  => $c->{installvendorman1dir} || $c->{installman1dir},
+		libdoc  => $c->{installvendorman3dir} || $c->{installman3dir},
 	       },
     };
 }
@@ -216,6 +218,8 @@ sub resume {
        create_makefile_pl
        pollute
        include_dirs
+       bindoc_dirs
+       libdoc_dirs
       );
 
   sub valid_property { exists $valid_properties{$_[1]} }
@@ -1092,17 +1096,105 @@ eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
 }
 
 
-sub ACTION_manifypods {
+sub ACTION_builddocs {
   my $self = shift;
-  warn "Sorry, the 'manifypods' action is not yet implemented.\n"; return;
   require Pod::Man;
+  $self->manify_bin_pods();
+  $self->manify_lib_pods();
+  return $self;
+}
+
+sub manify_bin_pods {
+  my $self    = shift;
+  my $parser  = Pod::Man->new( section => 1 ); # binary manpages go in section 1
+  my $files   = $self->_find_pods($self->{properties}{bindoc_dirs});
+  return unless keys %$files;
   
-  my $p = Pod::Man->new(section => 3);
-  my $files = $self->rscan_dir('lib', qr{\.(pm|pod)$});
-  foreach my $file (@$files) {
-    my @path = File::Spec->splitdir($file);
-    # ...
+  my $mandir = File::Spec->catdir( 'blib', 'bindoc' );
+  File::Path::mkpath( $mandir, 0, 0777 );
+
+  foreach my $file (keys %$files) {
+    my $manpage = $self->man1page_name( $file ) . '.' . $self->{config}{man1ext};
+    my $outfile = File::Spec->catfile( $mandir, $manpage);
+    print "Manifying $file -> $outfile\n";
+    $parser->parse_from_file( $file, $outfile );
+    $files->{$file} = $outfile;
   }
+
+  return $self;
+}
+
+sub manify_lib_pods {
+  my $self    = shift;
+  my $parser  = Pod::Man->new( section => 3 ); # library manpages go in section 3
+  my $files   = $self->_find_pods($self->{properties}{libdoc_dirs});
+  return unless keys %$files;
+  
+  my $mandir = File::Spec->catdir( 'blib', 'libdoc' );
+  File::Path::mkpath( $mandir, 0, 0777 );
+
+  foreach my $file (keys %$files) {
+    my $manpage = $self->man3page_name( $file ) . '.' . $self->{config}{man3ext};
+    my $outfile = File::Spec->catfile( $mandir, $manpage);
+    print "Manifying $file -> $outfile\n";
+    $parser->parse_from_file( $file, $outfile );
+    $files->{$file} = $outfile;
+  }
+
+  return $self;
+}
+
+sub _find_pods {
+  my ($self, $dirs) = @_;
+  my %files;
+  foreach my $spec (@$dirs) {
+    my $dir = $self->localize_file_path($spec);
+    next unless -e $dir;
+    do { $files{$_} = $_ if $self->contains_pod( $_ ) }
+      for @{ $self->rscan_dir( $dir, sub { -f $File::Find::name } ) };
+  }
+  return \%files;
+}
+
+sub contains_pod {
+  my ($self, $file) = @_;
+  return 0 unless -T $file;  # Only look at text files
+  
+  my $fh = IO::File->new( $file ) or die "Can't open $file: $!";
+  while (my $line = <$fh>) {
+    return 1 if $line =~ /^\=(?:head|pod|item)/;
+  }
+  
+  return 0;
+}
+
+# Adapted from ExtUtils::MM_Unix
+sub man1page_name {
+  my $self = shift;
+  return File::Basename::basename( shift );
+}
+
+# Adapted from ExtUtils::MM_Unix and Pod::Man
+# Depending on M::B's dependency policy, it might make more sense to refactor
+# Pod::Man::begin_pod() to extract a name() methods, and use them...
+#    -spurkis
+sub man3page_name {
+  my $self = shift;
+  my $file = File::Spec->canonpath( shift ); # clean up file path
+  my @dirs = File::Spec->splitdir( $file );
+
+  # more clean up - assume all man3 pods are under 'blib/lib' or 'blib/arch'
+  # to avoid the complexity found in Pod::Man::begin_pod()
+  shift @dirs while ($dirs[0] =~ /^(?:blib|lib|arch)$/i);
+
+  # remove known exts from the base name
+  $dirs[-1] =~ s/\.p(?:od|m|l)\z//i;
+
+  return join( $self->manpage_separator, @dirs );
+}
+
+sub manpage_separator {
+  return '::';
 }
 
 # For systems that don't have 'diff' executable, should use Algorithm::Diff
@@ -1149,14 +1241,14 @@ sub ACTION_diff {
 sub ACTION_install {
   my ($self) = @_;
   require ExtUtils::Install;
-  $self->depends_on('build');
+  $self->depends_on('build', 'builddocs');
   ExtUtils::Install::install($self->install_map('blib'), 1, 0, $self->{args}{uninst}||0);
 }
 
 sub ACTION_fakeinstall {
   my ($self) = @_;
   require ExtUtils::Install;
-  $self->depends_on('build');
+  $self->depends_on('build', 'builddocs');
   ExtUtils::Install::install($self->install_map('blib'), 1, 1, $self->{args}{uninst}||0);
 }
 
@@ -1166,7 +1258,7 @@ sub ACTION_versioninstall {
   die "You must have only.pm 0.25 or greater installed for this operation: $@\n"
     unless eval { require only; 'only'->VERSION(0.25); 1 };
   
-  $self->depends_on('build');
+  $self->depends_on('build', 'builddocs');
   
   my %onlyargs = map {exists($self->{args}{$_}) ? ($_ => $self->{args}{$_}) : ()}
     qw(version versionlib);

@@ -56,6 +56,17 @@ sub cull_args {
 }
 
 
+=item manpage_separator
+
+Use '__' instead of '::'.
+
+=cut
+
+sub manpage_separator {
+    return '__';
+}
+
+
 =head1 AUTHOR
 
 Michael G Schwern <schwern@pobox.com>

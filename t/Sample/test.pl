@@ -7,3 +7,4 @@ ok 1;
 
 require Module::Build;
 ok $INC{'Module/Build.pm'}, qr/blib/, 'Module::Build should be loaded from blib';
+print "Done.\n";  # t/compat.t looks for this
