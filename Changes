@@ -1,5 +1,13 @@
 Revision history for Perl extension Module::Build.
 
+0.19_04
+
+ - Added documentation for the 'dist_author', 'dist_abstract', and
+   'codebase' parameters to new(), and for the 'ppd' action. [Dave
+   Rolsky]
+
+ - Added documentation for the up_to_date() method. [Dave Rolsky]
+
 0.19_03
 
  - Added a notes() feature, which helps share data transparently
