@@ -1,9 +1,11 @@
-# We use Module::Build to test & install itself.  On some platforms
-# (*ahem*, MacOS 5.6.1) "use lib qw(lib);" doesn't find the local
-# "lib" directory, so we use File::Spec to do it properly.
+use strict;
 
+# On some platforms (*ahem*, MacOS 5.6.1) "use lib qw(lib);" doesn't
+# find the local "lib" directory, so we use File::Spec to do it properly.
 use File::Spec;
 use lib File::Spec->catdir('lib');
+
+# We use Module::Build to test & install itself.
 use Module::Build;
 
 my $build = new Module::Build
