@@ -1315,11 +1315,11 @@ individual entries by using the C<install_path> parameter:
 
 On the command line, that would look like this:
 
- perl Build.PL install_path=lib=/foo/lib install_path=arch=/foo/lib/arch
+ perl Build.PL --install_path lib=/foo/lib --install_path arch=/foo/lib/arch
 
 or this:
 
- Build install install_path=lib=/foo/lib install_path=arch=/foo/lib/arch
+ Build install --install_path lib=/foo/lib --install_path arch=/foo/lib/arch
 
 =head3 install_base
 
