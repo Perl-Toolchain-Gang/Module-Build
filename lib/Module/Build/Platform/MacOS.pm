@@ -39,9 +39,15 @@ sub dispatch {
     my %actions = map {+($_, 1)} $self->known_actions;
     delete @actions{@action_list};
     push @action_list, sort { $a cmp $b } keys %actions;
- 
-    my $cmd = MacPerl::Pick("What build command? (Note that 'test' doesn't work)", @action_list);
+
+    my %toolserver = map {+$_ => 1} qw(test disttest diff testdb);
+    foreach (@action_list) {
+      $_ .= ' *' if $toolserver{$_};
+    }
+    
+    my $cmd = MacPerl::Pick("What build command? ('*' requires ToolServer)", @action_list);
     return unless defined $cmd;
+    $cmd =~ s/ \*$//;
     $ARGV[0] = ($cmd);
     
     my $args = MacPerl::Ask('Any extra arguments?  (ie. verbose=1)', '');
