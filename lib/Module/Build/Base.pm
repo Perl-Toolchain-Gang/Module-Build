@@ -606,11 +606,9 @@ sub ACTION_test {
          $ENV{HARNESS_VERBOSE}) = ($self->{properties}{verbose} || 0) x 4;
 
   # Make sure we test the module in blib/
-  {
-    local $SIG{__WARN__} = sub {};  # shut blib.pm up
-    eval "use blib";
-  }
-  die $@ if $@;
+  local @INC = (File::Spec->catdir('blib', 'lib'),
+		File::Spec->catdir('blib', 'arch'),
+		@INC);
   
   # Find all possible tests and run them
   my @tests;
