@@ -41,8 +41,9 @@ Revision history for Perl extension Module::Build.
    Module::Build::Platform::VMS docs.
 
  - The install_types() method will now also return any additional
-   types given as 'install_path' arguments, which makes it easier to
-   add new types of installable objects to the mix.
+   types given as 'install_path' arguments, as well as all elements of
+   the current 'install_sets' entry.  This makes it easier to add new
+   types of installable objects to the mix.
 
 0.24  Wed Feb 25 15:57:00 CST 2004
 
