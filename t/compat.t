@@ -7,6 +7,11 @@ use File::Path;
 use Config;
 require File::Spec->catfile('t', 'common.pl');
 
+# Don't let our own verbosity/test_file get mixed up with our subprocess's
+my @makefile_keys = qw(TEST_VERBOSE HARNESS_VERBOSE TEST_FILES MAKEFLAGS);
+local  @ENV{@makefile_keys};
+delete @ENV{@makefile_keys};
+
 skip_test("Don't know how to invoke 'make'")
   unless $Config{make} and find_in_path($Config{make});
 
@@ -87,10 +92,6 @@ foreach my $type (@makefile_types) {
 {
   # Make sure various Makefile.PL arguments are supported
   Module::Build::Compat->create_makefile_pl('passthrough', $build);
-
-  # Don't let our own verbosity get mixed up with our subprocess's
-  local ($ENV{TEST_VERBOSE},        $ENV{HARNESS_VERBOSE});
-  delete $ENV{TEST_VERBOSE}; delete $ENV{HARNESS_VERBOSE};
 
   my $libdir = File::Spec->catdir( Module::Build->cwd, 't', 'libdir' );
   my $result = $build->run_perl_script('Makefile.PL', [], 
