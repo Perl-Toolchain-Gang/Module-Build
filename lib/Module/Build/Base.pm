@@ -996,10 +996,11 @@ sub ACTION_test {
   $self->depends_on('code');
   
   # Do everything in our power to work with all versions of Test::Harness
-  local ($Test::Harness::switches,
-	 $Test::Harness::Switches,
-         $ENV{HARNESS_PERL_SWITCHES}) = ($p->{debugger} ? '-w -d' : '') x 3;
-
+  my $harness_switches = $p->{debugger} ? ' -w -d' : '';
+  local $Test::Harness::switches    = ($Test::Harness::switches    || '') . $harness_switches;
+  local $Test::Harness::Switches    = ($Test::Harness::Switches    || '') . $harness_switches;
+  local $ENV{HARNESS_PERL_SWITCHES} = ($ENV{HARNESS_PERL_SWITCHES} || '') . $harness_switches;
+  
   local ($Test::Harness::verbose,
 	 $Test::Harness::Verbose,
 	 $ENV{TEST_VERBOSE},
