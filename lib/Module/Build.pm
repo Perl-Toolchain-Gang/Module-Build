@@ -78,6 +78,16 @@ if (grep {-e File::Spec->catfile($_, qw(Module Build Platform), $^O) . '.pm'} @I
 
 sub os_type { $OSTYPES{$^O} }
 
+# XXX This doesn't work yet - it'll allow easier subclassing of Module::Build
+sub import {
+  my $pack = shift;
+  return $pack->SUPER::import unless @_;
+  my %opts = @_;
+  if ($opts{custom}) {
+    
+  }
+}
+
 1;
 __END__
 
@@ -478,6 +488,10 @@ The current dependency-checking for .xs files is prone to errors.  You
 can make 'widowed' files by doing C<Build>, C<perl Build.PL>, and then
 C<Build realclean>.  Should be easy to fix, but it's got me wondering
 whether the dynamic declaration of dependencies is a good idea.
+
+- make man pages and install them.
+- append to perllocal.pod
+- write .packlist in appropriate location (needed for un-install)
 
 =head1 AUTHOR
 
