@@ -689,7 +689,8 @@ sub ACTION_build {
     File::Path::mkpath( $script_dir );
 
     foreach my $file (@{$self->{properties}{scripts}}) {
-      $self->copy_if_modified($file, $script_dir, 'flatten');
+      my $result = $self->copy_if_modified($file, $script_dir, 'flatten');
+      $self->make_executable($result) if $result;
     }
   }
 
@@ -1166,6 +1167,7 @@ sub copy_if_modified {
   
   print "$file -> $to_path\n";
   File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
+  return $to_path;
 }
 
 sub up_to_date {
