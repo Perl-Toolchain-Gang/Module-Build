@@ -270,6 +270,8 @@ sub ACTION_build_config {
   my $notes_name = $self->module_name . '::BuildConfig';
   my $notes_pm = File::Spec->catfile($self->blib, 'lib', split /::/, "$notes_name.pm");
 
+  return if $self->up_to_date([$self->config_file('build_config'), $self->config_file('features')], $notes_pm);
+
   print "Writing config notes to $notes_pm\n";
   
   my $fh = IO::File->new("> $notes_pm") or die "Can't create '$notes_pm': $!";
@@ -1210,13 +1212,14 @@ sub ACTION_code {
     my $method = "process_${element}_files";
     $self->$method();
   }
+
+  $self->depends_on('build_config');
 }
 
 sub ACTION_build {
   my $self = shift;
   $self->depends_on('code');
   $self->depends_on('docs');
-  $self->depends_on('build_config');
 }
 
 sub process_support_files {
@@ -1964,7 +1967,8 @@ sub ACTION_distmeta {
   # If we're in the distdir, the metafile may exist and be non-writable.
   $self->delete_filetree($self->{metafile});
 
-  unless (eval {require YAML; 1}) {
+  require Module::Build::BuildConfig;  # Only works after the 'build'
+  unless (Module::Build::BuildConfig->feature('YAML_support')) {
     warn <<EOM;
 \nCouldn't load YAML.pm, generating a minimal META.yml without it.
 Please check and edit the generated metadata, or consider installing YAML.pm.\n
@@ -1972,6 +1976,8 @@ EOM
 
     return $self->_write_minimal_metadata();
   }
+
+  require YAML;
 
   # We use YAML::Node to get the order nice in the YAML file.
   my $node = YAML::Node->new({});

@@ -15,6 +15,8 @@ require File::Spec->catfile('t', 'common.pl');
 
 ######################### End of black magic.
 
+my $have_yaml = Module::Build->current->features('YAML_support');
+
 my $start_dir = Module::Build->cwd;
 
 # Would be nice to just have a 'base_dir' parameter for M::B->new()
@@ -59,7 +61,7 @@ $output =~ s/^/| /mg;
 print $output;
 print "^^^^^^^^^^^^^^^^^^^^^ Sample/test.pl output ^^^^^^^^^^^^^^^^^^^^^\n";
 
-if ($build->check_installed_version('YAML', 0)) {
+if ($have_yaml) {
   eval {$build->dispatch('disttest')};
   ok $@, '';
   
@@ -92,7 +94,7 @@ if ($build->check_installed_version('YAML', 0)) {
   }
 
 } else {
-  skip_subtest("YAML.pm is not installed") for 1..7;
+  skip_subtest("YAML.pm is not installed, or disabled") for 1..7;
 }
 
 {
