@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.26 (pending, still in beta)
+0.26  Sat Oct  9 17:51:01 CDT 2004
 
  - Removed some language from the Module::Build::Compat documentation
    that encouraged people to include a Build.PL without a Makefile.PL.
