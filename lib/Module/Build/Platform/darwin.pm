@@ -9,10 +9,13 @@ use vars qw(@ISA);
 sub compile_c {
   my ($self, $file) = @_;
 
+  # Perhaps they'll fix this in later versions, so don't tinker if it's fixed
+  return $self->SUPER::compile_c($file) unless $self->{config}{ccflags} =~ /-flat_namespace/;
+
   # -flat_namespace isn't a compile flag, it's a linker flag.  But
   # it's mistakenly in Config.pm as both.  Make the correction here.
-  local $self->{args}{ccflags} = $self->{args}{ccflags};
-  $self->{args}{ccflags} =~ s/-flat_namespace//;
+  local $self->{config}{ccflags} = $self->{config}{ccflags};
+  $self->{config}{ccflags} =~ s/-flat_namespace//;
   $self->SUPER::compile_c($file);
 }
 
