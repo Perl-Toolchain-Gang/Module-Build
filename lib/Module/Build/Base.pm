@@ -883,11 +883,62 @@ sub known_actions {
     }
   }
 
-  return sort keys %actions;
+  return wantarray ? sort keys %actions : \%actions;
+}
+
+sub _get_action_docs {
+  my ($self, $action, $actions) = @_;
+  $actions ||= $self->known_actions;
+  $@ = '';
+  ($@ = "No known action '$action'\n"), return
+    unless $actions->{$action};
+  
+  my ($files_found, @docs) = (0);
+  foreach my $class ($self->super_classes) {
+    (my $file = $class) =~ s{::}{/}g;
+    $file = $INC{$file . '.pm'} or next;
+    my $fh = IO::File->new("< $file") or next;
+    $files_found++;
+    
+    # Code below modified from /usr/bin/perldoc
+    
+    # Skip to ACTIONS section
+    local $_;
+    while (<$fh>) {
+      last if /^=head1 ACTIONS\s/;
+    }
+    
+    # Look for our action
+    my ($found, $inlist) = (0, 0);
+    while (<$fh>) {
+      if (/^=item\s+\Q$action\E\b/o)  {
+	$found = 1;
+      } elsif (/^=item/) {
+	last if $found > 1 and not $inlist;
+      }
+      next unless $found;
+      push @docs, $_;
+      ++$inlist if /^=over/;
+      --$inlist if /^=back/;
+      ++$found  if /^\w/; # Found descriptive text
+    }
+  }
+  ($@ = "Sorry, couldn't find any documentation to search.\n"), return
+    unless $files_found;
+  ($@ = "Couldn't find any docs for action '$action'.\n"), return
+    unless @docs;
+  
+  return @docs;
 }
 
 sub ACTION_help {
   my ($self) = @_;
+  my $actions = $self->known_actions;
+  
+  if (@{$self->{args}{ARGV}}) {
+    print $self->_get_action_docs($self->{args}{ARGV}[0], $actions), $@;
+    return;
+  }
 
   print <<EOF;
 
@@ -897,15 +948,16 @@ sub ACTION_help {
  Actions defined:
 EOF
 
-  my @actions = $self->known_actions;
   # Flow down columns, not across rows
+  my @actions = sort keys %$actions;
   @actions = map $actions[($_ + ($_ % 2) * @actions) / 2],  0..$#actions;
   
   while (my ($one, $two) = splice @actions, 0, 2) {
     printf("  %-12s                   %-12s\n", $one, $two||'');
   }
-
-  print "\nSee `perldoc Module::Build` for details of the individual actions.\n";
+  
+  print "\nRun `Build help <action>` for details on an individual action.\n";
+  print "See `perldoc Module::Build` for complete documentation.\n";
 }
 
 sub ACTION_test {
