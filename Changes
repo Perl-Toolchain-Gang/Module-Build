@@ -12,6 +12,10 @@ Revision history for Perl extension Module::Build.
  - Added proper documentation for the subclass() method. [spotted by
    Jonathan Steinert]
 
+ - Worked around a Config.pm bug in Red Hat 9 which prevented man
+   pages from being installed in the correct places. [spotted by Ville
+   Skytta]
+
 0.20  Tue Aug 26 14:34:07 CDT 2003
 
  - Separated the 'build' action into two separate actions, 'code' and
