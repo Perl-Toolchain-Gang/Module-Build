@@ -1628,7 +1628,7 @@ sub _write_minimal_metadata {
 --- #YAML:1.0
 name: $p->{dist_name}
 version: $p->{dist_version}
-authored_by:
+author:
 @{[ join "\n", map "  - $_", @{$self->dist_author} ]}
 abstract: @{[ $self->dist_abstract ]}
 license: $p->{license}
