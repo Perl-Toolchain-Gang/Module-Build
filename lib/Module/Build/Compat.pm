@@ -134,6 +134,10 @@ sub run_build_pl {
 sub fake_makefile {
   my $makefile = $_[1];
   my $perl = Module::Build->find_perl_interpreter;
+  my $os_type = Module::Build->os_type;
+  my $noop = ($os_type eq 'Windows' ? 'rem' :
+	      $os_type eq 'VMS'     ? 'Continue' :
+	      'true');
 
   # Start with a couple special actions
   my $maketext = <<"EOF";
@@ -144,7 +148,7 @@ realclean : force_do_it
 	$perl -e unlink -e shift $makefile
 
 force_do_it :
-	@
+	@ $noop
 EOF
 
   # XXX - user might be using a different subclass
