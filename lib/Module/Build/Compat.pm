@@ -13,7 +13,7 @@ sub makefile_to_build_args {
   shift;
   my @out;
   foreach my $arg (@_) {
-    my ($key, $val) = /^(\w+)=(.+)/ or die "Malformed argument '$arg'";
+    my ($key, $val) = $arg =~ /^(\w+)=(.+)/ or die "Malformed argument '$arg'";
     die "Unknown key '$key'" unless exists $makefile_to_build{$key};
     push @out, $makefile_to_build{$key} => $val;
   }
