@@ -13,20 +13,46 @@ use Data::Dumper ();
 
 sub new {
   my $package = shift;
-  my $self = bless {
-		    # Don't save these defaults in config_dir.
-		    build_script => 'Build',
-		    config_dir => '_build',
-		    @_,
-		    new_cleanup => {},
-		   }, $package;
-  
-  my ($action, $args) = $self->cull_args(@ARGV);
-  die "Too early to specify a build action '$action'.  Do ./$self->{build_script} $action instead.\n"
+  my %input = @_;
+
+  my $args   = delete $input{args}   || {};
+  my $config = delete $input{config} || {};
+
+  my ($action, $cmd_args) = __PACKAGE__->cull_args(@ARGV);
+  die "Too early to specify a build action '$action'.  Do 'Build $action' instead.\n"
     if $action;
 
-  $self->{args} = {%Config, @_, %$args};   # XXX shouldn't contain %Config
-  $self->{config} = {%Config};
+  my $cmd_config;
+  if ($cmd_args->{config}) {
+    # XXX need to hashify this string better (deal with quoted whitespace)
+    $cmd_config->{$1} = $2 while $cmd_args->{config} =~ /(\w+)=(\S+)/;
+  } else {
+    $cmd_config = {};
+  }
+  delete $cmd_args->{config};
+
+  # Extract our 'properties' from $cmd_args, the rest are put in 'args'
+  my $cmd_properties = {};
+  foreach my $key (keys %$cmd_args) {
+    $cmd_properties = delete $cmd_args->{$key} if __PACKAGE__->valid_property($key);
+  }
+
+  # 'args' are arbitrary user args.
+  # 'config' is Config.pm and its overridden values.
+  # 'properties' is stuff Module::Build needs in order to work.  They get saved in _build/.
+  # Anything else in $self doesn't get saved.
+
+  my $self = bless {
+		    args => {%$args, %$cmd_args},
+		    config => {%Config, %$config, %$cmd_config},
+		    properties => {
+				   build_script => 'Build',
+				   config_dir => '_build',
+				   %input,
+				   %$cmd_properties,
+				  },
+		    new_cleanup => {},
+		   }, $package;
 
   $self->check_manifest;
   $self->check_prereq;
@@ -44,6 +70,25 @@ sub resume {
   $self->read_config;
   $self->{new_cleanup} = {};
   return $self;
+}
+
+{
+  # XXX huge hack alert - will revisit this later
+  my %valid_properties = map {$_ => 1}
+    qw(
+       module_name
+       module_version
+       module_version_from
+       prereq
+       config_dir
+       build_script
+       debugger
+       verbose
+       c_source
+       autosplit
+      );
+
+  sub valid_property { exists $valid_properties{$_[1]} }
 }
 
 # XXX Problem - if Module::Build is loaded from a different directory,
@@ -86,17 +131,17 @@ EOF
 
 sub find_version {
   my ($self) = @_;
-  return if exists $self->{args}{module_version};
+  return if exists $self->{properties}{module_version};
   
-  if (exists $self->{args}{module_version_from}) {
-    my $version = $self->version_from_file($self->{args}{module_version_from});
-    $self->{args}{module_version} = $version;
-    delete $self->{args}{module_version_from};
+  if (exists $self->{properties}{module_version_from}) {
+    my $version = $self->version_from_file($self->{properties}{module_version_from});
+    $self->{properties}{module_version} = $version;
+    delete $self->{properties}{module_version_from};
   } else {
     # Try to find the version in 'module_name'
-    my $chief_file = $self->module_name_to_file($self->{args}{module_name});
-    die "Can't find module '$self->{args}{module_name}' for version check" unless defined $chief_file;
-    $self->{args}{module_version} = $self->version_from_file($chief_file);
+    my $chief_file = $self->module_name_to_file($self->{properties}{module_name});
+    die "Can't find module '$self->{properties}{module_name}' for version check" unless defined $chief_file;
+    $self->{properties}{module_version} = $self->version_from_file($chief_file);
   }
 }
 
@@ -154,8 +199,8 @@ sub write_cleanup {
 }
 
 sub config_file {
-  my ($self) = @_;
-  return File::Spec->catfile($self->{config_dir}, $_[1]);
+  my $self = shift;
+  return File::Spec->catfile($self->{properties}{config_dir}, @_);
 }
 
 sub read_config {
@@ -165,7 +210,7 @@ sub read_config {
   open my $fh, $file or die "Can't read '$file': $!";
   my $ref = eval do {local $/; <$fh>};
   die if $@;
-  ($self->{args}, $self->{config}) = @{$ref}[0,1];
+  ($self->{args}, $self->{config}, $self->{properties}) = @$ref;
   close $fh;
   
   my $cleanup_file = $self->config_file('cleanup');
@@ -181,22 +226,22 @@ sub read_config {
 sub write_config {
   my ($self) = @_;
   
-  File::Path::mkpath($self->{config_dir});
-  -d $self->{config_dir} or die "Can't mkdir $self->{config_dir}: $!";
+  File::Path::mkpath($self->{properties}{config_dir});
+  -d $self->{properties}{config_dir} or die "Can't mkdir $self->{properties}{config_dir}: $!";
   
   my $file = $self->config_file('build_params');
   open my $fh, ">$file" or die "Can't create '$file': $!";
   local $Data::Dumper::Terse = 1;
-  print $fh Data::Dumper::Dumper([$self->{args}, $self->{config}]);
+  print $fh Data::Dumper::Dumper([$self->{args}, $self->{config}, $self->{properties}]);
   close $fh;
 }
 
 sub check_prereq {
   my $self = shift;
-  return 1 unless $self->{prereq};
+  return 1 unless $self->{properties}{prereq};
 
   my $pass = 1;
-  while (my ($modname, $spec) = each %{$self->{prereq}}) {
+  while (my ($modname, $spec) = each %{$self->{properties}{prereq}}) {
     my $thispass = $self->check_installed_version($modname, $spec);
     warn "WARNING: $@\n" unless $thispass;
     $pass &&= $thispass;
@@ -228,7 +273,7 @@ sub check_installed_version {
   if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
     @conditions = (">= $spec");
   } else {
-    @conditions = split /\s*,\s*/, $self->{prereq}{$modname};
+    @conditions = split /\s*,\s*/, $self->{properties}{prereq}{$modname};
   }
 
   foreach (@conditions) {
@@ -247,14 +292,14 @@ sub check_installed_version {
 
 sub rm_previous_build_script {
   my $self = shift;
-  if (-e $self->{build_script}) {
-    print "Removing previous file '$self->{build_script}'\n";
-    unlink $self->{build_script} or die "Couldn't remove '$self->{build_script}': $!";
+  if (-e $self->{properties}{build_script}) {
+    print "Removing previous file '$self->{properties}{build_script}'\n";
+    unlink $self->{properties}{build_script} or die "Couldn't remove '$self->{properties}{build_script}': $!";
   }
 }
 
 sub make_build_script_executable {
-  chmod 0544, $_[0]->{build_script};
+  chmod 0544, $_[0]->{properties}{build_script};
 }
 
 sub print_build_script {
@@ -263,7 +308,7 @@ sub print_build_script {
   my $build_package = ref($self);
 
   my ($config_dir, $build_script, $build_dir) = 
-    ($self->{config_dir}, $self->{build_script},
+    ($self->{properties}{config_dir}, $self->{properties}{build_script},
      File::Spec->rel2abs(File::Basename::dirname($0)));  # XXX should be property of $self
 
   my @myINC = @INC;
@@ -281,9 +326,12 @@ BEGIN { \@INC = ($quoted_INC) }
 chdir('$build_dir') or die 'Cannot chdir to $build_dir: '.\$!;
 use $build_package;
 
+# This should have just enough arguments to be able to bootstrap the rest.
 my \$build = resume $build_package (
-  config_dir => '$config_dir',
-  build_script => '$build_script',
+  properties => {
+    config_dir => '$config_dir',
+    build_script => '$build_script',
+  },
 );
 eval {\$build->dispatch};
 my \$err = \$@;
@@ -298,9 +346,9 @@ sub create_build_script {
   
   $self->rm_previous_build_script;
 
-  print("Creating new '$self->{build_script}' script for ",
-	"'$self->{args}{module_name}' version '$self->{args}{module_version}'\n");
-  open my $fh, ">$self->{build_script}" or die "Can't create '$self->{build_script}': $!";
+  print("Creating new '$self->{properties}{build_script}' script for ",
+	"'$self->{properties}{module_name}' version '$self->{properties}{module_version}'\n");
+  open my $fh, ">$self->{properties}{build_script}" or die "Can't create '$self->{properties}{build_script}': $!";
   $self->print_build_script($fh);
   close $fh;
   
@@ -411,9 +459,9 @@ sub ACTION_test {
   
   $self->depends_on('build');
   
-  local $Test::Harness::switches = '-w -d' if $self->{args}{debugger};
-  local $Test::Harness::verbose = $self->{args}{verbose} || 0;
-  local $ENV{TEST_VERBOSE} = $self->{args}{verbose} || 0;
+  local $Test::Harness::switches = '-w -d' if $self->{properties}{debugger};
+  local $Test::Harness::verbose = $self->{properties}{verbose} || 0;
+  local $ENV{TEST_VERBOSE} = $self->{properties}{verbose} || 0;
 
   # Make sure we test the module in blib/
   {
@@ -428,7 +476,7 @@ sub ACTION_test {
   push @tests, @{$self->rscan_dir('t', qr{\.t$})} if -e 't' and -d _;
   if (@tests) {
     # Work around a Test::Harness bug that loses the particular perl we're running under
-    local $^X = $Config{perlpath} unless $Test::Harness::VERSION gt '2.01';
+    local $^X = $self->{config}{perlpath} unless $Test::Harness::VERSION gt '2.01';
     Test::Harness::runtests(@tests);
   } else {
     print("No tests defined.\n");
@@ -443,16 +491,16 @@ sub ACTION_test {
 
 sub ACTION_testdb {
   my ($self) = @_;
-  local $self->{args}{debugger} = 1;
+  local $self->{properties}{debugger} = 1;
   $self->depends_on('test');
 }
 
 sub ACTION_build {
   my ($self) = @_;
   
-  if ($self->{args}{c_source}) {
-    push @{$self->{include_dirs}}, $self->{args}{c_source};
-    my $files = $self->rscan_dir($self->{args}{c_source}, qr{\.(c|PL)$});
+  if ($self->{properties}{c_source}) {
+    push @{$self->{include_dirs}}, $self->{properties}{c_source};
+    my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.(c|PL)$});
     foreach my $file (@$files) {
       if ($file =~ /c$/) {
 	push @{$self->{objects}}, $self->compile_c($file);
@@ -493,7 +541,7 @@ sub ACTION_clean {
 sub ACTION_realclean {
   my ($self) = @_;
   $self->depends_on('clean');
-  $self->delete_filetree($self->{config_dir}, $self->{build_script});
+  $self->delete_filetree($self->{properties}{config_dir}, $self->{properties}{build_script});
 }
 
 sub ACTION_dist {
@@ -567,8 +615,8 @@ sub ACTION_manifest {
 sub dist_dir {
   my ($self) = @_;
 
-  (my $dist_dir = $self->{args}{module_name}) =~ s/::/-/;
-  return "$dist_dir-$self->{args}{module_version}";
+  (my $dist_dir = $self->{properties}{module_name}) =~ s/::/-/;
+  return "$dist_dir-$self->{properties}{module_version}";
 }
 
 sub make_tarball {
@@ -626,8 +674,8 @@ sub lib_to_blib {
   # Create $to/arch to keep blib.pm happy (what a load of hooie!)
   File::Path::mkpath( File::Spec->catdir($to, 'arch') );
 
-  if ($self->{args}{autosplit}) {
-    $self->autosplit_file($self->{args}{autosplit}, $to);
+  if ($self->{properties}{autosplit}) {
+    $self->autosplit_file($self->{properties}{autosplit}, $to);
   }
   
   foreach my $file (@$files) {
