@@ -1270,7 +1270,7 @@ sub compile_c {
   $self->add_to_cleanup($obj_file);
   return $obj_file if $self->up_to_date($file, $obj_file);
   
-  my $coredir = File::Spec->catdir($cf->{archlib}, 'CORE');
+  my $coredir = File::Spec->catdir($cf->{installarchlib}, 'CORE');
   my @include_dirs = $self->{include_dirs} ? map {"-I$_"} @{$self->{include_dirs}} : ();
   push @include_dirs, $self->split_like_shell($self->{args}{inc}) if $self->{args}{inc};
   my @ccflags = $self->split_like_shell($cf->{ccflags});
@@ -1322,7 +1322,7 @@ sub compile_xs {
     my $typemap =  $self->find_module_by_name('ExtUtils::typemap', \@INC);
     my $cf = $self->{config};
     
-    my $command = (qq{$^X "-I$cf->{archlib}" "-I$cf->{privlib}" "$xsubpp" -noprototypes } .
+    my $command = (qq{$^X "-I$cf->{installarchlib}" "-I$cf->{installprivlib}" "$xsubpp" -noprototypes } .
 		   qq{-typemap "$typemap" "$file"});
     
     print $command;
