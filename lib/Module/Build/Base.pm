@@ -1936,10 +1936,11 @@ EOM
     $node->{$name} = $self->$_();
   }
 
-  foreach (qw(requires recommends build_requires conflicts dynamic_config)) {
+  foreach (qw(requires recommends build_requires conflicts)) {
     $node->{$_} = $p->{$_} if exists $p->{$_} and keys %{ $p->{$_} };
   }
   
+  $node->{dynamic_config} = $p->{dynamic_config} if exists $p->{dynamic_config};
   $node->{provides} = $self->find_dist_packages;
 
   $node->{generated_by} = "Module::Build version " . Module::Build->VERSION;
