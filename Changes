@@ -9,6 +9,9 @@ Revision history for Perl extension Module::Build.
  - The Module::Build distribution now has a cryptographic 'SIGNATURE'
    file created by Module::Signature.
 
+ - Added proper documentation for the subclass() method. [spotted by
+   Jonathan Steinert]
+
 0.20  Tue Aug 26 14:34:07 CDT 2003
 
  - Separated the 'build' action into two separate actions, 'code' and
