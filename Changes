@@ -25,7 +25,9 @@ Revision history for Perl extension Module::Build.
    files via Module::Signature. [Dave Rolsky]
 
  - Added experimental support for installing via the "only.pm" module,
-   which allows loading specific versions of modules. [Brian Ingerson]
+   which allows loading specific versions of modules.  Since this
+   module is so new, the interface may still be changing. [Brian
+   Ingerson]
 
  - Added support for installing executable scripts, via the 'scripts'
    parameter to new(), and the scripts() accessor method.
