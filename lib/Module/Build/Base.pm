@@ -1257,6 +1257,7 @@ sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
     next unless $line =~ s/^\s*\#!\s*//;     # Not a shbang file.
     
     my ($cmd, $arg) = (split(' ', $line, 2), '');
+    next unless $cmd =~ /perl/i;
     my $interpreter = $self->{properties}{perl};
     
     print STDOUT "Changing sharpbang in $file to $interpreter" if $self->{verbose};
