@@ -236,6 +236,7 @@ sub notes {
        install_types
        install_sets
        install_path
+       install_base
        installdirs
        destdir
        debugger
