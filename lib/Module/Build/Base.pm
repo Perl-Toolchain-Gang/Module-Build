@@ -2221,17 +2221,14 @@ sub link_c {
 }
 
 sub compile_xs {
-  my ($self, $file) = @_;
-  (my $file_base = $file) =~ s/\.[^.]+$//;
-
-  print "$file -> $file_base.c\n";
+  my ($self, $file, %args) = @_;
   
   if (eval {require ExtUtils::ParseXS; 1}) {
     
     ExtUtils::ParseXS::process_file(
 				    filename => $file,
 				    prototypes => 0,
-				    output => "$file_base.c",
+				    output => $args{outfile},
 				   );
   } else {
     # Ok, I give up.  Just use backticks.
@@ -2247,7 +2244,7 @@ sub compile_xs {
 		   qq{-typemap "$typemap" "$file"});
     
     print $command;
-    my $fh = IO::File->new("> $file_base.c") or die "Couldn't write $file_base.c: $!";
+    my $fh = IO::File->new("> $args{outfile}") or die "Couldn't write $args{outfile}: $!";
     print $fh `$command`;
     close $fh;
   }
@@ -2298,15 +2295,18 @@ sub process_xs {
 
   # File name, minus the suffix
   (my $file_base = $file) =~ s/\.[^.]+$//;
+  my $c_file = "$file_base.c";
 
   # .xs -> .c
-  $self->add_to_cleanup("$file_base.c");
-  unless ($self->up_to_date($file, "$file_base.c")) {
-    $self->compile_xs($file);
+  $self->add_to_cleanup($c_file);
+  print "$file -> $c_file\n";
+  
+  unless ($self->up_to_date($file, $c_file)) {
+    $self->compile_xs($file, outfile => $c_file);
   }
   
   # .c -> .o
-  $self->compile_c("$file_base.c");
+  $self->compile_c($c_file);
 
   # The .bs and .a files don't go in blib/lib/, they go in blib/arch/auto/.
   # Unfortunately we have to pre-compute the whole path.
