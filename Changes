@@ -24,6 +24,10 @@ Revision history for Perl extension Module::Build.
  - Refactored methods relating to parsing perl module files for package,
    version, and pod data into a new class: Module::Build::ModuleInfo.
 
+ - We now use Test::More for our regression tests.  If the user
+   doesn't have it installed, we include a copy in t/lib/ that we can
+   use during testing (it won't be installed).
+
  - Split documentation into two sections. The user level documentation
    and overview remains in 'Module/Build.pm', while a new document,
    'Module/Build/Authoring.pod', has been created for module authors.
