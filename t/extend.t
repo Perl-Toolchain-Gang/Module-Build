@@ -19,3 +19,5 @@ ok $build;
 
 $build->dispatch('loop');
 ok $::x, 1;
+
+$build->dispatch('realclean');
