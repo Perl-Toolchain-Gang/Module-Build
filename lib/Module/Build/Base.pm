@@ -55,6 +55,7 @@ sub new {
 				   build_requires => {},
 				   conflicts => {},
 				   PL_files => {},
+				   scripts => [],
 				   %input,
 				   %$cmd_properties,
 				  },
@@ -149,6 +150,7 @@ sub resume {
        requires
        recommends
        PL_files
+       scripts
        config_dir
        build_script
        debugger
@@ -675,9 +677,22 @@ sub ACTION_build {
 
   $self->process_PL_files('lib');
 
-  $self->add_to_cleanup('blib');
+  my $blib = 'blib';
+  $self->add_to_cleanup($blib);
+  File::Path::mkpath($blib);
+  
   my $files = $self->rscan_dir('lib', qr{\.(pm|pod|xs)$});
-  $self->lib_to_blib($files, 'blib');
+  $self->lib_to_blib($files, $blib);
+  
+  if (@{$self->{properties}{scripts}}) {
+    my $script_dir = File::Spec->catdir($blib, 'script');
+    File::Path::mkpath( $script_dir );
+
+    foreach my $file (@{$self->{properties}{scripts}}) {
+      $self->copy_if_modified($file, $script_dir);
+    }
+  }
+
 }
 
 sub ACTION_manifypods {
@@ -852,6 +867,14 @@ sub dist_dir {
   return "$self->{properties}{dist_name}-$self->{properties}{dist_version}";
 }
 
+sub scripts {
+  my $self = shift;
+  if (@_) {
+    $self->{properties}{scripts} = ref($_[0]) ? $_[0] : [@_];
+  }
+  return $self->{properties}{scripts};
+}
+
 sub write_metadata {
   my ($self, $file) = @_;
   my $p = $self->{properties};
@@ -899,11 +922,17 @@ sub make_tarball {
 
 sub install_map {
   my ($self, $blib) = @_;
-  my $lib  = File::Spec->catfile($blib,'lib');
-  my $arch = File::Spec->catfile($blib,'arch');
-  return {$lib  => $self->{config}{sitelib},
-	  $arch => $self->{config}{sitearch},
-	  read  => ''};  # To keep ExtUtils::Install quiet
+  my $lib     = File::Spec->catfile($blib,'lib');
+  my $arch    = File::Spec->catfile($blib,'arch');
+  my $scripts = File::Spec->catfile($blib,'script');
+  
+  my %map = ($lib  => $self->{config}{sitelib},
+	     $arch => $self->{config}{sitearch},
+	     read  => '');  # To keep ExtUtils::Install quiet
+  
+  $map{$scripts} = $self->{config}{installscript};
+  
+  return \%map;
 }
 
 sub depends_on {
