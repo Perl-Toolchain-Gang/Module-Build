@@ -1175,6 +1175,24 @@ sub ACTION_testdb {
   $self->depends_on('test');
 }
 
+sub ACTION_testcover {
+  my ($self) = @_;
+
+  unless ($self->find_module_by_name('Devel::Cover', \@INC)) {
+    warn("Cannot run testcover action unless Devel::Cover is installed.\n");
+    return;
+  }
+
+  $self->add_to_cleanup('coverage', 'cover_db');
+
+  local $Test::Harness::switches    = 
+  local $Test::Harness::Switches    = 
+  local $ENV{HARNESS_PERL_SWITCHES} = "-MDevel::Cover";
+
+  $self->depends_on('test');
+  $self->do_system('cover');
+}
+
 sub ACTION_code {
   my ($self) = @_;
   

@@ -1095,6 +1095,11 @@ or use a C<glob()>-style pattern:
 
  ./Build test --test_files 't/01-*.t'
 
+=item testcover
+
+Runs the C<test> action using C<Devel::Cover>, generating a
+code-coverage report showing which parts of the code were actually
+exercised during the tests.
 
 =item testdb
 
