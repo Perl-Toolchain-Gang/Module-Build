@@ -42,6 +42,7 @@ t/lib/Test/Simple.pm
 t/MANIFEST
 t/manifypods.t
 t/notes.t
+t/parents.t
 t/pod_parser.t
 t/runthrough.t
 t/Sample/bin/sample.pl
