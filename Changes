@@ -1,6 +1,10 @@
 Revision history for Perl extension Module::Build.
 
-0.2604
+0.2604  Wed Nov 17 14:32:42 CST 2004
+
+ - Fixed a split_like_shell() bug introduced in 0.2603 for Windows, in
+   which an array reference passed as an argument was returned as an
+   array reference, rather than as a list. [Spotted by Steve Hay]
 
  - module_name() will now return '' instead of undef when module_name
    is not set.  This eliminates a couple uninitialized-value
@@ -9,10 +13,6 @@ Revision history for Perl extension Module::Build.
  - The expand_test_dir() method will now skip dotfiles (like ._foo.t,
    which sometimes gets automatically created on Mac systems) when
    'recursive_test_files' is in effect. [Tom Insam]
-
- - Fixed a split_like_shell() bug introduced in 0.2603 for Windows, in
-   which an array reference passed as an argument was returned as an
-   array reference, rather than as a list. [Spotted by Steve Hay]
 
 0.2603 (Bug fix for 0.26)   Mon Nov 15 10:28:00 CST 2004
 
