@@ -40,6 +40,5 @@ my $build = new Module::Build
    create_readme => 1,
   );
 
-$build->notes(foo => 'bar');   # We set this here and verify it in t/notes.t
 $build->create_build_script;
-$build->notes(baz => 'grr');   # We set this here and verify it in t/notes.t
+$build->notes(foo => 'bar');   # We set this here and verify it in t/notes.t
