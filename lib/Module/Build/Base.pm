@@ -1487,7 +1487,10 @@ sub _sign_dir {
 
 sub ACTION_distsign {
   my ($self) = @_;
-  $self->depends_on('distdir') unless -d $self->dist_dir;
+  {
+    local $self->{properties}{sign} = 0;  # We'll sign it ourselves
+    $self->depends_on('distdir') unless -d $self->dist_dir;
+  }
   $self->_sign_dir($self->dist_dir);
 }
 
