@@ -1,6 +1,6 @@
 package Module::Build;
 
-# $Id $
+# $Id$
 
 # This module doesn't do much of anything itself, it inherits from the
 # modules that do the real work.  The only real thing it has to do is
@@ -336,25 +336,42 @@ actions too.
 
 =item * build
 
-This is analogous to the MakeMaker 'make' target with no arguments.
+If you run the C<Build> script without any arguments, it runs the
+C<build> action.
+
+This is analogous to the MakeMaker 'make all' target.
 By default it just creates a C<blib/> directory and copies any C<.pm>
 and C<.pod> files from your C<lib/> directory into the C<blib/>
 directory.  It also compiles any C<.xs> files from C<lib/> and places
 them in C<blib/>.  Of course, you need a working C compiler
-(preferably the same one that built perl itself) for this to work
+(probably the same one that built perl itself) for this to work
 properly.
 
-Note that in contrast to MakeMaker, this module only (currently)
-handles C<.pm>, C<.pod>, and C<.xs> files.  They must all be in the
-C<lib/> directory, in the directory structure that they should have
-when installed.
+The C<build> action also runs any C<.PL> files in your F<lib/>
+directory.  Typically these create other files, named the same but
+without the C<.PL> ending.  For example, a file F<lib/Foo/Bar.pm.PL>
+could create the file F<lib/Foo/Bar.pm>.  The C<.PL> files are
+processed first, so any C<.pm> files (or other kinds that we deal
+with) will get copied correctly.
 
-If you run the C<Build> script without any arguments, it runs the
-C<build> action.
+If your C<.PL> scripts don't create any files, or if they create files
+with unexpected names, or even if they create multiple files, you
+should tell us that so that we can clean up properly after these
+created files.  Use the C<PL_files> parameter to C<new()>:
 
-In future releases of C<Module::Build> the C<build> action should be
-able to process C<.PL> files.  The C<.xs> support is currently in
-alpha.  Please let me know if it works for you.
+ PL_files => { 'lib/Foo/Bar_pm.PL' => 'lib/Foo/Bar.pm',
+               'lib/something.PL'  => ['/lib/something', '/lib/else'],
+               'lib/funny.PL'      => [] }
+
+Note that in contrast to MakeMaker, the C<build> action only
+(currently) handles C<.pm>, C<.pod>, C<.PL>, and C<.xs> files.  They
+must all be in the C<lib/> directory, in the directory structure that
+they should have when installed.  We also handle C<.c> files that can
+be in the place of your choosing - see the C<c_source> argument to
+C<new()>.
+
+The C<.xs> support is currently in alpha.  Please let me know whether
+it works for you.
 
 =item * test
 
