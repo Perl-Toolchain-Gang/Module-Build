@@ -1,7 +1,7 @@
 ######################### We start with some black magic to print on failure.
 
 use Test;
-BEGIN { plan tests => 11 }
+BEGIN { plan tests => 13 }
 use Module::Build;
 ok(1);
 
@@ -56,20 +56,33 @@ chdir 't';
   open STDOUT, "+> save_out" or die "Can't create save_out: $!";
   
   chdir 'Sample';
-  my $m = new Module::Build(module_name => 'Sample', verbose => 1);
-  eval {$m->dispatch('test')};
-  
+  my $m = new Module::Build(module_name => 'Sample');
+  my $outfile = 'save_out';
+
+  open STDOUT, "> $outfile" or die "Can't create $outfile: $!";
+  eval {$m->dispatch('test', verbose => 1)};
   close STDOUT;
+
   open STDOUT, ">&SAVEOUT" or die "Can't restore STDOUT: $!";
+  ok $@, '';
+  ok uc(slurp($outfile)), '/OK 1/';  # Use uc() so we don't confuse the current test output
+
+  open STDOUT, "> $outfile" or die "Can't create $outfile: $!";
+  eval {$m->dispatch('test', verbose => 0)};
+  close STDOUT;
+
+  open STDOUT, ">&SAVEOUT" or die "Can't restore STDOUT: $!";
+  ok $@, '';
+  ok uc(slurp($outfile)), '/\.\.OK/';
   
+  $m->dispatch('realclean');
   my @dirs = File::Spec->splitdir($m->cwd); pop @dirs;
   my $t_dir = File::Spec->catdir(@dirs);
   chdir $t_dir or die "Can't change back to $t_dir: $!";
-  open my($fh), "< save_out" or die "Can't read save_out: $!";
-  my $output = join '', <$fh>;
-
-  ok $@, '';
-  ok uc($output), '/OK 1/';  # Use uc() so we don't confuse the current test output
-
-  $m->dispatch('realclean');
 }
+
+sub slurp {
+  open my($fh), $_[0] or die "Can't open $_[0]: $!";
+  local $/;
+  return <$fh>;
+};
