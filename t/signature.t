@@ -14,7 +14,7 @@ plan tests => 6;
 }
 
 my $build = new Module::Build( module_name => 'Sample',
-			       requires => { File::Spec => 0 },
+			       requires => { 'File::Spec' => 0 },
 			       license => 'perl',
 			       sign => 1,
 			     );
