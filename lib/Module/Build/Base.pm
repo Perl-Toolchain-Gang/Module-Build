@@ -702,9 +702,8 @@ sub write_metadata {
   my $p = $self->{properties};
 
   $p->{license} ||= 'unknown';
-  unless (grep /^$p->{license}$/, qw(perl gpl restrictive artistic unknown)) {
-    warn "Uknown license type '$p->{license}', setting to 'unknown'\n";
-    $p->{license} = 'unknown';
+  unless (grep {$p->{license} eq $_} qw(perl gpl restrictive artistic unknown)) {
+    die "Unknown license type '$p->{license}";
   }
 
   my %metadata = (
@@ -713,6 +712,7 @@ sub write_metadata {
 		  name => $p->{module_name},
 		  version => $p->{module_version},
 		  license => $p->{license},
+		  generated_by => (ref($self) || $self) . " version " . $self->VERSION,
 		 );
   
   foreach (qw(requires build_depends recommends conflicts dynamic_config)) {
