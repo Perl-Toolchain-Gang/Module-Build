@@ -19,18 +19,6 @@ sub new {
   my $args   = delete $input{args}   || {};
   my $config = delete $input{config} || {};
 
-  my ($action, $cmd_args) = __PACKAGE__->cull_args(@ARGV);
-  die "Too early to specify a build action '$action'.  Do 'Build $action' instead.\n"
-    if $action;
-
-  # Extract our 'properties' from $cmd_args, the rest are put in 'args'
-  my $cmd_properties = {};
-  foreach my $key (keys %$cmd_args) {
-    $cmd_properties->{$key} = delete $cmd_args->{$key} if __PACKAGE__->valid_property($key);
-  }
-
-  my $cmd_config = delete $cmd_args->{config};
-
   # The following warning could be unnecessary if the user is running
   # an embedded perl, but there aren't too many of those around, and
   # embedded perls aren't usually used to install modules, and the
@@ -39,14 +27,9 @@ sub new {
   my $perl = $package->find_perl_interpreter
     or warn "Warning: Can't locate your perl binary";
 
-  # 'args' are arbitrary user args.
-  # 'config' is Config.pm and its overridden values.
-  # 'properties' is stuff Module::Build needs in order to work.  They get saved in _build/.
-  # Anything else in $self doesn't get saved.
-
   my $self = bless {
-		    args => {%$args, %$cmd_args},
-		    config => {%Config, %$config, %$cmd_config},
+		    args => {%$args},
+		    config => {%Config, %$config},
 		    properties => {
 				   build_script => 'Build',
 				   base_dir => $package->cwd,
@@ -60,9 +43,19 @@ sub new {
 				   installdirs => 'site',
 				   include_dirs => [],
 				   %input,
-				   %$cmd_properties,
 				  },
 		   }, $package;
+
+  $self->cull_args(@ARGV);
+  
+  die "Too early to specify a build action '$self->{action}'.  Do 'Build $self->{action}' instead.\n"
+    if $self->{action};
+
+  # 'args' are arbitrary user args.
+  # 'config' is Config.pm and its overridden values.
+  # 'properties' is stuff Module::Build needs in order to work.  They get saved in _build/.
+  # Anything else in $self doesn't get saved.
+
   my $p = $self->{properties};
 
   # Synonyms
@@ -184,18 +177,9 @@ sub resume {
        "   but we are now using '$perl'.\n")
     unless $perl eq $self->{properties}{perl};
   
-
-  ($self->{action}, my $args) = $self->cull_args(@ARGV);
+  $self->cull_args(@ARGV);
   $self->{action} ||= 'build';
   
-  # Extract our 'properties' from $args
-  my %p;
-  foreach my $key (keys %$args) {
-    $p{$key} = delete $args->{$key} if __PACKAGE__->valid_property($key);
-  }
-  $self->{args} = {%{$self->{args}}, %$args};
-  $self->{properties} = {%{$self->{properties}}, %p};
-
   return $self;
 }
 
@@ -757,8 +741,12 @@ sub cull_args {
   }
   $args{ARGV} = \@argv;
 
+  # 'config' and 'install_path' are additive by hash key
+  my %additive = (config => 1,
+		  install_path => 1);
+
   # Hashify these parameters
-  for ('config', 'install_path') {
+  for (keys %additive) {
     my %hash;
     $args{$_} ||= [];
     $args{$_} = [ $args{$_} ] unless ref $args{$_};
@@ -770,7 +758,20 @@ sub cull_args {
     $args{$_} = \%hash;
   }
 
-  return ($action, \%args);
+  # Now merge data into $self.
+  $self->{action} = $action if defined $action;
+
+  # Extract our 'properties' from $cmd_args, the rest are put in 'args'.
+  foreach my $key (keys %args) {
+    my $add_to = $self->valid_property($key) ? $self->{properties} : $self->{args};
+
+    if ($additive{$key}) {
+      $add_to->{$key}{$_} = $args{$key}{$_} foreach keys %{$args{$key}};
+    } else {
+      $add_to->{$key} = $args{$key};
+    }
+  }
+
 }
 
 sub super_classes {
