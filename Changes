@@ -10,6 +10,12 @@ Revision history for Perl extension Module::Build.
    locate object method "format_compiler_cmd"'.
    (http://rt.cpan.org/Ticket/Display.html?id=2391)
 
+ - We now don't depend on Module::Info to scan for packages during the
+   'dist' action anymore, because it's way too aggressive about
+   loading other modules that you may not want loaded.  We now just
+   (ick, yuck) scan the .pm files with a regular expression to find
+   "package Foo::Bar;" statements.
+
 0.18_03
 
  - Added support for the 'install_path' parameter, which allows custom
