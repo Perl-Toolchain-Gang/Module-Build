@@ -6,7 +6,6 @@ use Module::Build;
 use File::Spec;
 use File::Path;
 use Config;
-my $HAVE_YAML = eval {require YAML; 1};
 
 ok(1);
 ok $INC{'Module/Build.pm'}, '/blib/', "Make sure version from blib/ is loaded";
@@ -55,7 +54,7 @@ $output =~ s/^/| /mg;
 print $output;
 print "^^^^^^^^^^^^^^^^^^^^^ Sample/test.pl output ^^^^^^^^^^^^^^^^^^^^^\n";
 
-if ($HAVE_YAML) {
+if ($build->check_installed_status('YAML', 0)) {
   eval {$build->dispatch('disttest')};
   ok $@, '';
   
