@@ -427,6 +427,8 @@ sub ACTION_test {
   push @tests, 'test.pl'                          if -e 'test.pl';
   push @tests, @{$self->rscan_dir('t', qr{\.t$})} if -e 't' and -d _;
   if (@tests) {
+    # Work around a Test::Harness bug that loses the particular perl we're running under
+    local $^X = $Config{perlpath} unless $Test::Harness::VERSION gt '2.01';
     Test::Harness::runtests(@tests);
   } else {
     print("No tests defined.\n");
@@ -674,7 +676,7 @@ sub compile_c {
 sub run_perl_script {
   my ($self, $script, $preargs, $postargs) = @_;
   $preargs ||= '';   $postargs ||= '';
-  return $self->do_system("$self->{config}{perl5} $preargs $script $postargs");
+  return $self->do_system("$self->{config}{perlpath} $preargs $script $postargs");
 }
 
 # A lot of this looks Unixy, but actually it may work fine on Windows.
