@@ -17,6 +17,10 @@ Revision history for Perl extension Module::Build.
    no apparent reason.  It makes me happy that this was a very very
    easy patch to make.  [Reported by Thomas Klausner]
 
+ - The compile_c() method now includes $Config{cccdlflags} in its
+   command invocation.  It's usually empty, but not always, so we
+   didn't notice for a while. [Richard Clamp]
+
 0.21  Wed Oct 15 20:47:05 CDT 2003
 
  - Added a have_c_compiler() method.
