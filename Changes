@@ -40,6 +40,9 @@ Revision history for Perl extension Module::Build.
    skipping some tests that required YAML.  This is now fixed.
    [Stephen J. Smith]
 
+ - Added documentation for the dist_version() and dist_name()
+   methods. [Spotted by Johan Vromans]
+
 0.20_02  Mon Sep 15 10:26:24 CDT 2003
 
  - Fixed a problem with signatures that occurred if 'distsign' was
