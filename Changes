@@ -10,7 +10,7 @@ Revision history for Perl extension Module::Build.
     'dist_version_from' in a convenient way.
 
   - The 'name' in META.yaml is now the distribution name, not the
-    (incorrect) module name.
+    (incorrect) module name. [spotted by Graham Barr]
 
   - Added the check_installed_status() and prereq_failures() methods
     for checking prerequisite information with the programmatic
@@ -26,7 +26,7 @@ Revision history for Perl extension Module::Build.
     _build/ directory, for use by Module::Build::Compat.
 
   - Module::Build::Compat has documentation for a safer way to write a
-    dummy Makefile.PL.
+    dummy Makefile.PL. [patch by Autrijus Tang]
 
 0.10  Wed Aug  7 19:36 2002
   - Recommend YAML 0.35 instead of 0.30.
