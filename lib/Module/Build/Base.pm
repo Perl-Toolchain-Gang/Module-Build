@@ -308,6 +308,7 @@ EOF
        scripts
        script_files
        test_files
+       recursive_test_files
        perl
        config_dir
        blib
@@ -1137,7 +1138,7 @@ sub test_files {
 
 sub expand_test_dir {
   my ($self, $dir) = @_;
-  return @{$self->rscan_dir($dir, qr{\.t$})} if $self->{properties}{recursive_test_files};
+  return sort @{$self->rscan_dir($dir, qr{\.t$})} if $self->recursive_test_files;
   return sort glob File::Spec->catfile($dir, "*.t");
 }
 

@@ -18,6 +18,10 @@ Revision history for Perl extension Module::Build.
 
  - Added an extra_compiler_flags() accessor method.
 
+ - If the 'recursive_test_files' option was turned on, the test files
+   weren't sorted, but returned in an apparently random order.  Now
+   they're sorted.  [Martyn Peck]
+
 0.24
 
  - Fixed a problem with incude_dirs not being propagated to the 'ccs'
