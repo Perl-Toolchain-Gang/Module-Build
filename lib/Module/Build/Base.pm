@@ -674,16 +674,22 @@ sub dispatch {
   my $self = shift;
 
   if (@_) {
-    ($self->{action}, my %p) = @_;
+    (local $self->{action}, my %p) = @_;
     my $args = $p{args} ? delete($p{args}) : {};
     
-    $self->{args} = {%{$self->{args}}, %$args};
-    $self->{properties} = {%{$self->{properties}}, %p};
+    local $self->{args} = {%{$self->{args}}, %$args};
+    local $self->{properties} = {%{$self->{properties}}, %p};
+    return $self->_call_action($self->{action});
   }
 
-  my $method = "ACTION_$self->{action}";
-  print("No action '$self->{action}' defined.\n"), return unless $self->can($method);
+  die "No build action specified" unless $self->{action};
+  $self->_call_action($self->{action});
+}
 
+sub _call_action {
+  my ($self, $action) = @_;
+  my $method = "ACTION_$self->{action}";
+  die "No action '$self->{action}' defined" unless $self->can($method);
   return $self->$method();
 }
 
@@ -1363,9 +1369,8 @@ sub install_map {
 
 sub depends_on {
   my $self = shift;
-  foreach my $action (@_) {
-    my $method = "ACTION_$action";
-    $self->$method();
+  foreach (@_) {
+    $self->dispatch($_);
   }
 }
 
