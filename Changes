@@ -27,6 +27,10 @@ Revision history for Perl extension Module::Build.
    declare certain command-line arguments their Build.PL can accept
    [David Wheeler]
 
+ - During 'distdir' and 'distmeta' actions, die a bit more gracefully
+   if there's no MANIFEST (i.e. explicitly say that a MANIFEST is
+   required). [Spotted by Adrian Howard]
+
  - Passing a PREFIX value to a pass-through Makefile 'make install'
    now has the same effect as passing it to 'perl Makefile.PL' (it
    dies with a helpful message).
