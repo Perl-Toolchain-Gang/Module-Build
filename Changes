@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2607
+0.2607 (Bug fix release in 0.26 series)  Sat Dec 18 14:14:09 CST 2004
 
  - Instead of freezing @INC in the 'Build' script to the value it had
    when Build.PL was run, we now just add those additional values that
@@ -12,7 +12,7 @@ Revision history for Perl extension Module::Build.
    to tell the subprocess where to find a certain module, for
    instance.  [Michael Schwern]
 
-0.2606 (Bug fix for 0.26)   Tue Dec  7 22:33:11 CST 2004
+0.2606 (Bug fix release in 0.26 series)   Tue Dec  7 22:33:11 CST 2004
 
  - Fixed a linking bug on Win32, in which compiled C code object files
    never got linked in with the modules being built. [Dominic
@@ -21,7 +21,7 @@ Revision history for Perl extension Module::Build.
  - Fixed a bug in the new_from_context() method in which any arguments
    passed made us die. [Spotted by Jos Boumans]
 
-0.2605 (Bug fix for 0.26)   Tue Nov 30 07:16:13 CST 2004
+0.2605 (Bug fix release in 0.26 series)   Tue Nov 30 07:16:13 CST 2004
 
  - Fixed a bug in which zero-length arguments for hash-valued
    parameters (e.g. " --config foo= ") weren't being allowed.
@@ -31,7 +31,7 @@ Revision history for Perl extension Module::Build.
 
  - Fixed a syntax error in one of the tests under perl 5.005.
 
-0.2604 (Bug fix for 0.26)   Wed Nov 17 14:32:42 CST 2004
+0.2604 (Bug fix release in 0.26 series)   Wed Nov 17 14:32:42 CST 2004
 
  - Fixed a split_like_shell() bug introduced in 0.2603 for Windows, in
    which an array reference passed as an argument was returned as an
@@ -45,14 +45,14 @@ Revision history for Perl extension Module::Build.
    which sometimes gets automatically created on Mac systems) when
    'recursive_test_files' is in effect. [Tom Insam]
 
-0.2603 (Bug fix for 0.26)   Mon Nov 15 10:28:00 CST 2004
+0.2603 (Bug fix release in 0.26 series)   Mon Nov 15 10:28:00 CST 2004
 
  - Added documentation for the new_from_context() method.
 
  - Completely rewrote the split_like_shell() method for the Windows
    platform so it works like the command.com shell. [Randy Sims]
 
-0.2602 (Bug fix for 0.26)   Thu Nov  4 11:19:29 CST 2004
+0.2602 (Bug fix release in 0.26 series)   Thu Nov  4 11:19:29 CST 2004
 
  - The two bug fixes in 0.2601 gnashed against each other incorrectly,
    resulting in a Win32 bug in split_like_shell().  Fixed.  [Spotted
@@ -62,7 +62,7 @@ Revision history for Perl extension Module::Build.
    were causing compile failures on 5.005_04, where warnings.pm isn't
    available. [Blair Zajac]
 
-0.2601 (Bug fix for 0.26)   Wed Nov  3 20:09:27 CST 2004
+0.2601 (Bug fix release in 0.26 series)   Wed Nov  3 20:09:27 CST 2004
 
  - Fixed some backslash problems with split_like_shell() on
    Win32. [Steve Hay]
