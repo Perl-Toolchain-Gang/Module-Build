@@ -28,6 +28,9 @@ Revision history for Perl extension Module::Build.
    use 'install_path' to override specific paths or add paths for
    additional kinds of targets.
 
+ - Tilde-expansion is now performed on arguments passed to a
+   compatibility-Makefile.PL [Spotted by Sam Vilain]
+
  * When using the 'install_base' option to choose a directory for
    installing everything, perl modules now go into lib/perl5/ instead
    of just lib/.  It seems this is more consistent with people's

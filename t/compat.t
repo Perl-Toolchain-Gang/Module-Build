@@ -20,7 +20,7 @@ skip_test("Don't know how to invoke 'make'")
 
 my @makefile_types = qw(small passthrough traditional);
 my $tests_per_type = 10;
-plan tests => 30 + @makefile_types*$tests_per_type;
+plan tests => 32 + @makefile_types*$tests_per_type;
 ok(1);  # Loaded
 
 my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
@@ -144,6 +144,18 @@ foreach my $type (@makefile_types) {
   ok (! -e 'Makefile.PL', 1);
 }
 
+{
+  # Make sure tilde-expansion works
+  Module::Build::Compat->create_makefile_pl('passthrough', $build);
+
+  $build->run_perl_script('Makefile.PL', [], ['INSTALL_BASE=~/foo']);
+  my $b2 = Module::Build->current;
+  ok $b2->install_base;
+  ok $b2->install_base !~ /^~/, 1, "Tildes should be expanded";
+  
+  $build->do_system(@make, 'realclean');
+  1 while unlink 'Makefile.PL';
+}
 #########################################################
 
 sub test_makefile_creation {
