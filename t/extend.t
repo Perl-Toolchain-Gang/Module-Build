@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 6 }
+BEGIN { plan tests => 9 }
 use Module::Build;
 ok 1;
 
@@ -24,10 +24,16 @@ $build->dispatch('realclean');
 
 {
   # Make sure globbing works in filenames
-  
   $build->test_files('*t*');
   my $files = $build->test_files;
   ok  grep {$_ eq 'script'} @$files;
   ok  grep {$_ eq 'test.pl'} @$files;
   ok !grep {$_ eq 'Build.PL'} @$files;
+
+  # Make sure order is preserved
+  $build->test_files('foo', 'bar');
+  $files = $build->test_files;
+  ok @$files, 2;
+  ok $files->[0], 'foo';
+  ok $files->[1], 'bar';
 }
