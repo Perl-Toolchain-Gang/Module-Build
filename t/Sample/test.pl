@@ -1,4 +1,10 @@
 #!/usr/bin/perl
 
-print "1..1\n";
-print "ok 1\n";
+use Test;
+plan tests => 2;
+
+ok 1;
+
+# Make sure Module::Build was loaded from blib/
+require Module::Build;
+ok $INC{'Module/Build.pm'}, qr/blib/;

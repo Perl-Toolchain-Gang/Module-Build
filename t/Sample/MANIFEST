@@ -2,3 +2,4 @@ lib/Sample.pm
 Build.PL
 META.yml
 MANIFEST
+test.pl
