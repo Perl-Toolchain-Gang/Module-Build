@@ -14,4 +14,4 @@ provides:
     version: 0.01
   Sample::NoPod:
     file: lib/Sample/NoPod.pm
-generated_by: Module::Build version 0.20_03
+generated_by: Module::Build version 0.21
