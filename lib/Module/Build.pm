@@ -481,7 +481,7 @@ whether the dynamic declaration of dependencies is a good idea.
 
 =head1 AUTHOR
 
-Ken Williams, ken@forum.swarthmore.edu
+Ken Williams, ken@mathforum.org
 
 =head1 SEE ALSO
 
