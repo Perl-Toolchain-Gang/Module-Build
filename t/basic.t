@@ -1,13 +1,16 @@
 ######################### We start with some black magic to print on failure.
 
+use strict;
 use Test;
-BEGIN { plan tests => 11 }
+BEGIN { plan tests => 12 }
 use Module::Build;
 ok(1);
 
 use File::Spec;
 
 ######################### End of black magic.
+
+ok $INC{'Module/Build.pm'}, '/blib/', "Make sure Module::Build was loaded from blib/";
 
 chdir 't';
 
@@ -19,6 +22,7 @@ chdir 't';
     );
   ok $build;
 }
+
 
 # Test prerequisite checking
 {
