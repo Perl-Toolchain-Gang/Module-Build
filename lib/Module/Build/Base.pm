@@ -581,7 +581,7 @@ sub ACTION_test {
   if (@tests) {
     # Work around a Test::Harness bug that loses the particular perl we're running under
     local $^X = $self->{config}{perlpath} unless $Test::Harness::VERSION gt '2.01';
-    Test::Harness::runtests(@tests);
+    Test::Harness::runtests(sort @tests);
   } else {
     print("No tests defined.\n");
   }
