@@ -1202,14 +1202,15 @@ sub find_script_files {
 }
 
 sub _find_file_by_type {
-  my ($self, $type) = @_;
+  my ($self, $type, $dir) = @_;
+  $dir ||= 'lib';
   if (my $files = $self->{properties}{"${type}_files"}) {
     # Always given as a Unix file spec
     return { map $self->localize_file_path($_), %$files };
   }
   
-  return unless -d 'lib';
-  return { map {$_, $_} @{ $self->rscan_dir('lib', qr{\.$type$}) } };
+  return {} unless -d $dir;
+  return { map {$_, $_} @{ $self->rscan_dir($dir, qr{\.$type$}) } };
 }
 
 sub localize_file_path {
