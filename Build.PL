@@ -25,6 +25,7 @@ my $build = new Module::Build
 		'ExtUtils::Install' => 0,
 		'IO::File'       => 0,
 		'Cwd'            => 0,
+		'Text::ParseWords' => 0,
 	       },
    recommends => {
 		  'Archive::Tar' => '1.08',

@@ -11,6 +11,7 @@ use File::Spec ();
 use File::Compare ();
 use Data::Dumper ();
 use IO::File ();
+use Text::ParseWords ();
 
 #################### Constructors ###########################
 sub new {
@@ -2543,11 +2544,7 @@ sub split_like_shell {
   return () unless defined($string) && length($string);
   return @$string if UNIVERSAL::isa($string, 'ARRAY');
   
-  return $self->shell_split($string);
-}
-
-sub shell_split {
-  return split ' ', $_[1];  # XXX This is naive - needs a fix
+  return Text::ParseWords::shellwords($string);
 }
 
 sub stdout_to_file {

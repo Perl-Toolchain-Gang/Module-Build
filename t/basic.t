@@ -2,7 +2,7 @@
 
 use strict;
 use Test;
-BEGIN { plan tests => 37 }
+BEGIN { plan tests => 42 }
 use Module::Build;
 ok(1);
 
@@ -155,3 +155,12 @@ chdir 't';
   ok $build->dist_author->[0], 'Foo Meister <foo@example.com>';
 }
 
+# Test shell emulation stuff
+{
+  my @words = Module::Build->split_like_shell(q{one t'wo th'ree f"o\"ur " "five" });
+  ok @words, 4;
+  ok $words[0], 'one';
+  ok $words[1], 'two three';
+  ok $words[2], 'fo"ur ';
+  ok $words[3], 'five';
+}
