@@ -11,6 +11,12 @@ my %makefile_to_build =
   (
    PREFIX  => 'prefix',
    LIB     => 'lib',
+   UNINST  => 'uninst',
+   TEST_VERBOSE => 'verbose',
+   VERBINST     => 'verbose',
+   TEST_FILES   => 'test_files',
+   POLLUTE => 'pollute',
+   INC     => 'inc',
   );
 
 sub create_makefile_pl {
@@ -90,7 +96,7 @@ sub makefile_to_build_args {
     } elsif (exists $makefile_to_build{$key}) {
       push @out, "$makefile_to_build{$key}=$val";
     } else {
-      die "Unknown parameter '$key'";
+      warn "Unknown parameter '$key'";
     }
   }
   return @out;
