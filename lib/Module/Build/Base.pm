@@ -59,8 +59,10 @@ sub new {
 		    new_cleanup => {},
 		   }, $package;
 
-  # A synonym
-  $self->{recommends} = delete $self->{prereq} if exists $self->{prereq};
+  # Synonyms
+  for ($self->{properties}) {
+    $_->{requires} = delete $_->{prereq} if exists $_->{prereq};
+  }
 
   $self->check_manifest;
   $self->check_prereq;
