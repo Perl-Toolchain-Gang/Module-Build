@@ -150,7 +150,10 @@ sub makefile_to_build_args {
 sub makefile_to_build_macros {
   my @out;
   while (my ($macro, $trans) = each %makefile_to_build) {
-    next unless exists $ENV{$macro};
+    # On some platforms (e.g. Cygwin with 'make'), the mere presence
+    # of "EXPORT: FOO" in the Makefile will make $ENV{FOO} defined.
+    # Therefore we check length() too.
+    next unless exists $ENV{$macro} && length $ENV{$macro};
     my $val = $ENV{$macro};
     push @out, ref($trans) ? $trans->($val) : ($trans => $val);
   }
