@@ -502,7 +502,9 @@ amount of whitespace and then the options. Options are given the same
 as they would be on the commandline. They can be seperated by any
 amount of whitespace, including newlines as long there is a space at
 the beginning of the continued line. Any thing following a hash mark
-is considered a comment, and is stripped before parsing.
+is considered a comment, and is stripped before parsing. If more than
+one line begins with the same action name, those lines are merged into
+one commandline.
 
 Besides the regular actions, there are two special options. You can
 use the action name '*' (asterisk) for any global options that should
