@@ -135,7 +135,6 @@ sub resume {
   my $self = bless {@_}, $package;
   
   $self->read_config;
-  $self->{new_cleanup} = {};
   return $self;
 }
 
@@ -253,24 +252,22 @@ sub version_from_file {
 
 sub add_to_cleanup {
   my $self = shift;
-  @{$self->{new_cleanup}}{@_} = ();
-}
-
-sub write_cleanup {
-  my ($self) = @_;
-  return unless %{$self->{new_cleanup}};  # no new files
+  my @need_to_write = grep {!exists $self->{cleanup}{$_}} @_;
+  return unless @need_to_write;
   
-  # Merge the new parameters into the old
-  @{ $self->{cleanup} }{ keys %{ $self->{new_cleanup} } } = ();
+  if ( my $file = $self->config_file('cleanup') ) {
+    if ( !$self->{cleanup_fh} ) {
+      open $self->{cleanup_fh}, ">> $file" or die "Can't append to $file: $!";
+    }
+    print {$self->{cleanup_fh}} "$_\n" foreach @need_to_write;
+  }
   
-  # Write to the cleanup file
-  my $cleanup_file = $self->config_file('cleanup');
-  open my $fh, ">$cleanup_file" or die "Can't write '$cleanup_file': $!";
-  print $fh map {"$_\n"} sort keys %{$self->{cleanup}};
+  @{$self->{cleanup}}{ @need_to_write } = ();
 }
 
 sub config_file {
   my $self = shift;
+  return unless -d $self->{properties}{config_dir};
   return File::Spec->catfile($self->{properties}{config_dir}, @_);
 }
 
@@ -314,7 +311,6 @@ sub write_config {
   close $fh;
 
   $self->add_to_cleanup('blib');
-  $self->write_cleanup;
 }
 
 sub prereq_failures {
@@ -474,11 +470,7 @@ my \$build = resume $build_package (
     build_script => '$build_script',
   },
 );
-eval {\$build->dispatch};
-my \$err = \$@;
-\$build->write_cleanup;  # Always write, even if error occurs
-die \$err if \$err;
-
+\$build->dispatch;
 EOF
 }
 
@@ -658,7 +650,7 @@ sub ACTION_build {
   if ($self->{properties}{c_source}) {
     $self->process_PL_files($self->{properties}{c_source});
     
-    my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.c$});
+    my $files = $self->rscan_dir($self->{properties}{c_source}, qr{\.c(pp)?$});
     
     push @{$self->{include_dirs}}, $self->{properties}{c_source};
 
