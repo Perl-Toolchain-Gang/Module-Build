@@ -3,7 +3,8 @@ use strict;
 use Test;
 use File::Spec;
 
-require File::Spec->catfile('t', 'common.pl');
+my $common_pl = File::Spec->catfile('t', 'common.pl');
+require $common_pl;
 
 my @unix_splits = 
   (

@@ -135,8 +135,8 @@ sub makefile_to_build_args {
     my ($key, $val) = ($arg =~ /^(\w+)=(.+)/ ? ($1, $2) :
 		       die "Malformed argument '$arg'");
 
-    # Do tilde-expansion like MakeMaker does, more or less
-    $val =~ s{^~(\w*)} { (getpwnam($1 || (getpwuid $>)[0]))[7] || "~$1" }e;
+    # Do tilde-expansion if it looks like a tilde prefixed path
+    ( $val ) = glob( $val ) if $val =~ /^~/;
 
     if (exists $makefile_to_build{$key}) {
       my $trans = $makefile_to_build{$key};

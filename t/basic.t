@@ -8,7 +8,9 @@ ok(1);
 
 use File::Spec;
 use Cwd;
-require File::Spec->catfile('t', 'common.pl');
+
+my $common_pl = File::Spec->catfile('t', 'common.pl');
+require $common_pl;
 
 ######################### End of black magic.
 

@@ -5,7 +5,9 @@ use Module::Build::Compat;
 use File::Spec;
 use File::Path;
 use Config;
-require File::Spec->catfile('t', 'common.pl');
+
+my $common_pl = File::Spec->catfile('t', 'common.pl');
+require $common_pl;
 
 use Carp;  $SIG{__WARN__} = \&Carp::cluck;
 
@@ -144,8 +146,11 @@ foreach my $type (@makefile_types) {
   ok (! -e 'Makefile.PL', 1);
 }
 
-{
-  # Make sure tilde-expansion works
+{ # Make sure tilde-expansion works
+
+  # C<glob> on MSWin32 uses $ENV{HOME} if defined to do tilde-expansion
+  local $ENV{HOME} = 'C:/' if $^O =~ /MSWin/ && !exists( $ENV{HOME} );
+
   Module::Build::Compat->create_makefile_pl('passthrough', $build);
 
   $build->run_perl_script('Makefile.PL', [], ['INSTALL_BASE=~/foo']);

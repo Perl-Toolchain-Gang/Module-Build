@@ -9,7 +9,8 @@ use File::Spec;
 print("1..0 # Skipped: C_support not enabled\n"), exit(0) unless Module::Build->current->feature('C_support');
 plan tests => 12;
 
-require File::Spec->catfile('t', 'common.pl');
+my $common_pl = File::Spec->catfile('t', 'common.pl');
+require $common_pl;
 
 ######################### End of black magic.
 
