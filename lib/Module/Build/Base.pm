@@ -84,6 +84,8 @@ sub cwd {
   return Cwd::cwd;
 }
 
+sub base_dir { shift()->{properties}{base_dir} }
+
 sub prompt {
   my $self = shift;
   my ($mess, $def) = @_;
@@ -439,7 +441,7 @@ sub print_build_script {
   my $build_package = ref($self);
 
   my ($config_dir, $build_script, $base_dir) = 
-    ($self->{properties}{config_dir}, $self->{properties}{build_script}, $self->{properties}{base_dir});
+    ($self->{properties}{config_dir}, $self->{properties}{build_script}, $self->base_dir);
 
   my @myINC = @INC;
   for ($config_dir, $build_script, $base_dir, @myINC) {
@@ -816,7 +818,7 @@ sub ACTION_disttest {
   $self->do_system($^X, 'Build.PL') or die "Error executing '$^X Build.PL' in dist directory: $!";
   $self->do_system('./Build') or die "Error executing './Build' in dist directory: $!";
   $self->do_system('./Build', 'test') or die "Error executing './Build test' in dist directory: $!";
-  chdir $self->{properties}{base_dir};
+  chdir $self->base_dir;
 }
 
 sub ACTION_manifest {

@@ -562,6 +562,14 @@ and the return value is a Perl boolean value like 1 or 0.  I thought
 about this for a while and this seemed like the most useful way to do
 it.
 
+=item base_dir()
+
+Returns a string containing the root-level directory of this build,
+i.e. where the C<Build.PL> script and the C<lib> directory can be
+found.  This is usually the same as the current working directory,
+because the C<Build> script will C<chdir()> into this directory as
+soon as it begins execution.
+
 =back
 
 =head1 ACTIONS
