@@ -11,101 +11,183 @@ SYNOPSIS
 
 DESCRIPTION
     This is a beta version of a new module set I've been working on,
-    `Module::Build'. It is meant to be a replacement for
-    `ExtUtils::MakeMaker'.
+    "Module::Build". It is meant to be a replacement for
+    "ExtUtils::MakeMaker".
 
-    To install `Module::Build', and any other module that uses
-    `Module::Build' for its installation process, do the following:
+    To install "Module::Build", and any other module that uses
+    "Module::Build" for its installation process, do the following:
 
        perl Build.PL
-       ./Build             # this script is created by 'perl Build.PL'
-       ./Build test
-       ./Build install
+       Build             # this script is created by 'perl Build.PL'
+       Build test
+       Build install
 
-    Other actions so far include:
+    This illustrates initial configuration and the running of three
+    'actions'. In this case the actions run are 'build' (the default
+    action), 'test', and 'install'. Actions defined so far include:
 
-       ./Build clean
-       ./Build realclean
-       ./Build fakeinstall
-       ./Build dist
-       ./Build help
+      build                          help        
+      clean                          install     
+      dist                           manifest    
+      distcheck                      realclean   
+      distclean                      skipcheck   
+      distdir                        test        
+      disttest                       testdb      
+      fakeinstall                                
 
-    It's like the `MakeMaker' metaphor, except that `Build' is a short Perl
+    You can run the 'help' action for a complete list of actions.
+
+    It's like the "MakeMaker" metaphor, except that "Build" is a short Perl
     script, not a long Makefile. State is stored in a directory called
-    `_build/'.
+    "_build/".
 
-    Any customization can be done simply by subclassing `Module::Build' and
-    adding a method called (for example) `ACTION_test', overriding the
-    default action. You could also add a method called `ACTION_whatever',
-    and then you could perform the action `./Build whatever'.
+    Any customization can be done simply by subclassing "Module::Build" and
+    adding a method called (for example) "ACTION_test", overriding the
+    default 'test' action. You could also add a method called
+    "ACTION_whatever", and then you could perform the action "Build
+    whatever".
 
     More actions will certainly be added to the core - it should be easy to
     do everything that the MakeMaker process can do. It's going to take some
     time, though. In the meantime, I may implement some pass-through
     functionality so that unknown actions are passed to MakeMaker.
 
+    For information on providing backward compatibility with
+    "ExtUtils::MakeMaker", see the Module::Build::Compat manpage.
+
 METHODS
-    I list here some of the most important methods in the `Module::Build'.
-    As the interface is still very unstable, I must ask that for now, you
-    read the source to get more information on them. Normally you won't need
-    to deal with these methods unless you want to subclass `Module::Build'.
-    But since one of the reasons I created this module in the first place
-    was so that subclassing is possible (and easy), I will certainly write
-    more docs as the interface stabilizes.
+    I list here some of the most important methods in "Module::Build".
+    Normally you won't need to deal with these methods unless you want to
+    subclass "Module::Build". But since one of the reasons I created this
+    module in the first place was so that subclassing is possible (and
+    easy), I will certainly write more docs as the interface stabilizes.
 
-    * $m = Module::Build->new(...)
-        Creates a new Module::Build object. The `module_name' argument is
-        required, and should be a string like `'Your::Module''. The
-        `module_version' argument is optional - if not explicitly provided,
-        we'll look for the version string in the module specified by
-        `module_name', parsing it out according to the same rules as
-        `ExtUtils::MakeMaker' and `CPAN.pm'.
+  $m = Module::Build->new(...)
 
-        An optional `c_source' argument specifies a directory which contains
-        C source files that the rest of the build may depend on. Any `.c'
+    Creates a new Module::Build object. Arguments to the new() method are
+    listed below. The only required argument is the "module_name" argument.
+
+    * module_name
+        The "module_name" argument is required, and should be a string like
+        "'Your::Module'". We use it for several purposes, including finding
+        the version string for this distribution, and creating a
+        suitably-named distribution directory.
+
+    * module_version
+        The "module_version" argument is optional - if not explicitly
+        provided, we'll look for the version string in the module specified
+        by "module_name", parsing it out according to the same rules as
+        "ExtUtils::MakeMaker" and "CPAN.pm".
+
+    * module_version_from
+        Allows you to specify an alternate file for finding the module
+        version, instead of looking in the file specified by "module_name".
+
+    * prereq
+        An optional "prereq" argument specifies any module prerequisites
+        that the current module depends on. The prerequisites are given in a
+        hash reference, where the keys are the module names and the values
+        are version specifiers:
+
+         prereq => {Foo::Module => '2.4',
+                    Bar::Module => 0,
+                    Ken::Module => '>= 1.2, != 1.5, < 2.0'},
+
+        These three version specifiers have different effects. The value
+        "'2.4'" means that at least version 2.4 of "Foo::Module" must be
+        installed. The value "0" means that any version of "Bar::Module" is
+        acceptable, even if "Bar::Module" doesn't define a version. The more
+        verbose value "'>= 1.2, != 1.5, < 2.0'" means that "Ken::Module"'s
+        version must be at least 1.2, less than 2.0, and not equal to 1.5.
+        The list of criteria is separated by commas, and all criteria must
+        be satisfied.
+
+        One note: currently we don't actually *requre* the user to have
+        these modules installed, we just strongly urge. In the future we may
+        require it. There's now a "recommended" section for things that
+        aren't absolutely required.
+
+    * recommended
+        This is just like the "prereq" argument, except that modules in this
+        list aren't essential, just a good idea. We'll just print a friendly
+        warning if one of these modules aren't found, but we'll continue
+        running.
+
+    * c_source
+        An optional "c_source" argument specifies a directory which contains
+        C source files that the rest of the build may depend on. Any ".c"
         files in the directory will be compiled to object files. The
         directory will be added to the search path during the compilation
         and linking phases of any C or XS files.
 
-        An optional `autosplit' argument specifies a file which should be
-        run through the `Autosplit::autosplit()' function. In general I
+    * autosplit
+        An optional "autosplit" argument specifies a file which should be
+        run through the "Autosplit::autosplit()" function. In general I
         don't consider this a great idea, and I may even go so far as to
         remove this feature later. Let me know if I shouldn't.
 
-    * $m->add_to_cleanup
-        A `Module::Build' method may call `$self->add_to_cleanup(@files)' to
-        tell `Module::Build' that certain files should be removed when the
-        user performs the `Build clean' action. I decided to make this a
-        dynamic method, rather than a static list of files, because these
-        static lists can get difficult to manage. I preferred to keep the
-        responsibility for registering temporary files close to the code
-        that creates them.
+  $m->add_to_cleanup
 
-    * Module::Build->resume
-        You'll probably never call this method directly, it's only called
-        from the auto-generated `Build' script. The `new()' method is only
-        called once, when the user runs `perl Build.PL'. Thereafter, when
-        the user runs `Build test' or another action, the `Module::Build'
-        object is created using the `resume()' method.
+    A "Module::Build" method may call "$self->add_to_cleanup(@files)" to
+    tell "Module::Build" that certain files should be removed when the user
+    performs the "Build clean" action. I decided to make this a dynamic
+    method, rather than a static list of files, because these static lists
+    can get difficult to manage. I preferred to keep the responsibility for
+    registering temporary files close to the code that creates them.
 
-    * $m->dispatch
-        This method is also called from the auto-generated `Build' script.
-        It parses the command-line arguments into an action and an argument
-        list, then calls the appropriate routine to handle the action.
-        Currently (though this may change), an action `foo' will invoke the
-        `ACTION_foo' method. All arguments (including everything mentioned
-        in the ACTIONS manpage below) are contained in the `$self->{args}'
-        hash reference.
+  Module::Build->resume
 
-    * $m->os_type
-        If you're subclassing Module::Build and some code needs to alter its
-        behavior based on the current platform, you may only need to know
-        whether you're running on Windows, Unix, MacOS, VMS, etc. and not
-        the fine-grained value of Perl's `$^O' variable. The `os_type()'
-        method will return a string like `Windows', `Unix', `MacOS', `VMS',
-        or whatever is appropriate. If you're running on an unknown
-        platform, it will return `undef' - there shouldn't be many unknown
-        platforms though.
+    You'll probably never call this method directly, it's only called from
+    the auto-generated "Build" script. The "new()" method is only called
+    once, when the user runs "perl Build.PL". Thereafter, when the user runs
+    "Build test" or another action, the "Module::Build" object is created
+    using the "resume()" method.
+
+  $m->dispatch
+
+    This method is also called from the auto-generated "Build" script. It
+    parses the command-line arguments into an action and an argument list,
+    then calls the appropriate routine to handle the action. Currently
+    (though this may change), an action "foo" will invoke the "ACTION_foo"
+    method. All arguments (including everything mentioned in the ACTIONS
+    manpage below) are contained in the "$self->{args}" hash reference.
+
+  $m->os_type
+
+    If you're subclassing Module::Build and some code needs to alter its
+    behavior based on the current platform, you may only need to know
+    whether you're running on Windows, Unix, MacOS, VMS, etc. and not the
+    fine-grained value of Perl's "$^O" variable. The "os_type()" method will
+    return a string like "Windows", "Unix", "MacOS", "VMS", or whatever is
+    appropriate. If you're running on an unknown platform, it will return
+    "undef" - there shouldn't be many unknown platforms though.
+
+  $m->check_installed_version($module, $version)
+
+    This method returns true or false, depending on whether (at least)
+    version "$version" of module "$module" is installed. The "$module"
+    argument is given as a string like ""Data::Dumper"", and the "$version"
+    argument can take any of the forms described in the prereq manpage
+    above. This allows very fine-grained version checking.
+
+    If the check fails, we return false and set "$@" to an informative error
+    message.
+
+    If the check succeeds, the return value is the actual version of
+    "$module" installed on the system. This allows you to do the following:
+
+     my $installed = $m->check_installed_version('DBI', '1.15');
+     if ($installed) {
+       print "Congratulations, version $installed of DBI is installed.\n";
+     } else {
+       die "Sorry, you must install DBI.\n";
+     }
+
+    If "$version" is any nontrue value (notably zero) and any version of
+    "$module" is installed, we return true. In this case, if "$module"
+    doesn't define a version, or if its version is zero, we return the
+    special value "0 but true", which is numerically zero, but logically
+    true.
 
 ACTIONS
     There are some general principles at work here. First, each task when
@@ -114,94 +196,127 @@ ACTIONS
     tasks.
 
     Second, arguments are processed in a very systematic way. Arguments are
-    always key=value pairs. They may be specified at `perl Build.PL' time
-    (i.e. `perl Build.PL sitelib=/my/secret/place'), in which case their
-    values last for the lifetime of the `Build' script. They may also be
-    specified when executing a particular action (i.e. `Build test
-    verbose=1', in which case their values last only for the lifetime of
-    that command. The build process also relies heavily on the `Config.pm'
-    module, and all the key=value pairs in `Config.pm' are merged into the
-    mix too. The precedence of parameters is, from highest to lowest:
-    per-action parameters, `Build.PL' parameters, and `Config.pm'
-    parameters.
+    always key=value pairs. They may be specified at "perl Build.PL" time
+    (i.e. "perl Build.PL sitelib=/my/secret/place"), in which case their
+    values last for the lifetime of the "Build" script. They may also be
+    specified when executing a particular action (i.e. "Build test
+    verbose=1"), in which case their values last only for the lifetime of
+    that command. Per-action command-line parameters take precedence over
+    parameters specified at "perl Build.PL" time.
+
+    The build process also relies heavily on the "Config.pm" module, and all
+    the key=value pairs in "Config.pm" are available in
+
+    "$self->{config}". If the user wishes to override any of the values in
+    "Config.pm", she may specify them like so:
+
+      perl Build.PL config='siteperl=/foo perlpath=/wacky/stuff'
+
+    Not the greatest interface, I'm looking for alternatives. Speak now!
+    Maybe:
+
+      perl Build.PL config-siteperl=/foo config-perlpath=/wacky/stuff
+
+    or something.
 
     The following build actions are provided by default.
 
+    * help
+        This action will simply print out a message that is meant to help
+        you use the build process. It will show you a list of available
+        build actions too.
+
     * build
-        This is analogous to the MakeMaker 'make' target with no arguments.
-        By default it just creates a `blib/' directory and copies any `.pm'
-        and `.pod' files from your `lib/' directory into the `blib/'
-        directory. It also compiles any `.xs' files from `lib/' and places
-        them in `blib/'. Of course, you need a working C compiler
-        (preferably the same one that built perl itself) for this to work
-        properly.
+        If you run the "Build" script without any arguments, it runs the
+        "build" action.
 
-        Note that in contrast to MakeMaker, this module only (currently)
-        handles `.pm', `.pod', and `.xs' files. They must all be in the
-        `lib/' directory, in the directory structure that they should have
-        when installed.
+        This is analogous to the MakeMaker 'make all' target. By default it
+        just creates a "blib/" directory and copies any ".pm" and ".pod"
+        files from your "lib/" directory into the "blib/" directory. It also
+        compiles any ".xs" files from "lib/" and places them in "blib/". Of
+        course, you need a working C compiler (probably the same one that
+        built perl itself) for this to work properly.
 
-        If you run the `Build' script without any arguments, it runs the
-        `build' action.
+        The "build" action also runs any ".PL" files in your lib/ directory.
+        Typically these create other files, named the same but without the
+        ".PL" ending. For example, a file lib/Foo/Bar.pm.PL could create the
+        file lib/Foo/Bar.pm. The ".PL" files are processed first, so any
+        ".pm" files (or other kinds that we deal with) will get copied
+        correctly.
 
-        In future releases of `Module::Build' the `build' action should be
-        able to process `.PL' files. The `.xs' support is currently in
-        alpha. Please let me know if it works for you.
+        If your ".PL" scripts don't create any files, or if they create
+        files with unexpected names, or even if they create multiple files,
+        you should tell us that so that we can clean up properly after these
+        created files. Use the "PL_files" parameter to "new()":
+
+         PL_files => { 'lib/Foo/Bar_pm.PL' => 'lib/Foo/Bar.pm',
+                       'lib/something.PL'  => ['/lib/something', '/lib/else'],
+                       'lib/funny.PL'      => [] }
+
+        Note that in contrast to MakeMaker, the "build" action only
+        (currently) handles ".pm", ".pod", ".PL", and ".xs" files. They must
+        all be in the "lib/" directory, in the directory structure that they
+        should have when installed. We also handle ".c" files that can be in
+        the place of your choosing - see the "c_source" argument to "new()".
+
+        The ".xs" support is currently in alpha. Please let me know whether
+        it works for you.
 
     * test
-        This will use `Test::Harness' to run any regression tests and report
+        This will use "Test::Harness" to run any regression tests and report
         their results. Tests can be defined in the standard places: a file
-        called `test.pl' in the top-level directory, or several files ending
-        with `.t' in a `t/' directory.
+        called "test.pl" in the top-level directory, or several files ending
+        with ".t" in a "t/" directory.
 
         If you want tests to be 'verbose', i.e. show details of test
         execution rather than just summary information, pass the argument
-        `verbose=1'.
+        "verbose=1".
 
-        In addition, if a file called `visual.pl' exists in the top-level
+        If you want to run tests under the perl debugger, pass the argument
+        "debugger=1".
+
+        In addition, if a file called "visual.pl" exists in the top-level
         directory, this file will be executed as a Perl script and its
         output will be shown to the user. This is a good place to put speed
-        tests or other tests that don't use the `Test::Harness' format for
+        tests or other tests that don't use the "Test::Harness" format for
         output.
+
+    * testdb
+        This is a synonym for the 'test' action with the "debugger=1"
+        argument.
 
     * clean
         This action will clean up any files that the build process may have
-        created, including the `blib/' directory (but not including the
-        `_build/' directory and the `Build' script itself).
+        created, including the "blib/" directory (but not including the
+        "_build/" directory and the "Build" script itself).
 
     * realclean
-        This action is just like the `clean' action, but also removes the
-        `_build' directory and the `Build' script. If you run the
-        `realclean' action, you are essentially starting over, so you will
-        have to re-create the `Build' script again.
+        This action is just like the "clean" action, but also removes the
+        "_build" directory and the "Build" script. If you run the
+        "realclean" action, you are essentially starting over, so you will
+        have to re-create the "Build" script again.
 
     * install
-        This action will use `ExtUtils::Install' to install the files from
-        `blib/' into the correct system-wide module directory. The directory
-        is determined from the `sitelib' entry in the `Config.pm' module. To
+        This action will use "ExtUtils::Install" to install the files from
+        "blib/" into the correct system-wide module directory. The directory
+        is determined from the "sitelib" entry in the "Config.pm" module. To
         install into a different directory, pass a different value for the
-        `sitelib' parameter, like so:
+        "sitelib" parameter, like so:
 
          Build install sitelib=/my/secret/place/
 
-        Alternatively, you could specify the `sitelib' parameter when you
-        run the `Build.PL' script:
+        Alternatively, you could specify the "sitelib" parameter when you
+        run the "Build.PL" script:
 
          perl Build.PL sitelib=/my/secret/place/
 
         Under normal circumstances, you'll need superuser privileges to
-        install into the default `sitelib' directory.
+        install into the default "sitelib" directory.
 
     * fakeinstall
-        This is just like the `install' action, but it won't actually do
+        This is just like the "install" action, but it won't actually do
         anything, it will just report what it *would* have done if you had
-        actually run the `install' action.
-
-    * dist
-        This action is helpful for module authors who want to package up
-        their module for distribution through a medium like CPAN. It will
-        create a tarball of the files listed in MANIFEST and compress the
-        tarball using GZIP compression.
+        actually run the "install" action.
 
     * manifest
         This is an action intended for use by module authors, not people
@@ -213,15 +328,50 @@ ACTIONS
         directory matches any of the regular expressions, it won't be
         included in the MANIFEST.
 
-        (Note to self: it would be nice to have a 'fake_manifest' action
-        that would just go through the motions of adding to MANIFEST but not
-        actually do anything. Currently ExtUtils::Manifest doesn't support
-        it, though.)
+        The following is a reasonable MANIFEST.SKIP starting point, you can
+        add your own stuff to it:
 
-    * help
-        This action will simply print out a message that is meant to help
-        you use the build process. It will show you a list of available
-        build actions too.
+           ^_build
+           ^Build$
+           ^blib
+           ~$
+           \.bak$
+           ^MANIFEST\.SKIP$
+           CVS
+
+        See the the distcheck manpage and the skipcheck manpage actions if
+        you want to find out what the "manifest" action would do, without
+        actually doing anything.
+
+    * dist
+        This action is helpful for module authors who want to package up
+        their module for distribution through a medium like CPAN. It will
+        create a tarball of the files listed in MANIFEST and compress the
+        tarball using GZIP compression.
+
+    * distcheck
+        Reports which files are in the build directory but not in the
+        MANIFEST file, and vice versa. (See the manifest manpage for
+        details)
+
+    * skipcheck
+        Reports which files are skipped due to the entries in the
+        MANIFEST.SKIP file (See the manifest manpage for details)
+
+    * distclean
+        Performs the 'realclean' action and then the 'distcheck' action.
+
+    * distdir
+        Creates a directory called "$(DISTNAME)-$(VERSION)" (if that
+        directory already exists, it will be removed first). Then copies all
+        the files listed in the MANIFEST file to that directory. This
+        directory is what people will see when they download your
+        distribution and unpack it.
+
+    * disttest
+        Performs the 'distdir' action, then switches into that directory and
+        runs a "perl Build.PL", followed by the 'build' and 'test' actions
+        in that directory.
 
 AUTOMATION
     One advantage of Module::Build is that since it's implemented as Perl
@@ -244,7 +394,7 @@ AUTOMATION
      $m->dispatch('test', verbose => 1);
      $m->dispatch('install', sitelib => '/my/secret/place/');
 
-    Building and installing modules in this way skips creating the `Build'
+    Building and installing modules in this way skips creating the "Build"
     script.
 
 STRUCTURE
@@ -270,20 +420,61 @@ STRUCTURE
        |   Module::Build::Base    |  (Most of the functionality of 
        \--------------------------/   Module::Build is defined here.)
 
-    Right now, if you want to subclass Module::Build you must do so by
-    including an actual .pm file somewhere in your distribution. There will
-    be much better ways to do this in the future. Can't do everything at
-    once...
+SUBCLASSING
+    Right now, there are two ways to subclass Module::Build. The first way
+    is to create a regular module (in a ".pm" file) that inherits from
+    Module::Build, and use that module's class instead of using
+    Module::Build directly:
+
+      ------ in Build.PL: ----------
+      #!/usr/bin/perl
+  
+      use lib qw(/nonstandard/library/path);
+      use My::Builder;  # Or whatever you want to call it
+  
+      my $m = My::Builder->new(module_name => 'Next::Big::Thing');
+      $m->create_build_script;
+
+    This is relatively straightforward, and is the best way to do things if
+    your My::Builder class contains lots of code. The
+    "create_build_script()" method will ensure that the current value of
+    "@INC" (including the "/nonstandard/library/path") is propogated to the
+    Build script, so that My::Builder can be found when running build
+    actions.
+
+    For very small additions, Module::Build provides a "subclass()" method
+    that lets you subclass Module::Build more conveniently, without creating
+    a separate file for your module:
+
+      ------ in Build.PL: ----------
+      #!/usr/bin/perl
+  
+      my $class = Module::Build->subclass
+        (
+         class => 'My::Builder',
+         code => q{
+          sub ACTION_foo {
+            print "I'm fooing to death!\n";
+          }
+         },
+        );
+  
+      my $m = $class->new(module_name => 'Module::Build');
+      $m->create_build_script;
+
+    Behind the scenes, this actually does create a ".pm" file, since the
+    code you provide must persist after Build.PL is run if it is to be very
+    useful.
 
 MOTIVATIONS
     There are several reasons I wanted to start over, and not just fix what
     I didn't like about MakeMaker:
 
-    *   I don't like the core idea of MakeMaker, namely that `make' should
+    *   I don't like the core idea of MakeMaker, namely that "make" should
         be involved in the build process. Here are my reasons:
 
         +   When a person is installing a Perl module, what can you assume
-            about their environment? Can you assume they have `make'? No,
+            about their environment? Can you assume they have "make"? No,
             but you can assume they have some version of Perl.
 
         +   When a person is writing a Perl module for intended
@@ -296,54 +487,45 @@ MOTIVATIONS
 
     *   There are several architectural decisions in MakeMaker that make it
         very difficult to customize its behavior. For instance, when using
-        MakeMaker you do `use MakeMaker', but the object created in
-        `WriteMakefile()' is actually blessed into a package name that's
+        MakeMaker you do "use MakeMaker", but the object created in
+        "WriteMakefile()" is actually blessed into a package name that's
         created on the fly, so you can't simply subclass
-        `ExtUtils::MakeMaker'. There is a workaround `MY' package that lets
+        "ExtUtils::MakeMaker". There is a workaround "MY" package that lets
         you override certain MakeMaker methods, but only certain explicitly
         predefined (by MakeMaker) methods can be overridden. Also, the
         method of customization is very crude: you have to modify a string
         containing the Makefile text for the particular target.
 
     *   It is risky to make major changes to MakeMaker, since it does so
-        many things, is so important, and generally works. `Module::Build'
+        many things, is so important, and generally works. "Module::Build"
         is an entirely seperate package so that I can work on it all I want,
         without worrying about backward compatibility.
 
     *   Finally, Perl is said to be a language for system administration.
         Could it really be the case that Perl isn't up to the task of
-        building and installing software? Absolutely not - see the `Cons'
-        package for one example, at the section on "/www.dsmit.com/cons/" in
-        the http: manpage .
+        building and installing software? Even if that software is a bunch
+        of stupid little ".pm" files? Are you getting riled up yet??
 
     Please contact me if you have any questions or ideas.
 
 TO DO
-    Need to implement a prerequisite mechanism, similar to MakeMaker's
-    `PREREQ_PM' stuff.
-
-    There will also be a subclassing mechanism that doesn't require as much
-    module infrastructure to use. Something like this:
-
-     use Module::Build subclass => <<'EOF';
-      sub ACTION_foo {
-        ... implement the 'foo' action ...
-      }
-     EOF
-
     The current method of relying on time stamps to determine whether a
     derived file is out of date isn't likely to scale well, since it
     requires tracing all dependencies backward, it runs into problems on
     NFS, and it's just generally flimsy. It would be better to use an MD5
-    signature or the like, if available. See `cons' for an example.
+    signature or the like, if available. See "cons" for an example.
 
-    The current dependency-checking for .xs files is prone to errors. You
-    can make 'widowed' files by doing `Build', `perl Build.PL', and then
-    `Build realclean'. Should be easy to fix, but it's got me wondering
-    whether the dynamic declaration of dependencies is a good idea.
+    The current dependency-checking is prone to errors. You can make
+    'widowed' files by doing "Build", "perl Build.PL", and then "Build
+    realclean". Should be easy to fix, but it's got me wondering whether the
+    dynamic declaration of dependencies is a good idea.
+
+    - make man pages and install them. - append to perllocal.pod - write
+    .packlist in appropriate location (needed for un-install) - write
+    dependency list in _build
 
 AUTHOR
-    Ken Williams, ken@forum.swarthmore.edu
+    Ken Williams, ken@mathforum.org
 
 SEE ALSO
     perl(1), ExtUtils::MakeMaker(3)
