@@ -18,6 +18,9 @@ Revision history for Perl extension Module::Build.
  - Fixed some failing test code on Windows - open files can't be
    deleted. [Andrew Savage]
 
+ - The Cygwin platform is now treated as a flavor of Unix rather than
+   a flavor of Windows. [chocolateboy]
+
  - We're now more aggressive about adding temporary C compilation
    files (*.c, *.bs) to the cleanup list. [Dave Rolsky]
 
