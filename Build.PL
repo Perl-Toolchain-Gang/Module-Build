@@ -20,7 +20,6 @@ my $build = new ModuleBuildBuilder
    license => 'perl',
    requires => {
 		'perl'           => '5.005_03',
-		'Config'         => 0,
 		'Data::Dumper'   => 0,
 		'File::Basename' => 0,
 		'File::Compare'  => 0,
