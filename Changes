@@ -18,9 +18,8 @@ Revision history for Perl extension Module::Build.
  - Work around some bad mojo between Fedora Core [with its very long
    @INC] and old versions of Test::Harness [with its propensity to
    compound the number of @INC entries] that produced an "argument
-   list too long" error during testing.  The workaround is to filter
-   out Test::Harness' added nonsensical @INC entries before we call it
-   again. [assisted by Ville Skytta, David Golden, & Randy Sims]
+   list too long" error during testing.  [assisted by Ville Skytta,
+   David Golden, & Randy Sims]
 
  - Killed an infinite loop that would happen in y_n() in interactive
    mode if the author provided no default value. [Max Maischein]
