@@ -83,26 +83,13 @@ sub _construct {
 		    args => {%$args},
 		    config => {%Config, %$config},
 		    properties => {
-				   module_name     => '',
-				   build_script    => 'Build',
 				   base_dir        => $package->cwd,
-				   config_dir      => '_build',
-				   blib            => 'blib',
-				   requires        => {},
-				   recommends      => {},
-				   build_requires  => {},
-				   conflicts       => {},
 				   mb_version      => $Module::Build::VERSION,
-				   build_elements  => [qw( PL support pm xs pod script )],
-				   installdirs     => 'site',
-				   install_path    => {},
-				   include_dirs    => [],
-				   recurse_into    => [],
-				   build_class     => $package,
 				   %input,
 				  },
 		   }, $package;
 
+  $self->_set_defaults;
   my ($p, $c) = ($self->{properties}, $self->{config});
 
   # The following warning could be unnecessary if the user is running
@@ -116,7 +103,7 @@ sub _construct {
   $p->{bindoc_dirs} ||= [ "$p->{blib}/script" ];
   $p->{libdoc_dirs} ||= [ "$p->{blib}/lib", "$p->{blib}/arch" ];
 
-  $p->{dist_author} = [ $p->{dist_author} ] if exists $p->{dist_author} and not ref $p->{dist_author};
+  $p->{dist_author} = [ $p->{dist_author} ] if defined $p->{dist_author} and not ref $p->{dist_author};
 
   # Synonyms
   $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
@@ -435,67 +422,173 @@ EOF
 }
 
 {
-  # XXX huge hack alert - will revisit this later
-  my %valid_properties = map {$_ => 1}
-    qw(
-       module_name
-       dist_name
-       dist_version
-       dist_version_from
-       dist_author
-       build_class
-       dist_abstract
-       requires
-       recommends
-       license
-       pm_files
-       xs_files
-       pod_files
-       PL_files
-       scripts
-       script_files
-       test_files
-       recursive_test_files
-       perl
-       config_dir
-       blib
-       has_config_data
-       build_script
-       build_elements
-       install_sets
-       install_path
-       install_base
-       installdirs
-       destdir
-       debugger
-       verbose
-       c_source
-       autosplit
-       create_makefile_pl
-       create_readme
-       pollute
-       extra_compiler_flags
-       include_dirs
-       bindoc_dirs
-       libdoc_dirs
-       get_options
-       recurse_into
-      );
+    my %valid_properties = ( __PACKAGE__ => {} );
+    my %additive_properties;
 
-  sub valid_property { exists $valid_properties{$_[1]} }
+    sub valid_property {
+        my $class = shift->_prop_class;
+        exists $valid_properties{$class}->{$_[0]}
+    }
 
-  sub valid_properties { keys %valid_properties }
+    sub valid_properties {
+        my $class = shift->_prop_class;
+        keys %{ $valid_properties{$class} };
+    }
 
-  # Create an accessor for each property that doesn't already have one
-  foreach my $property (keys %valid_properties) {
-      next if __PACKAGE__->can($property);
-      no strict 'refs';
-      *{$property} = sub {
-          my $self = shift;
-          $self->{properties}{$property} = shift if @_;
-          return $self->{properties}{$property};
-      };
-  }
+    sub array_properties {
+        my $class = shift->_prop_class;
+        return unless exists $additive_properties{$class}->{ARRAY};
+        return @{$additive_properties{$class}->{ARRAY}};
+    }
+
+    sub hash_properties {
+        my $class = shift->_prop_class;
+        return unless exists $additive_properties{$class}->{'HASH'};
+        return @{$additive_properties{$class}->{'HASH'}};
+    }
+
+    sub add_property {
+        my ($class, $property, $default) = @_;
+        unless (exists $valid_properties{$class}) {
+            # Set it up with the properties from the parent classes, first.
+            for my $parent (reverse $class->mb_parents) {
+                $valid_properties{$class}->{$_} = $valid_properties{$parent}->{$_}
+                  for keys %{ $valid_properties{$parent} };
+            }
+        }
+
+        return $class unless $property;
+
+        die qq{Property "$property" already exists\n}
+          if $class->valid_property($property);
+        if (my $type = ref $default) {
+            push @{$additive_properties{$class}->{$type}}, $property;
+        }
+
+        $valid_properties{$class}->{$property} = $default;
+        return $class if $class->can($property);
+        no strict 'refs';
+        *{"$class\::$property"} = sub {
+            my $self = shift;
+            $self->{properties}{$property} = shift if @_;
+            return $self->{properties}{$property};
+        };
+        return $class;
+    }
+
+    sub _prop_class {
+        my $class = ref $_[0] || $_[0];
+        unless (exists $valid_properties{$class}) {
+            if (my @parents = $class->mb_parents) {
+                do {
+                    $class = shift @parents;
+                } until (exists $valid_properties{$class} || !@parents);
+            }
+        }
+        return $class;
+    }
+
+    sub _set_defaults {
+        my $self = shift;
+        my $class = $self->_prop_class;
+	# Set the build class.
+	$self->{build_properties}{build_class} ||= ref $self;
+        for my $prop ($self->valid_properties) {
+            $self->{properties}{$prop} = $valid_properties{$class}->{$prop}
+              unless exists $self->{properties}{$prop};
+        }
+        # Copy defaults for arrays any arrays.
+        for my $prop ($self->array_properties) {
+            $self->{properties}{$prop} = [@{$valid_properties{$class}->{$prop}}]
+              unless exists $self->{properties}{$prop};
+        }
+        # Copy defaults for arrays any hashes.
+        for my $prop ($self->hash_properties) {
+            $self->{properties}{$prop} = {%{$valid_properties{$class}->{$prop}}}
+              unless exists $self->{properties}{$prop};
+        }
+    }
+
+}
+
+# Add the default properties.
+__PACKAGE__->add_property(module_name => '');
+__PACKAGE__->add_property(build_script => 'Build');
+__PACKAGE__->add_property(config_dir => '_build');
+__PACKAGE__->add_property(blib => 'blib');
+__PACKAGE__->add_property(requires => {});
+__PACKAGE__->add_property(recommends => {});
+__PACKAGE__->add_property(build_requires => {});
+__PACKAGE__->add_property(conflicts => {});
+__PACKAGE__->add_property('mb_version');
+__PACKAGE__->add_property(build_elements => [qw(PL support pm xs pod script)]);
+__PACKAGE__->add_property(installdirs => 'site');
+__PACKAGE__->add_property(install_path => {});
+__PACKAGE__->add_property(include_dirs => []);
+__PACKAGE__->add_property('config', {});
+__PACKAGE__->add_property(recurse_into => []);
+__PACKAGE__->add_property(build_class => 'Module::Build');
+__PACKAGE__->add_property($_) for qw(
+   base_dir
+   dist_name
+   dist_version
+   dist_version_from
+   dist_author
+   dist_abstract
+   license
+   pm_files
+   xs_files
+   pod_files
+   PL_files
+   scripts
+   script_files
+   test_files
+   recursive_test_files
+   perl
+   has_config_data
+   install_sets
+   install_base
+   destdir
+   debugger
+   verbose
+   c_source
+   autosplit
+   create_makefile_pl
+   create_readme
+   pollute
+   extra_compiler_flags
+   bindoc_dirs
+   libdoc_dirs
+   get_options
+);
+
+sub mb_parents {
+    # Code borrowed from Class::ISA.
+    my @in_stack = (shift);
+    my %seen = ($in_stack[0] => 1);
+
+    my ($current, @out);
+    while (@in_stack) {
+        next unless defined($current = shift @in_stack)
+          && $current->isa('Module::Build::Base');
+        push @out, $current;
+        next if $current eq 'Module::Build::Base';
+        no strict 'refs';
+        unshift @in_stack,
+          map {
+              my $c = $_; # copy, to avoid being destructive
+              substr($c,0,2) = "main::" if substr($c,0,2) eq '::';
+              # Canonize the :: -> main::, ::foo -> main::foo thing.
+              # Should I ever canonize the Foo'Bar = Foo::Bar thing?
+              $seen{$c}++ ? () : $c;
+          } @{"$current\::ISA"};
+
+        # I.e., if this class has any parents (at least, ones I've never seen
+        # before), push them, in order, onto the stack of classes I need to
+        # explore.
+    }
+    shift @out;
+    return @out;
 }
 
 sub extra_compiler_flags {
@@ -546,7 +639,7 @@ EOF
 sub dist_name {
   my $self = shift;
   my $p = $self->{properties};
-  return $p->{dist_name} if exists $p->{dist_name};
+  return $p->{dist_name} if defined $p->{dist_name};
   
   die "Can't determine distribution name, must supply either 'dist_name' or 'module_name' parameter"
     unless $p->{module_name};
@@ -560,7 +653,7 @@ sub dist_version {
   my ($self) = @_;
   my $p = $self->{properties};
   
-  return $p->{dist_version} if exists $p->{dist_version};
+  return $p->{dist_version} if defined $p->{dist_version};
   
   if ($self->module_name) {
     $p->{dist_version_from} ||= join( '/', 'lib', split '::', $self->module_name ) . '.pm';
@@ -582,7 +675,7 @@ sub _pod_parse {
   my ($self, $part) = @_;
   my $p = $self->{properties};
   my $member = "dist_$part";
-  return $p->{$member} if exists $p->{$member};
+  return $p->{$member} if defined $p->{$member};
   
   return unless $p->{dist_version_from};
   my $fh = IO::File->new($p->{dist_version_from}) or return;
@@ -1127,8 +1220,6 @@ sub cull_options {
         die "Option specification '$k' conflicts with a " . ref $self
           . " option of the same name"
           if $self->valid_property($k);
-        # XXX Are there other options we should check? Contents of
-        # %additive elsewhere in this package?
         push @specs, $k . (defined $v->{type} ? $v->{type} : '');
         push @specs, $v->{store} if exists $v->{store};
         $args->{$k} = $v->{default} if exists $v->{default};
@@ -1181,11 +1272,8 @@ sub read_args {
   }
   $args{ARGV} = \@argv;
 
-  # 'config' and 'install_path' are additive by hash key
-  my %additive = map {$_, 1} qw(config install_path);
-
   # Hashify these parameters
-  for (keys %additive) {
+  for ($self->hash_properties) {
     next unless exists $args{$_};
     my %hash;
     $args{$_} ||= [];
@@ -1208,14 +1296,14 @@ sub read_args {
 
 sub merge_args {
   my ($self, $action, %args) = @_;
-  my %additive = (config => $self->{config},
-		  install_path => $self->{properties}{install_path});
-
   $self->{action} = $action if defined $action;
+
+  my %additive = map { $_ => 1 } $self->hash_properties;
 
   # Extract our 'properties' from $cmd_args, the rest are put in 'args'.
   while (my ($key, $val) = each %args) {
-    my $add_to = ($additive{$key} ? $additive{$key}
+    my $add_to = ( $key eq 'config' ? $self->{config}
+                  : $additive{$key} ? $self->{properties}{$key}
 		  : $self->valid_property($key) ? $self->{properties}
 		  : $self->{args});
 
