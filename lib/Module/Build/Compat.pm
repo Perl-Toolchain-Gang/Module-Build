@@ -22,6 +22,16 @@ my %makefile_to_build =
    LIB => sub { ('--install_path', 'lib='.shift()) }
   );
 
+# I sort of wonder whether we can use the same hash from above here.
+my %known_make_macros = 
+  (
+   TEST_VERBOSE => 'verbose',
+   VERBINST     => 'verbose',
+   UNINST       => 'uninst',
+  );
+
+
+
 sub create_makefile_pl {
   my ($package, $type, $build, %args) = @_;
   
@@ -142,6 +152,16 @@ sub makefile_to_build_args {
   return @out;
 }
 
+sub makefile_to_build_macros {
+  my @out;
+  while (my ($macro, $trans) = each %known_make_macros) {
+    next unless exists $ENV{$macro};
+    my $val = $ENV{$macro};
+    push @out, ref($trans) ? $trans->($val) : ($trans => $val);
+  }
+  return @out;
+}
+
 sub run_build_pl {
   my ($pack, %in) = @_;
   $in{script} ||= 'Build.PL';
@@ -162,13 +182,14 @@ sub fake_makefile {
   my $noop = ($os_type eq 'Windows' ? 'rem>nul' :
 	      $os_type eq 'VMS'     ? 'Continue' :
 	      'true');
+  my $Build = 'Build --makefile_env_macros 1';
 
   # Start with a couple special actions
   my $maketext = <<"EOF";
 all : force_do_it
-	$perl Build
+	$perl $Build
 realclean : force_do_it
-	$perl Build realclean
+	$perl $Build realclean
 	$perl -e unlink -e shift $args{makefile}
 
 force_do_it :
@@ -179,9 +200,11 @@ EOF
     next if $action =~ /^(all|realclean|force_do_it)$/;  # Don't double-define
     $maketext .= <<"EOF";
 $action : force_do_it
-	$perl Build $action
+	$perl $Build $action
 EOF
   }
+  
+  $maketext .= "\n.EXPORT : " . join(' ', keys %known_make_macros);
   
   return $maketext;
 }

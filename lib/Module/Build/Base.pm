@@ -938,6 +938,11 @@ sub read_args {
     $args{$_} = \%hash;
   }
   
+  if ($args{makefile_env_macros}) {
+    require Module::Build::Compat;
+    %args = (%args, Module::Build::Compat->makefile_to_build_macros);
+  }
+  
   return \%args, $action;
 }
 
