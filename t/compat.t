@@ -12,7 +12,7 @@ skip_test("Don't know how to invoke 'make'")
 
 my @makefile_types = qw(small passthrough traditional);
 my $tests_per_type = 10;
-plan tests => 12 + @makefile_types*$tests_per_type;
+plan tests => 18 + @makefile_types*$tests_per_type;
 ok(1);  # Loaded
 
 my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
@@ -55,6 +55,24 @@ foreach my $type (@makefile_types) {
   ok $@, '';
   ok $maketext, qr/^realclean/m;
   ok $warning, qr/build_class/;
+}
+
+{
+  # Make sure custom builder subclass is used in the created Makefile.PL
+  local @Foo::Builder::ISA = qw(Module::Build);
+  my $foo_builder = Foo::Builder->new_from_context();
+  foreach my $style ('passthrough', 'small') {
+    Module::Build::Compat->create_makefile_pl('passthrough', $foo_builder);
+    ok -e 'Makefile.PL';
+    
+    # Should fail with "can't find Foo/Builder.pm"
+    my $warning = stderr_of
+      (sub {
+	 my $result = $build->run_perl_script('Makefile.PL');
+	 ok !$result;
+       });
+    ok $warning, qr{Foo/Builder.pm};
+  }
 }
 
 {
