@@ -1025,13 +1025,13 @@ sub test_files {
     push @tests, 'test.pl'                          if -e 'test.pl';
     push @tests, $self->expand_test_dir('t')        if -e 't' and -d _;
   }
-  return [sort @tests];
+  return \@tests;
 }
 
 sub expand_test_dir {
   my ($self, $dir) = @_;
   return @{$self->rscan_dir($dir, qr{\.t$})} if $self->{properties}{recursive_test_files};
-  return glob File::Spec->catfile($dir, "*.t");
+  return sort glob File::Spec->catfile($dir, "*.t");
 }
 
 sub ACTION_testdb {
