@@ -15,7 +15,7 @@ my $goto = File::Spec->catdir( Module::Build->cwd, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
 
 
-my $build = new Module::Build( module_name => 'Sample' );
+my $build = new Module::Build( module_name => 'Sample', license => 'perl' );
 ok $build;
 
 eval {$build->create_build_script};
