@@ -115,7 +115,7 @@ To do this, specify the C<destdir> parameter to the C<install> action:
 If there's some new type of file (i.e. not a F<.pm> file, or F<.xs>
 file, or one of the other things C<Module::Build> knows how to
 process) that you'd like to handle during the building of your module,
-you can do something the following in your F<Build.PL> file:
+you can do something like the following in your F<Build.PL> file:
 
   use Module::Build;
   
