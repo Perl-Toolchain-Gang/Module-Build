@@ -15,6 +15,10 @@ Revision history for Perl extension Module::Build.
     backticks and write the result to a .c file ourselves.  This
     avoids the need to do cross-platform shell redirection.
 
+  - Make sure all parts of 'Build test' use the not-yet-installed
+    version of Module::Build.  This only affects the tests for this
+    module, not any of the module code itself.  [Spotted by Schwern]
+
   - Oopsie - use $Config{ld} instead of $Config{cc} for linking.
 
   - Added a 'diff' action, which is useful for comparing the details

@@ -32,6 +32,7 @@ t/XSTest/lib/XSTest.pm
 t/XSTest/lib/XSTest.xs
 t/XSTest/test.pl
 t/basic.t
+t/common.pl
 t/lib/ModuleBuildOne.pm
 t/runthrough.t
 t/xs.t
