@@ -2401,57 +2401,50 @@ sub autosplit_file {
   AutoSplit::autosplit($file, $dir);
 }
 
+sub _cbuilder {
+  # Returns a CBuilder object
+
+  my $self = shift;
+  my $p = $self->{properties};
+  return $p->{_cbuilder} if $p->{_cbuilder};
+
+  my $cdata = $self;
+  if ($self->module_name ne 'Module::Build') {
+    # If we're not building M::B itself
+    require Module::Build::ConfigData;
+    $cdata = 'Module::Build::ConfigData';
+  }
+  
+  die "Module::Build is not configured with C_support"
+    unless $cdata->feature('C_support');
+  
+  require ExtUtils::CBuilder;
+  return $p->{_cbuilder} = ExtUtils::CBuilder->new(config => $self->{config});
+}
+
 sub have_c_compiler {
   my ($self) = @_;
+  
   my $p = $self->{properties}; 
   return $p->{have_compiler} if defined $p->{have_compiler};
   
   print "Checking if compiler tools configured... " if $p->{verbose};
-  
-  my $c_file = $self->config_file('compilet.c');
-  {
-    my $fh = IO::File->new("> $c_file") or die "Can't create $c_file: $!";
-    print $fh "int boot_compilet() { return 1; }\n";
-  }
-  
-  my ($obj_file, $lib_file);
-  eval {
-    local $p->{module_name} = 'compilet';  # Fool compile_c() and link_c() about the library name
-    $obj_file = $self->compile_c($c_file);
-    (my $file_base = $obj_file) =~ s/\.[^.]+$//;
-    $file_base =~ tr/"//d;
-    $lib_file = $self->link_c($self->config_dir, $file_base);
-  };
-  unlink for grep defined, $c_file, $obj_file, $lib_file;
-  
-  my $result = $p->{have_compiler} = $@ ? 0 : 1;
-  print($result ? "ok.\n" : "failed.\n") if $p->{verbose};
-  return $result;
+  my $have = $self->_cbuilder->have_compiler;
+  print($have ? "ok.\n" : "failed.\n") if $p->{verbose};
+  return $p->{have_compiler} = $have;
 }
 
 sub compile_c {
   my ($self, $file) = @_;
-  my ($cf, $p) = ($self->{config}, $self->{properties}); # For convenience
-  
-  # File name, minus the suffix
-  (my $file_base = $file) =~ s/\.[^.]+$//;
-  my $obj_file = "$file_base$cf->{obj_ext}";
+  my $b = $self->_cbuilder;
+
+  my $obj_file = $b->object_file($file);
   $self->add_to_cleanup($obj_file);
   return $obj_file if $self->up_to_date($file, $obj_file);
-  
-  my @include_dirs = map {"-I$_"} (@{$p->{include_dirs}},
-				   File::Spec->catdir($cf->{installarchlib}, 'CORE'));
-  
-  my @extra_compiler_flags = $self->split_like_shell($p->{extra_compiler_flags});
-  my @cccdlflags = $self->split_like_shell($cf->{cccdlflags});
-  my @ccflags = $self->split_like_shell($cf->{ccflags});
-  my @optimize = $self->split_like_shell($cf->{optimize});
-  my @flags = (@include_dirs, @cccdlflags, @extra_compiler_flags, '-c', @ccflags, @optimize);
-  
-  my @cc = $self->split_like_shell($cf->{cc});
-  
-  $self->do_system(@cc, @flags, '-o', $obj_file, $file)
-    or die "error building $cf->{obj_ext} file from '$file'";
+
+  $b->compile(source => $file,
+	      object_file => $obj_file,
+	      include_dirs => $self->include_dirs);
 
   return $obj_file;
 }
@@ -2486,24 +2479,22 @@ sub prelink_c {
 
 sub link_c {
   my ($self, $to, $file_base) = @_;
+  my $b = $self->_cbuilder;
   my ($cf, $p) = ($self->{config}, $self->{properties}); # For convenience
 
   my $obj_file = "$file_base$cf->{obj_ext}";
-  my $lib_file = File::Spec->catfile($to, File::Basename::basename("$file_base.$cf->{dlext}"));
-  $self->add_to_cleanup($lib_file);
-  my $objects = $p->{objects} || [];
-  
-  unless ($self->up_to_date([$obj_file, @$objects], $lib_file)) {
-    $self->prelink_c($to, $file_base) if $self->need_prelink_c;
 
-    my @linker_flags = $self->split_like_shell($p->{extra_linker_flags});
-    my @lddlflags = $self->split_like_shell($cf->{lddlflags});
-    my @shrp = $self->split_like_shell($cf->{shrpenv});
-    my @ld = $self->split_like_shell($cf->{ld});
-    $self->do_system(@shrp, @ld, @lddlflags, '-o', $lib_file,
-		     $obj_file, @$objects, @linker_flags)
-      or die "error building .$cf->{dlext} file from '$obj_file'";
-  }
+  my $lib_file = $b->lib_file($obj_file);
+  $lib_file = File::Spec->catfile($to, File::Basename::basename($lib_file));
+  $self->add_to_cleanup($lib_file);
+
+  my $objects = $p->{objects} || [];
+
+  return $lib_file if $self->up_to_date([$obj_file, @$objects], $lib_file);
+
+  $b->link(objects => [$obj_file, @$objects],
+	   lib_file => $lib_file,
+	   extra_linker_flags => $p->{extra_linker_flags});
   
   return $lib_file;
 }

@@ -31,7 +31,6 @@ my $build = new Module::Build
 		  'Archive::Tar' => '1.08',
 		  'ExtUtils::Install' => 0.30,
 		  'ExtUtils::ParseXS' => 2.02,
-		  'ExtUtils::CBuilder' => 0.02,
 		  'Pod::Text' => 0,
 		  'Module::Signature' => 0.21,
 		 },
@@ -47,6 +46,11 @@ my $build = new Module::Build
 		      description => "Can write fully-functional META.yml files",
 		      requires => { YAML => ' >= 0.35, < 0.49 ' },
 		     },
+		     C_support =>
+		     {
+		      description => "Can compile/link C & XS code",
+		      requires => { 'ExtUtils::CBuilder' => 0.02 },
+		     }
 		    },
 
    add_to_cleanup => ['t/Sample/pod2htm*'],
