@@ -351,8 +351,12 @@ sub version_from_file {
 
   # Some of this code came from the ExtUtils:: hierarchy.
   my $fh = IO::File->new($file) or die "Can't open '$file' for version: $!";
+  my $inpod = 0;
+  
   local $_;
   while (<$fh>) {
+    $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
+    next if $inpod || /^\s*#/;
     if ( my ($sigil, $var) = /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/ ) {
       my $eval = qq{
 		    package Module::Build::Base::_version;
@@ -364,7 +368,9 @@ sub version_from_file {
 		    }; \$$var
 		   };
       local $^W;
-      return scalar eval $eval;
+      my $result = eval $eval;
+      warn "Error evaling version line '$eval' in $file: $@\n" if $@;
+      return $result;
     }
   }
   return undef;
