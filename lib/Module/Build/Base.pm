@@ -860,6 +860,7 @@ sub print_build_script {
   my $build_package = ref($self);
   
   my %q = map {$_, $self->$_()} qw(config_dir base_dir);
+  $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $^O eq 'MSWin32';
 
   my @myINC = @INC;
   for (@myINC, values %q) {
@@ -880,8 +881,10 @@ use File::Spec;
 BEGIN {
   \$^W = 1;  # Use warnings
   my \$curdir = File::Spec->canonpath( Cwd::cwd() );
-  unless (\$curdir eq '$q{base_dir}') {
-    die ('This script must be run from $q{base_dir}, not '."\$curdir\\n".
+  my \$is_same_dir = \$^O eq 'MSWin32' ? (Win32::GetShortPathName(\$curdir) eq '$q{base_dir}')
+                                       : (\$curdir eq '$q{base_dir}');
+  unless (\$is_same_dir) {
+    die ('This script must be run from $q{base_dir}, not '.\$curdir."\\n".
 	 "Please re-run the Build.PL script here.\\n");
   }
   \@INC = 

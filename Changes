@@ -45,6 +45,12 @@ Revision history for Perl extension Module::Build.
  - Eliminated a recursive dependency between creating the MANIFEST
    file and creating the META.yml file.  [Spotted by Dave Rolsky]
 
+ - On Win32, where a single directory might be known variously as
+   "Module-Build-0.25_03" or "MODULE~1.25_", we now use
+   Win32::GetShortPathName($cwd) to verify that the 'Build' script is
+   being run from the correct directory, rather than just a string
+   comparison.
+
  - The add_to_cleanup() method will now accept glob()-style patterns
    in addition to explicit filenames.  Also documented the fact that
    they can be specified in either Unix-style or native-style
