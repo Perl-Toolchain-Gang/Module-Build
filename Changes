@@ -1,5 +1,12 @@
 Revision history for Perl extension Module::Build.
 
+0.22
+
+ - When building a 'traditional' Makefile.PL with
+   Module::Build::Compat, we now use 'VERSION_FROM' when possible,
+   rather than always using 'VERSION'.  This way the Makefile.PL
+   doesn't have to get modified every release.
+
 0.21_02  Tue Dec 23 17:05:11 CST 2003
 
  - During testing, if YAML.pm isn't installed, then we won't try
