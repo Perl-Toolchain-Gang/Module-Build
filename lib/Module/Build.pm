@@ -14,7 +14,7 @@ use File::Path ();
 use File::Basename ();
 
 use vars qw($VERSION @ISA);
-$VERSION = '0.05';
+$VERSION = '0.05_01';
 
 # Okay, this is the brute-force method of finding out what kind of
 # platform we're on.  I don't know of a systematic way.  These values
@@ -296,12 +296,24 @@ are always key=value pairs.  They may be specified at C<perl Build.PL>
 time (i.e.  C<perl Build.PL sitelib=/my/secret/place>), in which case
 their values last for the lifetime of the C<Build> script.  They may
 also be specified when executing a particular action (i.e.
-C<Build test verbose=1>, in which case their values last only for the
-lifetime of that command.  The build process also relies heavily on
-the C<Config.pm> module, and all the key=value pairs in C<Config.pm>
-are merged into the mix too.  The precedence of parameters is, from
-highest to lowest: per-action parameters, C<Build.PL> parameters, and
-C<Config.pm> parameters.
+C<Build test verbose=1>), in which case their values last only for the
+lifetime of that command.  Per-action command-line parameters take
+precedence over parameters specified at C<perl Build.PL> time.
+
+The build process also relies heavily on the C<Config.pm> module, and
+all the key=value pairs in C<Config.pm> are available in 
+
+C<< $self->{config} >>.  If the user wishes to override any of the
+values in C<Config.pm>, she may specify them like so:
+
+  perl Build.PL config='siteperl=/foo perlpath=/wacky/stuff'
+
+Not the greatest interface, I'm looking for alternatives.  Speak now!
+Maybe:
+
+  perl Build.PL config-siteperl=/foo config-perlpath=/wacky/stuff
+
+or something.
 
 The following build actions are provided by default.
 
