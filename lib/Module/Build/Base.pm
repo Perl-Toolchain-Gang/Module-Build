@@ -1831,6 +1831,32 @@ sub compile_c {
   return $obj_file;
 }
 
+# Most platforms don't need prelinking stuff done
+sub need_prelink_c { 0 }
+
+sub prelink_c {
+  my ($self, $to, $file_base) = @_;
+  my ($p, $args) = ($self->{properties}, $self->{args});
+
+  $file_base =~ tr/"//d; # remove any quotes
+  my $basename = File::Basename::basename($file_base);
+
+  print "ExtUtils::Mksymlists::Mksymlists('$file_base')\n";
+
+  require ExtUtils::Mksymlists;
+  ExtUtils::Mksymlists::Mksymlists( # dl. abbrev for dynamic library
+    NAME     => $args->{dl_name}      || $p->{module_name},
+    DLBASE   => $args->{dl_base}      || $basename,
+    DL_VARS  => $args->{dl_vars}      || [],
+    DL_FUNCS => $args->{dl_funcs}     || {},
+    FUNCLIST => $args->{dl_func_list} || [],
+    IMPORTS  => $args->{dl_imports}   || {},
+    FILE     => $file_base,
+  );
+
+  $self->add_to_cleanup("$file_base.exp", "$file_base.def");
+}
+
 sub link_c {
   my ($self, $to, $file_base) = @_;
   my ($cf, $p) = ($self->{config}, $self->{properties}); # For convenience
@@ -1840,6 +1866,8 @@ sub link_c {
   my $objects = $p->{objects} || [];
   
   unless ($self->up_to_date(["$file_base$cf->{obj_ext}", @$objects], $lib_file)) {
+    $self->prelink_c($to, $file_base) if $self->need_prelink_c;
+
     my @linker_flags = $self->split_like_shell($p->{extra_linker_flags});
     my @lddlflags = $self->split_like_shell($cf->{lddlflags});
     my @shrp = $self->split_like_shell($cf->{shrpenv});

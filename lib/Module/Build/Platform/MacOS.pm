@@ -89,6 +89,7 @@ sub ACTION_install {
   return $self->SUPER::ACTION_install(@_);
 }
 
+sub need_prelink_c { 1 }
 
 1;
 __END__

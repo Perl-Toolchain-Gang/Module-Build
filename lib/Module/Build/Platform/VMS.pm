@@ -6,6 +6,8 @@ use Module::Build::Base;
 use vars qw(@ISA);
 @ISA = qw(Module::Build::Base);
 
+sub need_prelink_c { 1 }
+
 
 =head1 NAME
 
@@ -69,7 +71,7 @@ sub manpage_separator {
 
 =head1 AUTHOR
 
-Michael G Schwern <schwern@pobox.com>
+Michael G Schwern <schwern@pobox.com>, Ken Williams <ken@mathforum.org>
 
 =head1 SEE ALSO
 
