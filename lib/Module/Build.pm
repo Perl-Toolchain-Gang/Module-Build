@@ -1546,8 +1546,8 @@ system, you'll install as follows:
  arch    => /home/ken/lib/i386-linux
  script  => /home/ken/scripts
  bin     => /home/ken/bin
- libdoc  => /home/ken/man/man1
- bindoc  => /home/ken/man/man3
+ bindoc  => /home/ken/man/man1
+ libdoc  => /home/ken/man/man3
 
 Note that this is I<different> from how MakeMaker's C<PREFIX>
 parameter works.  C<PREFIX> tries to create a mini-replica of a
