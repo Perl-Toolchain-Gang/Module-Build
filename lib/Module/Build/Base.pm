@@ -614,9 +614,10 @@ sub check_manifest {
 
 sub dispatch {
   my $self = shift;
-  
+  local $self->{action} = shift;
+
   if (@_) {
-    ($self->{action}, my %p) = @_;
+    my %p = @_;
     my $args = $p{args} ? delete($p{args}) : {};
     
     $self->{args} = {%{$self->{args}}, %$args};
