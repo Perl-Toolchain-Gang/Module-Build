@@ -22,10 +22,11 @@ use Module::Build::Notes;
 sub new {
   my $self = shift()->_construct(@_);
 
+  $self->{action} = 'Build_PL';
   $self->cull_args(@ARGV);
   
   die "Too early to specify a build action '$self->{action}'.  Do 'Build $self->{action}' instead.\n"
-    if $self->{action};
+    if $self->{action} && $self->{action} ne 'Build_PL';
 
   $self->dist_name;
   $self->dist_version;
@@ -475,14 +476,14 @@ __PACKAGE__->add_property($_) for qw(
 );
 
 INIT {
-  my @prereq_actions = ( 'Build.PL', __PACKAGE__->known_actions );
+  my @prereq_actions = ( 'Build_PL', __PACKAGE__->known_actions );
   my @prereq_types   = qw( requires recommends conflicts );
   __PACKAGE__->add_property(prereq_actions => \@prereq_actions);
   __PACKAGE__->add_property(prereq_types   => \@prereq_types);
   my @prereq_action_types;
   foreach my $action ( @prereq_actions ) {
     foreach my $type ( @prereq_types   ) {
-      my $req = $action eq 'Build.PL' ? '' : $action . '_';
+      my $req = $action eq 'Build_PL' ? '' : $action . '_';
       $req .= $type;
       __PACKAGE__->add_property( $req => {} );
       push( @prereq_action_types, $req );
@@ -1174,9 +1175,52 @@ sub read_args {
   return \%args, $action;
 }
 
+sub read_modulebuildrc {
+  my( $self, $action ) = @_;
+
+  return unless exists( $ENV{HOME} ) && -e $ENV{HOME};
+
+  my $modulebuildrc = File::Spec->catfile( $ENV{HOME}, '.modulebuildrc' );
+  return unless -e $modulebuildrc;
+
+  my $fh = IO::File->new( $modulebuildrc )
+      or die "Can't open $modulebuildrc: $!";
+
+  my %options; my $buffer = '';
+  while (defined( my $line = <$fh> )) {
+    chomp( $line );
+    $line =~ s/#.*$//;
+    next unless length( $line );
+
+    if ( $line =~ /^\S/ ) {
+      if ( $buffer ) {
+	my( $action, $options ) = split( /\s+/, $buffer, 2 );
+	$options{$action} .= $options . ' ';
+	$buffer = '';
+      }
+      $buffer = $line;
+    } else {
+      $buffer .= $line;
+    }
+  }
+
+  if ( $buffer ) { # anything left in $buffer ?
+    my( $action, $options ) = split( /\s+/, $buffer, 2 );
+    $options{$action} .= $options . ' ';
+  }
+
+  my @args = $self->split_like_shell( $options{'*'}, $options{$action} );
+  my( $args ) = $self->read_args( @args );
+
+  return $args;
+}
+
 sub merge_args {
-  my ($self, $action, %args) = @_;
+  my ($self, $action, %cmd_args) = @_;
   $self->{action} = $action if defined $action;
+
+  my $rc_args = $self->read_modulebuildrc( $self->{action} || 'build' );
+  my %args = ( %$rc_args, %cmd_args );
 
   my %additive = map { $_ => 1 } $self->hash_properties;
 
@@ -2582,7 +2626,9 @@ sub compile_xs {
 }
 
 sub split_like_shell {
-  my ($self, $string) = @_;
+  my ($self, @strings) = @_;
+
+  my $string = join( ' ', map {s/\s+$//; $_} @strings );
   
   return () unless defined($string);
   return @$string if UNIVERSAL::isa($string, 'ARRAY');

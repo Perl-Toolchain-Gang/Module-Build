@@ -489,6 +489,32 @@ version-specific installs.
 =back
 
 
+=head2 Default Commandline Options (F<.modulebuildrc>)
+
+When Module::Build starts up it will look for a file,
+C<'$ENV{HOME}/.modulebuildrc'>. If the file exists it will use the
+options specified there as defaults, as if they were typed on the
+commandline. The defaults can be overridden by specifying new values
+on the commandline.
+
+The action name must come at the beginning of the line followed by any
+amount of whitespace and then the options. Options are given the same
+as they would be on the commandline. They can be seperated by any
+amount of whitespace, including newlines as long there is a space at
+the beginning of the continued line. Any thing following a hash mark
+is considered a comment, and is stripped before parsing.
+
+Besides the regular actions, there are two special options. You can
+use the action name '*' (asterisk) for any global options that should
+be applied to all actions. And there is the 'Build_PL' action which
+specifies options to be applied when you invoke C<perl Build.PL>.
+
+ *        verbose=1   # global options
+ diff     flags=-u
+ install  install_base=/home/ken
+          --install_path html=/home/ken/docs/html
+
+
 =head2 How Installation Paths are Determined
 
 When you invoke Module::Build's C<build> action, it needs to figure

@@ -3,6 +3,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_01 (Beta for 0.28)
 
+ - Now reads per-action default options from '$ENV{HOME}/.modulebuildrc'
+   if it exists. Commandline options override anything set in the rc file.
+
  - Extend prerequisite specifications to apply to all actions. It is
    now a fatal error if 'requires' or 'conflicts' for a given action
    are not satisfied, except where necessary for backwards compatability.
