@@ -1,6 +1,7 @@
 Build.PL
 Changes
 MANIFEST
+META.yaml
 README
 lib/Module/Build.pm
 lib/Module/Build/Base.pm
