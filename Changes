@@ -5,6 +5,10 @@ Revision history for Perl extension Module::Build.
  - Fixed some backslash problems with split_like_shell() on
    Win32. [Steve Hay]
 
+ - Fixed a bug in split_like_shell() in which leading whitespace was
+   creating an empty word, manifesting as something like "gcc - no
+   such file or directory" during tests. [Spotted by Warren L. Dodge]
+
 0.26 Sat Oct  9 17:51:01 CDT 2004
 
  - Removed some language from the Module::Build::Compat documentation
