@@ -724,8 +724,10 @@ sub ACTION_build {
     File::Path::mkpath( $script_dir );
 
     foreach my $file (@{$self->{properties}{scripts}}) {
-      my $result = $self->copy_if_modified($file, $script_dir, 'flatten');
-      $self->make_executable($result) if $result;
+      my $result = $self->copy_if_modified($file, $script_dir, 'flatten') or next;
+      require ExtUtils::MM;
+      ExtUtils::MM->fixin($result);
+      $self->make_executable($result);
     }
   }
 
