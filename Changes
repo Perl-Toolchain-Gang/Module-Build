@@ -18,6 +18,11 @@ Revision history for Perl extension Module::Build.
    ActiveState's "Perl Package Manager". [original patch by Dave
    Rolsky]
  
+ - For authors who use Module::Signature to sign their distributions,
+   the META.yml file is now created before generating the signature.
+   This fixes an out-of-order problem in signature creation. [Dave
+   Rolsky and Richard Clamp]
+
  - During testing of modules, blib/lib and blib/arch are now added as
    absolute paths, not relative.  This helps tests that load the
    modules at runtime and may change the current working directory
