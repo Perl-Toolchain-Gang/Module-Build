@@ -6,6 +6,8 @@ use strict;
 # few tweaks based on the PPD spec at
 # http://www.xav.com/perl/site/lib/XML/PPD.html
 
+# The PPD spec is based on <http://www.w3.org/TR/NOTE-OSD>
+
 sub new {
   my $package = shift;
   return bless {@_}, $package;
@@ -31,17 +33,20 @@ sub make_ppd {
   }
   $dist{version} = $self->_ppd_version($dist{version});
 
-  $self->_simple_xml_escape($_) foreach (@dist{'abstract', 'author'});
+  $self->_simple_xml_escape($_) foreach $dist{abstract}, @{$dist{author}};
 
-  # could add <LICENSE HREF=...> tag if we knew what the URLs were for
+  # TODO: could add <LICENSE HREF=...> tag if we knew what the URLs were for
   # various licenses
-  my $ppd = sprintf(<<'EOF', @dist{qw(name version name abstract author)});
-<SOFTPKG NAME="%s" VERSION="%s">
-    <TITLE>%s</TITLE>
-    <ABSTRACT>%s</ABSTRACT>
-    <AUTHOR>%s</AUTHOR>
+  my $ppd = <<"PPD";
+<SOFTPKG NAME=\"$dist{name}\" VERSION=\"$dist{version}\">
+    <TITLE>$dist{name}</TITLE>
+    <ABSTRACT>$dist{abstract}</ABSTRACT>
+@{[ join "\n", map "    <AUTHOR>$_</AUTHOR>", @{$dist{author}} ]}
     <IMPLEMENTATION>
-EOF
+PPD
+
+  # TODO: We could set <IMPLTYPE VALUE="PERL" /> or maybe
+  # <IMPLTYPE VALUE="PERL/XS" /> ???
 
   # We don't include recommended dependencies because PPD has no way
   # to distinguish them from normal dependencies.  We don't include
