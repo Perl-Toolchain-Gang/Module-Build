@@ -132,7 +132,7 @@ sub _set_install_paths {
   my $self = shift;
   my $c = $self->{config};
 
-  my @htmldoc = $c->{installhtmldir} ? (htmldoc => $c->{installhtmldir}) : ();
+  my @html = $c->{installhtmldir} ? (html => $c->{installhtmldir}) : ();
 
   $self->{properties}{install_sets} =
     {
@@ -143,7 +143,7 @@ sub _set_install_paths {
 		script  => $c->{installscript},
 		bindoc  => $c->{installman1dir},
 		libdoc  => $c->{installman3dir},
-		@htmldoc,
+		@html,
 	       },
      site   => {
 		lib     => $c->{installsitelib},
@@ -152,7 +152,7 @@ sub _set_install_paths {
 		script  => $c->{installsitescript} || $c->{installsitebin} || $c->{installscript},
 		bindoc  => $c->{installsiteman1dir} || $c->{installman1dir},
 		libdoc  => $c->{installsiteman3dir} || $c->{installman3dir},
-		@htmldoc,
+		@html,
 	       },
      vendor => {
 		lib     => $c->{installvendorlib},
@@ -161,7 +161,7 @@ sub _set_install_paths {
 		script  => $c->{installvendorscript} || $c->{installvendorbin} || $c->{installscript},
 		bindoc  => $c->{installvendorman1dir} || $c->{installman1dir},
 		libdoc  => $c->{installvendorman3dir} || $c->{installman3dir},
-		@htmldoc,
+		@html,
 	       },
     };
 }
@@ -1390,7 +1390,7 @@ sub ACTION_docs {
   require Pod::Man;
   $self->manify_bin_pods() if $self->install_destination('bindoc');
   $self->manify_lib_pods() if $self->install_destination('libdoc');
-  $self->htmlify_pods()    if $self->install_destination('htmldoc');
+  $self->htmlify_pods()    if $self->install_destination('html');
 }
 
 sub manify_bin_pods {
@@ -1455,7 +1455,7 @@ sub contains_pod {
   return '';
 }
 
-sub ACTION_htmldoc {
+sub ACTION_html {
   my $self = shift;
   $self->htmlify_pods;
 }
@@ -1467,7 +1467,7 @@ sub htmlify_pods {
   require Module::Build::PodParser;
   
   my $blib = $self->blib;
-  my $html = File::Spec::Unix->catdir($blib, 'htmldoc');
+  my $html = File::Spec::Unix->catdir($blib, 'html');
   my $script = File::Spec::Unix->catdir($blib, 'script');
   
   unless (-d $html) {
