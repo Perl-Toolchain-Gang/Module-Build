@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.14
+0.14  Fri Dec 13 14:06:29 AEST 2002
 
   - Added support for MacPerl (Mac OS version 9 and below), which (as
     far as I know) was never natively supported by MakeMaker.  Still
