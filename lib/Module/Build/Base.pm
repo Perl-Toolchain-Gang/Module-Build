@@ -2724,6 +2724,8 @@ sub run_perl_script {
 }
 
 sub run_perl_command {
+  # XXX Maybe we should accept @args instead of $args?  Must resolve
+  # this before documenting.
   my ($self, $args) = @_;
   $args = [ $self->split_like_shell($args) ] unless ref($args);
   my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
