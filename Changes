@@ -55,6 +55,10 @@ Revision history for Perl extension Module::Build.
    builder module wouldn't be loaded at the right time.  This has been
    fixed.  [Reported by Toby Ovod-Everett]
 
+ - Fixed a fatal bug when building META.yml with YAML.pm and
+   'dynamic_config' is set. [Reported by Jaap Karssenberg]
+
+
 0.24  Wed Feb 25 15:57:00 CST 2004
 
  - Fixed a problem with incude_dirs not being propagated to the 'ccs'
