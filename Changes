@@ -1,5 +1,24 @@
 Revision history for Perl extension Module::Build.
 
+0.05
+  - Fixed an unlikely-to-occur bug with misquoted strings in the
+    'Build' script (Dave Rolsky)
+
+  - We're more careful about shush-ing warnings that
+    ExtUtils::Manifest might emit (Dave Rolsky)
+
+  - The 'help' action now auto-generates the list of actions (Dave Rolsky)
+
+  - Added the 'distcheck', 'skipcheck', 'distclean', 'distdir', and
+    'disttest' actions (Dave Rolsky)
+XXX Needs docs
+
+  - We're a little more aggressive about cleaning up temporary files -
+    we'll try to clean them up even when we don't have write permission
+    on them.  This isn't as dastardly as it sounds; if we /really/
+    don't have permission, we won't be able to remove them no matter
+    how hard we try.
+
 0.04
   - Added a 'manifest' action.  It's just like MakeMaker's 'make manifest', it
     brings your MANIFEST file up to date with your distribution directory.
