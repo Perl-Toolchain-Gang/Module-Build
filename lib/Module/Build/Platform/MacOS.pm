@@ -2,38 +2,30 @@ package Module::Build::Platform::MacOS;
 
 use strict;
 use Module::Build::Base;
+use base qw(Module::Build::Base);
 
-use vars qw(@ISA);
-@ISA = qw(Module::Build::Base);
-
+use ExtUtils::Install;
 
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);
   
+  # $Config{sitelib} and $Config{sitearch} are, unfortunately, missing.
   $self->{config}{sitelib}  ||= $self->{config}{installsitelib};
   $self->{config}{sitearch} ||= $self->{config}{installsitearch};
-
+  
+  # For some reason $Config{startperl} is filled with a bunch of crap.
+  $self->{config}{startperl} =~ s/.*Exit \{Status\}\s//;
+  
   return $self;
 }
 
-sub make_build_script_executable {
+sub make_executable {
   my $self = shift;
-	
-  # Can't hurt to make it read-only.
-  $self->SUPER::make_build_script_executable;
-	
   require MacPerl;
-  MacPerl::SetFileInfo('McPL', 'TEXT', $self->{properties}{build_script});
-}
-
-sub rm_previous_build_script {
-  my $self = shift;
-    
-  if( $self->{properties}{build_script} ) {
-    chmod 666, $self->{properties}{build_script};
+  foreach (@_) {
+    MacPerl::SetFileInfo('McPL', 'TEXT', $_);
   }
-  $self->SUPER::rm_previous_build_script;
 }
 
 sub dispatch {
@@ -43,23 +35,18 @@ sub dispatch {
     require MacPerl;
       
     # What comes first in the action list.
-    my @action_list = qw(test install build);
-    my %actions;
-    {
-      no strict 'refs';
-    
-      foreach my $class ($self->super_classes) {
-        foreach ( keys %{ $class . '::' } ) {
-          $actions{$1}++ if /ACTION_(\w+)/;
-        }
-      }
-    }
-  
+    my @action_list = qw(build test install);
+    my %actions = map {+($_, 1)} $self->known_actions;
     delete @actions{@action_list};
     push @action_list, sort { $a cmp $b } keys %actions;
-    $ARGV[0] = MacPerl::Pick('What build command?', @action_list);
-    push @ARGV, split /\s+/, 
-                  MacPerl::Ask('Any extra arguments?  (ie. verbose=1)', '');
+ 
+    my $cmd = MacPerl::Pick("What build command? (Note that 'test' doesn't work)", @action_list);
+    return unless defined $cmd;
+    $ARGV[0] = ($cmd);
+    
+    my $args = MacPerl::Ask('Any extra arguments?  (ie. verbose=1)', '');
+    return unless defined $args;
+    push @ARGV, $self->split_like_shell($args);
   }
   
   $self->SUPER::dispatch(@_);
@@ -70,6 +57,32 @@ sub ACTION_realclean {
   chmod 666, $self->{properties}{build_script};
   $self->SUPER::ACTION_realclean;
 }
+
+# ExtUtils::Install has a hard-coded '.' directory in versions less
+# than 1.30.  We use a sneaky trick to turn that into ':'.
+#
+# Note that we do it here in a cross-platform way, so this code could
+# actually go in Module::Build::Base.  But we put it here to be less
+# intrusive for other platforms.
+
+sub ACTION_install {
+  my $self = shift;
+  
+  return $self->SUPER::ACTION_install(@_)
+    if ExtUtils::Install->VERSION ge '1.30';
+    
+  no warnings 'redefine';
+  local *ExtUtils::Install::find = sub {
+    my ($code, @dirs) = @_;
+
+    @dirs = map { $_ eq '.' ? File::Spec->curdir : $_ } @dirs;
+
+    return File::Find::find($code, @dirs);
+  };
+  
+  return $self->SUPER::ACTION_install(@_);
+}
+
 
 1;
 __END__
@@ -94,15 +107,10 @@ MacPerl doesn't define $Config{sitelib} or $Config{sitearch} for some
 reason, but $Config{installsitelib} and $Config{installsitearch} are
 there.  So we copy the install variables to the other location
 
-=item make_build_script_executable()
+=item make_executable()
 
 On MacOS we set the file type and creator to MacPerl so it will run
 with a double-click.
-
-=item rm_previous_build_script()
-
-MacOS maps chmod -w to locking the file.  This mean we have to unlock
-it before removing it.
 
 =item dispatch()
 
