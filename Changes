@@ -1,6 +1,9 @@
 Revision history for Perl extension Module::Build.
 
 0.05
+  - Added the Module::Build->subclass() method, which makes it easier to
+    make quick-and-dirty subclasses of Module::Build.
+
   - Reorganized the docs a bit.
 
   - Added the 'testdb' action, and the 'debugger=1' argument to the
