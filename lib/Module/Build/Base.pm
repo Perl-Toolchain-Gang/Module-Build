@@ -64,7 +64,7 @@ sub new {
 				   recommends => {},
 				   build_requires => {},
 				   conflicts => {},
-				   scripts => [],
+				   script_files => [],
 				   perl => $perl,
 				   %input,
 				   %$cmd_properties,
@@ -74,6 +74,7 @@ sub new {
 
   # Synonyms
   $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
+  $p->{script_files} = delete $p->{scripts} if exists $p->{scripts};
 
   # Shortcuts
   if (exists $p->{module_name}) {
@@ -186,7 +187,7 @@ sub resume {
        requires
        recommends
        PL_files
-       scripts
+       script_files
        perl
        config_dir
        build_script
@@ -994,13 +995,14 @@ sub dist_dir {
   return "$self->{properties}{dist_name}-$self->{properties}{dist_version}";
 }
 
-sub scripts {
+sub script_files {
   my $self = shift;
   if (@_) {
-    $self->{properties}{scripts} = ref($_[0]) ? $_[0] : [@_];
+    $self->{properties}{script_files} = ref($_[0]) ? $_[0] : [@_];
   }
-  return $self->{properties}{scripts};
+  return $self->{properties}{script_files};
 }
+*scripts = \&script_files;
 
 sub valid_licenses {
   return { map {$_, 1} qw(perl gpl artistic lgpl bsd open_source unrestricted restrictive unknown) };
@@ -1096,7 +1098,7 @@ sub install_map {
 	     $arch => $self->{config}{sitearch});
   
   $map{$script} = $self->{config}{installscript}
-    if @{$self->{properties}{scripts}};
+    if @{$self->{properties}{script_files}};
   
   if (length(my $destdir = $self->{properties}{destdir} || '')) {
     $_ = File::Spec->catdir($destdir, $_) foreach values %map;

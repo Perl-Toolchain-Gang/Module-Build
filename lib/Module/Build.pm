@@ -392,10 +392,14 @@ files in the directory will be compiled to object files.  The
 directory will be added to the search path during the compilation and
 linking phases of any C or XS files.
 
-=item scripts
+=item script_files
 
 An array reference containing a list of files that should be installed
 as perl scripts when the module is installed.
+
+For backward compatibility, you may use the parameter C<scripts>
+instead of C<script_files>.  Please consider this usage deprecated,
+though it will continue to exists for several version releases.
 
 =item autosplit
 
@@ -608,12 +612,17 @@ and the return value is a Perl boolean value like 1 or 0.  I thought
 about this for a while and this seemed like the most useful way to do
 it.
 
-=item scripts()
+=item script_files()
 
 Returns an array reference specifying the perl script files to be
-installed.  This corresponds to the C<scripts> parameter to the
+installed.  This corresponds to the C<script_files> parameter to the
 C<new()> method.  With an optional argument, this parameter may be set
 dynamically.
+
+For backward compatibility, the C<scripts()> method does exactly the
+same thing as C<script_files()>.  C<scripts()> is deprecated, but it
+will stay around for several versions to give people time to
+transition.
 
 =item base_dir()
 
