@@ -1714,7 +1714,7 @@ EOM
   }
 
   foreach (qw(requires recommends build_requires conflicts dynamic_config)) {
-    $node->{$_} = $p->{$_} if exists $p->{$_};
+    $node->{$_} = $p->{$_} if exists $p->{$_} and keys %{ $p->{$_} };
   }
   
   $node->{provides} = $self->find_dist_packages;
