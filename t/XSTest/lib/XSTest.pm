@@ -1,13 +1,11 @@
 package XSTest;
-
-require 5.005_62;
 use strict;
-use warnings;
 
 require Exporter;
 require DynaLoader;
+use vars qw( @ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION );
 
-our @ISA = qw(Exporter DynaLoader);
+@ISA = qw(Exporter DynaLoader);
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -16,16 +14,16 @@ our @ISA = qw(Exporter DynaLoader);
 # This allows declaration	use XSTest ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
+%EXPORT_TAGS = ( 'all' => [ qw(
 	
 ) ] );
 
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+@EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our @EXPORT = qw(
+@EXPORT = qw(
 	
 );
-our $VERSION = '0.01';
+$VERSION = '0.01';
 
 bootstrap XSTest $VERSION;
 

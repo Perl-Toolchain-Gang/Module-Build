@@ -221,7 +221,7 @@ sub subclass {
   File::Path::mkpath($filedir);
   die "Can't create directory $filedir: $!" unless -d $filedir;
   
-  open my($fh), ">$filename" or die "Can't create $filename: $!";
+  my $fh = IO::File->new("> $filename") or die "Can't create $filename: $!";
   print $fh <<EOF;
 package $opts{class};
 use Module::Build;
@@ -1211,7 +1211,7 @@ sub compile_xs {
 		   qq{-typemap "$typemap" "$file"});
     
     print $command;
-    open my($fh), "> $file_base.c" or die "Couldn't write $file_base.c: $!";
+    my $fh = IO::File->new("> $file_base.c") or die "Couldn't write $file_base.c: $!";
     print $fh `$command`;
     close $fh;
   }
