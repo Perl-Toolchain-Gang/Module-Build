@@ -30,6 +30,11 @@ Revision history for Perl extension Module::Build.
    zero-length, which some versions of Tar don't like. [William
    Underwood]
 
+ - Added a mention in the documentation that each property that new()
+   accepts also has a corresponding get/set accessor.  (In the version
+   0.27_0x series each accessor method is mentioned explicitly in the
+   docs.) [Omission spotted by Ian Langworth]
+
 0.2608  Wed Jan 26 19:46:09 CST 2005
 
  - Add workaround for test files because Devel::Cover causes

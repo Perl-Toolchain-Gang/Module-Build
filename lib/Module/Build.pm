@@ -218,7 +218,9 @@ stabilizes.
 =item new()
 
 Creates a new Module::Build object.  Arguments to the new() method are
-listed below.  Most arguments are optional, but you must provide
+listed below.  Unless otherwise documented, there's also a
+corresponding get/set method on the C<Module::Build> object to access
+their values.  Most arguments are optional, but you must provide
 either the C<module_name> argument, or C<dist_name> and one of
 C<dist_version> or C<dist_version_from>.  In other words, you must
 provide enough information to determine both a distribution name and
