@@ -1035,10 +1035,38 @@ sub write_metadata {
     $node->{$_} = $p->{$_} if exists $p->{$_};
   }
   
+  $node->{provides} = $self->find_dist_packages;
   $node->{generated_by} = "Module::Build version " . Module::Build->VERSION;
 
   return YAML::StoreFile($file, $node ) if $YAML::VERSION le '0.30';
   return YAML::DumpFile( $file, $node );
+}
+
+sub find_dist_packages {
+  my $self = shift;
+  
+  # Only packages in .pm files are candidates for inclusion here.
+  require ExtUtils::Manifest;
+  my $dist_files = ExtUtils::Manifest::maniread('MANIFEST');
+  my @pm_files = sort grep /\.pm$/, keys %$dist_files;
+  
+  my %out;
+  foreach my $file (@pm_files) {
+    next if $file =~ m{^t/};  # Skip things in t/
+    
+    require Module::Info;
+    my $localfile = File::Spec->catfile( split m{/}, $file );
+    my $module = Module::Info->new_from_file( $localfile );
+
+    print "Scanning $localfile for packages\n";
+    foreach my $package ($module->packages_inside) {
+      $out{$package} = {
+			file => $file,
+			# version => $version,
+		       };
+    }
+  }
+  return \%out;
 }
 
 sub make_tarball {
