@@ -76,8 +76,7 @@ sub split_like_shell {
   # (mostly Randy), and there are a lot of regression tests, so we
   # should feel free to adjust if desired.
   
-  my ($self, @strings) = @_;
-  local $_ = join( ' ', map {s/\s+$//; $_} @strings );
+  (my $self, local $_) = @_;
   
   return @$_ if defined() && UNIVERSAL::isa($_, 'ARRAY');
   

@@ -1178,10 +1178,10 @@ sub read_args {
 sub read_modulebuildrc {
   my( $self, $action ) = @_;
 
-  return unless exists( $ENV{HOME} ) && -e $ENV{HOME};
+  return {} unless exists( $ENV{HOME} ) && -e $ENV{HOME};
 
   my $modulebuildrc = File::Spec->catfile( $ENV{HOME}, '.modulebuildrc' );
-  return unless -e $modulebuildrc;
+  return {} unless -e $modulebuildrc;
 
   my $fh = IO::File->new( $modulebuildrc )
       or die "Can't open $modulebuildrc: $!";
@@ -1209,10 +1209,10 @@ sub read_modulebuildrc {
     $options{$action} .= $options . ' ';
   }
 
-  my @args = $self->split_like_shell( $options{'*'}, $options{$action} );
+  my @args = $self->split_like_shell( "$options{'*'} $options{$action}" );
   my( $args ) = $self->read_args( @args );
 
-  return $args;
+  return defined( $args ) ? $args : {};
 }
 
 sub merge_args {
@@ -2626,9 +2626,7 @@ sub compile_xs {
 }
 
 sub split_like_shell {
-  my ($self, @strings) = @_;
-
-  my $string = join( ' ', map {s/\s+$//; $_} @strings );
+  my ($self, $string) = @_;
   
   return () unless defined($string);
   return @$string if UNIVERSAL::isa($string, 'ARRAY');
