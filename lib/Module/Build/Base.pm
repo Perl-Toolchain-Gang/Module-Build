@@ -367,6 +367,7 @@ my \$build = resume $build_package (
 );
 eval {\$build->dispatch};
 my \$err = \$@;
+chdir('$build_dir') or die 'Cannot chdir to $build_dir: '.\$!;
 \$build->write_cleanup;  # Always write, even if error occurs
 die \$err if \$err;
 
