@@ -200,12 +200,14 @@ sub find_perl_interpreter {
 sub base_dir { shift()->{properties}{base_dir} }
 sub installdirs { shift()->{properties}{installdirs} }
 
+sub _is_interactive {
+  return -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ;   # Pipe?
+}
+
 sub prompt {
   my $self = shift;
   my ($mess, $def) = @_;
   die "prompt() called without a prompt message" unless @_;
-
-  my $INTERACTIVE = -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ;   # Pipe?
   
   ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
 
@@ -214,7 +216,7 @@ sub prompt {
     print "$mess $dispdef";
   }
   my $ans;
-  if ($INTERACTIVE) {
+  if ($self->_is_interactive) {
     $ans = <STDIN>;
     if ( defined $ans ) {
       chomp $ans;
@@ -234,12 +236,14 @@ sub prompt {
 sub y_n {
   my $self = shift;
   die "y_n() called without a prompt message" unless @_;
-  
+
+  my $interactive = $self->_is_interactive;
   my $answer;
   while (1) {
     $answer = $self->prompt(@_);
     return 1 if $answer =~ /^y/i;
     return 0 if $answer =~ /^n/i;
+    die "No y/n answer given, no default supplied, and no user to ask again" unless $interactive;
     print "Please answer 'y' or 'n'.\n";
   }
 }
