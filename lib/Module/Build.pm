@@ -864,6 +864,12 @@ characters will do their special things.  If you supply multiple
 arguments, no shell will get involved and the command will be executed
 directly.
 
+=item have_c_compiler()
+
+Returns true if the current system seems to have a working C compiler.
+We currently determine this by attempting to compile a simple C source
+file and reporting whether the attempt was successful.
+
 =item base_dir()
 
 Returns a string containing the root-level directory of this build,

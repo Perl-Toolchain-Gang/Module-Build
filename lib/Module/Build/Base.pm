@@ -1800,6 +1800,19 @@ sub autosplit_file {
   AutoSplit::autosplit($file, $dir);
 }
 
+sub have_c_compiler {
+  my ($self) = @_;
+  return $self->{properties}{have_compiler} if defined $self->{properties}{have_compiler};
+  
+  my $tmpfile = $self->config_file('compilet.c');
+  {
+    my $fh = IO::File->new("> $tmpfile") or die "Can't create $tmpfile: $!";
+    print $fh "int main() { return 0; }\n";
+  }
+
+  return $self->{properties}{have_compiler} = 0 + eval { $self->compile_c($tmpfile); 1 };
+}
+
 sub compile_c {
   my ($self, $file) = @_;
   my ($cf, $p) = ($self->{config}, $self->{properties}); # For convenience
