@@ -1746,6 +1746,12 @@ sub htmlify_pods {
                                   @{$self->bindoc_dirs} ],
                                 exclude => [ qr/\.(?:bat|com|html)$/ ] );
 
+  my $podpath = join ':',
+                map  $_->[1],
+                grep -e $_->[0],
+                map  [File::Spec->catdir($self->blib, $_), $_],
+                qw( script lib );
+
   my $htmldir = File::Spec::Unix->catdir($self->blib, 'html');
   unless (-d $htmldir) {
     File::Path::mkpath($htmldir, 0, 0755) or die "Couldn't mkdir $htmldir: $!";
@@ -1792,7 +1798,7 @@ sub htmlify_pods {
     my @opts = (
                 '--flush',
                 "--title=$title",
-                '--podpath=lib:script',
+                "--podpath=$podpath",
                 "--infile=$infile",
                 "--outfile=$outfile",
                 '--podroot=' . $self->blib,
