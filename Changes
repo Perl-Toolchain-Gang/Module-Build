@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2605 (Bug fix for 0.26)   Mon Nov 29 21:11:43 CST 2004
+0.2605 (Bug fix for 0.26)   Tue Nov 30 07:16:13 CST 2004
 
  - Fixed a bug in which zero-length arguments for hash-valued
    parameters (e.g. " --config foo= ") weren't being allowed.
