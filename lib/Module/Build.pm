@@ -123,14 +123,16 @@ This illustrates initial configuration and the running of three
 'actions'.  In this case the actions run are 'build' (the default
 action), 'test', and 'install'.  Actions defined so far include:
 
-  build                          fakeinstall 
-  clean                          help        
-  diff                           install     
-  dist                           manifest    
+  build                          help        
+  clean                          install     
+  diff                           manifest    
+  dist                           manifypods  
   distcheck                      realclean   
   distclean                      skipcheck   
   distdir                        test        
-  disttest                       testdb      
+  distsign                       testdb      
+  disttest                       versioninstall
+  fakeinstall
 
 You can run the 'help' action for a complete list of actions.
 
