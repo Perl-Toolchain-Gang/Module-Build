@@ -18,7 +18,8 @@ Revision history for Perl extension Module::Build.
    permissions would usually be all read-only.  We now use our own
    file-copying routines rather than those in ExtUtils::Manifest,
    because those do some annoying extra permissions-setting stuff for
-   no apparent reason. [Reported by Thomas Klausner]
+   no apparent reason.  It makes me happy that this was a very very
+   easy patch to make.  [Reported by Thomas Klausner]
 
 0.21  Wed Oct 15 20:47:05 CDT 2003
 
