@@ -7,7 +7,7 @@ use Module::Build;
 ok(1);
 
 ###################################
-my $m = Module::Build->instance;
+my $m = Module::Build->current;
 
 # This was set in Build.PL
 ok $m->notes('foo'), 'bar';
