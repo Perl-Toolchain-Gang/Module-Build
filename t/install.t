@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 23 }
+BEGIN { plan tests => 24 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -35,6 +35,10 @@ $build->add_to_cleanup($destdir);
   my $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
   print "Should have installed module as $install_to\n";
   ok -e $install_to;
+  
+  local @INC = (@INC, File::Spec->catdir($destdir, $libdir));
+  eval {require Sample};
+  ok $@, '';
 }
 
 {
