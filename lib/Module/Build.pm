@@ -789,6 +789,10 @@ actually run the C<install> action.
 
 =item versioninstall
 
+** Note: since C<only.pm> is so new, and since we just recently added
+support for it here too, this feature is to be considered
+experimental. **
+
 If you have the C<only.pm> module installed on your system, you can
 use this action to install a module into the version-specific library
 trees. This means that you can have several versions of the same
