@@ -31,6 +31,8 @@ Revision history for Perl extension Module::Build.
  - We now use Pod::Parser to find the ABSTRACT and AUTHOR when it's
    available on the system. [initial patch by Randy Sims]
 
+ - Fixed a little scalar/list buglet in a documentation example.
+
 0.21  Wed Oct 15 20:47:05 CDT 2003
 
  - Added a have_c_compiler() method.
