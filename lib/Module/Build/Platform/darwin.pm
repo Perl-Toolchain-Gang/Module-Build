@@ -37,7 +37,7 @@ Please see the L<Module::Build> for the general docs.
 
 =head1 AUTHOR
 
-Ken Williams, ken@forum.swarthmore.edu
+Ken Williams, ken@mathforum.org
 
 =head1 SEE ALSO
 

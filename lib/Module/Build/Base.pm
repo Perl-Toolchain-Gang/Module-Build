@@ -2051,7 +2051,7 @@ Please see the C<Module::Build> documentation for more details.
 
 =head1 AUTHOR
 
-Ken Williams, ken@forum.swarthmore.edu
+Ken Williams, ken@mathforum.org
 
 =head1 SEE ALSO
 

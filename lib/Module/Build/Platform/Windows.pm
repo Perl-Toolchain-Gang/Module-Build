@@ -673,7 +673,7 @@ defined by the L<Module::Build> documentation.
 
 =head1 AUTHOR
 
-Ken Williams <ken@forum.swarthmore.edu>
+Ken Williams <ken@mathforum.org>
 
 Most of the code here was written by Randy W. Sims <RandyS@ThePierianSpring.org>.
 
