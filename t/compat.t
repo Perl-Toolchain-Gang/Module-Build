@@ -12,7 +12,7 @@ skip_test("Don't know how to invoke 'make'")
 
 my @makefile_types = qw(small passthrough traditional);
 my $tests_per_type = 10;
-plan tests => 22 + @makefile_types*$tests_per_type;
+plan tests => 27 + @makefile_types*$tests_per_type;
 ok(1);  # Loaded
 
 my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
@@ -88,6 +88,10 @@ foreach my $type (@makefile_types) {
   # Make sure various Makefile.PL arguments are supported
   Module::Build::Compat->create_makefile_pl('passthrough', $build);
 
+  # Don't let our own verbosity get mixed up with our subprocess's
+  local ($ENV{TEST_VERBOSE},        $ENV{HARNESS_VERBOSE});
+  delete $ENV{TEST_VERBOSE}; delete $ENV{HARNESS_VERBOSE};
+
   my $libdir = File::Spec->catdir( Module::Build->cwd, 't', 'libdir' );
   my $result = $build->run_perl_script('Makefile.PL', [], 
 				       [
@@ -98,12 +102,26 @@ foreach my $type (@makefile_types) {
 				       ]
 				      );
   ok $result;
+  ok -e 'Build.PL', 1;
 
   my $new_build = Module::Build->resume();
   ok $new_build->installdirs, 'core';
   ok $new_build->verbose, 1;
   ok $new_build->install_destination('lib'), $libdir;
   ok $new_build->extra_compiler_flags->[0], '-DPERL_POLLUTE';
+
+  # Make sure those switches actually had an effect
+  my ($ran_ok, $output);
+  $output = stdout_of( sub { $ran_ok = $new_build->do_system(@make, 'test') } );
+  ok $ran_ok;
+  $output =~ s/^/# /gm;  # Don't confuse our own test output
+  ok $output, qr/# ok 1\s+# ok 2\s+/, 'Should be verbose';
+
+  # Make sure various Makefile arguments are supported
+  $output = stdout_of( sub { $ran_ok = $build->do_system(@make, 'test', 'TEST_VERBOSE=0') } );
+  ok $ran_ok;
+  $output =~ s/^/# /gm;  # Don't confuse our own test output
+  ok $output, qr/# test\.+ok\s+# All/, 'Should be non-verbose';
   
   $build->do_system(@make, 'realclean');
   ok -e 'Makefile', undef, "Makefile shouldn't exist";
