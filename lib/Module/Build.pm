@@ -63,6 +63,8 @@ my %OSTYPES = qw(
 		 mpeix     MPEiX
 		);
 
+# Inserts the given module into the @ISA hierarchy between
+# Module::Build and its immediate parent
 sub _interpose_module {
   my ($self, $mod) = @_;
   eval "use $mod";
