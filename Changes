@@ -41,6 +41,10 @@ Revision history for Perl extension Module::Build.
    'dist_author' manually in their Build.PL script. [Spotted by Ron
    Savage]
 
+ - The 'provides' section of the META.yml file wasn't being built
+   properly on Win32, because of a mismatch between URL-format and
+   native-format pathnames.  Fixed.  [Reported by Robert Rothenberg]
+
  - The progress message "lib/Foo.xs -> lib/Foo.c" was previously being
    output even when the Foo.c file wasn't being rebuilt.  It's now
    fixed.
