@@ -924,9 +924,10 @@ sub link_c {
   my $cf = $self->{config}; # For convenience
 
   my $lib_file = File::Spec->catfile($archdir, File::Basename::basename("$file_base.$cf->{dlext}"));
-  unless ($self->up_to_date("$file_base$cf->{obj_ext}", $lib_file)) {
+  my $objects = $self->{objects} || [];
+
+  unless ($self->up_to_date("$file_base$cf->{obj_ext}", [$lib_file, @$objects])) {
     my $linker_flags = $cf->{extra_linker_flags} || '';
-    my $objects = $self->{objects} || [];
     $self->do_system("$cf->{shrpenv} $cf->{cc} $cf->{lddlflags} -o $lib_file ".
 		     "$file_base$cf->{obj_ext} @$objects $linker_flags")
       or die "error building $file_base$cf->{obj_ext} from '$file_base.$cf->{dlext}'";
