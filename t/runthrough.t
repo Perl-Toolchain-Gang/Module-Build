@@ -1,7 +1,7 @@
 use strict;
 
 use Test; 
-BEGIN { plan tests => 21 }
+BEGIN { plan tests => 24 }
 use Module::Build;
 use File::Spec;
 use File::Path;
@@ -33,6 +33,8 @@ $build->add_to_cleanup('before_script');
 eval {$build->create_build_script};
 ok $@, '';
 ok -e $build->build_script, 1;
+
+ok $build->dist_dir, 'Sample-0.01';
 
 # The 'cleanup' file doesn't exist yet
 ok grep $_ eq 'before_script', $build->cleanup;
@@ -120,4 +122,6 @@ EOF
 eval {$build->dispatch('realclean')};
 ok $@, '';
 
-ok -e 'Sample-0.01', undef;
+ok -e $build->build_script, undef;
+ok -e $build->config_dir, undef;
+ok -e $build->dist_dir, undef;
