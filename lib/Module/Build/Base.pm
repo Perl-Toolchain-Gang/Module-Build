@@ -693,7 +693,7 @@ sub write_metadata {
   my $p = $self->{properties};
 
   $p->{license} ||= 'unknown';
-  unless (grep /^$p->{license}$/, qw(perl gpl restrictive unknown)) {
+  unless (grep /^$p->{license}$/, qw(perl gpl restrictive artistic unknown)) {
     warn "Uknown license type '$p->{license}', setting to 'unknown'\n";
     $p->{license} = 'unknown';
   }

@@ -192,12 +192,18 @@ Specifies the licensing terms of your distribution.  Valid options include:
 
 The distribution may be copied and redistributed under the same terms
 as perl itself (this is by far the most common licensing option for
-modules on CPAN).
+modules on CPAN).  This is a dual license, in which the user may
+choose between either the GPL or the Artistic license.
 
 =item * gpl
 
 The distribution is distributed under the terms of the Gnu Public
 License.
+
+=item * artistic
+
+The distribution is licensed under the Artistic License, as specified
+by the F<Artistic> file in the standard perl distribution.
 
 =item * restrictive
 
