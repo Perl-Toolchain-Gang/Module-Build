@@ -839,6 +839,20 @@ needed to be copied.
 Any directories that need to be created in order to perform the
 copying will be automatically created.
 
+=item do_system($cmd, @args)
+
+This is a fairly simple wrapper around Perl's C<system()> built-in
+command.  Given a command and an array of optional arguments, this
+method will print the command to C<STDOUT>, and then execute it using
+Perl's C<system()>.  It returns true or false to indicate success or
+failure (the opposite of how C<system()> works, but more intuitive).
+
+Note that if you supply a single argument to C<do_system()>, it
+will/may be processed by the systems's shell, and any special
+characters will do their special things.  If you supply multiple
+arguments, no shell will get involved and the command will be executed
+directly.
+
 =item base_dir()
 
 Returns a string containing the root-level directory of this build,
