@@ -1095,6 +1095,10 @@ $quoted_INC
 
 use $build_package;
 
+# Some platforms have problems setting \$^X in shebang contexts, fix it up here
+\$^X = Module::Build->find_perl_interpreter
+  unless File::Spec->file_name_is_absolute(\$^X);
+
 if (-e 'Build.PL' and not $build_package->up_to_date("Build.PL", \$0)) {
    warn "Warning: Build.PL has been altered.  You may need to run 'perl Build.PL' again.\\n";
 }
