@@ -84,7 +84,7 @@ sub version_from_file {
 		      $_
 		    }; \$$2
 		   };
-      no warnings;
+      local $^W;
       my $result = eval $eval;
       die "Could not eval '$_' in '$file': $@" if $@;
       return $result;
@@ -250,12 +250,9 @@ sub dispatch {
   }
 
   my $action = "ACTION_$self->{action}";
-  if ($self->can($action)) {
-    #print ref($self),"->$action\n";
-    $self->$action;
-  } else {
-    print "No method '$action' defined.\n";
-  }
+  print("No method '$action' defined.\n"), return unless $self->can($action);
+  
+  return $self->$action;
 }
 
 sub cull_args {
@@ -288,6 +285,7 @@ sub ACTION_help {
   test                       realclean
   dist                       install
   help                       fakeinstall
+  manifest
 
 EOF
 }
@@ -300,24 +298,49 @@ sub ACTION_test {
   
   $Test::Harness::verbose = $self->{args}{verbose} || 0;
   local $ENV{TEST_VERBOSE} = $self->{args}{verbose} || 0;
-  local @INC = (File::Spec->catdir('blib','lib'), @INC);
+
+  # Make sure we test the module in blib/
+  {
+    local $SIG{__WARN__} = sub {};  # shut blib.pm up
+    eval "use blib";
+  }
+  die $@ if $@;
   
-  if (-e 'test.pl') {
-    Test::Harness::runtests('test.pl');
-  } elsif (-e 't' and -d _) {
-    my $tests = $self->rscan_dir('t', qr{\.t$});
-    Test::Harness::runtests(@$tests);
+  # Find all possible tests and run them
+  my @tests;
+  push @tests, 'test.pl'                          if -e 'test.pl';
+  push @tests, @{$self->rscan_dir('t', qr{\.t$})} if -e 't' and -d _;
+  if (@tests) {
+    Test::Harness::runtests(@tests);
   } else {
-    print "No tests defined.\n";
+    print("No tests defined.\n");
+  }
+
+  # This will get run and the user will see the output.  It doesn't
+  # emit Test::Harness-style output.
+  if (-e 'visual.pl') {
+    $self->run_script('visual.pl', '-Mblib');
   }
 }
 
 sub ACTION_build {
   my ($self) = @_;
   
+  if ($self->{args}{c_source}) {
+    push @{$self->{include_dirs}}, $self->{args}{c_source};
+    my $files = $self->rscan_dir($self->{args}{c_source}, qr{\.(c|PL)$});
+    foreach my $file (@$files) {
+      if ($file =~ /c$/) {
+	push @{$self->{objects}}, $self->compile_c($file);
+      } elsif ($file =~ /PL/) {
+	$self->run_perl_script($file);
+      }
+    }
+  }
+
   # What more needs to be done when creating blib/ from lib/?
-  # Currently we handle .pm, .xs, and .pod files, we don't handle .PL stuff.
-  my $files = $self->rscan_dir('lib', qr{\.(pm|pod|xs)$});
+  # Currently we handle .pm, .xs, .pod, and .PL files.
+  my $files = $self->rscan_dir('lib', qr{\.(pm|pod|xs|PL)$});
   $self->lib_to_blib($files, 'blib');
   $self->add_to_cleanup('blib');
 }
@@ -326,14 +349,14 @@ sub ACTION_install {
   my ($self) = @_;
   require ExtUtils::Install;  # Grr, uses MakeMaker
   $self->depends_on('build');
-  ExtUtils::Install::install($self->install_map, 1, 0);
+  ExtUtils::Install::install($self->install_map('blib'), 1, 0);
 }
 
 sub ACTION_fakeinstall {
   my ($self) = @_;
   require ExtUtils::Install;  # Grr, uses MakeMaker
   $self->depends_on('build');
-  ExtUtils::Install::install($self->install_map, 1, 1);
+  ExtUtils::Install::install($self->install_map('blib'), 1, 1);
 }
 
 sub ACTION_clean {
@@ -363,6 +386,13 @@ sub ACTION_dist {
   $self->delete_filetree($dist_dir);
 }
 
+sub ACTION_manifest {
+  my ($self) = @_;
+  
+  require ExtUtils::Manifest;
+  ExtUtils::Manifest::mkmanifest();
+}
+
 sub make_tarball {
   my ($self, $dir) = @_;
   
@@ -373,9 +403,11 @@ sub make_tarball {
 }
 
 sub install_map {
-  my $self = shift;
-  my $blib = File::Spec->catfile('blib','lib');
-  return {$blib => $self->{args}{sitelib},
+  my ($self, $blib) = @_;
+  my $lib  = File::Spec->catfile($blib,'lib');
+  my $arch = File::Spec->catfile($blib,'arch');
+  return {$lib  => $self->{args}{sitelib},
+	  $arch => $self->{args}{sitearch},
 	  read  => ''};  # To keep ExtUtils::Install quiet
 }
 
@@ -413,6 +445,13 @@ sub delete_filetree {
 sub lib_to_blib {
   my ($self, $files, $to) = @_;
   
+  # Create $to/arch to keep blib.pm happy (what a load of hooie!)
+  File::Path::mkpath( File::Spec->catdir($to, 'arch') );
+
+  if ($self->{args}{autosplit}) {
+    $self->autosplit_file($self->{args}{autosplit}, $to);
+  }
+  
   foreach my $file (@$files) {
     if ($file =~ /\.p(m|od)$/) {
       # No processing needed
@@ -422,12 +461,44 @@ sub lib_to_blib {
       $self->process_xs($file);
 
     } elsif ($file =~ /\.PL$/) {
-      # XXX Run the script
+      $self->run_perl_script($file);
 
     } else {
       warn "Ignoring file '$file', unknown extension\n";
     }
   }
+
+}
+
+sub autosplit_file {
+  my ($self, $file, $to) = @_;
+  require AutoSplit;
+  my $dir = File::Spec->catdir($to, 'lib', 'auto');
+  AutoSplit::autosplit($file, $dir);
+}
+
+sub compile_c {
+  my ($self, $file) = @_;
+  my $args = $self->{args}; # For convenience
+
+  # File name, minus the suffix
+  (my $file_base = $file) =~ s/\.[^.]+$//;
+  my $obj_file = "$file_base$args->{obj_ext}";
+  return $obj_file if $self->up_to_date($file, $obj_file);
+  
+  $self->add_to_cleanup($obj_file);
+  my $coredir = File::Spec->catdir($args->{archlib}, 'CORE');
+  my $include_dirs = $self->{include_dirs} ? join ' ', map {"-I$_"} @{$self->{include_dirs}} : '';
+  $self->do_system("$args->{cc} $include_dirs -c $args->{ccflags} -I$coredir -o $obj_file $file")
+    or die "error building $args->{dlext} file from '$file'";
+
+  return $obj_file;
+}
+
+sub run_perl_script {
+  my ($self, $script, $preargs, $postargs) = @_;
+  $preargs ||= '';   $postargs ||= '';
+  return $self->do_system("$self->{args}{perl5} $preargs $script $postargs");
 }
 
 # A lot of this looks Unixy, but actually it may work fine on Windows.
@@ -440,40 +511,47 @@ sub process_xs {
   (my $file_base = $file) =~ s/\.[^.]+$//;
 
   # .xs -> .c
-  if ($self->is_newer_than($file, "$file_base.c")) {
+  unless ($self->up_to_date($file, "$file_base.c")) {
     $self->add_to_cleanup("$file_base.c");
     
     my $xsubpp  = $self->module_name_to_file('ExtUtils::xsubpp')
       or die "Can't find ExtUtils::xsubpp in INC (@INC)";
     my $typemap =  $self->module_name_to_file('ExtUtils::typemap');
     
-    $self->do_system("$args->{perl5} -I$args->{archlib} -I$args->{privlib} $xsubpp" .
-		     " -noprototypes -typemap '$typemap' $file > $file_base.c")
+    # XXX the '> $file_base.c' isn't really a post-arg, it's redirection.  Fix later.
+    $self->run_perl_script($xsubpp, "-I$args->{archlib} -I$args->{privlib}", 
+			   "-noprototypes -typemap '$typemap' $file > $file_base.c")
       or die "error building .c file from '$file'";
   }
   
   # .c -> .o
-  if ($self->is_newer_than("$file_base.c", "$file_base$args->{obj_ext}")) {
-    $self->add_to_cleanup("$file_base$args->{obj_ext}");
-    my $coredir = File::Spec->catdir($args->{archlib}, 'CORE');
-    $self->do_system("$args->{cc} -c -o $file_base$args->{obj_ext} $args->{ccflags} -I$coredir $file_base.c")
-      or die "error building $args->{dlext} file from '$file_base.c'";
+  $self->compile_c("$file_base.c");
+
+  # The .bs and .a files don't go in blib/lib/, they go in blib/arch/auto/.
+  # Unfortunately we have to pre-compute the whole path.
+  my $archdir;
+  {
+    my @dirs = File::Spec->splitdir($file_base);
+    $archdir = File::Spec->catdir('blib','arch','auto', @dirs[1..$#dirs]);
   }
   
   # .xs -> .bs
-  if ($self->is_newer_than($file, "$file_base.bs")) {
+  unless ($self->up_to_date($file, "$file_base.bs")) {
     $self->add_to_cleanup("$file_base.bs");
     require ExtUtils::Mkbootstrap;
     print "ExtUtils::Mkbootstrap::Mkbootstrap('$file_base')\n";
     ExtUtils::Mkbootstrap::Mkbootstrap($file_base);  # Original had $BSLOADLIBS - what's that?
     {open my $fh, ">> $file_base.bs"}  # touch
   }
-  $self->copy_if_modified("$file_base.bs", 'blib');
+  $self->copy_if_modified("$file_base.bs", $archdir, 1);
   
   # .o -> .(a|bundle)
-  my $lib_file = File::Spec->catfile('blib', "$file_base.$args->{dlext}");
-  if ($self->is_newer_than("$file_base$args->{obj_ext}", $lib_file)) {
-    $self->do_system("$args->{shrpenv} $args->{cc} -o $lib_file $args->{lddlflags} $file_base$args->{obj_ext}")
+  my $lib_file = File::Spec->catfile($archdir, File::Basename::basename("$file_base.$args->{dlext}"));
+  unless ($self->up_to_date("$file_base$args->{obj_ext}", $lib_file)) {
+    my $linker_flags = $args->{extra_linker_flags} || '';
+    my $objects = $self->{objects} || [];
+    $self->do_system("$args->{shrpenv} $args->{cc} $args->{lddlflags} -o $lib_file ".
+		     "$file_base$args->{obj_ext} @$objects $linker_flags")
       or die "error building $args->{obj_ext} file from '$file_base.$args->{dlext}'";
   }
 }
@@ -485,24 +563,49 @@ sub do_system {
 }
 
 sub copy_if_modified {
-  my ($self, $file, $to) = @_;
+  my ($self, $file, $to, $flatten) = @_;
 
-  my $to_path = File::Spec->catfile($to, $file);
-  if (!-e $to_path or -M $to_path > -M "$file") {
-    # Create parent directories
-    my $path = File::Basename::dirname($file);
-    File::Path::mkpath(File::Spec->catfile($to, $path), 0, 0777);
-    
-    print "$file -> $to_path\n";
-    File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
+  my $to_path;
+  if ($flatten) {
+    my $basename = File::Basename::basename($file);
+    $to_path = File::Spec->catfile($to, $basename);
+  } else {
+    $to_path = File::Spec->catfile($to, $file);
   }
+  return if -e $to_path and -M $to_path < -M $file;  # Already fresh
+  
+  # Create parent directories
+  File::Path::mkpath(File::Basename::dirname($to_path), 0, 0777);
+  
+  print "$file -> $to_path\n";
+  File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
 }
 
-sub is_newer_than {
-  my ($self, $one, $two) = @_;
-  return 1 unless -e $two;
-  return -M $one < -M $two;
+sub up_to_date {
+  my ($self, $source, $derived) = @_;
+  my @source  = ref($source)  ? @$source  : ($source);
+  my @derived = ref($derived) ? @$derived : ($derived);
+
+  return 0 if grep {not -e} @derived;
+
+  my $most_recent_source = time / (24*60*60);
+  foreach my $file (@source) {
+    $most_recent_source = -M $file if -M $file < $most_recent_source;
+  }
+  
+  foreach my $file (@derived) {
+    return 0 if -M $file > $most_recent_source;
+  }
+  return 1;
 }
+
+
+#sub is_newer_than {
+#  my ($self, $one, $two) = @_;
+#  return 1 unless -e $two;
+#  return 0 unless -e $one;
+#  return -M $one < -M $two;
+#}
 
 1;
 __END__
