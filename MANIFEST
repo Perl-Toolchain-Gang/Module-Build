@@ -40,6 +40,7 @@ t/XSTest/test.pl
 t/basic.t
 t/common.pl
 t/compat.t
+t/extend.t
 t/install.t
 t/lib/ModuleBuildOne.pm
 t/manifypods.t
