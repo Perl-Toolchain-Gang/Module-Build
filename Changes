@@ -19,6 +19,10 @@ Revision history for Perl extension Module::Build.
  - run_perl_script() is now available as a class method, though it
    will need to (re-)find the perl interpreter in this case.
 
+ - Added a new_from_context() method that authors of automated tools
+   like CPANPLUS and CPAN can use instead of running all tasks as
+   sub-processes.
+
 0.20_01  Mon Sep  8 21:25:39 CDT 2003
 
  - When signing distributions with Module::Signature, we now
