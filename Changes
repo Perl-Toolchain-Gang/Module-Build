@@ -24,6 +24,10 @@ Revision history for Perl extension Module::Build.
    declare certain command-line arguments their Build.PL can accept
    [David Wheeler]
 
+ - Passing a PREFIX value to a pass-through Makefile 'make install'
+   now has the same effect as passing it to 'perl Makefile.PL' (it
+   dies with a helpful message).
+
  - Added the 'testcover' action, which runs a test suite using
    Devel::Cover.  [Dave Rolsky]
 
