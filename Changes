@@ -31,6 +31,9 @@ Revision history for Perl extension Module::Build.
    if there's no MANIFEST (i.e. explicitly say that a MANIFEST is
    required). [Spotted by Adrian Howard]
 
+ - Eliminated a recursive dependency between creating the MANIFEST
+   file and creating the META.yml file.  [Spotted by Dave Rolsky]
+
  - The add_to_cleanup() method will now accept glob()-style patterns
    in addition to explicit filenames.  Also documented the fact that
    they can be specified in either Unix-style or native-style
