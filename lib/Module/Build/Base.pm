@@ -1507,7 +1507,7 @@ sub ACTION_distdir {
   my $dist_dir = $self->dist_dir;
   $self->delete_filetree($dist_dir);
   $self->add_to_cleanup($dist_dir);
-  ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'best');
+  ExtUtils::Manifest::manicopy($dist_files, $dist_dir, 'cp');
   warn "*** Did you forget to add $self->{metafile} to the MANIFEST?\n" unless exists $dist_files->{$self->{metafile}};
   
   $self->_sign_dir($dist_dir) if $self->{properties}{sign};
@@ -1595,6 +1595,9 @@ sub ACTION_distmeta {
     };
 
   $node->{generated_by} = "Module::Build version " . Module::Build->VERSION;
+  
+  # If we're in the distdir, the metafile may exist and be non-writable.
+  $self->delete_filetree($self->{metafile});
 
   # YAML API changed after version 0.30
   my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
