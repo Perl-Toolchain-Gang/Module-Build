@@ -1,5 +1,5 @@
 release_subclass Module::Release::KWILLIAMS
-cpan_user KWILLIAMS
+cpan_user <none>
 sf_user kwilliams
 sf_group_id 45731
 sf_package_id 38493
