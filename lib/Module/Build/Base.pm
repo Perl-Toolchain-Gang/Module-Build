@@ -1135,9 +1135,7 @@ sub find_dist_packages {
   my $self = shift;
   
   # Only packages in .pm files are candidates for inclusion here.
-  require ExtUtils::Manifest;
-  my $dist_files = ExtUtils::Manifest::maniread('MANIFEST');
-  my @pm_files = sort grep /\.pm$/, keys %$dist_files;
+  my @pm_files = @{ $self->find_pm_files };
   
   my %out;
   foreach my $file (@pm_files) {
