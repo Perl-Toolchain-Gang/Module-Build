@@ -288,6 +288,7 @@ sub dist_author {
   my $fh = IO::File->new($p->{dist_version_from}) or return;
   
   my @author;
+  local $_;
   while (<$fh>) {
     next unless /^=head1\s+AUTHOR/ ... /^=/;
     next if /^=/;
@@ -312,6 +313,7 @@ sub dist_abstract {
   (my $package = $self->dist_name) =~ s/-/::/g;
   
   my $result;
+  local $_;
   while (<$fh>) {
     next unless /^=(?!cut)/ .. /^cut/;  # in POD
     last if ($result) = /^(?:$package\s-\s)(.*)/;
@@ -336,6 +338,7 @@ sub version_from_file {
 
   # Some of this code came from the ExtUtils:: hierarchy.
   my $fh = IO::File->new($file) or die "Can't open '$file' for version: $!";
+  local $_;
   while (<$fh>) {
     if ( my ($sigil, $var) = /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/ ) {
       my $eval = qq{
@@ -1369,14 +1372,15 @@ sub install_map {
 
 sub depends_on {
   my $self = shift;
-  foreach (@_) {
-    $self->dispatch($_);
+  foreach my $action (@_) {
+    $self->dispatch($action);
   }
 }
 
 sub rscan_dir {
   my ($self, $dir, $pattern) = @_;
   my @result;
+  local $_; # find() can overwrite $_, so protect ourselves
   my $subr = !$pattern ? sub {push @result, $File::Find::name} :
              !ref($pattern) || (ref $pattern eq 'Regexp') ? sub {push @result, $File::Find::name if /$pattern/} :
 	     ref($pattern) eq 'CODE' ? sub {push @result, $File::Find::name if $pattern->()} :
