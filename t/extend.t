@@ -11,6 +11,7 @@ my $goto = File::Spec->catdir( $start_dir, 't', 'Sample' );
 chdir $goto or die "can't chdir to $goto: $!";
 
 # Here we make sure actions are only called once per dispatch()
+$::x = 0;
 my $build = Module::Build->subclass
   (
    code => "sub ACTION_loop { die 'recursed' if \$::x++; shift->depends_on('loop'); }"
