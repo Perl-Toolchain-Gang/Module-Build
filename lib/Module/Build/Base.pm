@@ -98,7 +98,7 @@ sub _set_install_paths {
      site   => {
 		lib     => $c->{installsitelib},
 		arch    => $c->{installsitearch},
-		bin     => $c->{installsitebin},
+		bin     => $c->{installsitebin} || $c->{installbin},
 		script  => $c->{installsitescript} || $c->{installsitebin} || $c->{installscript},
 		bindoc  => $c->{installsiteman1dir},
 		libdoc  => $c->{installsiteman3dir},
@@ -106,7 +106,7 @@ sub _set_install_paths {
      vendor => {
 		lib     => $c->{installvendorlib},
 		arch    => $c->{installvendorarch},
-		bin     => $c->{installvendorbin},
+		bin     => $c->{installvendorbin} || $c->{installbin},
 		script  => $c->{installvendorscript} || $c->{installvendorbin} || $c->{installscript},
 		bindoc  => $c->{installvendorman1dir},
 		libdoc  => $c->{installvendorman3dir},
