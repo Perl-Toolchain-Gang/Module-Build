@@ -300,7 +300,7 @@ sub _general_notes {
 }
 
 sub notes        { shift()->_general_notes('notes', @_) }
-sub config_data { shift()->_general_notes('config_data', @_) }
+sub config_data  { shift()->_general_notes('config_data', @_) }
 sub feature      { shift()->_general_notes('features', @_) }
 sub runtime_params { shift->_persistent_hash_read('runtime_params', @_ ? shift : ()) }
 sub current_action { shift->{action} }
@@ -821,6 +821,7 @@ sub read_config {
     next unless -e $self->config_file($_);
     $self->_persistent_hash_restore($_);
   }
+  $self->has_config_data(1) if keys(%{$self->config_data}) || keys(%{$self->features});
 }
 
 sub _write_dumper {
