@@ -2,7 +2,7 @@ use strict;
 
 # Tests various ways to extend Module::Build, e.g. by subclassing.
 
-use Test::More tests => 47;
+use Test::More tests => 45;
 use Module::Build;
 ok 1;
 
