@@ -434,6 +434,8 @@ __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(build_class => 'Module::Build');
 __PACKAGE__->add_property(html_css => ($^O =~ /Win32/) ? 'Active.css' : '');
 __PACKAGE__->add_property(html_backlink => '__top');
+__PACKAGE__->add_property(meta_add => {});
+__PACKAGE__->add_property(meta_merge => {});
 __PACKAGE__->add_property($_) for qw(
    base_dir
    dist_name
@@ -2293,6 +2295,35 @@ sub valid_licenses {
   return { map {$_, 1} qw(perl gpl artistic lgpl bsd open_source unrestricted restrictive unknown) };
 }
 
+sub meta_add {
+  my ($self, %add) = @_;
+  my $m = $self->{properties}{meta_add};
+  while (my($k, $v) = each %add) {
+    $m->{$k} = $v;
+  }
+  return $m;
+}
+
+sub meta_merge {
+  my ($self, %merge) = @_;
+  my $m = $self->{properties}{meta_merge};
+  while (my($k, $v) = each %merge) {
+    $self->_hash_merge($m, $k, $v);
+  }
+  return $m;
+}
+
+sub _hash_merge {
+  my ($self, $h, $k, $v) = @_;
+  if (ref $h->{$k} eq 'ARRAY') {
+    push @{$h->{$k}}, ref $v ? @$v : $v;
+  } elsif (ref $h->{$k} eq 'HASH') {
+    $h->{$k}{$_} = $v->{$_} foreach keys %$v;
+  } else {
+    $h->{$k} = $v;
+  }
+}
+
 sub _write_minimal_metadata {
   my $self = shift;
   my $p = $self->{properties};
@@ -2300,6 +2331,8 @@ sub _write_minimal_metadata {
   my $file = $self->{metafile};
   my $fh = IO::File->new("> $file")
     or die "Can't open $file: $!";
+
+  # XXX Add the meta_add & meta_merge stuff
 
   print $fh <<"END_OF_META";
 --- #YAML:1.0
@@ -2311,8 +2344,6 @@ abstract: @{[ $self->dist_abstract ]}
 license: $p->{license}
 generated_by: Module::Build version $Module::Build::VERSION, without YAML.pm
 END_OF_META
-
-  $fh->close();
 }
 
 sub ACTION_distmeta {
@@ -2340,33 +2371,32 @@ sub ACTION_distmeta {
     $self->depends_on('config_data');
     push @INC, File::Spec->catdir($self->blib, 'lib');
   }
+
   require Module::Build::ConfigData;  # Only works after the 'build'
-  unless (Module::Build::ConfigData->feature('YAML_support')) {
+  if (Module::Build::ConfigData->feature('YAML_support')) {
+    require YAML;
+
+    # We use YAML::Node to get the order nice in the YAML file.
+    $self->prepare_metadata( my $node = YAML::Node->new({}) );
+    
+    # YAML API changed after version 0.30
+    my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
+    $self->{wrote_metadata} = $yaml_sub->($self->{metafile}, $node );
+
+  } else {
     $self->log_warn(<<EOM);
 \nCouldn't load YAML.pm, generating a minimal META.yml without it.
 Please check and edit the generated metadata, or consider installing YAML.pm.\n
 EOM
 
-    $self->_add_to_manifest('MANIFEST', $self->{metafile});
-    return $self->_write_minimal_metadata();
+    $self->_write_minimal_metadata;
   }
-
-  require YAML;
-
-  # We use YAML::Node to get the order nice in the YAML file.
-  my $node = $self->prepare_metadata( YAML::Node->new({}) );
-
-  # YAML API changed after version 0.30
-  my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
-  $self->{wrote_metadata} = $yaml_sub->($self->{metafile}, $node );
 
   $self->_add_to_manifest('MANIFEST', $self->{metafile});
 }
 
 sub prepare_metadata {
-  my $self = shift;
-  my $node = shift;
-
+  my ($self, $node) = @_;
   my $p = $self->{properties};
 
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
@@ -2382,6 +2412,14 @@ sub prepare_metadata {
   $node->{provides} = $self->find_dist_packages;
 
   $node->{generated_by} = "Module::Build version $Module::Build::VERSION";
+
+  while (my($k, $v) = each %{$p->{meta_add}}) {
+    $node->{$k} = $v;
+  }
+
+  while (my($k, $v) = each %{$p->{meta_merge}}) {
+    $self->_hash_merge($node, $k, $v);
+  }
 
   return $node;
 }

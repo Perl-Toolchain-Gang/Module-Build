@@ -2,7 +2,7 @@ use strict;
 
 # Tests various ways to extend Module::Build, e.g. by subclassing.
 
-use Test::More tests => 45;
+use Test::More tests => 50;
 use Module::Build;
 ok 1;
 
@@ -144,4 +144,29 @@ chdir('t') or die "Can't chdir to t/: $!";
   ok $build->valid_property('bar');
   can_ok $build, 'bar';
   is $build->bar, 'yow';
+}
+
+{
+  # Test the meta_add and meta_merge stuff
+  chdir $goto;
+  ok my $build = Module::Build->new(
+				    module_name => 'Sample',
+				    meta_add => {foo => 'bar'},
+				    conflicts => {'Foo::Barxx' => 0},
+				   );
+  my %data;
+  $build->prepare_metadata( \%data );
+  is $data{foo}, 'bar';
+
+  $build->meta_merge(foo => 'baz');
+  $build->prepare_metadata( \%data );
+  is $data{foo}, 'baz';
+
+  $build->meta_merge(conflicts => {'Foo::Fooxx' => 0});
+  $build->prepare_metadata( \%data );
+  is_deeply $data{conflicts}, {'Foo::Barxx' => 0, 'Foo::Fooxx' => 0};
+
+  $build->meta_add(conflicts => {'Foo::Bazxx' => 0});
+  $build->prepare_metadata( \%data );
+  is_deeply $data{conflicts}, {'Foo::Bazxx' => 0, 'Foo::Fooxx' => 0};
 }

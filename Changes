@@ -3,6 +3,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_01 (Beta for 0.28)
 
+ - Added the meta_add and meta_merge mechanisms, which let the module
+   author add/merge arbitrary entries into the META.yml file.
+
  - Now reads per-action default options from '$ENV{HOME}/.modulebuildrc'
    if it exists. Commandline options override anything set in the rc file.
 

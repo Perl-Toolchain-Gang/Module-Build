@@ -445,6 +445,24 @@ I just started out with a small set of licenses to keep things simple,
 figuring I'd let people with actual working knowledge in this area
 tell me what to do.  So if that's you, drop me a line.
 
+=item meta_add
+
+A hash of key/value pairs that should be added to the F<META.yml> file
+during the C<distmeta> action.  Any existing entries with the same
+names will be overridden.
+
+=item meta_merge
+
+A hash of key/value pairs that should be merged into the F<META.yml>
+file during the C<distmeta> action.  Any existing entries with the
+same names will be overridden.
+
+The only difference between C<meta_add> and C<meta_merge> is their
+behavior on hash-valued and array-valued entries: C<meta_add> will
+completely blow away the existing hash or array value, but
+C<meta_merge> will merge the supplied data into the existing hash or
+array value.
+
 =item module_name
 
 The C<module_name> is a shortcut for setting default values of
