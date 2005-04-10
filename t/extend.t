@@ -2,7 +2,7 @@ use strict;
 
 # Tests various ways to extend Module::Build, e.g. by subclassing.
 
-use Test::More tests => 45;
+use Test::More tests => 47;
 use Module::Build;
 ok 1;
 
@@ -73,7 +73,7 @@ $build->dispatch('realclean');
   
   # Catch an exception adding an existing property.
   eval { __PACKAGE__->add_property('module_name')};
-  like "$@", qr/Property "module_name" already exists/;
+  like "$@", qr/already exists/;
 }
 
 {
