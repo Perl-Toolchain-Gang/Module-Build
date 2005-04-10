@@ -332,92 +332,89 @@ sub ACTION_config_data {
 }
 
 {
-    my %valid_properties = ( __PACKAGE__ => {} );
+    my %valid_properties = ( __PACKAGE__,  {} );
     my %additive_properties;
 
+    sub _mb_classes {
+      my $class = ref($_[0]) || $_[0];
+      return ($class, $class->mb_parents);
+    }
+
     sub valid_property {
-        my $class = shift->_prop_class;
-        exists $valid_properties{$class}->{$_[0]}
+      my ($class, $prop) = @_;
+      return grep exists( $valid_properties{$_}{$prop} ), $class->_mb_classes;
     }
 
     sub valid_properties {
-        my $class = shift->_prop_class;
-        keys %{ $valid_properties{$class} };
+      return keys %{ shift->valid_properties_defaults() };
+    }
+
+    sub valid_properties_defaults {
+      my %out;
+      for (reverse shift->_mb_classes) {
+	@out{ keys %{ $valid_properties{$_} } } = values %{ $valid_properties{$_} };
+      }
+      return \%out;
     }
 
     sub array_properties {
-        my $class = shift->_prop_class;
-        return unless exists $additive_properties{$class}->{ARRAY};
-        return @{$additive_properties{$class}->{ARRAY}};
+      for (shift->_mb_classes) {
+        return @{$additive_properties{$_}->{ARRAY}}
+	  if exists $additive_properties{$_}->{ARRAY};
+      }
     }
 
     sub hash_properties {
-        my $class = shift->_prop_class;
-        return unless exists $additive_properties{$class}->{'HASH'};
-        return @{$additive_properties{$class}->{'HASH'}};
+      for (shift->_mb_classes) {
+        return @{$additive_properties{$_}->{'HASH'}}
+	  if exists $additive_properties{$_}->{'HASH'};
+      }
     }
 
     sub add_property {
-        my ($class, $property, $default) = @_;
-        unless (exists $valid_properties{$class}) {
-            # Set it up with the properties from the parent classes, first.
-            for my $parent (reverse $class->mb_parents) {
-                $valid_properties{$class}->{$_} = $valid_properties{$parent}->{$_}
-                  for keys %{ $valid_properties{$parent} };
-            }
-        }
+      my ($class, $property, $default) = @_;
+      die "Property '$property' already exists" if $class->valid_property($property);
 
-        return $class unless $property;
+      $valid_properties{$class}{$property} = $default;
 
-        die qq{Property "$property" already exists\n}
-          if $class->valid_property($property);
-        if (my $type = ref $default) {
-            push @{$additive_properties{$class}->{$type}}, $property;
-        }
+      if (my $type = ref $default) {
+	push @{$additive_properties{$class}->{$type}}, $property;
+      }
 
-        $valid_properties{$class}->{$property} = $default;
-        return $class if $class->can($property);
+      unless ($class->can($property)) {
         no strict 'refs';
         *{"$class\::$property"} = sub {
-            my $self = shift;
-            $self->{properties}{$property} = shift if @_;
-            return $self->{properties}{$property};
-        };
-        return $class;
-    }
-
-    sub _prop_class {
-        my $class = ref $_[0] || $_[0];
-        unless (exists $valid_properties{$class}) {
-            if (my @parents = $class->mb_parents) {
-                do {
-                    $class = shift @parents;
-                } until (exists $valid_properties{$class} || !@parents);
-            }
-        }
-        return $class;
+	  my $self = shift;
+	  $self->{properties}{$property} = shift if @_;
+	  return $self->{properties}{$property};
+	};
+      }
+      return $class;
     }
 
     sub _set_defaults {
-        my $self = shift;
-        my $class = $self->_prop_class;
-	# Set the build class.
-	$self->{properties}{build_class} ||= ref $self;
+      my $self = shift;
 
-        for my $prop ($self->valid_properties) {
-            $self->{properties}{$prop} = $valid_properties{$class}->{$prop}
-              unless exists $self->{properties}{$prop};
-        }
-        # Copy defaults for arrays any arrays.
-        for my $prop ($self->array_properties) {
-            $self->{properties}{$prop} = [@{$valid_properties{$class}->{$prop}}]
-              unless exists $self->{properties}{$prop};
-        }
-        # Copy defaults for arrays any hashes.
-        for my $prop ($self->hash_properties) {
-            $self->{properties}{$prop} = {%{$valid_properties{$class}->{$prop}}}
-              unless exists $self->{properties}{$prop};
-        }
+      # Set the build class.
+      $self->{properties}{build_class} ||= ref $self;
+
+      my $defaults = $self->valid_properties_defaults;
+      
+      foreach my $prop (keys %$defaults) {
+	$self->{properties}{$prop} = $defaults->{$prop}
+	  unless exists $self->{properties}{$prop};
+      }
+      
+      # Copy defaults for arrays any arrays.
+      for my $prop ($self->array_properties) {
+	$self->{properties}{$prop} = [@{$defaults->{$prop}}]
+	  unless exists $self->{properties}{$prop};
+      }
+      # Copy defaults for arrays any hashes.
+      for my $prop ($self->hash_properties) {
+	$self->{properties}{$prop} = {%{$defaults->{$prop}}}
+	  unless exists $self->{properties}{$prop};
+      }
     }
 
 }
