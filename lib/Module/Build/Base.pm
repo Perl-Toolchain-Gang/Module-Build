@@ -319,18 +319,19 @@ sub features     {
     if ($ph->{features}->exists($key)) { return $ph->{features}->access($key, @_) }
 
     if (my $info = $ph->{auto_features}->access($key)) {
-      warn "Checking auto_feature '$key'";
       return not $self->prereq_failures($info);
     }
-    return;
+    return $ph->{features}->access($key, @_);
   }
   
-  # No args - get the regular features & add the auto_features
-  my %features = $ph->{features}->access();
+  # No args - get the auto_features & overlay the regular features
+  my %features;
   my %auto_features = $ph->{auto_features}->access();
   while (my ($name, $info) = each %auto_features) {
     $features{$name} = not $self->prereq_failures($info);
   }
+  %features = (%features, $ph->{features}->access());
+
   return wantarray ? %features : \%features;
 }
 BEGIN { *feature = \&features }
