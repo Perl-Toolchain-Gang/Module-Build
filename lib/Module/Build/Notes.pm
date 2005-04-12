@@ -44,6 +44,11 @@ sub has_data {
   return keys %{$self->read()} > 0;
 }
 
+sub exists {
+  my ($self, $key) = @_;
+  return exists($self->{new}{$key}) || exists($self->{disk}{$key});
+}
+
 sub read {
   my $self = shift;
 
@@ -99,6 +104,8 @@ sub _dump {
 
 sub write_config_data {
   my ($self, %args) = @_;
+
+  # XXX need to handle auto_features
 
   my $fh = IO::File->new("> $args{file}") or die "Can't create '$args{file}': $!";
 

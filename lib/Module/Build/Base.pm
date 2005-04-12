@@ -32,7 +32,7 @@ sub new {
   $self->dist_version;
   $self->check_manifest;
   $self->check_prereq;
-  $self->set_autofeatures;
+  $self->check_autofeatures;
   $self->_set_install_paths;
   $self->_find_nested_builds;
 
@@ -112,11 +112,18 @@ sub _construct {
   $self->_set_defaults;
   my ($p, $c, $ph) = ($self->{properties}, $self->{config}, $self->{phash});
 
-  foreach (qw(notes config_data features runtime_params cleanup)) {
+  foreach (qw(notes config_data features runtime_params cleanup auto_features)) {
     my $file = File::Spec->catfile($self->config_dir, $_);
     $ph->{$_} = Module::Build::Notes->new(file => $file);
     $ph->{$_}->restore if -e $file;
+    if (exists $p->{$_}) {
+      my $vals = delete $p->{$_};
+      while (my ($k, $v) = each %$vals) {
+	$self->$_($k, $v);
+      }
+    }
   }
+
 
   # The following warning could be unnecessary if the user is running
   # an embedded perl, but there aren't too many of those around, and
@@ -296,11 +303,39 @@ sub y_n {
   }
 }
 
+sub current_action { shift->{action} }
+
 sub notes        { shift()->{phash}{notes}->access(@_) }
 sub config_data  { shift()->{phash}{config_data}->access(@_) }
-sub feature      { shift()->{phash}{features}->access(@_) }
 sub runtime_params { shift->{phash}{runtime_params}->read( @_ ? shift : () ) }  # Read-only
-sub current_action { shift->{action} }
+sub auto_features  { shift()->{phash}{auto_features}->access(@_) }
+
+sub features     {
+  my $self = shift;
+  my $ph = $self->{phash};
+
+  if (@_) {
+    my $key = shift;
+    if ($ph->{features}->exists($key)) { return $ph->{features}->access($key, @_) }
+
+    if (my $info = $ph->{auto_features}->access($key)) {
+      warn "Checking auto_feature '$key'";
+      return not $self->prereq_failures($info);
+    }
+    return;
+  }
+  
+  # No args - get the regular features & add the auto_features
+  my %features = $ph->{features}->access();
+  my %auto_features = $ph->{auto_features}->access();
+  while (my ($name, $info) = each %auto_features) {
+    $features{$name} = not $self->prereq_failures($info);
+  }
+  return wantarray ? %features : \%features;
+}
+BEGIN { *feature = \&features }
+
+
 
 sub add_build_element {
   my $self = shift;
@@ -327,7 +362,8 @@ sub ACTION_config_data {
        module => $module_name,
        config_module => $notes_name,
        config_data => scalar $self->config_data,
-       feature => scalar $self->feature,
+       feature => scalar $self->features,
+       auto_features => scalar $self->auto_features,
       );
 }
 
@@ -656,7 +692,7 @@ sub read_config {
 
 sub has_config_data {
   my $self = shift;
-  return scalar grep $self->{phash}{$_}->has_data(), qw(config_data features);
+  return scalar grep $self->{phash}{$_}->has_data(), qw(config_data features auto_features);
 }
 
 sub _write_dumper {
@@ -678,7 +714,7 @@ sub write_config {
   $self->_write_dumper('prereqs', { map { $_, $self->$_() } @items });
   $self->_write_dumper('build_params', [$self->{args}, $self->{config}, $self->{properties}]);
 
-  $self->{phash}{$_}->write() foreach qw(notes cleanup features config_data runtime_params);
+  $self->{phash}{$_}->write() foreach qw(notes cleanup features auto_features config_data runtime_params);
 }
 
 sub config         { shift()->{config} }
@@ -688,26 +724,22 @@ sub recommends     { shift()->{properties}{recommends} }
 sub build_requires { shift()->{properties}{build_requires} }
 sub conflicts      { shift()->{properties}{conflicts} }
 
-sub set_autofeatures {
+sub check_autofeatures {
   my ($self) = @_;
-  my $features = delete $self->{properties}{auto_features}
-    or return;
+  my $features = $self->auto_features;
   
   while (my ($name, $info) = each %$features) {
     my $failures = $self->prereq_failures($info);
     if ($failures) {
-      $self->log_warn("Feature '$name' disabled because of the following prerequisite failures:\n");
-      foreach my $type ( @{$self->prereq_action_types} ) {
-	next unless $failures->{$type};
+      my $log_text = "Feature '$name' disabled because of the following prerequisite failures:\n";
+      foreach my $type ( grep $failures->{$_}, @{$self->prereq_action_types} ) {
 	while (my ($module, $status) = each %{$failures->{$type}}) {
-	  $self->log_warn(" * $status->{message}\n");
+	  $log_text .= " * $status->{message}\n";
 	}
-	$self->log_warn("\n");
       }
-      $self->feature($name => 0);
+      $self->log_warn("$log_text\n");
     } else {
       $self->log_info("Feature '$name' enabled.\n\n");
-      $self->feature($name => 1);
     }
   }
 }

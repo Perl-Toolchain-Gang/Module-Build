@@ -76,6 +76,8 @@ $build->add_to_cleanup($destdir);
 }
 
 {
+  # Test the ConfigData stuff
+  
   $build->config_data(foo => 'bar');
   $build->feature(baz => 1);
   eval {$build->dispatch('install', destdir => $destdir)};
