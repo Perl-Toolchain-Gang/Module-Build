@@ -1,6 +1,16 @@
 use strict;
 use Config;
 
+# In case the test wants to use Test::More or our other bundled
+# modules, make sure they can be loaded.  They'll still do "use
+# Test::More" in the test script.
+BEGIN {
+  my $t_lib = File::Spec->catdir('t', 'lib');
+  push @INC, $t_lib; # Let user's installed version override
+}
+
+use Test();
+
 sub have_module {
   my $module = shift;
   return eval "use $module; 1";
@@ -19,7 +29,7 @@ sub skip_test {
 
 sub skip_subtest {
   my $msg = @_ ? shift() : '(no reason given)';
-  skip "skip $msg", 1;
+  Test::skip "skip $msg", 1;
 }
 
 sub save_handle {
