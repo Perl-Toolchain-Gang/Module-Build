@@ -100,7 +100,6 @@ $build->add_to_cleanup($destdir);
     ok( Sample::ConfigData->feature('baz') );
     ok( Sample::ConfigData->feature('auto_foo') );
     ok( not Sample::ConfigData->feature('nonexistent') );
-<STDIN>;
 
     # Add a new value to the config set
     Sample::ConfigData->set_config(floo => 'bhlar');
