@@ -363,7 +363,7 @@ sub ACTION_config_data {
        module => $module_name,
        config_module => $notes_name,
        config_data => scalar $self->config_data,
-       feature => scalar $self->features,
+       feature => scalar $self->{phash}{features}->access(),
        auto_features => scalar $self->auto_features,
       );
 }

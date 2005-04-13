@@ -115,13 +115,12 @@ use strict;
 my $arrayref = eval do {local $/; <DATA>}
   or die "Couldn't load ConfigData data: $@";
 close DATA;
-my ($config, $features) = @$arrayref;
+my ($config, $features, $auto_features) = @$arrayref;
 
 sub config { $config->{$_[1]} }
-sub feature { $features->{$_[1]} }
 
 sub set_config { $config->{$_[1]} = $_[2] }
-sub set_feature { $features->{$_[1]} = 0+!!$_[2] }
+sub set_feature { $features->{$_[1]} = 0+!!$_[2] }  # Constrain to 1 or 0
 
 sub feature_names { keys %%$features }
 sub config_names  { keys %%$config }
@@ -148,6 +147,22 @@ sub write {
 
   chmod($mode_orig, $me)
     or warn "Couldn't restore permissions on $me: $!";
+}
+
+sub feature {
+  my ($package, $key) = @_;
+  return $features->{$key} if exists $features->{$key};
+
+  my $info = $auto_features->{$key} or return;
+  require Module::Build;  # XXX should get rid of this
+  while (my ($type, $prereqs) = each %%$info) {
+    next if $type eq 'description';
+    while (my ($modname, $spec) = each %%$prereqs) {
+      my $status = Module::Build->check_installed_status($modname, $spec);
+      if (!$status->{ok} xor $type =~ /conflicts$/) { return 0; }
+    }
+  }
+  return 1;
 }
 
 EOF
@@ -238,7 +253,7 @@ __DATA__
 EOF
 
   local $Data::Dumper::Terse = 1;
-  print $fh Data::Dumper::Dumper([$args{config_data}, $args{feature}]);
+  print $fh Data::Dumper::Dumper([$args{config_data}, $args{feature}, $args{auto_features}]);
 }
 
 1;
