@@ -3,10 +3,16 @@
 use strict;
 
 use File::Spec;
+use Test;
+BEGIN {
+  my $common_pl = File::Spec->catfile('t', 'common.pl');
+  require $common_pl;
+}
+
 use File::Path qw( rmtree );
 
-use Test;
-BEGIN { plan tests => 21 }
+need_module('Pod::Man');
+plan tests => 21;
 
 use Module::Build;
 
