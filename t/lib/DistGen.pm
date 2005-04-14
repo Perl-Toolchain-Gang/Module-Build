@@ -1,7 +1,6 @@
 package DistGen;
 
 use strict;
-use warnings;
 
 use vars qw( $VERSION $VERBOSE );
 
@@ -14,7 +13,7 @@ use File::Basename ();
 use File::Find ();
 use File::Path ();
 use File::Spec ();
-
+use IO::File ();
 
 sub new {
   my $package = shift;
@@ -131,7 +130,7 @@ sub _gen_manifest {
   my $self     = shift;
   my $manifest = shift;
 
-  open( my $fh, ">$manifest" ) or do {
+  my $fh = IO::File->new( ">$manifest" ) or do {
     $self->remove();
     die "Can't write '$manifest'\n";
   };
@@ -198,7 +197,7 @@ sub regen {
         unlink( $fullname ) or die "Can't unlink '$file'\n";
       }
 
-      open( my $fh, ">$fullname" ) or do {
+      my $fh = IO::File->new(">$fullname") or do {
         $self->remove();
         die "Can't write '$fullname'\n";
       };
