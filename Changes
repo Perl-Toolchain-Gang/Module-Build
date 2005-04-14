@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2610
+0.2610  Wed Apr 13 22:05:50 CDT 2005
 
  - new_from_context() was losing its arguments in some cases (and not
    because of inadequate training in debate) - we now pass its
