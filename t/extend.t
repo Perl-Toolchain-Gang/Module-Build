@@ -1,6 +1,11 @@
 use strict;
 
 # Tests various ways to extend Module::Build, e.g. by subclassing.
+use File::Spec;
+BEGIN {
+  my $common_pl = File::Spec->catfile('t', 'common.pl');
+  require $common_pl;
+}
 
 use Test::More tests => 50;
 use Module::Build;
