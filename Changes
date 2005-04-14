@@ -3,6 +3,13 @@ Revision history for Perl extension Module::Build.
 
 0.27_01 (Beta for 0.28)
 
+ - The auto_features mechanism will now re-evaluate dependencies every
+   time feature() is called for an auto-feature, rather than freezing
+   the success/failure value during 'perl Build.PL' and using that
+   value for all eternity (or module update, whichever comes first).
+   This applies to both $build->feature() and
+   FooModule::ConfigData->feature() calls. [Requested by many]
+
  - Added the meta_add and meta_merge mechanisms, which let the module
    author add/merge arbitrary entries into the META.yml file.
 
