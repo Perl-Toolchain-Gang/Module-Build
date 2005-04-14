@@ -8,6 +8,7 @@ lib/Module/Build/Base.pm
 lib/Module/Build/Compat.pm
 lib/Module/Build/Cookbook.pm
 lib/Module/Build/ModuleInfo.pm
+lib/Module/Build/Notes.pm
 lib/Module/Build/Platform/aix.pm
 lib/Module/Build/Platform/Amiga.pm
 lib/Module/Build/Platform/cygwin.pm
@@ -36,6 +37,7 @@ t/ext.t
 t/extend.t
 t/files.t
 t/install.t
+t/lib/DistGen.pm
 t/lib/ModuleBuildOne.pm
 t/lib/Test/Builder.pm
 t/lib/Test/More.pm
@@ -47,6 +49,7 @@ t/parents.t
 t/pod_parser.t
 t/runthrough.t
 t/Sample/bin/sample.pl
+t/Sample/Build
 t/Sample/Build.PL
 t/Sample/lib/Sample.pm
 t/Sample/lib/Sample/Docs.pod
