@@ -870,6 +870,13 @@ is available; see http://sourceforge.net/cvs/?group_id=45731 for the
 details of how to access it.
 
 
+=head1 COPYRIGHT
+
+Copyright (c) 2001-2005 Ken Williams.  All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
 =head1 SEE ALSO
 
 perl(1), Module::Build::Cookbook(3), Module::Build::Authoring(3),

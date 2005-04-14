@@ -2892,6 +2892,13 @@ Please see the C<Module::Build> documentation for more details.
 
 Ken Williams, ken@mathforum.org
 
+=head1 COPYRIGHT
+
+Copyright (c) 2001-2005 Ken Williams.  All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
 =head1 SEE ALSO
 
 perl(1), Module::Build(3)

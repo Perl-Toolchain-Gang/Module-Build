@@ -404,6 +404,13 @@ versions of tools like CPAN and CPANPLUS.
 
 Ken Williams, ken@mathforum.org
 
+=head1 COPYRIGHT
+
+Copyright (c) 2001-2005 Ken Williams.  All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
 =head1 SEE ALSO
 
 Module::Build(3), ExtUtils::MakeMaker(3)
