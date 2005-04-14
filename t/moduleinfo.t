@@ -1,6 +1,13 @@
 
 use strict;
-use Test;
+
+use File::Spec;
+BEGIN {
+  my $common_pl = File::Spec->catfile('t', 'common.pl');
+  require $common_pl;
+}
+
+use Test::More;
 
 BEGIN {
   plan tests => 27;
@@ -9,7 +16,6 @@ BEGIN {
 
   push( @INC, 'lib' );
   require DistGen;
-  require File::Spec;
 }
 
 use Module::Build::ModuleInfo;
@@ -90,7 +96,7 @@ foreach my $module ( @modules ) {
   $dist->regen( clean => 1 );
   $file = File::Spec->catfile( $dist->dirname, 'lib', 'Simple.pm' );
   my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
-  ok( $pm_info->version eq '1.23' );
+  is( $pm_info->version, '1.23' );
 }
 $dist->remove();
 
@@ -173,25 +179,25 @@ $dist->regen();
 $pm_info = Module::Build::ModuleInfo->new_from_module(
              'Simple', inc => [ $inc, @INC ] );
 
-ok( $pm_info->name() eq 'Simple' );
+is( $pm_info->name(), 'Simple' );
 
-ok( $pm_info->version() eq '0.01' );
+is( $pm_info->version(), '0.01' );
 
 # got correct version for secondary package
-ok( $pm_info->version( 'Simple::Ex' ) eq '0.02' );
+is( $pm_info->version( 'Simple::Ex' ), '0.02' );
 
 my $filename = $pm_info->filename();
 ok( defined( $filename ) && length( $filename ) );
 
 my @packages = $pm_info->packages_inside();
-ok( scalar( @packages ) == 2 );
-ok( $packages[0] eq 'Simple' );
+is( @packages, 2 );
+is( $packages[0], 'Simple' );
 
 # we can detect presence of pod regardless of whether we are collecting it
 ok( $pm_info->contains_pod() );
 
 my @pod = $pm_info->pod_inside();
-ok( "@pod" eq 'NAME AUTHOR' );
+is_deeply( \@pod, [qw(NAME AUTHOR)] );
 
 # no pod is collected
 my $name = $pm_info->pod('NAME');
@@ -207,7 +213,7 @@ if ( $name ) {
   $name =~ s/^\s+//;
   $name =~ s/\s+$//;
 }
-ok( $name eq q|Simple - It's easy.| );
+is( $name, q|Simple - It's easy.| );
 
 
 
