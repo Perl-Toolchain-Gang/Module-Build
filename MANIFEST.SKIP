@@ -12,9 +12,8 @@ CVS
 ^patch
 ^Module-
 ^t/_
-^t/Sample/save_out$
+^t/Sample/(save_out|SIGNATURE|Build)$
 ^t/Sample/_build
-^t/Sample/SIGNATURE
 (^|/)\.
 Makefile$
 /cover_db/

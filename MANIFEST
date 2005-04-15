@@ -49,7 +49,6 @@ t/parents.t
 t/pod_parser.t
 t/runthrough.t
 t/Sample/bin/sample.pl
-t/Sample/Build
 t/Sample/Build.PL
 t/Sample/lib/Sample.pm
 t/Sample/lib/Sample/Docs.pod
