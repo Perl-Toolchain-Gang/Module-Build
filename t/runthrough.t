@@ -140,6 +140,6 @@ EOF
 eval {$build->dispatch('realclean')};
 ok $@, '';
 
-ok -e $build->build_script, undef;
-ok -e $build->config_dir, undef;
-ok -e $build->dist_dir, undef;
+ok !-e $build->build_script, 1;
+ok !-e $build->config_dir, 1;
+ok !-e $build->dist_dir, 1;

@@ -37,7 +37,7 @@ ok $build;
 
 foreach my $type (@makefile_types) {
   Module::Build::Compat->create_makefile_pl($type, $build);
-  test_makefile_creation($build);
+  test_makefile_creation($build); # 2 tests
   
   ok $build->do_system(@make);
   
@@ -47,15 +47,15 @@ foreach my $type (@makefile_types) {
 			    $success = $build->do_system(@make, 'test');
 			  } );
   ok $success;
-  ok uc $output, qr{DONE\.|SUCCESS};
+  ok uc $output, qr{DONE\.|SUCCESS}, "Make sure 'make test' ran";
   
   ok $build->do_system(@make, 'realclean');
   
   # Try again with some Makefile.PL arguments
-  test_makefile_creation($build, [], 'INSTALLDIRS=vendor', 1);
+  test_makefile_creation($build, [], 'INSTALLDIRS=vendor', 1); # 3 tests
   
   1 while unlink 'Makefile.PL';
-  ok -e 'Makefile.PL', undef;
+  ok !-e 'Makefile.PL', 1;
 }
 
 {
@@ -64,7 +64,7 @@ foreach my $type (@makefile_types) {
   my $warning = '';
   local $SIG{__WARN__} = sub { $warning = shift; };
   my $maketext = eval { Module::Build::Compat->fake_makefile(makefile => 'Makefile') };
-  ok $@, '';
+  ok $@, '', "Make sure we can create a makefile";
   ok $maketext, qr/^realclean/m;
   ok $warning, qr/build_class/;
 }
@@ -137,13 +137,13 @@ foreach my $type (@makefile_types) {
   
   
   $build->delete_filetree($libdir);
-  ok -e $libdir, undef, "Sample installation directory should be cleaned up";
+  ok !-e $libdir, 1, "Sample installation directory should be cleaned up";
   
   $build->do_system(@make, 'realclean');
-  ok -e 'Makefile', undef, "Makefile shouldn't exist";
+  ok !-e 'Makefile', 1, "Makefile shouldn't exist";
 
   1 while unlink 'Makefile.PL';
-  ok -e 'Makefile.PL', undef;
+  ok !-e 'Makefile.PL', 1;
 }
 
 { # Make sure tilde-expansion works
@@ -173,6 +173,6 @@ sub test_makefile_creation {
   
   if ($cleanup) {
     $build->do_system(@make, 'realclean');
-    ok -e 'Makefile', undef, "Makefile shouldn't exist";
+    ok !-e 'Makefile', 1, "Makefile shouldn't exist";
   }
 }
