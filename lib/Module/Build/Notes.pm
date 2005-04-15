@@ -152,14 +152,22 @@ sub write {
 sub feature {
   my ($package, $key) = @_;
   return $features->{$key} if exists $features->{$key};
-
-  my $info = $auto_features->{$key} or return;
+  
+  my $info = $auto_features->{$key} or return 0;
+  
+  # Under perl 5.005, each(%%$foo) isn't working correctly when $foo
+  # was reanimated with Data::Dumper and eval().  Not sure why, but
+  # copying to a new hash seems to solve it.
+  my %%info = %%$info;
+  
   require Module::Build;  # XXX should get rid of this
-  while (my ($type, $prereqs) = each %%$info) {
+  while (my ($type, $prereqs) = each %%info) {
     next if $type eq 'description';
-    while (my ($modname, $spec) = each %%$prereqs) {
+    
+    my %%p = %%$prereqs;  # Ditto here.
+    while (my ($modname, $spec) = each %%p) {
       my $status = Module::Build->check_installed_status($modname, $spec);
-      if (!$status->{ok} xor $type =~ /conflicts$/) { return 0; }
+      if ((!$status->{ok}) xor ($type =~ /conflicts$/)) { return 0; }
     }
   }
   return 1;

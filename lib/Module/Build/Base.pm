@@ -1774,7 +1774,6 @@ sub ACTION_docs {
   } else {
     require Module::Build::ConfigData;
   }
-  
   if (Module::Build::ConfigData->feature('manpage_support')) {
     $self->manify_bin_pods() if $self->install_destination('bindoc');
     $self->manify_lib_pods() if $self->install_destination('libdoc');
