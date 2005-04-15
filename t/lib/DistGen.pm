@@ -59,7 +59,7 @@ my \$builder = Module::Build->new(
     $self->add_file( $module_filename, <<"---" ) unless $self->{filedata}{$module_filename};
 package $self->{name};
 
-our \$VERSION = '0.01';
+\$VERSION = '0.01';
 
 use strict;
 use warnings;

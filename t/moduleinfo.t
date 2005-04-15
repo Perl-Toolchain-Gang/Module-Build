@@ -76,15 +76,15 @@ $VERSION = '1.23';
 ---
   <<'---', # choose the right default package based on package/file name
 package Simple::_private;
-our $VERSION = '0';
+$VERSION = '0';
 1;
 package Simple;
-our $VERSION = '1.23'; # this should be chosen for version
+$VERSION = '1.23'; # this should be chosen for version
 1;
 ---
   <<'---', # just read the first $VERSION line
 package Simple;
-our $VERSION = '1.23'; # we should see this line
+$VERSION = '1.23'; # we should see this line
 $VERSION = eval $VERSION; # and ignore this one
 1;
 ---
@@ -92,11 +92,15 @@ $VERSION = eval $VERSION; # and ignore this one
 
 $dist = DistGen->new();
 foreach my $module ( @modules ) {
-  $dist->change_file( 'lib/Simple.pm', $module );
-  $dist->regen( clean => 1 );
-  $file = File::Spec->catfile( $dist->dirname, 'lib', 'Simple.pm' );
-  my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
-  is( $pm_info->version, '1.23' );
+ SKIP: {
+    skip "No our() support until perl 5.6", 1 if $] < 5.006 && $module =~ /\bour\b/;
+
+    $dist->change_file( 'lib/Simple.pm', $module );
+    $dist->regen( clean => 1 );
+    $file = File::Spec->catfile( $dist->dirname, 'lib', 'Simple.pm' );
+    my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
+    is( $pm_info->version, '1.23' );
+  }
 }
 $dist->remove();
 
@@ -106,42 +110,42 @@ my @scripts = (
   <<'---', # package main declared
 #!perl -w
 package main;
-our $VERSION = '0.01';
+$VERSION = '0.01';
 ---
   <<'---', # on first non-comment line, non declared package main
 #!perl -w
-our $VERSION = '0.01';
+$VERSION = '0.01';
 ---
   <<'---', # after non-comment line
 #!perl -w
 use strict;
-our $VERSION = '0.01';
+$VERSION = '0.01';
 ---
   <<'---', # 1st declared package
 #!perl -w
 package main;
-our $VERSION = '0.01';
+$VERSION = '0.01';
 package _private;
-our $VERSION = '999';
+$VERSION = '999';
 1;
 ---
   <<'---', # 2nd declared package
 #!perl -w
 package _private;
-our $VERSION = '999';
+$VERSION = '999';
 1;
 package main;
-our $VERSION = '0.01';
+$VERSION = '0.01';
 ---
   <<'---', # split package
 #!perl -w
 package main;
 1;
 package _private;
-our $VERSION = '999';
+$VERSION = '999';
 1;
 package main;
-our $VERSION = '0.01';
+$VERSION = '0.01';
 1;
 ---
 );
@@ -159,10 +163,10 @@ foreach my $script ( @scripts ) {
 # examine properties of a module: name, pod, etc
 $dist->change_file( 'lib/Simple.pm', <<'---' );
 package Simple;
-our $VERSION = '0.01';
+$VERSION = '0.01';
 1;
 package Simple::Ex;
-our $VERSION = '0.02';
+$VERSION = '0.02';
 1;
 =head1 NAME
 
