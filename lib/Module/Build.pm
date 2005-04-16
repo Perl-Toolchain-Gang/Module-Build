@@ -491,25 +491,25 @@ version-specific installs.
 
 =head2 Default Commandline Options (F<.modulebuildrc>)
 
-When Module::Build starts up it will look for a file,
-F<$ENV{HOME}/.modulebuildrc>. If the file exists it will use the
-options specified there as defaults, as if they were typed on the
-commandline. The defaults can be overridden by specifying new values
-on the commandline.
+When Module::Build starts up, it will look for a file,
+F<$ENV{HOME}/.modulebuildrc>. If the file exists, the options
+specified there will be used as defaults, as if they were typed on the
+command line. The defaults can be overridden by specifying new values
+on the command line.
 
-The action name must come at the beginning of the line followed by any
+The action name must come at the beginning of the line, followed by any
 amount of whitespace and then the options. Options are given the same
-as they would be on the commandline. They can be seperated by any
-amount of whitespace, including newlines as long there is a space at
-the beginning of the continued line. Any thing following a hash mark
+as they would be on the commandline. They can be separated by any
+amount of whitespace, including newlines, as long there is whitespace at
+the beginning of each continued line. Anything following a hash mark (C<#>)
 is considered a comment, and is stripped before parsing. If more than
 one line begins with the same action name, those lines are merged into
-one commandline.
+one set of options.
 
-Besides the regular actions, there are two special options. You can
-use the action name '*' (asterisk) for any global options that should
-be applied to all actions. And there is the 'Build_PL' action which
-specifies options to be applied when you invoke C<perl Build.PL>.
+Besides the regular actions, there are two special pseudo-actions: the
+key C<*> (asterisk) denotes any global options that should be applied
+to all actions, and the key 'Build_PL' specifies options to be applied
+when you invoke C<perl Build.PL>.
 
  *        verbose=1   # global options
  diff     flags=-u
