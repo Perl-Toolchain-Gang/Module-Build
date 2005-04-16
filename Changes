@@ -1,7 +1,21 @@
 Revision history for Perl extension Module::Build.
 
 
-0.27_01 (Beta for 0.28)
+0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
+
+ Backward-incompatible (but better) changes:
+
+ * When using the 'install_base' option to choose a directory for
+   installing everything, perl modules now go into lib/perl5/ instead
+   of just lib/.  It seems this is more consistent with people's
+   expectations, and the way I had it before was a bit peculiar to the
+   way I like things in my own home directory. [Michael Schwern]
+
+ * When the user is using the 'install_base' option, scripts will now
+   be installed by default in $install_base/bin/ rather than
+   $install_base/script/ . [Jan Hudec and Michael Schwern]
+
+ Major changes:
 
  - The auto_features mechanism will now re-evaluate dependencies every
    time feature() is called for an auto-feature, rather than freezing
@@ -14,15 +28,34 @@ Revision history for Perl extension Module::Build.
    author add/merge arbitrary entries into the META.yml file.
 
  - Now reads per-action default options from '$ENV{HOME}/.modulebuildrc'
-   if it exists. Commandline options override anything set in the rc file.
+   if it exists. Command line options override anything set in the rc file.
 
  - Extend prerequisite specifications to apply to all actions. It is
    now a fatal error if 'requires' or 'conflicts' for a given action
    are not satisfied, except where necessary for backwards compatability.
-   Also, added options to ignore the fatal errors.
+   Also, added '--force' options to ignore the fatal errors. (NOTE:
+   this is a somewhat experimental feature, we may morph this around a
+   bit before final release!)
+
+ - The creation of Unix man pages is no longer a strict necessity - it
+   has now been turned into an 'auto-feature' contingent on the
+   presence of Pod::Man and a location specified for man pages to go.
+
+ - A user-specified 'install_path' setting will now take precedence
+   over an 'install_base' setting.  This allows the user to use
+   'install_base' to set the base for all elements in one go, and then
+   use 'install_path' to override specific paths or add paths for
+   additional kinds of targets.
+
+ - Split the main documentation from 'Module/Build.pm' into two
+   sections. The user level documentation and overview remains in
+   'Module/Build.pm', while a new document,
+   'Module/Build/Authoring.pod', has been created for module authors.
+
+ Minor changes:
 
  - new_from_context() was losing its arguments in some cases (and not
-   because of inadequate training in debate) - we now pass its
+   because of inadequate training in forensic debate) - we now pass its
    arguments directly to the Build.PL script rather than merging them
    in afterwards.
 
@@ -32,29 +65,18 @@ Revision history for Perl extension Module::Build.
    to behave more like factory methods returning objects of the correct
    class based on context. [Ray Zimmerman]
 
- - M::B::ModuleInfo would not read the $VERSION in the assumed package
-   'main' of a script unless the $VERSION line was the first non-empty
-   line in the script. [David Wheeler]
+ - Refactored methods relating to parsing perl module files for
+   package, version, and pod data into a new class:
+   Module::Build::ModuleInfo.  It should not be considered part of
+   Module::Build's API, because we may split it out entirely as a
+   separate CPAN module that we depend on.
 
  - Added new method Module::Build::prepare_metadata() for authors to
    override in order to add custom fields to META.yml.
 
- - Refactored methods relating to parsing perl module files for package,
-   version, and pod data into a new class: Module::Build::ModuleInfo.
-
  - We now use Test::More for our regression tests.  If the user
    doesn't have it installed, we include a copy in t/lib/ that we can
-   use during testing (it won't be installed).
-
- - Split documentation into two sections. The user level documentation
-   and overview remains in 'Module/Build.pm', while a new document,
-   'Module/Build/Authoring.pod', has been created for module authors.
-
- - The creation of Unix man pages is no longer a strict necessity - it
-   has now been turned into an 'auto-feature' contingent on the
-   presence of Pod::Man, and when distributions are being built we
-   skip building man pages when there's no location specified for them
-   to go.
+   use during testing.
 
  - When copying files in the 'distdir' action, set permissions to match
    the original files. [Julian Mehnle]
@@ -68,20 +90,8 @@ Revision history for Perl extension Module::Build.
    (or in whatever paradigm the user originally invoked Module::Build
    from). [David Wheeler]
 
- - A user-specified 'install_path' setting will now take precedence
-   over an 'install_base' setting.  This allows the user to use
-   'install_base' to set the base for all elements in one go, and then
-   use 'install_path' to override specific paths or add paths for
-   additional kinds of targets.
-
  - Added the current_action() method, which, surprisingly, returns the
    name of the currently running action. [David Wheeler]
-
- * When using the 'install_base' option to choose a directory for
-   installing everything, perl modules now go into lib/perl5/ instead
-   of just lib/.  It seems this is more consistent with people's
-   expectations, and the way I had it before was a bit peculiar to the
-   way I like things in my own home directory. [Michael Schwern]
 
  - Added docs for run_perl_script().
 
@@ -127,10 +137,6 @@ Revision history for Perl extension Module::Build.
    let it figure stuff out for itself if it was a reasonably modern
    version, but it's safer to make sure we're using the same perl
    everywhere.
-
- - When the user is using the 'install_base' option, scripts will now
-   be installed by default in $install_base/bin/ rather than
-   $install_base/script/ . [Jan Hudec and Michael Schwern]
 
 0.2610  Fri Apr 15 08:25:01 CDT 2005
 
