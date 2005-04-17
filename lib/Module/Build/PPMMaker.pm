@@ -165,7 +165,7 @@ Module::Build::PPMMaker - Perl Package Manager file creation
 This package contains the code that builds F<.ppd> "Perl Package
 Description" files, in support of ActiveState's "Perl Package
 Manager".  Details are here:
-L<"http://aspn.activestate.com/ASPN/Downloads/ActivePerl/PPM/">
+L<http://aspn.activestate.com/ASPN/Downloads/ActivePerl/PPM/>
 
 =head1 AUTHOR
 
