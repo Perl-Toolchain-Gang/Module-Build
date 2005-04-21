@@ -393,6 +393,13 @@ This uses the same mechanism as the C<dist> action to tar & zip its
 output, so you can supply C<tar> and/or C<gzip> parameters to affect
 the result.
 
+=item pure_install
+
+This action is identical to the C<install> action.  In the future,
+though, if C<install> starts writing to the file file
+F<$(INSTALLARCHLIB)/perllocal.pod>, C<pure_install> won't, and that
+will be the only difference between them.
+
 =item realclean
 
 This action is just like the C<clean> action, but also removes the

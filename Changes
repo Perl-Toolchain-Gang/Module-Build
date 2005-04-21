@@ -5,6 +5,9 @@ Revision history for Perl extension Module::Build.
  - Fixed a bug in subclass() which prevented people from using it to
    subclass subclasses of Module::Build. [Chris Dolan]
 
+ - Added a 'pure_install' action, which for the time being is
+   identical to the 'install' action. [Jos Boumans]
+
 
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 

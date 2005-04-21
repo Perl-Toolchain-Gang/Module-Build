@@ -2010,6 +2010,10 @@ sub ACTION_diff {
   }
 }
 
+sub ACTION_pure_install {
+  shift()->depends_on('install');
+}
+
 sub ACTION_install {
   my ($self) = @_;
   require ExtUtils::Install;
