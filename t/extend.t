@@ -7,7 +7,7 @@ BEGIN {
   require $common_pl;
 }
 
-use Test::More tests => 50;
+use Test::More tests => 52;
 use Module::Build;
 ok 1;
 
@@ -28,6 +28,16 @@ $build->dispatch('loop');
 is $::x, 1;
 
 $build->dispatch('realclean');
+
+# Make sure the subclass can be subclassed
+my $build2class = ref($build)->subclass
+  (
+   code => "sub ACTION_loop2 {}",
+   class => 'MBB',
+  );
+can_ok( $build2class, 'ACTION_loop' );
+can_ok( $build2class, 'ACTION_loop2' );
+
 
 {
   # Make sure globbing works in filenames

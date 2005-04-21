@@ -589,8 +589,8 @@ sub subclass {
   my $fh = IO::File->new("> $filename") or die "Can't create $filename: $!";
   print $fh <<EOF;
 package $opts{class};
-use Module::Build;
-\@ISA = qw(Module::Build);
+use $pack;
+\@ISA = qw($pack);
 $opts{code}
 1;
 EOF

@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.27_02
+
+ - Fixed a bug in subclass() which prevented people from using it to
+   subclass subclasses of Module::Build. [Chris Dolan]
+
 
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
