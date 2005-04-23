@@ -10,7 +10,7 @@ BEGIN {
 use Test::More;
 
 BEGIN {
-  plan tests => 27;
+  plan tests => 33;
 
   chdir( 't' ) if -d 't';
 
@@ -18,41 +18,39 @@ BEGIN {
   require DistGen;
 }
 
-use Module::Build::ModuleInfo;
-ok(1);
-
+use_ok( 'Module::Build::ModuleInfo' );
 
 # class method C<find_module_by_name>
 my $module = Module::Build::ModuleInfo->find_module_by_name(
                'Module::Build::ModuleInfo' );
-ok( -e $module );
+ok( -e $module, 'find_module_by_name() succeeds' );
 
 
 # fail on invalid module name
-my $pm_info = Module::Build::ModuleInfo->new_from_module( 'Foo::Bar' );
-ok( !defined( $pm_info ) );
+my $pm_info = Module::Build::ModuleInfo->new_from_module(
+		'Foo::Bar', inc => [] );
+ok( !defined( $pm_info ), 'fail if can\'t find module by module name' );
 
 
 # fail on invalid filename
 my $file = File::Spec->catfile( 'Foo', 'Bar.pm' );
-$pm_info = Module::Build::ModuleInfo->new_from_file( $file );
-ok( !defined( $pm_info ) );
+$pm_info = Module::Build::ModuleInfo->new_from_file( $file, inc => [] );
+ok( !defined( $pm_info ), 'fail if can\'t find module by file name' );
 
 
-my $dist = DistGen->new();
-$dist->regen();
+my $dist = DistGen->new;
+$dist->regen;
 
 # construct from module filename
 $file = File::Spec->catfile( $dist->dirname, 'lib', 'Simple.pm' );
-$pm_info =
-    Module::Build::ModuleInfo->new_from_file( $file );
-ok( defined( $pm_info ) );
+$pm_info = Module::Build::ModuleInfo->new_from_file( $file );
+ok( defined( $pm_info ), 'new_from_file() succeeds' );
 
 # construct from module name, using custom include path
 my $inc = File::Spec->catdir( qw( Simple lib ) );
 $pm_info = Module::Build::ModuleInfo->new_from_module(
 	     'Simple', inc => [ $inc, @INC ] );
-ok( defined( $pm_info ) );
+ok( defined( $pm_info ), 'new_from_module() succeeds' );
 
 
 # parse various module $VERSION lines
@@ -60,49 +58,92 @@ my @modules = (
   <<'---', # declared & defined on same line with 'our'
 package Simple;
 our $VERSION = '1.23';
-1;
 ---
   <<'---', # declared & defined on seperate lines with 'our'
 package Simple;
 our $VERSION;
 $VERSION = '1.23';
-1;
 ---
   <<'---', # use vars
 package Simple;
 use vars qw( $VERSION );
 $VERSION = '1.23';
-1;
 ---
   <<'---', # choose the right default package based on package/file name
 package Simple::_private;
 $VERSION = '0';
-1;
 package Simple;
 $VERSION = '1.23'; # this should be chosen for version
-1;
 ---
   <<'---', # just read the first $VERSION line
 package Simple;
 $VERSION = '1.23'; # we should see this line
 $VERSION = eval $VERSION; # and ignore this one
-1;
+---
+  <<'---', # just read the first $VERSION line in reopened package (1)
+package Simple;
+$VERSION = '1.23';
+package Error::Simple;
+$VERSION = '2.34';
+package Simple;
+---
+  <<'---', # just read the first $VERSION line in reopened package (2)
+package Simple;
+package Error::Simple;
+$VERSION = '2.34';
+package Simple;
+$VERSION = '1.23';
 ---
 );
 
-$dist = DistGen->new();
+$file = File::Spec->catfile( $dist->dirname, 'lib', 'Simple.pm' );
+my( $i, $n ) = ( 1, scalar( @modules ) );
 foreach my $module ( @modules ) {
  SKIP: {
     skip "No our() support until perl 5.6", 1 if $] < 5.006 && $module =~ /\bour\b/;
 
     $dist->change_file( 'lib/Simple.pm', $module );
-    $dist->regen( clean => 1 );
-    $file = File::Spec->catfile( $dist->dirname, 'lib', 'Simple.pm' );
+    $dist->regen;
     my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
-    is( $pm_info->version, '1.23' );
+    is( $pm_info->version, '1.23',
+	"correct module version ($i of $n)" );
+    $i++;
   }
 }
-$dist->remove();
+$dist->remove;
+
+
+# Find each package only once
+$dist->change_file( 'lib/Simple.pm', <<'---' );
+package Simple;
+$VERSION = '1.23';
+package Error::Simple;
+$VERSION = '2.34';
+package Simple;
+---
+
+$dist->regen;
+
+$pm_info = Module::Build::ModuleInfo->new_from_file( $file );
+
+my @packages = $pm_info->packages_inside;
+is( @packages, 2, 'record only one occurence of each package' );
+
+
+# Module 'Simple.pm' does not contain package 'Simple';
+# constructor should not complain, no default module name or version
+$dist->change_file( 'lib/Simple.pm', <<'---' );
+package Simple::Not;
+$VERSION = '1.23';
+---
+
+$dist->regen;
+$pm_info = Module::Build::ModuleInfo->new_from_file( $file );
+
+is( $pm_info->name, undef, 'no default package' );
+is( $pm_info->version, undef, 'no version w/o default package' );
+
+$dist->remove;
 
 
 # parse $VERSION lines scripts for package main
@@ -127,36 +168,32 @@ package main;
 $VERSION = '0.01';
 package _private;
 $VERSION = '999';
-1;
 ---
   <<'---', # 2nd declared package
 #!perl -w
 package _private;
 $VERSION = '999';
-1;
 package main;
 $VERSION = '0.01';
 ---
   <<'---', # split package
 #!perl -w
 package main;
-1;
 package _private;
 $VERSION = '999';
-1;
 package main;
 $VERSION = '0.01';
-1;
 ---
 );
 
-$dist = DistGen->new();
+( $i, $n ) = ( 1, scalar( @scripts ) );
 foreach my $script ( @scripts ) {
   $dist->change_file( 'bin/simple.plx', $script );
-  $dist->regen();
+  $dist->regen;
   $pm_info =
     Module::Build::ModuleInfo->new_from_file( 'Simple/bin/simple.plx' );
-  ok( defined( $pm_info ) && $pm_info->version eq '0.01' );
+  is( $pm_info->version, '0.01', "correct script version ($i of $n)" );
+  $i++;
 }
 
 
@@ -164,10 +201,8 @@ foreach my $script ( @scripts ) {
 $dist->change_file( 'lib/Simple.pm', <<'---' );
 package Simple;
 $VERSION = '0.01';
-1;
 package Simple::Ex;
 $VERSION = '0.02';
-1;
 =head1 NAME
 
 Simple - It's easy.
@@ -178,47 +213,50 @@ Simple Simon
 
 =cut
 ---
-$dist->regen();
+$dist->regen;
 
 $pm_info = Module::Build::ModuleInfo->new_from_module(
              'Simple', inc => [ $inc, @INC ] );
 
-is( $pm_info->name(), 'Simple' );
+is( $pm_info->name, 'Simple', 'found default package' );
 
-is( $pm_info->version(), '0.01' );
+is( $pm_info->version, '0.01', 'version for default package' );
 
 # got correct version for secondary package
-is( $pm_info->version( 'Simple::Ex' ), '0.02' );
+is( $pm_info->version( 'Simple::Ex' ), '0.02',
+    'version for secondary package' );
 
-my $filename = $pm_info->filename();
-ok( defined( $filename ) && length( $filename ) );
+my $filename = $pm_info->filename;
+ok( defined( $filename ) && -e $filename,
+    'filename() returns valid path to module file' );
 
-my @packages = $pm_info->packages_inside();
-is( @packages, 2 );
-is( $packages[0], 'Simple' );
+@packages = $pm_info->packages_inside;
+is( @packages, 2, 'found correct number of packages' );
+is( $packages[0], 'Simple', 'packages stored in order found' );
 
 # we can detect presence of pod regardless of whether we are collecting it
-ok( $pm_info->contains_pod() );
+ok( $pm_info->contains_pod, 'contains_pod() succeeds' );
 
-my @pod = $pm_info->pod_inside();
-is_deeply( \@pod, [qw(NAME AUTHOR)] );
+my @pod = $pm_info->pod_inside;
+is_deeply( \@pod, [qw(NAME AUTHOR)], 'found all pod sections' );
 
-# no pod is collected
-my $name = $pm_info->pod('NAME');
-ok( !defined( $name ) );
+is( $pm_info->pod('NONE') , undef,
+    'return undef() if pod section not present' );
+
+is( $pm_info->pod('NAME'), undef,
+    'return undef() if pod section not collected' );
 
 
 # collect_pod
 $pm_info = Module::Build::ModuleInfo->new_from_module(
              'Simple', inc => [ $inc, @INC ], collect_pod => 1 );
 
-$name = $pm_info->pod('NAME');
+my $name = $pm_info->pod('NAME');
 if ( $name ) {
   $name =~ s/^\s+//;
   $name =~ s/\s+$//;
 }
-is( $name, q|Simple - It's easy.| );
+is( $name, q|Simple - It's easy.|, 'collected pod section' );
 
 
-
-$dist->remove();
+$dist->remove;

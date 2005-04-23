@@ -74,7 +74,8 @@ sub _init {
     }
   }
 
-  $self->{version} = $self->{versions}{$self->{module}};
+  $self->{version} = $self->{versions}{$self->{module}}
+      if defined( $self->{module} );
 
   return $self;
 }
@@ -140,8 +141,8 @@ sub _parse_file {
 
       if ( $line =~ $PKG_REGEXP ) {
         $pkg = $1;
-        $vers{$pkg} = undef;
-        push( @pkgs, $pkg );
+        push( @pkgs, $pkg ) unless grep( $pkg eq $_, @pkgs );
+        $vers{$pkg} = undef unless exists( $vers{$pkg} );
 
       # first non-comment line in undeclared package main is VERSION
       } elsif ( !exists($vers{main}) && $pkg eq 'main' &&
@@ -226,9 +227,28 @@ sub packages_inside { @{$_[0]->{packages}}      }
 sub pod_inside      { @{$_[0]->{pod_headings}}  }
 sub contains_pod    { $#{$_[0]->{pod_headings}} }
 
-sub version { $_[0]->{versions}{ $_[1] || $_[0]->{module} } }
+sub version {
+    my $self = shift;
+    my $mod  = shift || $self->{module};
+    my $vers;
+    if ( defined( $mod ) && length( $mod ) &&
+	 exists( $self->{versions}{$mod} ) ) {
+	return $self->{versions}{$mod};
+    } else {
+	return undef;
+    }
+}
 
-sub pod { $_[0]->{pod}{$_[1]} }
+sub pod {
+    my $self = shift;
+    my $sect = shift;
+    if ( defined( $sect ) && length( $sect ) &&
+	 exists( $self->{pod}{$sect} ) ) {
+	return $self->{pod}{$sect};
+    } else {
+	return undef;
+    }
+}
 
 1;
 
