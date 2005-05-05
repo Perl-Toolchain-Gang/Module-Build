@@ -1251,6 +1251,20 @@ very useful.
 
 See also the documentation for the C<subclass()> method.
 
+=head1 STARTING MODULE DEVELOPMENT
+
+When starting development on a new module, it's rarely worth your time
+to create a tree of all the files by hand.  Some automatic
+module-creators are available: the oldest is C<h2xs>, which has
+shipped with perl itself for a long time.  Its name reflects the fact
+that modules were originally conceived of as a way to wrap up a C
+library (thus the C<h> part) into perl extensions (thus the C<xs>
+part).
+
+These days, C<h2xs> has largely been superseded by modules like
+C<ExtUtils::ModuleMaker>, C<Module::Starter>, and C<Module::Maker>.
+They have varying degrees of support for C<Module::Build>.
+
 
 =head1 MIGRATION
 
