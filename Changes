@@ -8,6 +8,10 @@ Revision history for Perl extension Module::Build.
  - Added a 'pure_install' action, which for the time being is
    identical to the 'install' action. [Jos Boumans]
 
+ - Fixed a POD error in a L<http://...> tag. [Offer Kaye]
+
+ - Note several options for automatically creating a new module dev
+   tree. [Suggested by Eric Wilhelm]
 
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
