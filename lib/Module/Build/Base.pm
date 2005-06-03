@@ -1873,7 +1873,7 @@ sub htmlify_pods {
 	        map  [File::Spec->catdir($self->blib, $_), $_],
 		qw( script lib );
 
-  my $htmldir = File::Spec::Unix->catdir($self->blib, 'html');
+  my $htmldir = File::Spec->catdir($self->blib, 'html');
   unless (-d $htmldir) {
     File::Path::mkpath($htmldir, 0, 0755) or die "Couldn't mkdir $htmldir: $!";
   }
@@ -1895,9 +1895,9 @@ sub htmlify_pods {
     my @dirs = File::Spec->splitdir( File::Spec->canonpath( $path ) );
     pop( @dirs ) if $dirs[-1] eq File::Spec->curdir;
 
-    my $fulldir = File::Spec::Unix->catfile($htmldir, @rootdirs, @dirs);
-    my $outfile = File::Spec::Unix->catfile($fulldir, $name . '.html');
-    my $infile  = File::Spec::Unix->abs2rel($pod);
+    my $fulldir = File::Spec->catfile($htmldir, @rootdirs, @dirs);
+    my $outfile = File::Spec->catfile($fulldir, $name . '.html');
+    my $infile  = File::Spec->abs2rel($pod);
 
     return if $self->up_to_date($infile, $outfile);
 
@@ -1907,7 +1907,7 @@ sub htmlify_pods {
     }
 
     my $path2root = "../" x (@rootdirs+@dirs);
-    my $htmlroot = File::Spec::Unix->catdir($path2root, 'site');
+    my $htmlroot = "$path2root/site";
 
     my $title = join('::', (@dirs, $name));
     {
