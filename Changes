@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.2611
+
+ - Fix the output of an informational message that we output when
+   changing the 'shebang line' in installable scripts. [Robin Barker]
+
 0.2610  Fri Apr 15 08:25:01 CDT 2005
 
  - new_from_context() was losing its arguments in some cases (and not
