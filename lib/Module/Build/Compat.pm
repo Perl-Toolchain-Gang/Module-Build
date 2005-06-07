@@ -17,8 +17,6 @@ my %makefile_to_build =
    INC     => sub { map {('--extra_compiler_flags', "-I$_")} Module::Build->split_like_shell(shift) },
    POLLUTE => sub { ('--extra_compiler_flags', '-DPERL_POLLUTE') },
    INSTALLDIRS => sub {local $_ = shift; 'installdirs=' . (/^perl$/ ? 'core' : $_) },
-   PREFIX => sub {die "Sorry, PREFIX is not supported.  See the Module::Build\n".
-		      "documentation for 'destdir' or 'install_base' instead.\n"},
    LIB => sub { ('--install_path', 'lib='.shift()) },
   );
 
