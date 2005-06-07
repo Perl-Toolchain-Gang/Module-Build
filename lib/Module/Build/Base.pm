@@ -2176,8 +2176,8 @@ sub do_create_makefile_pl {
 
 sub do_create_readme {
   my $self = shift;
-  require Pod::Text;
-  my $parser = Pod::Text->new;
+  require Pod::Readme;
+  my $parser = Pod::Readme->new;
   $parser->parse_from_file($self->dist_version_from, 'README', @_);
   $self->_add_to_manifest('MANIFEST', 'README');
 }
