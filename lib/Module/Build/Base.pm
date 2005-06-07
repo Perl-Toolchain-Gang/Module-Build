@@ -510,6 +510,7 @@ __PACKAGE__->add_property($_) for qw(
    ignore_prereq_requires
    ignore_prereqs
    skip_rcfile
+   prefix
 );
 
 {
@@ -2536,12 +2537,90 @@ sub install_base_relative {
   return File::Spec->catdir(@{$map{$type}});
 }
 
+
+# Translated from ExtUtils::MM_Any::init_INSTALL_from_PREFIX
+sub install_prefix_relative {
+    my ($self, $type, $prefix) = @_;
+    my $c = $self->{config};
+
+    my %map = (
+          core => {
+              lib     => $c->{installprivlib},
+              arch    => $c->{installarchlib},
+              bin     => $c->{installbin},
+              script  => $c->{installscript},
+              bindoc  => $c->{installman1dir},
+              libdoc  => $c->{installman3dir},
+          },
+                   
+          site => {
+              lib     => $c->{installsitelib},
+              arch    => $c->{installsitearch},
+              bin     => $c->{installsitebin},
+              script  => $c->{installscript},
+              bindoc  => $c->{installsiteman1dir},
+              libdoc  => $c->{installsiteman3dir},
+          },
+
+          vendor => {
+              lib     => $c->{installvendorlib},
+              arch    => $c->{installvendorarch},
+              bin     => $c->{installvendorbin},
+              script  => $c->{installscript},
+              bindoc  => $c->{installvendorman1dir},
+              libdoc  => $c->{installvendorman3dir},
+          },
+    );
+
+    my $installdirs = $self->installdirs;
+    return unless exists $map{$installdirs}{$type};
+
+    my %prefixes = (
+        core => $Config{installprefixexp} || $Config{installprefix} ||
+                $Config{prefixexp}        || $Config{prefix} || '',
+        site => $Config{siteprefixexp},
+        vendor => $Config{usevendorprefix}  ? $Config{vendorprefixexp} : '',
+    );
+    $prefixes{site} ||= $prefixes{core};
+
+    return $self->prefixify($map{$installdirs}{$type}, $prefixes{$installdirs}, $prefix);
+}
+
+
+# Translated from ExtUtils::MM_Unix::prefixify()
+sub prefixify {
+    my($self, $path, $sprefix, $rprefix) = @_;
+
+    $rprefix .= '/' if $sprefix =~ m|/$|;
+
+    $self->log_verbose("  prefixify $path from $sprefix to $rprefix\n");
+
+    if( length $path == 0 ) {
+        $self->log_verbose("  no path to prefixify.\n")
+    }
+    elsif( !File::Spec->file_name_is_absolute($path) ) {
+        $self->log_verbose("    path is relative, not prefixifying.\n");
+    }
+    elsif( $sprefix eq $rprefix ) {
+        $self->log_verbose("  no new prefix.\n");
+    }
+    elsif( $path !~ s{^\Q$sprefix\E\b}{$rprefix}s ) {
+        $self->log_verbose("    cannot prefixify.\n");
+    }
+
+    $self->log_verbose("    now $path\n");
+
+    return $path;
+}
+
+
 sub install_destination {
   my ($self, $type) = @_;
   my $p = $self->{properties};
   
   return $p->{install_path}{$type} if exists $p->{install_path}{$type};
   return File::Spec->catdir($p->{install_base}, $self->install_base_relative($type)) if $p->{install_base};
+  return $self->install_prefix_relative($type, $p->{prefix}) if $p->{prefix};
   return $p->{install_sets}{ $p->{installdirs} }{$type};
 }
 

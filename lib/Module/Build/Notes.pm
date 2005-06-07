@@ -76,7 +76,7 @@ sub write {
   foreach my $key (keys %{ $self->{new} }) {
     next if ref $self->{new}{$key};
     next if ref $self->{disk}{$key} or !exists $self->{disk}{$key};
-    delete $self->{new}{$key} if $self->{new}{$key} eq $self->{disk}{$key};
+    delete $self->{new}{$key} if ($self->{new}{$key}||'') eq ($self->{disk}{$key}||'');
   }
   
   if (my $file = $self->{file}) {
