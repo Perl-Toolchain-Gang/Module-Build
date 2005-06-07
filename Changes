@@ -2,6 +2,14 @@ Revision history for Perl extension Module::Build.
 
 0.27_02
 
+ - Provided initial support for the --prefix installation parameter,
+   which acts like MakeMaker's PREFIX.  It is still highly recommended
+   NOT to use it when you could reasonably use --install_base or
+   --install_path or --install_dest, but that's just because the way
+   --prefix is designed is weird and unpredictable.  Ultimately the
+   choice rests with the installing user. [Patches by Michael Schwern
+   and Rob Kinyon]
+
  - Fixed a bug in subclass() which prevented people from using it to
    subclass subclasses of Module::Build. [Chris Dolan]
 
