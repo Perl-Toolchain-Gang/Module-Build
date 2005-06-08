@@ -22,7 +22,7 @@ skip_test("Don't know how to invoke 'make'")
 
 my @makefile_types = qw(small passthrough traditional);
 my $tests_per_type = 10;
-plan tests => 32 + @makefile_types*$tests_per_type;
+plan tests => 30 + @makefile_types*$tests_per_type;
 ok(1);  # Loaded
 
 my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
@@ -131,11 +131,6 @@ foreach my $type (@makefile_types) {
   ok $ran_ok;
   $output =~ s/^/# /gm;  # Don't confuse our own test output
   ok $output, qr/# test\.+ok\s+# All/, 'Should be non-verbose';
-  
-  $output = stderr_of( sub { $ran_ok = $build->do_system(@make, 'install', "PREFIX=$libdir", "install_base=$libdir") } );
-  ok !$ran_ok;  # PREFIX should generate an error
-  ok $output, qr/PREFIX/, "Error should mention PREFIX";
-  
   
   $build->delete_filetree($libdir);
   ok (! -e $libdir, 1, "Sample installation directory should be cleaned up");
