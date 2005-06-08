@@ -27,7 +27,9 @@ Revision history for Perl extension Module::Build.
    by Yves]
 
  - We now use Pod::Readme instead of Pod::Text to generate the README
-   file when the 'create_readme' option is used. [Robert Rothenberg]
+   file when the 'create_readme' option is used.  The disadvantage is
+   that it's not a core module, but the advantages are pretty nice.
+   [Robert Rothenberg]
 
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
