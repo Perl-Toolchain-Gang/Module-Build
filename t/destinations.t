@@ -63,25 +63,31 @@ my $prefix = catdir( qw( some prefix ) );
 $m->prefix( $prefix );
 ok( $m->{properties}{prefix} eq $prefix );
 
-my $test_val;
+my $c = \%Config;
 
-($test_val = $Config{installsitelib}) =~ s!\Q$site_prefix\E\b!$prefix!;
-ok( $m->install_destination( 'lib' ), $test_val );
+my $naive_prefix = sub {
+  my ($path) = @_;
+  (my $bare = $path) =~ s!^\Q$site_prefix\E\b!!;
+  return catdir($prefix, $bare);
+};
 
-($test_val = $Config{installsitearch}) =~ s!\Q$site_prefix\E\b!$prefix!;
-ok( $m->install_destination( 'arch' ), $test_val );
+ok( $m->install_destination( 'lib' ),
+    $naive_prefix->($c->{installsitelib}) );
 
-($test_val = $Config{installsitebin}) =~ s!\Q$site_prefix\E\b!$prefix!;
-ok( $m->install_destination( 'bin' ), $test_val );
+ok( $m->install_destination( 'arch' ),
+    $naive_prefix->($c->{installsitearch}) );
 
-($test_val = $Config{installscript}) =~ s!\Q$site_prefix\E\b!$prefix!;
-ok( $m->install_destination( 'script' ), $test_val );
+ok( $m->install_destination( 'bin' ),
+    $naive_prefix->($c->{installsitebin}) );
 
-($test_val = $Config{installsiteman1dir}) =~ s!\Q$site_prefix\E\b!$prefix!;
-ok( $m->install_destination( 'bindoc' ), $test_val );
+ok( $m->install_destination( 'script' ),
+    $naive_prefix->($c->{installscript}) );
 
-($test_val = $Config{installsiteman3dir}) =~ s!\Q$site_prefix\E\b!$prefix!;
-ok( $m->install_destination( 'libdoc' ), $test_val );
+ok( $m->install_destination( 'bindoc' ),
+    $naive_prefix->($c->{installsiteman1dir} || $c->{installman1dir}) );
+
+ok( $m->install_destination( 'libdoc' ),
+    $naive_prefix->($c->{installsiteman3dir} || $c->{installman3dir}));
 
 $m->install_base( $install_base );
 
