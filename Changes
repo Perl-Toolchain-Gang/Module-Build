@@ -39,6 +39,10 @@ Revision history for Perl extension Module::Build.
    have been moved from the 'distdir' action to the 'distmeta'
    action. [David Golden]
 
+ - When looking for a .modulebuildrc file, we now use a fancier method
+   of trying to find the home directory, because $ENV{HOME} isn't a
+   very cross-platform variable. [Robert Rothenberg]
+
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
  Backward-incompatible (but better) changes:

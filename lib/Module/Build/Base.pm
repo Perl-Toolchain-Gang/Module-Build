@@ -1237,14 +1237,26 @@ sub _merge_arglist {
   return %new_opts;
 }
 
+# Look for a home directory on various systems.  CPANPLUS does something like this.
+sub _home_dir {
+  my @os_home_envs = qw( APPDATA HOME USERPROFILE WINDIR SYS$LOGIN );
+  
+  foreach ( @ENV{ @os_home_envs } ) {
+    return $_ if exists && defined && length && -d;
+  }
+  
+  return;
+}
+
 # read ~/.modulebuildrc returning global options '*' and
 # options specific to the currently executing $action.
 sub read_modulebuildrc {
   my( $self, $action ) = @_;
 
-  return () unless exists( $ENV{HOME} ) && -e $ENV{HOME};
+  my $home = $self->_home_dir;
+  return () unless defined $home;
 
-  my $modulebuildrc = File::Spec->catfile( $ENV{HOME}, '.modulebuildrc' );
+  my $modulebuildrc = File::Spec->catfile( $home, '.modulebuildrc' );
   return () unless -e $modulebuildrc;
 
   my $fh = IO::File->new( $modulebuildrc )
