@@ -37,6 +37,21 @@ sub resume {
   
   $self->read_config;
   
+  # If someone called Module::Build->current() or
+  # Module::Build->new_from_context() and the correct class to use is
+  # actually a *subclass* of Module::Build, we may need to load that
+  # subclass here and re-delegate the resume() method to it.
+  unless ( UNIVERSAL::isa($self, $self->build_class) ) {
+    my $build_class = $self->build_class;
+    my $config_dir = $self->config_dir || '_build';
+    my $build_lib = File::Spec->catdir( $config_dir, 'lib' );
+    unshift( @INC, $build_lib );
+    unless ( $build_class->can('new') ) {
+      eval "require $build_class; 1" or die "Failed to re-load '$build_class': $@";
+    }
+    return $build_class->resume(@_);
+  }
+
   unless ($self->_perl_is_same($self->{properties}{perl})) {
     my $perl = $self->find_perl_interpreter;
     warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
@@ -98,8 +113,10 @@ sub _construct {
 				   %input,
 				  },
 		   }, $package;
-
+  
   my ($p, $c) = ($self->{properties}, $self->{config});
+
+  $p->{build_class} ||= ref $self;
 
   # The following warning could be unnecessary if the user is running
   # an embedded perl, but there aren't too many of those around, and
@@ -419,6 +436,7 @@ EOF
   # XXX huge hack alert - will revisit this later
   my %valid_properties = map {$_ => 1}
     qw(
+       build_class
        module_name
        dist_name
        dist_version

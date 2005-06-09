@@ -5,6 +5,11 @@ Revision history for Perl extension Module::Build.
  - Fix the output of an informational message that we output when
    changing the 'shebang line' in installable scripts. [Robin Barker]
 
+ - Backported a change from the 0.27_xx branch that keeps track of any
+   custom Module::Build subclass that might have been created in the
+   Build.PL script, so that we can reinstantiate the right class in
+   new_from_context(). [Requested by Jos Boumans]
+
 0.2610  Fri Apr 15 08:25:01 CDT 2005
 
  - new_from_context() was losing its arguments in some cases (and not
