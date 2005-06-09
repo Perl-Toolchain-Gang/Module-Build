@@ -2175,6 +2175,8 @@ sub ACTION_distclean {
 sub do_create_makefile_pl {
   my $self = shift;
   require Module::Build::Compat;
+  $self->delete_filetree('Makefile.PL');
+  $self->log_info("Creating Makefile.PL\n");
   Module::Build::Compat->create_makefile_pl($self->create_makefile_pl, $self, @_);
   $self->_add_to_manifest('MANIFEST', 'Makefile.PL');
 }
@@ -2182,6 +2184,8 @@ sub do_create_makefile_pl {
 sub do_create_readme {
   my $self = shift;
   require Pod::Readme;
+  $self->delete_filetree('README');
+  $self->log_info("Creating README\n");
   my $parser = Pod::Readme->new;
   $parser->parse_from_file($self->dist_version_from, 'README', @_);
   $self->_add_to_manifest('MANIFEST', 'README');
@@ -2192,9 +2196,6 @@ sub ACTION_distdir {
 
   $self->depends_on('distmeta');
 
-  $self->do_create_makefile_pl if $self->create_makefile_pl;
-  $self->do_create_readme if $self->create_readme;
-  
   my $dist_files = $self->_read_manifest('MANIFEST')
     or die "Can't create distdir without a MANIFEST file - run 'manifest' action first";
   delete $dist_files->{SIGNATURE};  # Don't copy, create a fresh one
@@ -2206,6 +2207,7 @@ sub ACTION_distdir {
   
   my $dist_dir = $self->dist_dir;
   $self->delete_filetree($dist_dir);
+  $self->log_info("Creating $dist_dir\n");
   $self->add_to_cleanup($dist_dir);
   
   foreach my $file (keys %$dist_files) {
@@ -2390,6 +2392,10 @@ END_OF_META
 
 sub ACTION_distmeta {
   my ($self) = @_;
+
+  $self->do_create_makefile_pl if $self->create_makefile_pl;
+  $self->do_create_readme if $self->create_readme;
+  
   return if $self->{wrote_metadata};
   
   my $p = $self->{properties};
@@ -2405,6 +2411,7 @@ sub ACTION_distmeta {
 
   # If we're in the distdir, the metafile may exist and be non-writable.
   $self->delete_filetree($self->{metafile});
+  $self->log_info("Creating $self->{metafile}\n");
 
   # Since we're building ourself, we have to do some special stuff
   # here: the ConfigData module is found in blib/lib.

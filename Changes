@@ -35,6 +35,10 @@ Revision history for Perl extension Module::Build.
    "install_dest" parameters can now begin with "~" or "~user", and
    we'll de-tilde-ify them by using glob().
 
+ - The (optional) auto-creation of the README and Makefile.PL files
+   have been moved from the 'distdir' action to the 'distmeta'
+   action. [David Golden]
+
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
  Backward-incompatible (but better) changes:
