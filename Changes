@@ -31,6 +31,10 @@ Revision history for Perl extension Module::Build.
    that it's not a core module, but the advantages are pretty nice.
    [Robert Rothenberg]
 
+ - The values of the "prefix", "install_base", "install_path", and
+   "install_dest" parameters can now begin with "~" or "~user", and
+   we'll de-tilde-ify them by using glob().
+
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
  Backward-incompatible (but better) changes:

@@ -124,7 +124,12 @@ sub _construct {
     }
   }
 
-
+  # De-tilde-ify any path parameters
+  for (qw(prefix install_base install_path install_dest)) {
+    next unless exists $p->{$_} and defined $p->{$_};
+    ($p->{$_}) = glob($p->{$_}) if $p->{$_} =~ /^~/;
+  }
+  
   # The following warning could be unnecessary if the user is running
   # an embedded perl, but there aren't too many of those around, and
   # embedded perls aren't usually used to install modules, and the
