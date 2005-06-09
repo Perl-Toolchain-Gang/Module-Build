@@ -2407,7 +2407,11 @@ sub ACTION_distmeta {
 
   $self->do_create_makefile_pl if $self->create_makefile_pl;
   $self->do_create_readme if $self->create_readme;
-  
+  $self->do_create_meta_yml;
+}
+
+sub do_create_meta_yml {
+  my $self = shift;
   return if $self->{wrote_metadata};
   
   my $p = $self->{properties};
