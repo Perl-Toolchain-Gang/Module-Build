@@ -2829,12 +2829,19 @@ sub compile_xs {
     my $xsubpp = Module::Build::ModuleInfo->find_module_by_name('ExtUtils::xsubpp')
       or die "Can't find ExtUtils::xsubpp in INC (@INC)";
     
-    my $typemap =  Module::Build::ModuleInfo->find_module_by_name('ExtUtils::typemap', \@INC);
+    my @typemaps;
+    push @typemaps, Module::Build::ModuleInfo->find_module_by_name('ExtUtils::typemap', \@INC);
+    my $lib_typemap = Module::Build::ModuleInfo->find_module_by_name('typemap', ['lib']);
+    if (defined $lib_typemap and -e $lib_typemap) {
+      push @typemaps, 'typemap';
+    }
+    my $typemaps = join ' ', map qq{-typemap "$_"}, @typemaps;
+
     my $cf = $self->{config};
     my $perl = $self->{properties}{perl};
     
     my $command = (qq{$perl "-I$cf->{installarchlib}" "-I$cf->{installprivlib}" "$xsubpp" -noprototypes } .
-		   qq{-typemap "$typemap" "$file"});
+		   qq{$typemaps "$file"});
     
     $self->log_info($command);
     my $fh = IO::File->new("> $args{outfile}") or die "Couldn't write $args{outfile}: $!";
