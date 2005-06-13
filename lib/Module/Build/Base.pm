@@ -929,17 +929,21 @@ sub _added_to_INC {
 }
 
 # Determine the default @INC for this Perl
-sub _default_INC {
-  my $self = shift;
-
-  local $ENV{PERL5LIB};  # this is not considered part of the default.
-
-  my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
-
-  my @inc = `$perl -le "print for \@INC"`;
-  chomp @inc;
-
-  return @inc;
+{
+  my @default_inc; # Memoize
+  sub _default_INC {
+    my $self = shift;
+    return @default_inc if @default_inc;
+    
+    local $ENV{PERL5LIB};  # this is not considered part of the default.
+    
+    my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
+    
+    my @inc = `$perl -le "print for \@INC"`;
+    chomp @inc;
+    
+    return @default_inc = @inc;
+  }
 }
 
 sub print_build_script {

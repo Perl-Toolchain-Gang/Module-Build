@@ -43,6 +43,9 @@ Revision history for Perl extension Module::Build.
    of trying to find the home directory, because $ENV{HOME} isn't a
    very cross-platform variable. [Robert Rothenberg]
 
+ - We now memoize the output of the internal _default_INC() method,
+   since it uses backticks and might be kind of slow.
+
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
  Backward-incompatible (but better) changes:
