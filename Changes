@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2611
+0.2611  Mon Jun 13 22:22:53 CDT 2005
 
  - Fix the output of an informational message that we output when
    changing the 'shebang line' in installable scripts. [Robin Barker]
