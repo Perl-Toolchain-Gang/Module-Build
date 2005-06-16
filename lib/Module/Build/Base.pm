@@ -1246,7 +1246,7 @@ sub _home_dir {
   my @os_home_envs = qw( APPDATA HOME USERPROFILE WINDIR SYS$LOGIN );
   
   foreach ( @os_home_envs ) {
-    return $_ if exists $ENV{$_} && defined $ENV{$_} && length $ENV{$_} && -d $ENV{$_};
+    return $ENV{$_} if exists $ENV{$_} && defined $ENV{$_} && length $ENV{$_} && -d $ENV{$_};
   }
   
   return;
