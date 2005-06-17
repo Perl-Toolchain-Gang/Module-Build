@@ -18,6 +18,9 @@ my %makefile_to_build =
    POLLUTE => sub { ('--extra_compiler_flags', '-DPERL_POLLUTE') },
    INSTALLDIRS => sub {local $_ = shift; 'installdirs=' . (/^perl$/ ? 'core' : $_) },
    LIB => sub { ('--install_path', 'lib='.shift()) },
+
+   # Some names they have in common
+   map {$_, lc($_)} qw(DESTDIR PREFIX INSTALL_BASE),
   );
 
 

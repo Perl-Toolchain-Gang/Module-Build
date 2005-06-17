@@ -49,6 +49,11 @@ Revision history for Perl extension Module::Build.
  - When processing XS files, we now look for a typemap in lib/ as well
    as using the system's default typemap. [John Peacock]
 
+ - The DESTDIR, PREFIX, and INSTALL_BASE arguments to "make install"
+   are now supported for pass-through Makefiles (they've been
+   supported for quite a while as arguments to "perl
+   Makefile.PL"). [Requested by Guillaume Rousse]
+
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
  Backward-incompatible (but better) changes:
