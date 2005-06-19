@@ -2575,47 +2575,20 @@ sub install_prefix_relative {
     my ($self, $type, $prefix) = @_;
     my $c = $self->{config};
 
-    my %map = (
-          core => {
-              lib     => $c->{installprivlib},
-              arch    => $c->{installarchlib},
-              bin     => $c->{installbin},
-              script  => $c->{installscript},
-              bindoc  => $c->{installman1dir},
-              libdoc  => $c->{installman3dir},
-          },
-                   
-          site => {
-              lib     => $c->{installsitelib},
-              arch    => $c->{installsitearch},
-              bin     => $c->{installsitebin},
-              script  => $c->{installscript},
-              bindoc  => $c->{installsiteman1dir},
-              libdoc  => $c->{installsiteman3dir},
-          },
-
-          vendor => {
-              lib     => $c->{installvendorlib},
-              arch    => $c->{installvendorarch},
-              bin     => $c->{installvendorbin},
-              script  => $c->{installscript},
-              bindoc  => $c->{installvendorman1dir},
-              libdoc  => $c->{installvendorman3dir},
-          },
-    );
-
+    my $map = $self->install_sets;
+    
     my $installdirs = $self->installdirs;
-    return unless exists $map{$installdirs}{$type};
+    return unless exists $map->{$installdirs}{$type};
 
     my %prefixes = (
-        core => $Config{installprefixexp} || $Config{installprefix} ||
-                $Config{prefixexp}        || $Config{prefix} || '',
-        site => $Config{siteprefixexp},
-        vendor => $Config{usevendorprefix}  ? $Config{vendorprefixexp} : '',
+        core => $c->{installprefixexp} || $c->{installprefix} ||
+                $c->{prefixexp}        || $c->{prefix} || '',
+        site => $c->{siteprefixexp},
+        vendor => $c->{usevendorprefix}  ? $c->{vendorprefixexp} : '',
     );
     $prefixes{site} ||= $prefixes{core};
 
-    return $self->prefixify($map{$installdirs}{$type}, $prefixes{$installdirs}, $prefix);
+    return $self->prefixify($map->{$installdirs}{$type}, $prefixes{$installdirs}, $prefix);
 }
 
 
