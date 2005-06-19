@@ -64,6 +64,7 @@ $m->prefix( $prefix );
 ok( $m->{properties}{prefix} eq $prefix );
 
 my $c = \%Config;
+my $site_paths = $m->install_sets->{site};
 
 my $naive_prefix = sub {
   my ($path) = @_;
@@ -73,22 +74,22 @@ my $naive_prefix = sub {
 };
 
 ok( $m->install_destination( 'lib' ),
-    $naive_prefix->($c->{installsitelib}) );
+    $naive_prefix->($site_paths->{lib}) );
 
 ok( $m->install_destination( 'arch' ),
-    $naive_prefix->($c->{installsitearch}) );
+    $naive_prefix->($site_paths->{arch}) );
 
 ok( $m->install_destination( 'bin' ),
-    $naive_prefix->($c->{installsitebin}) );
+    $naive_prefix->($site_paths->{bin}) );
 
 ok( $m->install_destination( 'script' ),
-    $naive_prefix->($c->{installscript}) );
+    $naive_prefix->($site_paths->{script}) );
 
 ok( $m->install_destination( 'bindoc' ),
-    $naive_prefix->($c->{installsiteman1dir} || $c->{installman1dir}) );
+    $naive_prefix->($site_paths->{bindoc}) );
 
 ok( $m->install_destination( 'libdoc' ),
-    $naive_prefix->($c->{installsiteman3dir} || $c->{installman3dir}));
+    $naive_prefix->($site_paths->{libdoc}));
 
 $m->install_base( $install_base );
 
