@@ -67,8 +67,9 @@ my $c = \%Config;
 
 my $naive_prefix = sub {
   my ($path) = @_;
+  my $drive = ($path =~ s/^(\w:)// ? $1 : ''); # Win32 drive letters
   (my $bare = $path) =~ s!^\Q$site_prefix\E\b!!;
-  return catdir($prefix, $bare);
+  return catdir($drive . $prefix, $bare);
 };
 
 ok( $m->install_destination( 'lib' ),
