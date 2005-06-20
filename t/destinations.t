@@ -31,7 +31,7 @@ $m->prefix(undef);
 is( $m->install_base, undef );
 is( $m->prefix,       undef );
 
-test_install_destination( $m, {
+test_install_destinations( $m, {
         lib     => $Config{installsitelib},
         arch    => $Config{installsitearch},
         bin     => $Config{installsitebin} || $Config{installbin},
@@ -49,7 +49,7 @@ is( $m->prefix,       undef );
 is( $m->install_base, $install_base );
 
 
-test_install_destination( $m, {
+test_install_destinations( $m, {
         lib     => catdir( $install_base, 'lib', 'perl5' ),
         arch    => catdir( $install_base, 'lib', 'perl5', $Config{archname} ),
         bin     => catdir( $install_base, 'bin' ),
@@ -73,7 +73,7 @@ test_prefix($prefix);
 # Check that we can return to normality after setting prefix.
 $m->install_base( $install_base );
 
-test_install_destination( $m, {
+test_install_destinations( $m, {
         lib     => catdir( $install_base, 'lib', 'perl5' ),
         arch    => catdir( $install_base, 'lib', 'perl5', $Config{archname} ),
         bin     => catdir( $install_base, 'bin' ),
@@ -93,7 +93,7 @@ sub test_prefix {
 }
 
 
-sub test_install_destination {
+sub test_install_destinations {
     my($mb, $expect) = @_;
 
     while( my($type, $expect) = each %$expect ) {
