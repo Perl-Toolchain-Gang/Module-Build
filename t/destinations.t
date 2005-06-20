@@ -62,35 +62,26 @@ test_install_destination( $m, {
 $m->install_base( undef );
 ok( !defined $m->install_base );
 
-##### Adaptation START
-# Adapted from ExtUtils::MakeMaker::MM_Any::init_INSTALL_from_PREFIX()
-
-my $core_prefix = $Config{installprefixexp} || $Config{installprefix} || 
-                  $Config{prefixexp}        || $Config{prefix} || '';
-my $vend_prefix = $Config{usevendorprefix}  ? $Config{vendorprefixexp} : '';
-my $site_prefix = $Config{siteprefixexp}    || $core_prefix;
-
-my $libstyle = $Config{installstyle} || 'lib/perl5';
-my $manstyle = $libstyle eq 'lib/perl5' ? $libstyle : '';
-
-##### Adaptation END
 
 my $prefix = catdir( qw( some prefix ) );
 $m->prefix( $prefix );
 is( $m->{properties}{prefix}, $prefix );
 
-my $c = \%Config;
-
 test_prefix($prefix);
 
+
+# Check that we can return to normality after setting prefix.
 $m->install_base( $install_base );
 
-is( $m->install_destination( 'lib' ),    catdir( $install_base, 'lib', 'perl5' ) );
-is( $m->install_destination( 'arch' ),   catdir( $install_base, 'lib', 'perl5', $Config{archname} ) );
-is( $m->install_destination( 'bin' ),    catdir( $install_base, 'bin' ) );
-is( $m->install_destination( 'script' ), catdir( $install_base, 'bin' ) );
-is( $m->install_destination( 'bindoc' ), catdir( $install_base, 'man', 'man1') );
-is( $m->install_destination( 'libdoc' ), catdir( $install_base, 'man', 'man3' ) );
+test_install_destination( $m, {
+        lib     => catdir( $install_base, 'lib', 'perl5' ),
+        arch    => catdir( $install_base, 'lib', 'perl5', $Config{archname} ),
+        bin     => catdir( $install_base, 'bin' ),
+        script  => catdir( $install_base, 'bin' ),
+        bindoc  => catdir( $install_base, 'man', 'man1'),
+        libdoc  => catdir( $install_base, 'man', 'man3' ),
+});
+
 
 sub test_prefix {
     my ($prefix) = shift;
