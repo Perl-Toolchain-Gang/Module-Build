@@ -741,10 +741,16 @@ in Module::Build, here's a summary of the reasons why:
 Many systems have Perl configs that make little sense with PREFIX.
 For example, OS X, where core modules go in
 F</System/Library/Perl/...>, user-installed modules go in
-F</Library/Perl/...>, and man pages go in F</usr/share/man/...>.
+F</Library/Perl/...>, and man pages go in F</usr/share/man/...>.  The PREFIX is thus set to F</>.
 Install L<Foo::Bar> on OS X with C<PREFIX=/home/spurkis> and you get
 things like F</home/spurkis/Library/Perl/5.8.1/Foo/Bar.pm> and
 F</home/spurkis/usr/share/man/man3/Foo::Bar.3pm>.  Not too pretty.
+
+The problem is not limited to Unix-like platforms, either - on Windows
+builds (e.g. ActiveState perl 5.8.0), we have user-installed modules
+going in F<C:\Perl\site\lib>, user-installed executables going in
+F<C:\Perl\bin>, and PREFIX=F<C:\Perl\site>.  The prefix just doesn't
+apply neatly to the executables.
 
 =item *
 
