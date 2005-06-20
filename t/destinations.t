@@ -13,7 +13,7 @@ BEGIN {
 }
 
 
-use Test::More tests => 32;
+use Test::More tests => 44;
 
 use_ok 'Module::Build';
 
@@ -21,10 +21,9 @@ use_ok 'Module::Build';
 my $m = Module::Build->current;
 isa_ok( $m, 'Module::Build::Base' );
 
-$m->installdirs('site');
 
 # Check that we install into the proper default locations.
-
+$m->installdirs('site');
 $m->install_base(undef);
 $m->prefix(undef);
 
@@ -40,8 +39,25 @@ test_install_destinations( $m, {
         bindoc  => $Config{installsiteman1dir} || $Config{installman1dir},
         libdoc  => $Config{installsiteman3dir} || $Config{installman3dir}
 });
-        
 
+
+# Is installdirs honored?
+$m->installdirs('core');
+
+test_install_destinations( $m, {
+        lib     => $Config{installprivlib},
+        arch    => $Config{installarchlib},
+        bin     => $Config{installbin},
+        script  => $Config{installscript} || $Config{installbin},
+        bindoc  => $Config{installman1dir},
+        libdoc  => $Config{installman3dir},
+});
+
+
+$m->installdirs('site');
+
+
+# Check install_base()
 my $install_base = catdir( 'foo', 'bar' );
 $m->install_base( $install_base );
 
@@ -63,6 +79,7 @@ $m->install_base( undef );
 ok( !defined $m->install_base );
 
 
+# Basic prefix test.  Ensure everything is under the prefix.
 my $prefix = catdir( qw( some prefix ) );
 $m->prefix( $prefix );
 is( $m->{properties}{prefix}, $prefix );
@@ -70,7 +87,15 @@ is( $m->{properties}{prefix}, $prefix );
 test_prefix($prefix);
 
 
-# Check that we can return to normality after setting prefix.
+# And now that prefix honors installdirs.
+$m->installdirs('core');
+
+test_prefix($prefix);
+
+$m->installdirs('site');
+
+
+# Check that we can use install_base after setting prefix.
 $m->install_base( $install_base );
 
 test_install_destinations( $m, {
@@ -86,6 +111,8 @@ test_install_destinations( $m, {
 sub test_prefix {
     my ($prefix) = shift;
   
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+
     foreach my $type (qw(lib arch bin script bindoc libdoc)) {
         my $dest = $m->install_destination( $type );
         like( $dest, "/^\Q$prefix\E/");
@@ -95,6 +122,8 @@ sub test_prefix {
 
 sub test_install_destinations {
     my($mb, $expect) = @_;
+
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     while( my($type, $expect) = each %$expect ) {
         is( $m->install_destination($type), $expect, $type );
