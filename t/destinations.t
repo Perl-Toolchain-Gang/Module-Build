@@ -9,10 +9,12 @@ ok(1);
 use Config;
 use File::Spec::Functions qw( catdir );
 
-#use File::Spec;
-#
-#my $common_pl = File::Spec->catfile('t', 'common.pl');
-#require $common_pl;
+use File::Spec;
+
+BEGIN {
+  my $common_pl = File::Spec->catfile('t', 'common.pl');
+  require $common_pl;
+}
 
 ok( $INC{'Module/Build.pm'}, '/blib/', "Make sure Module::Build was loaded from blib/");
 
@@ -64,32 +66,14 @@ $m->prefix( $prefix );
 ok( $m->{properties}{prefix} eq $prefix );
 
 my $c = \%Config;
-my $site_paths = $m->install_sets->{site};
 
-my $naive_prefix = sub {
-  my ($path) = @_;
-  my $drive = ($path =~ s/^(\w:)// ? $1 : ''); # Win32 drive letters
-  (my $bare = $path) =~ s!^\Q$site_prefix\E\b!!;
-  return catdir($drive . $prefix, $bare);
-};
+test_prefix('lib');
+test_prefix('arch');
+test_prefix('bin');
+test_prefix('script');
+test_prefix('bindoc');
+test_prefix('libdoc');
 
-ok( $m->install_destination( 'lib' ),
-    $naive_prefix->($site_paths->{lib}) );
-
-ok( $m->install_destination( 'arch' ),
-    $naive_prefix->($site_paths->{arch}) );
-
-ok( $m->install_destination( 'bin' ),
-    $naive_prefix->($site_paths->{bin}) );
-
-ok( $m->install_destination( 'script' ),
-    $naive_prefix->($site_paths->{script}) );
-
-ok( $m->install_destination( 'bindoc' ),
-    $naive_prefix->($site_paths->{bindoc}) );
-
-ok( $m->install_destination( 'libdoc' ),
-    $naive_prefix->($site_paths->{libdoc}));
 
 $m->install_base( $install_base );
 
@@ -99,4 +83,16 @@ ok( $m->install_destination( 'bin' ),    catdir( $install_base, 'bin' ) );
 ok( $m->install_destination( 'script' ), catdir( $install_base, 'bin' ) );
 ok( $m->install_destination( 'bindoc' ), catdir( $install_base, 'man', 'man1') );
 ok( $m->install_destination( 'libdoc' ), catdir( $install_base, 'man', 'man3' ) );
+
+sub test_prefix {
+  my ($type) = @_;
+  
+  my $dest = $m->install_destination( $type );
+  unless ($dest) {
+    skip_subtest("No target install location for type '$type'");
+    return;
+  }
+  
+  ok( $dest, "/^\Q$prefix\E/");
+}
 
