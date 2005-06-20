@@ -13,7 +13,7 @@ BEGIN {
 }
 
 
-use Test::More tests => 31;
+use Test::More tests => 32;
 
 use_ok 'Module::Build';
 
@@ -21,29 +21,43 @@ use_ok 'Module::Build';
 my $m = Module::Build->current;
 isa_ok( $m, 'Module::Build::Base' );
 
-ok( !defined $m->install_base );
-ok( !defined $m->prefix );
+$m->installdirs('site');
 
-# Do default tests here
+# Check that we install into the proper default locations.
 
-is( $m->install_destination( 'lib' ), $Config{ installsitelib } );
-is( $m->install_destination( 'arch' ), $Config{ installsitearch } );
-is( $m->install_destination( 'bin' ), $Config{ installsitebin } || $Config{ installbin } );
-is( $m->install_destination( 'script' ), $Config{ installsitescript } || $Config{ installsitebin } || $Config{ installscript } );
-is( $m->install_destination( 'bindoc' ), $Config{ installsiteman1dir } || $Config{ installman1dir } );
-is( $m->install_destination( 'libdoc' ), $Config{ installsiteman3dir } || $Config{ installman3dir } );
+$m->install_base(undef);
+$m->prefix(undef);
+
+is( $m->install_base, undef );
+is( $m->prefix,       undef );
+
+test_install_destination( $m, {
+        lib     => $Config{installsitelib},
+        arch    => $Config{installsitearch},
+        bin     => $Config{installsitebin} || $Config{installbin},
+        script  => $Config{installsitescript} || $Config{installsitebin} ||
+                   $Config{installscript},
+        bindoc  => $Config{installsiteman1dir} || $Config{installman1dir},
+        libdoc  => $Config{installsiteman3dir} || $Config{installman3dir}
+});
+        
 
 my $install_base = catdir( 'foo', 'bar' );
-
 $m->install_base( $install_base );
-ok( !defined $m->prefix );
 
-is( $m->install_destination( 'lib' ),    catdir( $install_base, 'lib', 'perl5' ) );
-is( $m->install_destination( 'arch' ),   catdir( $install_base, 'lib', 'perl5', $Config{archname} ) );
-is( $m->install_destination( 'bin' ),    catdir( $install_base, 'bin' ) );
-is( $m->install_destination( 'script' ), catdir( $install_base, 'bin' ) );
-is( $m->install_destination( 'bindoc' ), catdir( $install_base, 'man', 'man1') );
-is( $m->install_destination( 'libdoc' ), catdir( $install_base, 'man', 'man3' ) );
+is( $m->prefix,       undef );
+is( $m->install_base, $install_base );
+
+
+test_install_destination( $m, {
+        lib     => catdir( $install_base, 'lib', 'perl5' ),
+        arch    => catdir( $install_base, 'lib', 'perl5', $Config{archname} ),
+        bin     => catdir( $install_base, 'bin' ),
+        script  => catdir( $install_base, 'bin' ),
+        bindoc  => catdir( $install_base, 'man', 'man1'),
+        libdoc  => catdir( $install_base, 'man', 'man3' ),
+});
+
 
 $m->install_base( undef );
 ok( !defined $m->install_base );
@@ -67,13 +81,7 @@ is( $m->{properties}{prefix}, $prefix );
 
 my $c = \%Config;
 
-test_prefix('lib');
-test_prefix('arch');
-test_prefix('bin');
-test_prefix('script');
-test_prefix('bindoc');
-test_prefix('libdoc');
-
+test_prefix($prefix);
 
 $m->install_base( $install_base );
 
@@ -85,14 +93,19 @@ is( $m->install_destination( 'bindoc' ), catdir( $install_base, 'man', 'man1') )
 is( $m->install_destination( 'libdoc' ), catdir( $install_base, 'man', 'man3' ) );
 
 sub test_prefix {
-  my ($type) = @_;
+    my ($prefix) = shift;
   
-  my $dest = $m->install_destination( $type );
-  unless ($dest) {
-    skip_subtest("No target install location for type '$type'");
-    return;
-  }
-  
-  like( $dest, "/^\Q$prefix\E/");
+    foreach my $type (qw(lib arch bin script bindoc libdoc)) {
+        my $dest = $m->install_destination( $type );
+        like( $dest, "/^\Q$prefix\E/");
+    }
 }
 
+
+sub test_install_destination {
+    my($mb, $expect) = @_;
+
+    while( my($type, $expect) = each %$expect ) {
+        is( $m->install_destination($type), $expect, $type );
+    }
+}
