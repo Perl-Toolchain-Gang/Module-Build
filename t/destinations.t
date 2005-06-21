@@ -13,7 +13,7 @@ BEGIN {
 }
 
 
-use Test::More tests => 44;
+use Test::More tests => 49;
 
 use_ok 'Module::Build';
 
@@ -27,6 +27,7 @@ $m->installdirs('site');
 $m->install_base(undef);
 $m->prefix(undef);
 
+is( $m->installdirs, 'site' );
 is( $m->install_base, undef );
 is( $m->prefix,       undef );
 
@@ -43,6 +44,7 @@ test_install_destinations( $m, {
 
 # Is installdirs honored?
 $m->installdirs('core');
+is( $m->installdirs, 'core' );
 
 test_install_destinations( $m, {
         lib     => $Config{installprivlib},
@@ -55,6 +57,7 @@ test_install_destinations( $m, {
 
 
 $m->installdirs('site');
+is( $m->installdirs, 'site' );
 
 
 # Check install_base()
@@ -89,10 +92,12 @@ test_prefix($prefix);
 
 # And now that prefix honors installdirs.
 $m->installdirs('core');
+is( $m->installdirs, 'core' );
 
 test_prefix($prefix);
 
 $m->installdirs('site');
+is( $m->installdirs, 'site' );
 
 
 # Check that we can use install_base after setting prefix.
