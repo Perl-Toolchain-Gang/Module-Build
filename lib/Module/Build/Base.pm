@@ -2587,13 +2587,19 @@ sub install_prefix_relative {
     );
     $prefixes{site} ||= $prefixes{core};
 
-    return $self->prefixify($map->{$installdirs}{$type}, $prefixes{$installdirs}, $prefix);
+    my $default;
+
+    return $self->_prefixify($map->{$installdirs}{$type},
+                             $prefixes{$installdirs}, 
+                             $prefix,
+                             $default
+                            );
 }
 
 
 # Translated from ExtUtils::MM_Unix::prefixify()
-sub prefixify {
-    my($self, $path, $sprefix, $rprefix) = @_;
+sub _prefixify {
+    my($self, $path, $sprefix, $rprefix, $default) = @_;
 
     $rprefix .= '/' if $sprefix =~ m|/$|;
 
@@ -2610,12 +2616,51 @@ sub prefixify {
     }
     elsif( $path !~ s{^\Q$sprefix\E\b}{$rprefix}s ) {
         $self->log_verbose("    cannot prefixify.\n");
+        $path = $self->_prefixify_default($rprefix, $default);
     }
 
     $self->log_verbose("    now $path\n");
 
     return $path;
 }
+
+
+sub _prefixify_default {
+    my($self, $rprefix, $default) = @_;
+
+    $self->log_verbose("    cannot prefix, trying default.\n");
+
+    if( !$default ) {
+        $self->log_verbose("    no default!  Using prefix '$rprefix'.\n");  
+        return $rprefix;
+    }
+    if( !$rprefix ) {
+        $self->log_verbose("    no replacement prefix!\n");
+        return;
+    }
+
+    $self->log_verbose("    using default '$default'.\n");
+
+    return $self->_catprefix($rprefix, $default);
+}
+
+
+# From ExtUtils::MM_VMS::_catpreifx() but its actually cross platform.
+sub _catprefix {
+    my($self, $rprefix, $default) = @_;
+
+    my($rvol, $rdirs) = File::Spec->splitpath($rprefix);
+    if( $rvol ) {
+        return File::Spec->catpath($rvol,
+                                   File::Spec->catdir($rdirs, $default),
+                                   ''
+                                  )
+    }
+    else {
+        return File::Spec->catdir($rdirs, $default);
+    }
+}
+
 
 
 sub install_destination {

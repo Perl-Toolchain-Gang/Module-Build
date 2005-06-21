@@ -105,28 +105,15 @@ sub prefixify {
             $path_dirs =~ s{^\[}{\[.} unless $path_dirs =~ m{^\[\.};
             $path = $self->_catprefix($rprefix, $path_dirs);
         }
+        else {
+            $self->log_verbose("    cannot prefixify.\n");
+            $path = $self->_prefixify_default($rprefix, $default);
+        }
     }
 
     $self->log_verbose("    now $path\n");
 
     return $path;
-}
-
-
-# From ExtUtils::MM_VMS::_catpreifx()
-sub _catprefix {
-    my($self, $rprefix, $default) = @_;
-
-    my($rvol, $rdirs) = File::Spec->splitpath($rprefix);
-    if( $rvol ) {
-        return File::Spec->catpath($rvol,
-                                   File::Spec->catdir($rdirs, $default),
-                                   ''
-                                  )
-    }
-    else {
-        return File::Spec->catdir($rdirs, $default);
-    }
 }
 
 
