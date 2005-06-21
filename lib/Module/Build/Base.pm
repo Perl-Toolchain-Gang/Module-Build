@@ -258,7 +258,6 @@ sub find_perl_interpreter {
 }
 
 sub base_dir { shift()->{properties}{base_dir} }
-sub installdirs { shift()->{properties}{installdirs} }
 
 sub _is_interactive {
   return -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ;   # Pipe?
