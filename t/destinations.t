@@ -140,7 +140,8 @@ $M->prefix(undef);
         $M->{properties}{install_sets}{site}{$key} = $path;
     }
 
-    $M->{config}{siteprefixexp} = '/wierd/prefix';
+    $M->{config}{siteprefixexp} = catdir(File::Spec->rootdir, 
+                                         'wierd', 'prefix');
 
     my $prefix = catdir('another', 'prefix');
     $M->prefix($prefix);

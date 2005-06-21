@@ -2612,16 +2612,16 @@ sub _prefix_defaults {
              arch       => File::Spec->catdir($libstyle, $version, $arch),
              bin        => 'bin',
              script     => 'bin',
-             libdoc     => 'man/man3',
-             bindoc     => 'man/man1',
+             libdoc     => File::Spec->catdir('man', 'man3'),
+             bindoc     => File::Spec->catdir('man', 'man1'),
         },
         vendor => {
              lib        => $libstyle,
              arch       => File::Spec->catdir($libstyle, $version, $arch),
              bin        => 'bin',
              script     => 'bin',
-             libdoc     => 'man/man3',
-             bindoc     => 'man/man1',
+             libdoc     => File::Spec->catdir('man', 'man3'),
+             bindoc     => File::Spec->catdir('man', 'man1'),
         },
         site => {
              lib        => File::Spec->catdir($libstyle, 'site_perl'),
@@ -2629,8 +2629,8 @@ sub _prefix_defaults {
                                               $version, $arch),
              bin        => 'bin',
              script     => 'bin',
-             libdoc     => 'man/man3',
-             bindoc     => 'man/man1',
+             libdoc     => File::Spec->catdir('man', 'man3'),
+             bindoc     => File::Spec->catdir('man', 'man1'),
         },
     );
 
