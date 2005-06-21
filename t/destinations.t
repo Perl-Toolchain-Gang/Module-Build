@@ -13,7 +13,7 @@ BEGIN {
 }
 
 
-use Test::More tests => 55;
+use Test::More tests => 67;
 
 use_ok 'Module::Build';
 
@@ -116,14 +116,24 @@ $M->prefix(undef);
 # Try a config setting which would result in installation locations outside
 # the prefix.  Ensure it doesn't.
 {
-    my %test_config = (
-                       lib      => '/foo/bar/lib',
-                       arch     => '/foo/bar/arch',
-                       bin      => '/wiffle/bin',
-                       script   => '/yarrow/script',
-                       bindoc   => '/this/moof/bindoc',
-                       libdoc   => '/libdoc',
-                      );
+    # Get the prefix defaults
+    my $defaults = $M->_prefix_defaults;
+    $defaults = $defaults->{site};
+
+    # Create a configuration involving weird paths that are outside of
+    # the configured prefix.
+    my @prefixes = (
+                    [qw(foo bar)],
+                    [qw(biz)],
+                    [],
+                   );
+
+    my %test_config;
+    foreach my $type (keys %$defaults) {
+        my $prefix = shift @prefixes || [qw(foo bar)];
+        $test_config{$type} = catdir(File::Spec->rootdir, @$prefix, 
+                                     $defaults->{$type});
+    }
 
     # Poke at the innards of MB to change the default install locations.
     while( my($key, $path) = each %test_config ) {

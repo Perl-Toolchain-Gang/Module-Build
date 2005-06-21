@@ -2574,7 +2574,9 @@ sub install_prefix_relative {
     my ($self, $type, $prefix) = @_;
     my $c = $self->{config};
 
-    my $map = $self->install_sets;
+    my $map      = $self->install_sets;
+    my $defaults = $self->_prefix_defaults;
+             
     
     my $installdirs = $self->installdirs;
     return unless exists $map->{$installdirs}{$type};
@@ -2587,13 +2589,52 @@ sub install_prefix_relative {
     );
     $prefixes{site} ||= $prefixes{core};
 
-    my $default;
-
     return $self->_prefixify($map->{$installdirs}{$type},
                              $prefixes{$installdirs}, 
                              $prefix,
-                             $default
+                             $defaults->{$installdirs}{$type}
                             );
+}
+
+
+# Defaults to use in case the config install paths cannot be prefixified.
+sub _prefix_defaults {
+    my $self = shift;
+    my $c = $self->{config};
+
+    my $libstyle = $c->{installstyle} || 'lib/perl5';
+    my $arch     = $c->{archname};
+    my $version  = $c->{version};
+
+    my %defaults = (
+        core => {
+             lib        => $libstyle,
+             arch       => File::Spec->catdir($libstyle, $version, $arch),
+             bin        => 'bin',
+             script     => 'bin',
+             libdoc     => 'man/man3',
+             bindoc     => 'man/man1',
+        },
+        vendor => {
+             lib        => $libstyle,
+             arch       => File::Spec->catdir($libstyle, $version, $arch),
+             bin        => 'bin',
+             script     => 'bin',
+             libdoc     => 'man/man3',
+             bindoc     => 'man/man1',
+        },
+        site => {
+             lib        => File::Spec->catdir($libstyle, 'site_perl'),
+             arch       => File::Spec->catdir($libstyle, 'site_perl', 
+                                              $version, $arch),
+             bin        => 'bin',
+             script     => 'bin',
+             libdoc     => 'man/man3',
+             bindoc     => 'man/man1',
+        },
+    );
+
+    return \%defaults;
 }
 
 
@@ -2649,15 +2690,17 @@ sub _prefixify_default {
 sub _catprefix {
     my($self, $rprefix, $default) = @_;
 
-    my($rvol, $rdirs) = File::Spec->splitpath($rprefix);
+    # Most file path types do not distinguish between a file and a directory
+    # so the "file" part here is usually part of the directory.
+    my($rvol, @rdirs) = File::Spec->splitpath($rprefix);
     if( $rvol ) {
         return File::Spec->catpath($rvol,
-                                   File::Spec->catdir($rdirs, $default),
+                                   File::Spec->catdir(@rdirs, $default),
                                    ''
                                   )
     }
     else {
-        return File::Spec->catdir($rdirs, $default);
+        return File::Spec->catdir(@rdirs, $default);
     }
 }
 
