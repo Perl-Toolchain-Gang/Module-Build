@@ -23,15 +23,16 @@ isa_ok( $m, 'Module::Build::Base' );
 
 
 # Check that we install into the proper default locations.
-$m->installdirs('site');
-$m->install_base(undef);
-$m->prefix(undef);
+{
+    $m->installdirs('site');
+    $m->install_base(undef);
+    $m->prefix(undef);
 
-is( $m->installdirs, 'site' );
-is( $m->install_base, undef );
-is( $m->prefix,       undef );
+    is( $m->installdirs, 'site' );
+    is( $m->install_base, undef );
+    is( $m->prefix,       undef );
 
-test_install_destinations( $m, {
+    test_install_destinations( $m, {
         lib     => $Config{installsitelib},
         arch    => $Config{installsitearch},
         bin     => $Config{installsitebin} || $Config{installbin},
@@ -39,65 +40,73 @@ test_install_destinations( $m, {
                    $Config{installscript},
         bindoc  => $Config{installsiteman1dir} || $Config{installman1dir},
         libdoc  => $Config{installsiteman3dir} || $Config{installman3dir}
-});
+    });
+}
 
 
 # Is installdirs honored?
-$m->installdirs('core');
-is( $m->installdirs, 'core' );
+{
+    $m->installdirs('core');
+    is( $m->installdirs, 'core' );
 
-test_install_destinations( $m, {
+    test_install_destinations( $m, {
         lib     => $Config{installprivlib},
         arch    => $Config{installarchlib},
         bin     => $Config{installbin},
         script  => $Config{installscript} || $Config{installbin},
         bindoc  => $Config{installman1dir},
         libdoc  => $Config{installman3dir},
-});
+    });
 
-
-$m->installdirs('site');
-is( $m->installdirs, 'site' );
+    $m->installdirs('site');
+    is( $m->installdirs, 'site' );
+}
 
 
 # Check install_base()
-my $install_base = catdir( 'foo', 'bar' );
-$m->install_base( $install_base );
+{
+    my $install_base = catdir( 'foo', 'bar' );
+    $m->install_base( $install_base );
 
-is( $m->prefix,       undef );
-is( $m->install_base, $install_base );
+    is( $m->prefix,       undef );
+    is( $m->install_base, $install_base );
 
 
-test_install_destinations( $m, {
+    test_install_destinations( $m, {
         lib     => catdir( $install_base, 'lib', 'perl5' ),
         arch    => catdir( $install_base, 'lib', 'perl5', $Config{archname} ),
         bin     => catdir( $install_base, 'bin' ),
         script  => catdir( $install_base, 'bin' ),
         bindoc  => catdir( $install_base, 'man', 'man1'),
         libdoc  => catdir( $install_base, 'man', 'man3' ),
-});
-
-
-$m->install_base( undef );
-ok( !defined $m->install_base );
+    });
+}
 
 
 # Basic prefix test.  Ensure everything is under the prefix.
-my $prefix = catdir( qw( some prefix ) );
-$m->prefix( $prefix );
-is( $m->{properties}{prefix}, $prefix );
+{
+    $m->install_base( undef );
+    ok( !defined $m->install_base );
 
-test_prefix($prefix);
+    my $prefix = catdir( qw( some prefix ) );
+    $m->prefix( $prefix );
+    is( $m->{properties}{prefix}, $prefix );
+
+    test_prefix($prefix);
+}
 
 
 # And now that prefix honors installdirs.
-$m->installdirs('core');
-is( $m->installdirs, 'core' );
+{
+    $m->installdirs('core');
+    is( $m->installdirs, 'core' );
 
-test_prefix($prefix);
+    my $prefix = catdir( qw( some prefix ) );
+    test_prefix($prefix);
 
-$m->installdirs('site');
-is( $m->installdirs, 'site' );
+    $m->installdirs('site');
+    is( $m->installdirs, 'site' );
+}
 
 
 # Try a config setting which would result in installation locations outside
@@ -107,23 +116,26 @@ TODO: {
 
     $m->{config}{siteprefixexp} = '/wierd/prefix';
 
-    $prefix = catdir('another', 'prefix');
+    my $prefix = catdir('another', 'prefix');
     $m->prefix($prefix);
     test_prefix($prefix);
 }
 
 
 # Check that we can use install_base after setting prefix.
-$m->install_base( $install_base );
+{
+    my $install_base = catdir( 'foo', 'bar' );
+    $m->install_base( $install_base );
 
-test_install_destinations( $m, {
+    test_install_destinations( $m, {
         lib     => catdir( $install_base, 'lib', 'perl5' ),
         arch    => catdir( $install_base, 'lib', 'perl5', $Config{archname} ),
         bin     => catdir( $install_base, 'bin' ),
         script  => catdir( $install_base, 'bin' ),
         bindoc  => catdir( $install_base, 'man', 'man1'),
         libdoc  => catdir( $install_base, 'man', 'man3' ),
-});
+    });
+}
 
 
 sub test_prefix {
