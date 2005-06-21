@@ -13,7 +13,7 @@ BEGIN {
 }
 
 
-use Test::More tests => 49;
+use Test::More tests => 55;
 
 use_ok 'Module::Build';
 
@@ -100,6 +100,19 @@ $m->installdirs('site');
 is( $m->installdirs, 'site' );
 
 
+# Try a config setting which would result in installation locations outside
+# the prefix.  Ensure it doesn't.
+TODO: {
+    local $TODO = 'prefix doesnt protect against going outside itself';
+
+    $m->{config}{siteprefixexp} = '/wierd/prefix';
+
+    $prefix = catdir('another', 'prefix');
+    $m->prefix($prefix);
+    test_prefix($prefix);
+}
+
+
 # Check that we can use install_base after setting prefix.
 $m->install_base( $install_base );
 
@@ -120,7 +133,7 @@ sub test_prefix {
 
     foreach my $type (qw(lib arch bin script bindoc libdoc)) {
         my $dest = $m->install_destination( $type );
-        like( $dest, "/^\Q$prefix\E/");
+        like( $dest, "/^\Q$prefix\E/", "$type prefixed");
     }
 }
 
@@ -131,6 +144,6 @@ sub test_install_destinations {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     while( my($type, $expect) = each %$expect ) {
-        is( $m->install_destination($type), $expect, $type );
+        is( $m->install_destination($type), $expect, "$type destination" );
     }
 }
