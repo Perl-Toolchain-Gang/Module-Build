@@ -2571,137 +2571,135 @@ sub install_base_relative {
 
 # Translated from ExtUtils::MM_Any::init_INSTALL_from_PREFIX
 sub install_prefix_relative {
-    my ($self, $type, $prefix) = @_;
-    my $c = $self->{config};
-
-    my $map      = $self->install_sets;
-    my $defaults = $self->_prefix_defaults;
-             
-    
-    my $installdirs = $self->installdirs;
-    return unless exists $map->{$installdirs}{$type};
-
-    my %prefixes = (
-        core => $c->{installprefixexp} || $c->{installprefix} ||
-                $c->{prefixexp}        || $c->{prefix} || '',
-        site => $c->{siteprefixexp},
-        vendor => $c->{usevendorprefix}  ? $c->{vendorprefixexp} : '',
+  my ($self, $type, $prefix) = @_;
+  my $c = $self->{config};
+  
+  my $map      = $self->install_sets;
+  my $defaults = $self->_prefix_defaults;
+  
+  
+  my $installdirs = $self->installdirs;
+  return unless exists $map->{$installdirs}{$type};
+  
+  my %prefixes = 
+    (
+     core => $c->{installprefixexp} || $c->{installprefix} ||
+             $c->{prefixexp}        || $c->{prefix} || '',
+     site => $c->{siteprefixexp},
+     vendor => $c->{usevendorprefix}  ? $c->{vendorprefixexp} : '',
     );
-    $prefixes{site} ||= $prefixes{core};
+  $prefixes{site} ||= $prefixes{core};
 
-    return $self->_prefixify($map->{$installdirs}{$type},
-                             $prefixes{$installdirs}, 
-                             $prefix,
-                             $defaults->{$installdirs}{$type}
-                            );
+  return $self->_prefixify($map->{$installdirs}{$type},
+			   $prefixes{$installdirs}, 
+			   $prefix,
+			   $defaults->{$installdirs}{$type}
+			  );
 }
 
 
 # Defaults to use in case the config install paths cannot be prefixified.
 sub _prefix_defaults {
-    my $self = shift;
-    my $c = $self->{config};
+  my $self = shift;
+  my $c = $self->{config};
 
-    my $libstyle = $c->{installstyle} || 'lib/perl5';
-    my $arch     = $c->{archname};
-    my $version  = $c->{version};
+  my $libstyle = $c->{installstyle} || 'lib/perl5';
+  my $arch     = $c->{archname};
+  my $version  = $c->{version};
 
-    my %defaults = (
-        core => {
-             lib        => $libstyle,
-             arch       => File::Spec->catdir($libstyle, $version, $arch),
-             bin        => 'bin',
-             script     => 'bin',
-             libdoc     => File::Spec->catdir('man', 'man3'),
-             bindoc     => File::Spec->catdir('man', 'man1'),
-        },
-        vendor => {
-             lib        => $libstyle,
-             arch       => File::Spec->catdir($libstyle, $version, $arch),
-             bin        => 'bin',
-             script     => 'bin',
-             libdoc     => File::Spec->catdir('man', 'man3'),
-             bindoc     => File::Spec->catdir('man', 'man1'),
-        },
-        site => {
-             lib        => File::Spec->catdir($libstyle, 'site_perl'),
-             arch       => File::Spec->catdir($libstyle, 'site_perl', 
-                                              $version, $arch),
-             bin        => 'bin',
-             script     => 'bin',
-             libdoc     => File::Spec->catdir('man', 'man3'),
-             bindoc     => File::Spec->catdir('man', 'man1'),
-        },
+  my %defaults = 
+    (
+     core => {
+	      lib        => $libstyle,
+	      arch       => File::Spec->catdir($libstyle, $version, $arch),
+	      bin        => 'bin',
+	      script     => 'bin',
+	      libdoc     => File::Spec->catdir('man', 'man3'),
+	      bindoc     => File::Spec->catdir('man', 'man1'),
+	     },
+     vendor => {
+		lib        => $libstyle,
+		arch       => File::Spec->catdir($libstyle, $version, $arch),
+		bin        => 'bin',
+		script     => 'bin',
+		libdoc     => File::Spec->catdir('man', 'man3'),
+		bindoc     => File::Spec->catdir('man', 'man1'),
+	       },
+     site => {
+	      lib        => File::Spec->catdir($libstyle, 'site_perl'),
+	      arch       => File::Spec->catdir($libstyle, 'site_perl', 
+					       $version, $arch),
+	      bin        => 'bin',
+	      script     => 'bin',
+	      libdoc     => File::Spec->catdir('man', 'man3'),
+	      bindoc     => File::Spec->catdir('man', 'man1'),
+	     },
     );
 
-    return \%defaults;
+  return \%defaults;
 }
 
 
 # Translated from ExtUtils::MM_Unix::prefixify()
 sub _prefixify {
-    my($self, $path, $sprefix, $rprefix, $default) = @_;
-
-    $rprefix .= '/' if $sprefix =~ m|/$|;
-
-    $self->log_verbose("  prefixify $path from $sprefix to $rprefix\n");
-
-    if( length $path == 0 ) {
-        $self->log_verbose("  no path to prefixify.\n")
-    }
-    elsif( !File::Spec->file_name_is_absolute($path) ) {
-        $self->log_verbose("    path is relative, not prefixifying.\n");
-    }
-    elsif( $sprefix eq $rprefix ) {
-        $self->log_verbose("  no new prefix.\n");
-    }
-    elsif( $path !~ s{^\Q$sprefix\E\b}{$rprefix}s ) {
-        $self->log_verbose("    cannot prefixify.\n");
-        $path = $self->_prefixify_default($rprefix, $default);
-    }
-
-    $self->log_verbose("    now $path\n");
-
-    return $path;
+  my($self, $path, $sprefix, $rprefix, $default) = @_;
+  
+  $rprefix .= '/' if $sprefix =~ m|/$|;
+  
+  $self->log_verbose("  prefixify $path from $sprefix to $rprefix\n");
+  
+  if( length $path == 0 ) {
+    $self->log_verbose("  no path to prefixify.\n")
+  } elsif( !File::Spec->file_name_is_absolute($path) ) {
+    $self->log_verbose("    path is relative, not prefixifying.\n");
+  } elsif( $sprefix eq $rprefix ) {
+    $self->log_verbose("  no new prefix.\n");
+  } elsif( $path !~ s{^\Q$sprefix\E\b}{$rprefix}s ) {
+    $self->log_verbose("    cannot prefixify.\n");
+    $path = $self->_prefixify_default($rprefix, $default);
+  }
+  
+  $self->log_verbose("    now $path\n");
+  
+  return $path;
 }
 
 
 sub _prefixify_default {
-    my($self, $rprefix, $default) = @_;
-
-    $self->log_verbose("    cannot prefix, trying default.\n");
-
-    if( !$default ) {
-        $self->log_verbose("    no default!  Using prefix '$rprefix'.\n");  
-        return $rprefix;
-    }
-    if( !$rprefix ) {
-        $self->log_verbose("    no replacement prefix!\n");
-        return;
-    }
-
-    $self->log_verbose("    using default '$default'.\n");
-
-    return $self->_catprefix($rprefix, $default);
+  my($self, $rprefix, $default) = @_;
+  
+  $self->log_verbose("    cannot prefix, trying default.\n");
+  
+  if( !$default ) {
+    $self->log_verbose("    no default!  Using prefix '$rprefix'.\n");  
+    return $rprefix;
+  }
+  if( !$rprefix ) {
+    $self->log_verbose("    no replacement prefix!\n");
+    return;
+  }
+  
+  $self->log_verbose("    using default '$default'.\n");
+  
+  return $self->_catprefix($rprefix, $default);
 }
 
 
-# From ExtUtils::MM_VMS::_catpreifx() but its actually cross platform.
+# From ExtUtils::MM_VMS::_catprefix(), but it's actually cross platform.
 sub _catprefix {
-    my($self, $rprefix, $default) = @_;
-
-    # Most file path types do not distinguish between a file and a directory
-    # so the "file" part here is usually part of the directory.
-    my($rvol, @rdirs) = File::Spec->splitpath($rprefix);
-    if( $rvol ) {
-        return File::Spec->catpath($rvol,
-                                   File::Spec->catdir(@rdirs, $default),
-                                   ''
-                                  )
-    }
-    else {
-        return File::Spec->catdir(@rdirs, $default);
-    }
+  my($self, $rprefix, $default) = @_;
+  
+  # Most file path types do not distinguish between a file and a directory
+  # so the "file" part here is usually part of the directory.
+  my($rvol, @rdirs) = File::Spec->splitpath($rprefix);
+  if( $rvol ) {
+    return File::Spec->catpath($rvol,
+			       File::Spec->catdir(@rdirs, $default),
+			       ''
+			      )
+  } else {
+    return File::Spec->catdir(@rdirs, $default);
+  }
 }
 
 
