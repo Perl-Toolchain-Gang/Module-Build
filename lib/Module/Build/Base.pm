@@ -2570,7 +2570,7 @@ sub install_base_relative {
 
 
 # Translated from ExtUtils::MM_Any::init_INSTALL_from_PREFIX
-sub install_prefix_relative {
+sub prefix_relative {
   my ($self, $type, $prefix) = @_;
   my $c = $self->{config};
   
@@ -2710,7 +2710,7 @@ sub install_destination {
   
   return $p->{install_path}{$type} if exists $p->{install_path}{$type};
   return File::Spec->catdir($p->{install_base}, $self->install_base_relative($type)) if $p->{install_base};
-  return $self->install_prefix_relative($type, $p->{prefix}) if $p->{prefix};
+  return $self->prefix_relative($type, $p->{prefix}) if $p->{prefix};
   return $p->{install_sets}{ $p->{installdirs} }{$type};
 }
 
