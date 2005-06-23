@@ -1259,7 +1259,7 @@ sub read_args {
   }
 
   # De-tilde-ify any path parameters
-  for my $key (qw(prefix install_base install_path install_dest)) {
+  for my $key (qw(prefix install_base destdir)) {
     next if !defined $args{$key};
     ($args{$key}) = glob($args{$key}) if $args{$key} =~ /^~/;
   }
