@@ -5,6 +5,6 @@ lib/Sample/Docs.pod
 lib/Sample/NoPod.pm
 lib/Sample/Script.PL
 MANIFEST
-META.yml
 script
 test.pl
+META.yml
