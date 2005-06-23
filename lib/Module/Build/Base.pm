@@ -2639,8 +2639,7 @@ sub install_base_relpaths {
 
 # Translated from ExtUtils::MM_Any::init_INSTALL_from_PREFIX
 sub prefix_relative {
-  my ($self, $type, $prefix) = @_;
-  
+  my ($self, $type) = @_;
   my $installdirs = $self->installdirs;
   
   my $normal_location = $self->install_sets->{$installdirs}{$type}
@@ -2648,7 +2647,7 @@ sub prefix_relative {
   
   return $self->_prefixify($normal_location,
 			   $self->prefix_sets->{$installdirs}, 
-			   $prefix,
+			   $self->prefix,
 			   $self->prefix_relpaths($installdirs, $type),
 			  );
 }
@@ -2720,7 +2719,7 @@ sub install_destination {
   
   return $p->{install_path}{$type} if exists $p->{install_path}{$type};
   return File::Spec->catdir($p->{install_base}, $self->install_base_relpaths($type)) if $p->{install_base};
-  return $self->prefix_relative($type, $p->{prefix}) if $p->{prefix};
+  return $self->prefix_relative($type) if $p->{prefix};
   return $p->{install_sets}{ $p->{installdirs} }{$type};
 }
 
