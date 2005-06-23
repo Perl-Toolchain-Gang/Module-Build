@@ -1,24 +1,32 @@
 #!/usr/bin/perl -w
 
+use lib 't/lib';
 use strict;
+
+use Test::More tests => 66;
+
+
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+require $common_pl;
+
+
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+use DistGen;
+my $dist = DistGen->new;
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
 
 use Config;
 use File::Spec::Functions qw( catdir splitdir );
 
-use File::Spec;
 
-BEGIN {
-  my $common_pl = File::Spec->catfile('t', 'common.pl');
-  require $common_pl;
-}
-
-
-use Test::More tests => 67;
-
-use_ok 'Module::Build';
-
-
-my $M = Module::Build->current;
+use Module::Build;
+my $M = Module::Build->new_from_context;
 isa_ok( $M, 'Module::Build::Base' );
 
 my $Install_Sets = $M->install_sets;
@@ -193,3 +201,7 @@ sub test_install_destinations {
         is( $mb->install_destination($type), $expect, "$type destination" );
     }
 }
+
+
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
