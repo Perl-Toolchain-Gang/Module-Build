@@ -5,7 +5,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 6;
+use Test::More tests => 9;
 
 use TieOut;
 use Cwd;
@@ -14,8 +14,8 @@ use Module::Build;
 
 my $cwd = cwd;
 
-sub test_tilde_expansion {
-    my($args, $expect) = @_;
+sub run_sample {
+    my($args) = @_;
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
@@ -25,26 +25,44 @@ sub test_tilde_expansion {
 
     my $mb = Module::Build->current;
 
-    my $ret = like( $mb->install_destination('lib'), $expect,
-                    join ' ', @$args
-                  );
-
     chdir $cwd;
-
-    return $ret;
+    
+    return $mb;
 }
+
 
 {
     local $ENV{HOME} = 'home';
-    test_tilde_expansion(['--install_base=~'],     qr{^$ENV{HOME}} );
-    test_tilde_expansion(['--install_base=~/foo'], qr{^$ENV{HOME}/foo} );
-    test_tilde_expansion(['--install_base=~~'],    qr{^~~} );
-    test_tilde_expansion(['--install_base=foo~'],  qr{^foo~} );
 
-    test_tilde_expansion(['--prefix=~'],           qr{^$ENV{HOME}} );
+    my $mb;
 
-    test_tilde_expansion(['--install_path', 'lib=~/lib'], 
-                                                   qr{^$ENV{HOME}/lib} );
+    $mb = run_sample( ['--install_base=~']);
+    is( $mb->install_base,      $ENV{HOME} );
+
+    $mb = run_sample( ['--install_base=~/foo'], qr{^$ENV{HOME}/foo} );
+    is( $mb->install_base,      "$ENV{HOME}/foo" );
+
+    $mb = run_sample( ['--install_base=~~'] );
+    is( $mb->install_base,      '~~' );
+
+    $mb = run_sample( ['--install_base=foo~'] );
+    is( $mb->install_base,      'foo~' );
+
+    $mb = run_sample( ['--prefix=~'] );
+    is( $mb->prefix,            $ENV{HOME} );
+
+    $mb = run_sample( ['--install_path', 'html=~/html',
+                       '--install_path', 'lib=~/lib'
+                      ] );
+    is( $mb->install_destination('lib'),  "$ENV{HOME}/lib" );
+    is( $mb->install_destination('html'), "$ENV{HOME}/html" );
+
+    $mb = run_sample( ['--install_path', 'lib=~/lib'] );
+    is( $mb->install_destination('lib'),  "$ENV{HOME}/lib" );
+
+    $mb = run_sample( ['--destdir=~'] );
+    is( $mb->destdir,           $ENV{HOME} );
+
 }
 
 
