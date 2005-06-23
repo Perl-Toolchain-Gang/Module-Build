@@ -1,10 +1,11 @@
 
 use strict;
-use Test;
-plan tests => 6;
+
+use Test::More tests => 6;
 
 use File::Spec;
 use IO::File;
+
 use Module::Build;
 ok(1);
 
@@ -23,7 +24,7 @@ my @files;
     unless (-d $tmp) {
       mkdir($tmp, 0777) or die "Can't create $tmp: $!";
     }
-    ok -d $tmp, 1;
+    ok -d $tmp;
     $tmp[$_] = $tmp;
   }
   
@@ -33,12 +34,12 @@ my @files;
   my $fh = IO::File->new($file, '>') or die "Can't create $file: $!";
   print $fh "Foo\n";
   $fh->close;
-  ok -e $file, 1;
+  ok -e $file;
   
   
   my $file2 = $m->copy_if_modified(from => $file, to_dir => $tmp[2]);
   ok $file2;
-  ok -e $file2, 1;
+  ok -e $file2;
 }
 
 $m->delete_filetree(@files);
