@@ -2700,17 +2700,12 @@ sub _prefixify_default {
 sub _catprefix {
   my($self, $rprefix, $default) = @_;
   
-  # Most file path types do not distinguish between a file and a directory
-  # so the "file" part here is usually part of the directory.
-  my($rvol, @rdirs) = File::Spec->splitpath($rprefix);
-  if( $rvol ) {
-    return File::Spec->catpath($rvol,
-			       File::Spec->catdir(@rdirs, $default),
-			       ''
-			      )
-  } else {
-    return File::Spec->catdir(@rdirs, $default);
-  }
+  # The "1" means don't look for a file, $rprefix is a directory.
+  my($rvol, @rdirs) = File::Spec->splitpath($rprefix, 1);
+  return File::Spec->catpath($rvol,
+			     File::Spec->catdir(@rdirs, $default),
+			     ''
+			    );
 }
 
 
