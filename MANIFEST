@@ -61,6 +61,7 @@ t/Sample/script
 t/Sample/test.foo
 t/Sample/test.pl
 t/signature.t
+t/tilde.t
 t/versions.t
 t/xs.t
 t/XSTest/Build.PL
