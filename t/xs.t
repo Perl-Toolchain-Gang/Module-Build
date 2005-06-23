@@ -1,13 +1,23 @@
-######################### We start with some black magic to print on failure.
+#!/usr/bin/perl -w
 
+use lib 't/lib';
 use strict;
-use Test;
-use Config;
-use Module::Build;
-use File::Spec;
 
-my $common_pl = File::Spec->catfile('t', 'common.pl');
+use Test::More;
+
+
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
 require $common_pl;
+
+
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+
+#########################
+
+use Module::Build;
 
 { local $SIG{__WARN__} = sub {};
 
@@ -18,47 +28,45 @@ require $common_pl;
   stderr_of( sub {$have_c_compiler = $m->have_c_compiler} );
 
   if ( ! $m->feature('C_support') ) {
-    print("1..0 # Skipped: C_support not enabled\n");
-    exit(0);
+    plan skip_all => 'C_support not enabled';
   } elsif ( !$have_c_compiler ) {
-    print("1..0 # Skipped: C_support enabled, but no compiler found\n");
-    exit(0);
+    plan skip_all => 'C_support enabled, but no compiler found';
+  } else {
+    plan tests => 11;
   }
 }
 
-######################### End of black magic.
+#########################
 
-plan tests => 12;
 
 # Pretend we're in the t/XSTest/ subdirectory
 my $build_dir = File::Spec->catdir('t','XSTest');
 chdir $build_dir or die "Can't change to $build_dir : $!";
 
 my $m = Module::Build->new_from_context('skip_rcfile' => '1');
-ok(1);
 
 eval {$m->dispatch('clean')};
-ok $@, '';
+ok not $@;
 
 eval {$m->dispatch('build')};
-ok $@, '';
+ok not $@;
 
 {
   # Try again in a subprocess 
   eval {$m->dispatch('clean')};
-  ok $@, '';
+  ok not $@;
 
   $m->create_build_script;
   ok -e 'Build';
   
   eval {$m->run_perl_script('Build')};
-  ok $@, '';
+  ok not $@;
 }
 
 # We can't be verbose in the sub-test, because Test::Harness will
 # think that the output is for the top-level test.
 eval {$m->dispatch('test')};
-ok $@, '';
+ok not $@;
 
 {
   $m->dispatch('ppd', args => {codebase => '/path/to/codebase-xs'});
@@ -71,7 +79,7 @@ ok $@, '';
   # This test is quite a hack since with XML you don't really want to
   # do a strict string comparison, but absent an XML parser it's the
   # best we can do.
-  ok $ppd, <<"EOF";
+  is $ppd, <<"EOF";
 <SOFTPKG NAME="XSTest" VERSION="0,01,0,0">
     <TITLE>XSTest</TITLE>
     <ABSTRACT>Perl extension for blah blah blah</ABSTRACT>
@@ -86,20 +94,20 @@ ok $@, '';
 EOF
 }
 
-if ($m->os_type eq 'Unix') {
+SKIP: {
+  skip( "skipping a couple Unixish-only tests", 2 )
+      unless $m->os_type eq 'Unix';
+
   eval {$m->dispatch('clean')};
-  ok $@, '';
-  
+  ok not $@;
+
   local $m->{config}{ld} = "FOO=BAR $m->{config}{ld}";
   eval {$m->dispatch('build')};
-  ok $@, '';
-} else {
-  skip_subtest("skipping a couple Unixish-only tests") for 1..2;
+  ok not $@;
 }
 
 eval {$m->dispatch('realclean')};
-ok $@, '';
+ok not $@;
 
 # Make sure blib/ is gone after 'realclean'
 ok not -e 'blib';
-
