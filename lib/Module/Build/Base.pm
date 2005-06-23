@@ -2692,20 +2692,7 @@ sub _prefixify_default {
   
   $self->log_verbose("    using default '$default'.\n");
   
-  return $self->_catprefix($rprefix, $default);
-}
-
-
-# From ExtUtils::MM_VMS::_catprefix(), but it's actually cross platform.
-sub _catprefix {
-  my($self, $rprefix, $default) = @_;
-  
-  # The "1" means don't look for a file, $rprefix is a directory.
-  my($rvol, @rdirs) = File::Spec->splitpath($rprefix, 1);
-  return File::Spec->catpath($rvol,
-			     File::Spec->catdir(@rdirs, $default),
-			     ''
-			    );
+  File::Spec->catdir($rprefix, $default),
 }
 
 
