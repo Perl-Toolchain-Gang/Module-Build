@@ -5,28 +5,35 @@
 use lib 't/lib';
 use strict;
 
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+require $common_pl;
+
 use Test::More tests => 10;
 
-use TieOut;
-use Cwd;
-use File::Spec::Functions qw(catdir);
 use Module::Build;
 
-my $cwd = cwd;
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+use DistGen;
+my $dist = DistGen->new;
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 sub run_sample {
-    my($args) = @_;
+    my @args = @_;
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    chdir 'Sample';
+    $dist->clean;
 
-    Module::Build->run_perl_script('Build.PL', [], [@$args, '--quiet=1']);
+    my $mb;
+    stdout_of( sub {
+      $mb = Module::Build->new_from_context( @args );
+    } );
 
-    my $mb = Module::Build->current;
-
-    chdir $cwd;
-    
     return $mb;
 }
 
@@ -36,33 +43,37 @@ sub run_sample {
 
     my $mb;
 
-    $mb = run_sample( ['--install_base=~']);
+    $mb = run_sample( install_base => '~' );
     is( $mb->install_base,      $ENV{HOME} );
 
-    $mb = run_sample( ['--install_base=~/foo'], qr{^$ENV{HOME}/foo} );
+    $mb = run_sample( install_base => '~/foo' );
     is( $mb->install_base,      "$ENV{HOME}/foo" );
 
-    $mb = run_sample( ['--install_base=~~'] );
+    $mb = run_sample( install_base => '~~' );
     is( $mb->install_base,      '~~' );
 
-    $mb = run_sample( ['--install_base=foo~'] );
+    $mb = run_sample( install_base => 'foo~' );
     is( $mb->install_base,      'foo~' );
 
-    $mb = run_sample( ['--prefix=~'] );
+    $mb = run_sample( prefix => '~' );
     is( $mb->prefix,            $ENV{HOME} );
 
-    $mb = run_sample( ['--install_path', 'html=~/html',
-                       '--install_path', 'lib=~/lib'
-                      ] );
+    $mb = run_sample( install_path => { html => '~/html',
+					lib  => '~/lib'   }
+                    );
     is( $mb->install_destination('lib'),  "$ENV{HOME}/lib" );
     is( $mb->install_destination('html'), "$ENV{HOME}/html" );
 
-    $mb = run_sample( ['--install_path', 'lib=~/lib'] );
+    $mb = run_sample( install_path => { lib => '~/lib' } );
     is( $mb->install_destination('lib'),  "$ENV{HOME}/lib" );
 
-    $mb = run_sample( ['--destdir=~'] );
+    $mb = run_sample( destdir => '~' );
     is( $mb->destdir,           $ENV{HOME} );
 
     $mb->install_base('~');
     is( $mb->install_base,      '~', 'API does not expand tildes' );
 }
+
+
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
