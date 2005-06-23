@@ -5,7 +5,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 use TieOut;
 use Cwd;
@@ -63,6 +63,6 @@ sub run_sample {
     $mb = run_sample( ['--destdir=~'] );
     is( $mb->destdir,           $ENV{HOME} );
 
+    $mb->install_base('~');
+    is( $mb->install_base,      '~', 'API does not expand tildes' );
 }
-
-
