@@ -1,7 +1,10 @@
+#!/usr/bin/perl -w
+
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 9;
+use Test::More tests => 8;
+
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -12,8 +15,8 @@ $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
+
 use Module::Build;
-ok(1);
 
 ###################################
 $dist->change_file( 'Build.PL', <<"---" );

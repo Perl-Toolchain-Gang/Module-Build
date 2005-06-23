@@ -5,13 +5,13 @@
 use lib 't/lib';
 use strict;
 
+use Test::More tests => 10;
+
+
 use File::Spec ();
 my $common_pl = File::Spec->catfile( 't', 'common.pl' );
 require $common_pl;
 
-use Test::More tests => 10;
-
-use Module::Build;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -21,6 +21,9 @@ my $dist = DistGen->new;
 $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
+
+use Module::Build;
 
 sub run_sample {
     my @args = @_;

@@ -1,11 +1,9 @@
+#!/usr/bin/perl -w
+
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 6;
-
-
-use File::Spec;
-use IO::File;
+use Test::More tests => 5;
 
 
 use Cwd ();
@@ -18,9 +16,11 @@ $dist->regen;
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 
-use Module::Build;
-ok(1);
+use File::Spec;
+use IO::File;
 
+
+use Module::Build;
 my $m = Module::Build->new_from_context;
 my @files;
 
