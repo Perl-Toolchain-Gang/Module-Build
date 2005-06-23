@@ -1273,7 +1273,6 @@ sub read_args {
     }
   }
 
-  
   if ($args{makefile_env_macros}) {
     require Module::Build::Compat;
     %args = (%args, Module::Build::Compat->makefile_to_build_macros);
@@ -1286,7 +1285,9 @@ sub read_args {
 sub _detildefy {
     my $arg = shift;
 
-    return $arg =~ /^~/ ? glob($arg) : $arg;
+    ($arg) = $arg =~ /^~/ ? glob($arg) : $arg;
+
+    return $arg;
 }
 
 
