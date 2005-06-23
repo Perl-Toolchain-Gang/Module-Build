@@ -117,8 +117,7 @@ $M->prefix(undef);
 # the prefix.  Ensure it doesn't.
 {
     # Get the prefix defaults
-    my $defaults = $M->_prefix_defaults;
-    $defaults = $defaults->{site};
+    my $defaults = $M->prefix_relpaths('site');
 
     # Create a configuration involving weird paths that are outside of
     # the configured prefix.

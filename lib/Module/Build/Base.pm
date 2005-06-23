@@ -171,10 +171,14 @@ sub log_warn {
 sub _set_install_paths {
   my $self = shift;
   my $c = $self->{config};
+  my $p = $self->{properties};
 
-  my @html = $c->{installhtmldir} ? (html => $c->{installhtmldir}) : ();
+  my @libstyle = $c->{installstyle} ? File::Spec->splitdir($c->{installstyle}) : qw(lib perl5);
+  my $arch     = $c->{archname};
+  my $version  = $c->{version};
+  my @html     = $c->{installhtmldir} ? (html => $c->{installhtmldir}) : ();
 
-  $self->{properties}{install_sets} =
+  $p->{install_sets} =
     {
      core   => {
 		lib     => $c->{installprivlib},
@@ -203,6 +207,53 @@ sub _set_install_paths {
 		libdoc  => $c->{installvendorman3dir} || $c->{installman3dir},
 		@html,
 	       },
+    };
+
+  $p->{prefix_sets} =
+    {
+     core   => $c->{installprefixexp} || $c->{installprefix} ||
+               $c->{prefixexp}        || $c->{prefix} || '',
+     site   => $c->{siteprefixexp},
+     vendor => $c->{usevendorprefix} ? $c->{vendorprefixexp} : '',
+    };
+  $p->{prefix_sets}{site} ||= $p->{prefix_sets}{core};
+
+  $p->{install_base_relpaths} =
+    {
+     lib     => ['lib', 'perl5'],
+     arch    => ['lib', 'perl5', $arch],
+     bin     => ['bin'],
+     script  => ['bin'],
+     bindoc  => ['man', 'man1'],
+     libdoc  => ['man', 'man3'],
+    };
+
+  $p->{prefix_relpaths} = 
+    {
+     core => {
+	      lib        => [@libstyle],
+	      arch       => [@libstyle, $version, $arch],
+	      bin        => ['bin'],
+	      script     => ['bin'],
+	      libdoc     => ['man', 'man3'],
+	      bindoc     => ['man', 'man1'],
+	     },
+     vendor => {
+		lib        => [@libstyle],
+		arch       => [@libstyle, $version, $arch],
+		bin        => ['bin'],
+		script     => ['bin'],
+		libdoc     => ['man', 'man3'],
+		bindoc     => ['man', 'man1'],
+	       },
+     site => {
+	      lib        => [@libstyle, 'site_perl'],
+	      arch       => [@libstyle, 'site_perl', $version, $arch],
+	      bin        => ['bin'],
+	      script     => ['bin'],
+	      libdoc     => ['man', 'man3'],
+	      bindoc     => ['man', 'man1'],
+	     },
     };
 }
 
@@ -496,6 +547,9 @@ __PACKAGE__->add_property($_) for qw(
    perl
    has_config_data
    install_sets
+   install_base_relpaths
+   prefix_sets
+   prefix_relpaths
    install_base
    destdir
    debugger
@@ -2553,90 +2607,47 @@ sub make_tarball {
   }
 }
 
-sub install_base_relative {
-  my ($self, $type) = @_;
-  # XXX - this won't handle additional build elements correctly
-  my %map = (
-	     lib     => ['lib', 'perl5'],
-	     arch    => ['lib', 'perl5', $self->{config}{archname}],
-	     bin     => ['bin'],
-	     script  => ['bin'],
-	     bindoc  => ['man', 'man1'],
-	     libdoc  => ['man', 'man3'],
-	    );
-  return unless exists $map{$type};
-  return File::Spec->catdir(@{$map{$type}});
+sub install_base_relpaths {
+  # Usage: install_base_relpaths('lib')  or install_base_relpaths();
+  my $self = shift;
+  my $map = $self->{properties}{install_base_relpaths};
+  return $map unless @_;
+  
+  my $type = shift;
+  return unless exists $map->{$type};
+  return File::Spec->catdir(@{$map->{$type}});
 }
 
 
 # Translated from ExtUtils::MM_Any::init_INSTALL_from_PREFIX
 sub prefix_relative {
   my ($self, $type, $prefix) = @_;
-  my $c = $self->{config};
-  
-  my $map      = $self->install_sets;
-  my $defaults = $self->_prefix_defaults;
-  
   
   my $installdirs = $self->installdirs;
-  return unless exists $map->{$installdirs}{$type};
   
-  my %prefixes = 
-    (
-     core => $c->{installprefixexp} || $c->{installprefix} ||
-             $c->{prefixexp}        || $c->{prefix} || '',
-     site => $c->{siteprefixexp},
-     vendor => $c->{usevendorprefix}  ? $c->{vendorprefixexp} : '',
-    );
-  $prefixes{site} ||= $prefixes{core};
-
-  return $self->_prefixify($map->{$installdirs}{$type},
-			   $prefixes{$installdirs}, 
+  my $map        = $self->install_sets->{$installdirs};
+  my $prefix_rel = $self->prefix_relpaths($installdirs, $type);
+  return unless exists $map->{$type};
+  
+  return $self->_prefixify($map->{$type},
+			   $self->prefix_sets->{$installdirs}, 
 			   $prefix,
-			   $defaults->{$installdirs}{$type}
+			   $prefix_rel
 			  );
 }
 
 
 # Defaults to use in case the config install paths cannot be prefixified.
-sub _prefix_defaults {
+sub prefix_relpaths {
+  # Usage: prefix_relpaths('site', 'lib')  or prefix_relpaths('site');
   my $self = shift;
-  my $c = $self->{config};
-
-  my $libstyle = $c->{installstyle} || 'lib/perl5';
-  my $arch     = $c->{archname};
-  my $version  = $c->{version};
-
-  my %defaults = 
-    (
-     core => {
-	      lib        => $libstyle,
-	      arch       => File::Spec->catdir($libstyle, $version, $arch),
-	      bin        => 'bin',
-	      script     => 'bin',
-	      libdoc     => File::Spec->catdir('man', 'man3'),
-	      bindoc     => File::Spec->catdir('man', 'man1'),
-	     },
-     vendor => {
-		lib        => $libstyle,
-		arch       => File::Spec->catdir($libstyle, $version, $arch),
-		bin        => 'bin',
-		script     => 'bin',
-		libdoc     => File::Spec->catdir('man', 'man3'),
-		bindoc     => File::Spec->catdir('man', 'man1'),
-	       },
-     site => {
-	      lib        => File::Spec->catdir($libstyle, 'site_perl'),
-	      arch       => File::Spec->catdir($libstyle, 'site_perl', 
-					       $version, $arch),
-	      bin        => 'bin',
-	      script     => 'bin',
-	      libdoc     => File::Spec->catdir('man', 'man3'),
-	      bindoc     => File::Spec->catdir('man', 'man1'),
-	     },
-    );
-
-  return \%defaults;
+  my $installdirs = shift || $self->installdirs;
+  my $map = $self->{properties}{prefix_relpaths}{$installdirs};
+  return $map unless @_;
+  
+  my $type = shift;
+  return unless exists $map->{$type};
+  return File::Spec->catdir(@{$map->{$type}});
 }
 
 
@@ -2709,7 +2720,7 @@ sub install_destination {
   my $p = $self->{properties};
   
   return $p->{install_path}{$type} if exists $p->{install_path}{$type};
-  return File::Spec->catdir($p->{install_base}, $self->install_base_relative($type)) if $p->{install_base};
+  return File::Spec->catdir($p->{install_base}, $self->install_base_relpaths($type)) if $p->{install_base};
   return $self->prefix_relative($type, $p->{prefix}) if $p->{prefix};
   return $p->{install_sets}{ $p->{installdirs} }{$type};
 }
