@@ -203,14 +203,14 @@ sub _set_install_paths {
 	       },
     };
 
-  $p->{prefix_sets} =
+  $p->{original_prefix} =
     {
      core   => $c->{installprefixexp} || $c->{installprefix} ||
                $c->{prefixexp}        || $c->{prefix} || '',
      site   => $c->{siteprefixexp},
      vendor => $c->{usevendorprefix} ? $c->{vendorprefixexp} : '',
     };
-  $p->{prefix_sets}{site} ||= $p->{prefix_sets}{core};
+  $p->{original_prefix}{site} ||= $p->{original_prefix}{core};
 
   $p->{install_base_relpaths} =
     {
@@ -542,7 +542,7 @@ __PACKAGE__->add_property($_) for qw(
    has_config_data
    install_sets
    install_base_relpaths
-   prefix_sets
+   original_prefix
    prefix_relpaths
    install_base
    destdir
@@ -2642,12 +2642,13 @@ sub install_base_relpaths {
 sub prefix_relative {
   my ($self, $type) = @_;
   my $installdirs = $self->installdirs;
-  
+
+  # XXX the 'return' here is not a very good failure mechanism
   my $normal_location = $self->install_sets->{$installdirs}{$type}
     or return;
   
   return $self->_prefixify($normal_location,
-			   $self->prefix_sets->{$installdirs}, 
+			   $self->original_prefix->{$installdirs}, 
 			   $self->prefix,
 			   $self->prefix_relpaths($installdirs, $type),
 			  );
@@ -2689,7 +2690,11 @@ sub _prefixify {
   
   $self->log_verbose("    now $path\n");
   
-  return $path;
+  # Return a path relative to $rprefix (this is kind of silly for now,
+  # because the caller is just going to cat them back together again,
+  # but prefix_relative() and install_base_relative() should have the
+  # same interface).
+  return File::Spec->abs2rel($path, $rprefix);
 }
 
 
@@ -2720,7 +2725,7 @@ sub install_destination {
   
   return $p->{install_path}{$type} if exists $p->{install_path}{$type};
   return File::Spec->catdir($p->{install_base}, $self->install_base_relpaths($type)) if $p->{install_base};
-  return $self->prefix_relative($type) if $p->{prefix};
+  return File::Spec->catdir($p->{prefix}, $self->prefix_relative($type)) if $p->{prefix};
   return $p->{install_sets}{ $p->{installdirs} }{$type};
 }
 
