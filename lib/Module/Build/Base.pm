@@ -124,12 +124,6 @@ sub _construct {
     }
   }
 
-  # De-tilde-ify any path parameters
-  for (qw(prefix install_base install_path install_dest)) {
-    next unless exists $p->{$_} and defined $p->{$_};
-    ($p->{$_}) = glob($p->{$_}) if $p->{$_} =~ /^~/;
-  }
-  
   # The following warning could be unnecessary if the user is running
   # an embedded perl, but there aren't too many of those around, and
   # embedded perls aren't usually used to install modules, and the
@@ -1262,6 +1256,12 @@ sub read_args {
       $hash{$1} = $2;
     }
     $args{$_} = \%hash;
+  }
+
+  # De-tilde-ify any path parameters
+  for my $key (qw(prefix install_base install_path install_dest)) {
+    next if !defined $args{$key};
+    ($args{$key}) = glob($args{$key}) if $args{$key} =~ /^~/;
   }
   
   if ($args{makefile_env_macros}) {
