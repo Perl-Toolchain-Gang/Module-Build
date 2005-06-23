@@ -131,7 +131,7 @@ $M->prefix(undef);
     foreach my $type (keys %$defaults) {
         my $prefix = shift @prefixes || [qw(foo bar)];
         $test_config{$type} = catdir(File::Spec->rootdir, @$prefix, 
-                                     $defaults->{$type});
+                                     @{$defaults->{$type}});
     }
 
     # Poke at the innards of MB to change the default install locations.
