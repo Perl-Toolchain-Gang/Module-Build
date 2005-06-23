@@ -2625,14 +2625,13 @@ sub prefix_relative {
   
   my $installdirs = $self->installdirs;
   
-  my $map        = $self->install_sets->{$installdirs};
-  my $prefix_rel = $self->prefix_relpaths($installdirs, $type);
-  return unless exists $map->{$type};
+  my $normal_location = $self->install_sets->{$installdirs}{$type}
+    or return;
   
-  return $self->_prefixify($map->{$type},
+  return $self->_prefixify($normal_location,
 			   $self->prefix_sets->{$installdirs}, 
 			   $prefix,
-			   $prefix_rel
+			   $self->prefix_relpaths($installdirs, $type),
 			  );
 }
 
