@@ -76,4 +76,3 @@ my $build = new ModuleBuildBuilder
   );
 
 $build->create_build_script;
-$build->notes(foo => 'bar');   # We set this here and verify it in t/notes.t

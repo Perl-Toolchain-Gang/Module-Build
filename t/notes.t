@@ -3,13 +3,33 @@ use strict;
 
 use Test::More tests => 9;
 
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+use DistGen;
+my $dist = DistGen->new;
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
 use Module::Build;
 ok(1);
 
 ###################################
-my $m = Module::Build->current;
+$dist->change_file( 'Build.PL', <<"---" );
+use Module::Build;
+my \$build = Module::Build->new(
+  module_name => @{[$dist->name]},
+  license     => 'perl'
+);
+\$build->create_build_script;
+\$build->notes(foo => 'bar');
+---
 
-# This was set in Build.PL
+$dist->regen;
+
+my $m = Module::Build->new_from_context;
+
 is $m->notes('foo'), 'bar';
 
 # Try setting & checking a new value
@@ -26,9 +46,7 @@ is $m->notes('foo'), 'bar';
 
 ###################################
 # Make sure notes set before create_build_script() get preserved
-my $testdir = Module::Build->localize_file_path('t/Sample');
-chdir $testdir or die "Can't chdir($testdir): $!";
-$m = Module::Build->new(module_name => 'Sample');
+$m = Module::Build->new(module_name => $dist->name);
 ok $m;
 $m->notes(foo => 'bar');
 is $m->notes('foo'), 'bar';
@@ -38,3 +56,7 @@ $m->create_build_script;
 $m = Module::Build->resume;
 ok $m;
 is $m->notes('foo'), 'bar';
+
+
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
