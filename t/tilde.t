@@ -42,7 +42,6 @@ sub test_tilde_expansion {
     test_tilde_expansion(['--install_base=foo~'],  qr{^foo~} );
 
     test_tilde_expansion(['--prefix=~'],           qr{^$ENV{HOME}} );
-    test_tilde_expansion(['--destdir=~'],          qr{^$ENV{HOME}} );
 
     test_tilde_expansion(['--install_path', 'lib=~/lib'], 
                                                    qr{^$ENV{HOME}/lib} );
