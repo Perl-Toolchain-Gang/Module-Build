@@ -1261,8 +1261,18 @@ sub read_args {
   # De-tilde-ify any path parameters
   for my $key (qw(prefix install_base destdir)) {
     next if !defined $args{$key};
-    ($args{$key}) = glob($args{$key}) if $args{$key} =~ /^~/;
+    $args{$key} = _detildefy($args{$key});
   }
+
+  for my $key (qw(install_path)) {
+    next if !defined $args{$key};
+
+    for my $subkey (keys %{$args{$key}}) {
+      next if !defined $args{$key}{$subkey};
+      $args{$key}{$subkey} = _detildefy($args{$key}{$subkey});
+    }
+  }
+
   
   if ($args{makefile_env_macros}) {
     require Module::Build::Compat;
@@ -1271,6 +1281,14 @@ sub read_args {
   
   return \%args, $action;
 }
+
+
+sub _detildefy {
+    my $arg = shift;
+
+    return $arg =~ /^~/ ? glob($arg) : $arg;
+}
+
 
 # merge Module::Build argument lists that have already been parsed
 # by read_args(). Takes two references to option hashes and merges
