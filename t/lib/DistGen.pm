@@ -70,7 +70,15 @@ __END__
 
 =head1 NAME
 
-$self->{name}
+$self->{name} - Perl extension for blah blah blah
+
+=head1 DESCRIPTION
+
+Stub documentation for $self->{name}.
+
+=head1 AUTHOR
+
+A. U. Thor, a.u.thor\@a.galaxy.far.far.away
 
 =cut
 ---
@@ -95,6 +103,22 @@ our \@EXPORT_OK = qw( ok );
 bootstrap $self->{name} \$VERSION;
 
 1;
+
+__END__
+
+=head1 NAME
+
+$self->{name} - Perl extension for blah blah blah
+
+=head1 DESCRIPTION
+
+Stub documentation for $self->{name}.
+
+=head1 AUTHOR
+
+A. U. Thor, a.u.thor\@a.galaxy.far.far.away
+
+=cut
 ---
 
     my $xs_filename =
