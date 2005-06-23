@@ -11,12 +11,6 @@ my $common_pl = File::Spec->catfile( 't', 'common.pl' );
 require $common_pl;
 
 
-use Cwd ();
-my $cwd = Cwd::cwd;
-
-
-#########################
-
 use Module::Build;
 
 { local $SIG{__WARN__} = sub {};
@@ -39,11 +33,16 @@ use Module::Build;
 #########################
 
 
-# Pretend we're in the t/XSTest/ subdirectory
-my $build_dir = File::Spec->catdir('t','XSTest');
-chdir $build_dir or die "Can't change to $build_dir : $!";
+use Cwd ();
+my $cwd = Cwd::cwd;
 
-my $m = Module::Build->new_from_context('skip_rcfile' => '1');
+use DistGen;
+my $dist = DistGen->new( xs_module => 1 );
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+my $m = Module::Build->new_from_context( skip_rcfile => 1 );
+
 
 eval {$m->dispatch('clean')};
 ok not $@;
@@ -58,7 +57,7 @@ ok not $@;
 
   $m->create_build_script;
   ok -e 'Build';
-  
+
   eval {$m->run_perl_script('Build')};
   ok not $@;
 }
@@ -71,7 +70,8 @@ ok not $@;
 {
   $m->dispatch('ppd', args => {codebase => '/path/to/codebase-xs'});
 
-  my $ppd = slurp('XSTest.ppd');
+  (my $dist_filename = $dist->name) =~ s/::/-/g;
+  my $ppd = slurp($dist_filename . '.ppd');
 
   my $perl_version = Module::Build::PPMMaker->_ppd_version($m->perl_version);
   my $varchname = Module::Build::PPMMaker->_varchname($m->config);
@@ -80,8 +80,8 @@ ok not $@;
   # do a strict string comparison, but absent an XML parser it's the
   # best we can do.
   is $ppd, <<"EOF";
-<SOFTPKG NAME="XSTest" VERSION="0,01,0,0">
-    <TITLE>XSTest</TITLE>
+<SOFTPKG NAME="$dist_filename" VERSION="0,01,0,0">
+    <TITLE>@{[$dist->name]}</TITLE>
     <ABSTRACT>Perl extension for blah blah blah</ABSTRACT>
     <AUTHOR>A. U. Thor, a.u.thor\@a.galaxy.far.far.away</AUTHOR>
     <IMPLEMENTATION>
@@ -111,3 +111,10 @@ ok not $@;
 
 # Make sure blib/ is gone after 'realclean'
 ok not -e 'blib';
+
+
+#########################
+# cleanup
+
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
