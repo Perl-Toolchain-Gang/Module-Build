@@ -20,7 +20,7 @@ sub new {
   my %options = @_;
 
   $options{name} ||= 'Simple';
-  $options{dir}  ||= File::Spec->curdir();
+  $options{dir}  ||= Cwd::cwd();
 
   my %data = (
     skip_manifest => 0,
@@ -222,6 +222,7 @@ sub clean {
 
   my $here  = Cwd::abs_path();
   my $there = File::Spec->rel2abs( $self->dirname() );
+
   if ( -d $there ) {
     chdir( $there ) or die "Can't change directory to '$there'\n";
   } else {
