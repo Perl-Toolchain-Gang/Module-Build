@@ -1,16 +1,27 @@
-
+use lib 't/lib';
 use strict;
 
 use Test::More tests => 6;
 
+
 use File::Spec;
 use IO::File;
+
+
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+use DistGen;
+my $dist = DistGen->new;
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
 
 use Module::Build;
 ok(1);
 
-
-my $m = Module::Build->current;
+my $m = Module::Build->new_from_context;
 my @files;
 
 {
@@ -42,4 +53,5 @@ my @files;
   ok -e $file2;
 }
 
-$m->delete_filetree(@files);
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
