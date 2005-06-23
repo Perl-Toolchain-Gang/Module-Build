@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.27_02 (Beta for 0.28)  Fri Jun 17 19:32:21 CDT 2005
+0.27_02 (Beta for 0.28)
 
  - Provided initial support for the --prefix installation parameter,
    which acts like MakeMaker's PREFIX.  It is still highly recommended
