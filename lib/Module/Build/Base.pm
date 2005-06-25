@@ -2702,7 +2702,7 @@ sub _prefixify_default {
   my($self, $rprefix, $type) = @_;
   $self->log_verbose("    cannot prefix, trying default.\n");
   
-  my $default = $self->prefix_relpaths($self->installdirs, $type),
+  my $default = $self->prefix_relpaths($self->installdirs, $type);
   
   if( !$default ) {
     $self->log_verbose("    no default!  Using prefix '$rprefix'.\n");  
