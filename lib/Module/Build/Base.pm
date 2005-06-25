@@ -2684,8 +2684,14 @@ sub _prefixify {
   } elsif( $sprefix eq $rprefix ) {
     $self->log_verbose("  no new prefix.\n");
   } elsif( $path !~ s{^\Q$sprefix\E\b}{$rprefix}s ) {
-    $self->log_verbose("    cannot prefixify.\n");
-    $path = $self->_prefixify_default($rprefix, $type);
+    $self->log_verbose("    cannot prefixify, falling back to default.\n");
+    my $default = $self->prefix_relpaths($self->installdirs, $type);
+    if( !$default ) {
+      $self->log_verbose("    no default install location for type '$type', using prefix '$rprefix'.\n");  
+      return $rprefix;
+    }
+  
+    return $default;
   }
   
   $self->log_verbose("    now $path\n");
@@ -2696,28 +2702,6 @@ sub _prefixify {
   # same interface).
   return File::Spec->abs2rel($path, $rprefix);
 }
-
-
-sub _prefixify_default {
-  my($self, $rprefix, $type) = @_;
-  $self->log_verbose("    cannot prefix, trying default.\n");
-  
-  my $default = $self->prefix_relpaths($self->installdirs, $type);
-  
-  if( !$default ) {
-    $self->log_verbose("    no default!  Using prefix '$rprefix'.\n");  
-    return $rprefix;
-  }
-  if( !$rprefix ) {
-    $self->log_verbose("    no replacement prefix!\n");
-    return;
-  }
-  
-  $self->log_verbose("    using default '$default'.\n");
-  
-  File::Spec->catdir($rprefix, $default),
-}
-
 
 
 sub install_destination {
