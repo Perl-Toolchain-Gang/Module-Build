@@ -2650,7 +2650,7 @@ sub prefix_relative {
   return $self->_prefixify($normal_location,
 			   $self->original_prefix->{$installdirs}, 
 			   $self->prefix,
-			   $self->prefix_relpaths($installdirs, $type),
+			   $type,
 			  );
 }
 
@@ -2671,7 +2671,7 @@ sub prefix_relpaths {
 
 # Translated from ExtUtils::MM_Unix::prefixify()
 sub _prefixify {
-  my($self, $path, $sprefix, $rprefix, $default) = @_;
+  my($self, $path, $sprefix, $rprefix, $type) = @_;
   
   $rprefix .= '/' if $sprefix =~ m|/$|;
   
@@ -2685,7 +2685,7 @@ sub _prefixify {
     $self->log_verbose("  no new prefix.\n");
   } elsif( $path !~ s{^\Q$sprefix\E\b}{$rprefix}s ) {
     $self->log_verbose("    cannot prefixify.\n");
-    $path = $self->_prefixify_default($rprefix, $default);
+    $path = $self->_prefixify_default($rprefix, $type);
   }
   
   $self->log_verbose("    now $path\n");
@@ -2699,9 +2699,10 @@ sub _prefixify {
 
 
 sub _prefixify_default {
-  my($self, $rprefix, $default) = @_;
-  
+  my($self, $rprefix, $type) = @_;
   $self->log_verbose("    cannot prefix, trying default.\n");
+  
+  my $default = $self->prefix_relpaths($self->installdirs, $type),
   
   if( !$default ) {
     $self->log_verbose("    no default!  Using prefix '$rprefix'.\n");  
