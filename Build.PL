@@ -34,6 +34,7 @@ my $build = new ModuleBuildBuilder
 		'Cwd'            => 0,
 		'Text::ParseWords' => 0,
 		'Getopt::Long'   => 0,
+		'Test::Harness'  => 0,
 	       },
    recommends => {
 		  'Archive::Tar' => '1.08',
