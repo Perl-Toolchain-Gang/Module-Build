@@ -2683,7 +2683,7 @@ sub _prefixify {
     $self->log_verbose("    path is relative, not prefixifying.\n");
   } elsif( $sprefix eq $rprefix ) {
     $self->log_verbose("  no new prefix.\n");
-  } elsif( $path !~ s{^\Q$sprefix\E\b}{$rprefix}s ) {
+  } elsif( $path !~ s{^\Q$sprefix\E\b}{}s ) {
     $self->log_verbose("    cannot prefixify, falling back to default.\n");
     my $default = $self->prefix_relpaths($self->installdirs, $type);
     if( !$default ) {
@@ -2694,13 +2694,9 @@ sub _prefixify {
     return $default;
   }
   
-  $self->log_verbose("    now $path\n");
-  
-  # Return a path relative to $rprefix (this is kind of silly for now,
-  # because the caller is just going to cat them back together again,
-  # but prefix_relative() and install_base_relative() should have the
-  # same interface).
-  return File::Spec->abs2rel($path, $rprefix);
+  $self->log_verbose("    now $path in $rprefix\n");
+
+  return $path;
 }
 
 
