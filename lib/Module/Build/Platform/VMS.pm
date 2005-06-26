@@ -75,8 +75,9 @@ Prefixify taking into account VMS' filepath syntax.
 =cut
 
 # Translated from ExtUtils::MM_VMS::prefixify()
-sub prefixify {
-    my($self, $path, $sprefix, $rprefix) = @_;
+sub _prefixify {
+    my($self, $path, $sprefix, $type) = @_;
+    my $rprefix = $self->prefix;
 
     $self->log_verbose("  prefixify $path from $sprefix to $rprefix\n");
 
@@ -99,15 +100,16 @@ sub prefixify {
     }
     else {
         my($path_vol, $path_dirs) = File::Spec->splitpath( $path );
-        if( $path_vol eq $Config{vms_prefix}.':' ) {
-            $self->log_verbose("  $Config{vms_prefix}: seen\n");
+	my $vms_prefix = $self->config->{vms_prefix};
+        if( $path_vol eq $vms_prefix.':' ) {
+            $self->log_verbose("  $vms_prefix: seen\n");
 
             $path_dirs =~ s{^\[}{\[.} unless $path_dirs =~ m{^\[\.};
             $path = $self->_catprefix($rprefix, $path_dirs);
         }
         else {
             $self->log_verbose("    cannot prefixify.\n");
-            $path = $self->_prefixify_default($rprefix, $default);
+	    return $self->prefix_relpaths($self->installdirs, $type);
         }
     }
 

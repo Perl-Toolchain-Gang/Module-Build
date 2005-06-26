@@ -2649,7 +2649,6 @@ sub prefix_relative {
   
   return $self->_prefixify($normal_location,
 			   $self->original_prefix->{$installdirs}, 
-			   $self->prefix,
 			   $type,
 			  );
 }
@@ -2671,7 +2670,8 @@ sub prefix_relpaths {
 
 # Translated from ExtUtils::MM_Unix::prefixify()
 sub _prefixify {
-  my($self, $path, $sprefix, $rprefix, $type) = @_;
+  my($self, $path, $sprefix, $type) = @_;
+  my $rprefix = $self->prefix;
   
   $rprefix .= '/' if $sprefix =~ m|/$|;
   
