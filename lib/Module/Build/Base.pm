@@ -2643,11 +2643,7 @@ sub prefix_relative {
   my ($self, $type) = @_;
   my $installdirs = $self->installdirs;
 
-  # XXX the 'return' here is not a very good failure mechanism
-  my $normal_location = $self->install_sets->{$installdirs}{$type}
-    or return;
-  
-  return $self->_prefixify($normal_location,
+  return $self->_prefixify($self->install_sets->{$installdirs}{$type},
 			   $self->original_prefix->{$installdirs}, 
 			   $type,
 			  );
@@ -2678,7 +2674,9 @@ sub _prefixify {
   $self->log_verbose("  prefixify $path from $sprefix to $rprefix\n");
   
   if( length $path == 0 ) {
-    $self->log_verbose("  no path to prefixify.\n")
+    $self->log_verbose("  no path to prefixify.\n");
+    # XXX the 'return' here is not a very good failure mechanism
+    return;
   } elsif( !File::Spec->file_name_is_absolute($path) ) {
     $self->log_verbose("    path is relative, not prefixifying.\n");
   } elsif( $sprefix eq $rprefix ) {
