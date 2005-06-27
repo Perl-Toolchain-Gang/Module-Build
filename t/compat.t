@@ -130,7 +130,7 @@ foreach my $type (@makefile_types) {
   $output = stdout_of( sub { $ran_ok = $build->do_system(@make, 'test', 'TEST_VERBOSE=0') } );
   ok $ran_ok;
   $output =~ s/^/# /gm;  # Don't confuse our own test output
-  ok $output, qr/# test\.+ok\s+# All/, 'Should be non-verbose';
+  ok $output, qr/# test\.+ok\s+(?:[\d.]s\s*)?# All tests/, 'Should be non-verbose';
   
   $build->delete_filetree($libdir);
   ok (! -e $libdir, 1, "Sample installation directory should be cleaned up");
