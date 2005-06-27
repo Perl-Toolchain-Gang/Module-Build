@@ -54,6 +54,10 @@ Revision history for Perl extension Module::Build.
    supported for quite a while as arguments to "perl
    Makefile.PL"). [Requested by Guillaume Rousse]
 
+ - Test::Harness has changed its output format in recent versions,
+   which threw off one of our tests.  We now allow for this different
+   format. [Reported by Scott Godin]
+
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
  Backward-incompatible (but better) changes:
