@@ -1,36 +1,45 @@
+#!/usr/bin/perl -w
+
+use lib 't/lib';
 use strict;
 
-# Tests various ways to extend Module::Build, e.g. by subclassing.
-use File::Spec;
-BEGIN {
-  my $common_pl = File::Spec->catfile('t', 'common.pl');
-  require $common_pl;
-}
-
 use Test::More tests => 52;
+
+
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+require $common_pl;
+
+
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+use DistGen;
+my $dist = DistGen->new;
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
+#########################
+
 use Module::Build;
 ok 1;
 
-my $start_dir = Module::Build->cwd;
-
-my $goto = File::Spec->catdir( $start_dir, 't', 'Sample' );
-chdir $goto or die "can't chdir to $goto: $!";
-
 # Here we make sure actions are only called once per dispatch()
 $::x = 0;
-my $build = Module::Build->subclass
+my $m = Module::Build->subclass
   (
    code => "sub ACTION_loop { die 'recursed' if \$::x++; shift->depends_on('loop'); }"
-  )->new( module_name => 'Sample' );
-ok $build;
+  )->new( module_name => $dist->name );
+ok $m;
 
-$build->dispatch('loop');
-is $::x, 1;
+$m->dispatch('loop');
+ok $::x;
 
-$build->dispatch('realclean');
+$m->dispatch('realclean');
 
 # Make sure the subclass can be subclassed
-my $build2class = ref($build)->subclass
+my $build2class = ref($m)->subclass
   (
    code => "sub ACTION_loop2 {}",
    class => 'MBB',
@@ -39,35 +48,50 @@ can_ok( $build2class, 'ACTION_loop' );
 can_ok( $build2class, 'ACTION_loop2' );
 
 
-{
-  # Make sure globbing works in filenames
-  $build->test_files('*t*');
-  my $files = $build->test_files;
-  ok  grep {$_ eq 'script'} @$files;
-  ok  grep {$_ eq 'test.pl'} @$files;
-  ok !grep {$_ eq 'Build.PL'} @$files;
+{ # Make sure globbing works in filenames
+  $dist->add_file( 'script', <<'---' );
+#!perl -w
+print "Hello, World!\n";
+---
+  $dist->regen;
+
+  $m->test_files('*t*');
+  my $files = $m->test_files;
+  ok  grep {$_ eq 'script'}    @$files;
+  ok  grep {$_ eq 't/basic.t'} @$files;
+  ok !grep {$_ eq 'Build.PL' } @$files;
 
   # Make sure order is preserved
-  $build->test_files('foo', 'bar');
-  $files = $build->test_files;
+  $m->test_files('foo', 'bar');
+  $files = $m->test_files;
   is @$files, 2;
   is $files->[0], 'foo';
   is $files->[1], 'bar';
+
+  $dist->remove_file( 'script' );
+  $dist->regen( clean => 1 );
 }
 
 
 {
   # Make sure we can add new kinds of stuff to the build sequence
 
-  my $build = Module::Build->new( module_name => 'Sample',
-				  foo_files => {'test.foo', 'lib/test.foo'} );
-  ok $build;
+  $dist->add_file( 'test.foo', "content\n" );
+  $dist->regen;
 
-  $build->add_build_element('foo');
-  $build->dispatch('build');
-  is -e File::Spec->catfile($build->blib, 'lib', 'test.foo'), 1;
+  my $m = Module::Build->new( module_name => $dist->name,
+			      foo_files => {'test.foo', 'lib/test.foo'} );
+  ok $m;
 
-  $build->dispatch('realclean');
+  $m->add_build_element('foo');
+  $m->dispatch('build');
+  ok -e File::Spec->catfile($m->blib, 'lib', 'test.foo');
+
+  $m->dispatch('realclean');
+
+  # revert distribution to a pristine state
+  $dist->remove_file( 'test.foo' );
+  $dist->regen( clean => 1 );
 }
 
 
@@ -103,37 +127,35 @@ can_ok( $build2class, 'ACTION_loop2' );
 }
 
 
-chdir($start_dir) or die "Can't chdir back to $start_dir: $!";
-chdir('t') or die "Can't chdir to t/: $!";
 {
-  ok my $build = MBSub->new( module_name => 'ModuleBuildOne' );
-  isa_ok $build, 'Module::Build';
-  isa_ok $build, 'MBSub';
-  ok $build->valid_property('foo');
-  can_ok $build, 'module_name';
+  ok my $m = MBSub->new( module_name => $dist->name );
+  isa_ok $m, 'Module::Build';
+  isa_ok $m, 'MBSub';
+  ok $m->valid_property('foo');
+  can_ok $m, 'module_name';
   
   # Check foo property.
-  can_ok $build, 'foo';
-  ok ! $build->foo;
-  ok $build->foo(1);
-  ok $build->foo;
+  can_ok $m, 'foo';
+  ok ! $m->foo;
+  ok $m->foo(1);
+  ok $m->foo;
   
   # Check bar property.
-  can_ok $build, 'bar';
-  is $build->bar, 'hey';
-  ok $build->bar('you');
-  is $build->bar, 'you';
+  can_ok $m, 'bar';
+  is $m->bar, 'hey';
+  ok $m->bar('you');
+  is $m->bar, 'you';
   
   # Check hash property.
-  ok $build = MBSub->new(
-			 module_name => 'ModuleBuildOne',
-			 hash        => { foo => 'bar', bin => 'foo'}
-			);
+  ok $m = MBSub->new(
+		      module_name => $dist->name,
+		      hash        => { foo => 'bar', bin => 'foo'}
+		    );
   
-  can_ok $build, 'hash';
-  isa_ok $build->hash, 'HASH';
-  is $build->hash->{foo}, 'bar';
-  is $build->hash->{bin}, 'foo';
+  can_ok $m, 'hash';
+  isa_ok $m->hash, 'HASH';
+  is $m->hash->{foo}, 'bar';
+  is $m->hash->{bin}, 'foo';
   
   # Check hash property passed via the command-line.
   {
@@ -141,47 +163,51 @@ chdir('t') or die "Can't chdir to t/: $!";
 		   '--hash', 'foo=bar',
 		   '--hash', 'bin=foo',
 		  );
-    ok $build = MBSub->new(
-			   module_name => 'ModuleBuildOne',
-			  );
+    ok $m = MBSub->new(
+		        module_name => $dist->name,
+		      );
   }
 
-  can_ok $build, 'hash';
-  isa_ok $build->hash, 'HASH';
-  is $build->hash->{foo}, 'bar';
-  is $build->hash->{bin}, 'foo';
+  can_ok $m, 'hash';
+  isa_ok $m->hash, 'HASH';
+  is $m->hash->{foo}, 'bar';
+  is $m->hash->{bin}, 'foo';
   
   # Make sure that a different subclass with the same named property has a
   # different default.
-  ok $build = MBSub2->new( module_name => 'ModuleBuildOne' );
-  isa_ok $build, 'Module::Build';
-  isa_ok $build, 'MBSub2';
-  ok $build->valid_property('bar');
-  can_ok $build, 'bar';
-  is $build->bar, 'yow';
+  ok $m = MBSub2->new( module_name => $dist->name );
+  isa_ok $m, 'Module::Build';
+  isa_ok $m, 'MBSub2';
+  ok $m->valid_property('bar');
+  can_ok $m, 'bar';
+  is $m->bar, 'yow';
 }
 
 {
   # Test the meta_add and meta_merge stuff
-  chdir $goto;
-  ok my $build = Module::Build->new(
-				    module_name => 'Sample',
-				    meta_add => {foo => 'bar'},
-				    conflicts => {'Foo::Barxx' => 0},
-				   );
+  ok my $m = Module::Build->new(
+				 module_name => $dist->name,
+				 meta_add => {foo => 'bar'},
+				 conflicts => {'Foo::Barxx' => 0},
+			       );
   my %data;
-  $build->prepare_metadata( \%data );
+  $m->prepare_metadata( \%data );
   is $data{foo}, 'bar';
 
-  $build->meta_merge(foo => 'baz');
-  $build->prepare_metadata( \%data );
+  $m->meta_merge(foo => 'baz');
+  $m->prepare_metadata( \%data );
   is $data{foo}, 'baz';
 
-  $build->meta_merge(conflicts => {'Foo::Fooxx' => 0});
-  $build->prepare_metadata( \%data );
+  $m->meta_merge(conflicts => {'Foo::Fooxx' => 0});
+  $m->prepare_metadata( \%data );
   is_deeply $data{conflicts}, {'Foo::Barxx' => 0, 'Foo::Fooxx' => 0};
 
-  $build->meta_add(conflicts => {'Foo::Bazxx' => 0});
-  $build->prepare_metadata( \%data );
+  $m->meta_add(conflicts => {'Foo::Bazxx' => 0});
+  $m->prepare_metadata( \%data );
   is_deeply $data{conflicts}, {'Foo::Bazxx' => 0, 'Foo::Fooxx' => 0};
 }
+
+
+# cleanup
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
