@@ -1,59 +1,80 @@
+#!/usr/bin/perl -w
+
+use lib 't/lib';
 use strict;
 
-use File::Spec;
-BEGIN {
-  my $common_pl = File::Spec->catfile('t', 'common.pl');
-  require $common_pl;
-}
-use Test::More (tests => 34);
+use Test::More tests => 34;
+
+
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+require $common_pl;
+
+
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+use DistGen;
+my $dist = DistGen->new;
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
+#########################
 
 use Module::Build;
-use File::Path;
 use Config;
 
 
-my $start_dir = Module::Build->cwd;
+$dist->add_file( 'script', <<'---' );
+#!perl -w
+print "Hello, World!\n";
+---
+$dist->change_file( 'Build.PL', <<"---" );
+use Module::Build;
 
-# Would be nice to just have a 'base_dir' parameter for M::B->new()
-my $goto = File::Spec->catdir( $start_dir, 't', 'Sample' );
-chdir $goto or die "can't chdir to $goto: $!";
+my \$build = new Module::Build(
+  module_name => @{[$dist->name]},
+  scripts     => [ 'script' ],
+  license     => 'perl',
+  requires    => { 'File::Spec' => 0 },
+);
+\$build->create_build_script;
+---
+$dist->regen;
 
-
-my $build = new Module::Build( module_name => 'Sample',
-			       script_files => [ 'script' ],
-			       requires => { 'File::Spec' => 0 },
-			       license => 'perl' );
+my $build = Module::Build->new_from_context;
 ok $build;
 
 
-my $destdir = File::Spec->catdir($start_dir, 't', 'install_test');
+my $destdir = File::Spec->catdir($cwd, 't', 'install_test');
 $build->add_to_cleanup($destdir);
 
 {
   eval {$build->dispatch('install', destdir => $destdir)};
-  is $@, '';
+  ok ! $@;
   
   my $libdir = strip_volume( $build->install_destination('lib') );
-  my $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
+  my $install_to = File::Spec->catfile($destdir, $libdir, $dist->name ) . '.pm';
   print "Should have installed module as $install_to\n";
   ok -e $install_to;
   
   local @INC = (@INC, File::Spec->catdir($destdir, $libdir));
-  eval {require Sample};
-  is $@, '';
+  eval "require @{[$dist->name]}";
+  ok ! $@;
   
   # Make sure there's a packlist installed
   my $archdir = $build->install_destination('arch');
   my ($v, $d) = File::Spec->splitpath($archdir, 1);
-  my $packlist = File::Spec->catdir($destdir, $d, 'auto', 'Sample', '.packlist');
+  my $packlist = File::Spec->catdir($destdir, $d, 'auto', $dist->name, '.packlist');
   is -e $packlist, 1, "$packlist should be written";
 }
 
 {
   eval {$build->dispatch('install', installdirs => 'core', destdir => $destdir)};
-  is $@, '';
+  ok ! $@;
   my $libdir = strip_volume( $Config{installprivlib} );
-  my $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
+  my $install_to = File::Spec->catfile($destdir, $libdir, $dist->name ) . '.pm';
   print "Should have installed module as $install_to\n";
   ok -e $install_to;
 }
@@ -62,7 +83,7 @@ $build->add_to_cleanup($destdir);
   my $libdir = File::Spec->catdir(File::Spec->rootdir, 'foo', 'bar');
   eval {$build->dispatch('install', install_path => {lib => $libdir}, destdir => $destdir)};
   is $@, '';
-  my $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
+  my $install_to = File::Spec->catfile($destdir, $libdir, $dist->name ) . '.pm';
   print "Should have installed module as $install_to\n";
   ok -e $install_to;
 }
@@ -71,9 +92,9 @@ $build->add_to_cleanup($destdir);
   my $libdir = File::Spec->catdir(File::Spec->rootdir, 'foo', 'base');
   eval {$build->dispatch('install', install_base => $libdir, destdir => $destdir)};
   is $@, '';
-  my $install_to = File::Spec->catfile($destdir, $libdir, 'lib', 'perl5', 'Sample.pm');
+  my $install_to = File::Spec->catfile($destdir, $libdir, 'lib', 'perl5', $dist->name ) . '.pm';
   print "Should have installed module as $install_to\n";
-  ok -e $install_to;  
+  ok -e $install_to;
 }
 
 {
@@ -87,32 +108,32 @@ $build->add_to_cleanup($destdir);
   
   my $libdir = strip_volume( $build->install_destination('lib') );
   local @INC = (@INC, File::Spec->catdir($destdir, $libdir));
-  eval {require Sample::ConfigData};
+  eval "require @{[$dist->name]}::ConfigData";
 
   is $build->feature('auto_foo'), 1;
   
- SKIP:
-  {
+  SKIP: {
     skip $@, 5 if @_;
 
     # Make sure the values are present
-    is( Sample::ConfigData->config('foo'), 'bar' );
-    ok( Sample::ConfigData->feature('baz') );
-    ok( Sample::ConfigData->feature('auto_foo') );
-    ok( not Sample::ConfigData->feature('nonexistent') );
+    my $config = $dist->name . '::ConfigData';
+    is( $config->config('foo'), 'bar' );
+    ok( $config->feature('baz') );
+    ok( $config->feature('auto_foo') );
+    ok( not $config->feature('nonexistent') );
 
     # Add a new value to the config set
-    Sample::ConfigData->set_config(floo => 'bhlar');
-    is( Sample::ConfigData->config('floo'), 'bhlar' );
+    $config->set_config(floo => 'bhlar');
+    is( $config->config('floo'), 'bhlar' );
 
     # Make sure it actually got written
-    Sample::ConfigData->write;
-    delete $INC{'Sample/ConfigData.pm'};
+    $config->write;
+    delete $INC{"@{[$dist->name]}/ConfigData.pm"};
     {
       local $^W;  # Avoid warnings for subroutine redefinitions
-      require Sample::ConfigData;
+      eval "require $config";
     }
-    is( Sample::ConfigData->config('floo'), 'bhlar' );
+    is( $config->config('floo'), 'bhlar' );
   }
 }
 
@@ -128,7 +149,7 @@ is $@, '';
   
   eval {$build->run_perl_script('Build', [], ['install', '--destdir', $destdir])};
   is $@, '';
-  my $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
+  my $install_to = File::Spec->catfile($destdir, $libdir, $dist->name ) . '.pm';
   print "# Should have installed module as $install_to\n";
   ok -e $install_to;
 
@@ -137,7 +158,7 @@ is $@, '';
 					      '--install_base', $basedir])};
   is $@, '';
   
-  $install_to = File::Spec->catfile($destdir, $libdir, 'Sample.pm');
+  $install_to = File::Spec->catfile($destdir, $libdir, $dist->name ) . '.pm';
   is -e $install_to, 1, "Look for file at $install_to";
   
   eval {$build->dispatch('realclean')};
@@ -146,7 +167,7 @@ is $@, '';
 
 {
   # Make sure 'install_path' overrides 'install_base'
-  my $build = Module::Build->new( module_name => 'Sample',
+  my $build = Module::Build->new( module_name => $dist->name,
 				  install_base => File::Spec->catdir('', 'foo'),
 				  install_path => {lib => File::Spec->catdir('', 'bar')});
   ok $build;
@@ -154,11 +175,24 @@ is $@, '';
 }
 
 {
+  $dist->add_file( 'lib/Simple/Docs.pod', <<'---' );
+=head1 NAME
+
+Simple::Docs - Simple pod
+
+=head1 AUTHOR
+
+Simple Man <simple@example.com>
+
+=cut
+---
+  $dist->regen;
+
   # _find_file_by_type() isn't a public method, but this is currently
   # the only easy way to test that it works properly.
   my $pods = $build->_find_file_by_type('pod', 'lib');
   is keys %$pods, 1;
-  my $expect = $build->localize_file_path('lib/Sample/Docs.pod');
+  my $expect = $build->localize_file_path('lib/Simple/Docs.pod');
   is $pods->{$expect}, $expect;
   
   my $pms = $build->_find_file_by_type('awefawef', 'lib');
@@ -168,6 +202,13 @@ is $@, '';
   $pms = $build->_find_file_by_type('pod', 'awefawef');
   ok $pms;
   is keys %$pms, 0;
+
+  # revert to pristine state
+  chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+  $dist->remove;
+  $dist = DistGen->new;
+  $dist->regen;
+  chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 }
 
 sub strip_volume {
@@ -176,3 +217,7 @@ sub strip_volume {
   return $dir;
 }
 
+
+# cleanup
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
