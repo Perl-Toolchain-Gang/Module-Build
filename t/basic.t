@@ -13,7 +13,6 @@ require $common_pl;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
-my $t_lib = File::Spec->catdir( $cwd, 't', 'lib' );
 
 use DistGen;
 my $dist = DistGen->new;
@@ -39,7 +38,7 @@ like $INC{'Module/Build.pm'}, qr|/blib/|, "Make sure Module::Build was loaded fr
 
   $m = Module::Build->new( dist_name => $dist->name, dist_version => 7 );
   ok $m;
-  ok not $m->module_name;  # Make sure it's defined
+  ok ! $m->module_name;  # Make sure it's defined
   is $m->dist_name, $dist->name;
 }
 
@@ -59,8 +58,8 @@ like $INC{'Module/Build.pm'}, qr|/blib/|, "Make sure Module::Build was loaded fr
     module_name => $dist->name,
     requires    => {$dist->name => 0},
   );
-  ok not $flagged;
-  ok not $m->prereq_failures;
+  ok ! $flagged;
+  ok ! $m->prereq_failures;
   $m->dispatch('realclean');
   $dist->clean;
 
@@ -147,7 +146,7 @@ my \$build = Module::Build->new(
 
   $dist->regen;
   eval {Module::Build->run_perl_script('Build.PL', [], ['skip_rcfile=1', '--config', "foocakes=barcakes", '--foo', '--bar', '--bar', '-bat=hello', 'gee=whiz', '--any', 'hey', '--destdir', 'yo', '--verbose', '1'])};
-  ok not $@;
+  ok ! $@;
 
   my $m = Module::Build->resume;
   is $m->config->{cc}, $Config{cc};
@@ -163,7 +162,7 @@ my \$build = Module::Build->new(
   is $m->destdir, 'yo';
   is $m->runtime_params('destdir'), 'yo';
   is $m->runtime_params('verbose'), '1';
-  ok not $m->runtime_params('license');
+  ok ! $m->runtime_params('license');
   ok my %runtime = $m->runtime_params;
   is scalar keys %runtime, 4;
   is $runtime{destdir}, 'yo';
