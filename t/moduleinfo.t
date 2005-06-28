@@ -1,22 +1,27 @@
+#!/usr/bin/perl -w
 
+use lib 't/lib';
 use strict;
 
-use File::Spec;
-BEGIN {
-  my $common_pl = File::Spec->catfile('t', 'common.pl');
-  require $common_pl;
-}
+use Test::More tests => 33;
 
-use Test::More;
 
-BEGIN {
-  plan tests => 33;
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+require $common_pl;
 
-  chdir( 't' ) if -d 't';
 
-  push( @INC, 'lib' );
-  require DistGen;
-}
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+use DistGen;
+my $dist = DistGen->new;
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
+#########################
+
 
 use_ok( 'Module::Build::ModuleInfo' );
 
@@ -38,18 +43,14 @@ $pm_info = Module::Build::ModuleInfo->new_from_file( $file, inc => [] );
 ok( !defined( $pm_info ), 'fail if can\'t find module by file name' );
 
 
-my $dist = DistGen->new;
-$dist->regen;
-
 # construct from module filename
-$file = File::Spec->catfile( $dist->dirname, 'lib', 'Simple.pm' );
+$file = File::Spec->catfile( 'lib', split( /::/, $dist->name ) ) . '.pm';
 $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
 ok( defined( $pm_info ), 'new_from_file() succeeds' );
 
 # construct from module name, using custom include path
-my $inc = File::Spec->catdir( qw( Simple lib ) );
 $pm_info = Module::Build::ModuleInfo->new_from_module(
-	     'Simple', inc => [ $inc, @INC ] );
+	     $dist->name, inc => [ 'lib', @INC ] );
 ok( defined( $pm_info ), 'new_from_module() succeeds' );
 
 
@@ -96,7 +97,6 @@ $VERSION = '1.23';
 ---
 );
 
-$file = File::Spec->catfile( $dist->dirname, 'lib', 'Simple.pm' );
 my( $i, $n ) = ( 1, scalar( @modules ) );
 foreach my $module ( @modules ) {
  SKIP: {
@@ -110,7 +110,13 @@ foreach my $module ( @modules ) {
     $i++;
   }
 }
+
+# revert to pristine state
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
+$dist = DistGen->new;
+$dist->regen;
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 
 # Find each package only once
@@ -143,7 +149,13 @@ $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
 is( $pm_info->name, undef, 'no default package' );
 is( $pm_info->version, undef, 'no version w/o default package' );
 
+
+# revert to pristine state
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
+$dist = DistGen->new;
+$dist->regen;
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 
 # parse $VERSION lines scripts for package main
@@ -190,8 +202,9 @@ $VERSION = '0.01';
 foreach my $script ( @scripts ) {
   $dist->change_file( 'bin/simple.plx', $script );
   $dist->regen;
-  $pm_info =
-    Module::Build::ModuleInfo->new_from_file( 'Simple/bin/simple.plx' );
+  $pm_info = Module::Build::ModuleInfo->new_from_file(
+	       File::Spec->catfile( 'bin', 'simple.plx' ) );
+
   is( $pm_info->version, '0.01', "correct script version ($i of $n)" );
   $i++;
 }
@@ -216,7 +229,7 @@ Simple Simon
 $dist->regen;
 
 $pm_info = Module::Build::ModuleInfo->new_from_module(
-             'Simple', inc => [ $inc, @INC ] );
+             $dist->name, inc => [ 'lib', @INC ] );
 
 is( $pm_info->name, 'Simple', 'found default package' );
 
@@ -249,7 +262,7 @@ is( $pm_info->pod('NAME'), undef,
 
 # collect_pod
 $pm_info = Module::Build::ModuleInfo->new_from_module(
-             'Simple', inc => [ $inc, @INC ], collect_pod => 1 );
+             $dist->name, inc => [ 'lib', @INC ], collect_pod => 1 );
 
 my $name = $pm_info->pod('NAME');
 if ( $name ) {
@@ -259,4 +272,6 @@ if ( $name ) {
 is( $name, q|Simple - It's easy.|, 'collected pod section' );
 
 
+# cleanup
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
