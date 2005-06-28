@@ -1,19 +1,27 @@
+#!/usr/bin/perl -w
+
+use lib 't/lib';
 use strict;
 
-use Test; 
-BEGIN { plan tests => 28 }
-use Module::Build;
-use File::Spec;
-use File::Path;
-use Config;
+use Test::More tests => 28;
 
-ok(1);
-ok $INC{'Module/Build.pm'}, '/blib/', "Make sure version from blib/ is loaded";
 
-my $common_pl = File::Spec->catfile('t', 'common.pl');
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
 require $common_pl;
 
-######################### End of black magic.
+
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+#########################
+
+use Module::Build;
+ok(1);
+
+like $INC{'Module/Build.pm'}, qr{/blib/}, "Make sure version from blib/ is loaded";
+
+#########################
 
 my $have_yaml = Module::Build->current->feature('YAML_support');
 
@@ -25,31 +33,31 @@ chdir $goto or die "can't chdir to $goto: $!";
 
 my $build = Module::Build->new_from_context();
 ok $build;
-ok $build->license, 'perl';
+is $build->license, 'perl';
 
 # Make sure cleanup files added before create_build_script() get respected
 $build->add_to_cleanup('before_script');
 
 eval {$build->create_build_script};
-ok $@, '';
-ok -e $build->build_script, 1;
+ok ! $@;
+ok -e $build->build_script;
 
-ok $build->dist_dir, 'Sample-0.01';
+is $build->dist_dir, 'Sample-0.01';
 
 # The 'cleanup' file doesn't exist yet
-ok grep $_ eq 'before_script', $build->cleanup;
+ok grep {$_ eq 'before_script'} $build->cleanup;
 
 $build->add_to_cleanup('save_out');
 
 # The 'cleanup' file now exists
-ok grep $_ eq 'before_script', $build->cleanup;
-ok grep $_ eq 'save_out',      $build->cleanup;
+ok grep {$_ eq 'before_script'} $build->cleanup;
+ok grep {$_ eq 'save_out'     } $build->cleanup;
 
 my $output = eval {
   stdout_of( sub { $build->dispatch('test', verbose => 1) } )
 };
-ok $@, '';
-ok $output, qr/all tests successful/i;
+ok ! $@;
+like $output, qr/all tests successful/i;
 
 # This is the output of lib/Sample/Script.PL
 ok -e $build->localize_file_path('lib/Sample/Script');
@@ -63,32 +71,32 @@ print "^^^^^^^^^^^^^^^^^^^^^ Sample/test.pl output ^^^^^^^^^^^^^^^^^^^^^\n";
 
 if ($have_yaml) {
   eval {$build->dispatch('disttest')};
-  ok $@, '';
+  ok ! $@;
   
   # After a test, the distdir should contain a blib/ directory
   ok -e File::Spec->catdir('Sample-0.01', 'blib');
   
   eval {$build->dispatch('distdir')};
-  ok $@, '';
+  ok ! $@;
   
   # The 'distdir' should contain a lib/ directory
   ok -e File::Spec->catdir('Sample-0.01', 'lib');
   
   # The freshly run 'distdir' should never contain a blib/ directory, or
   # else it could get into the tarball
-  ok not -e File::Spec->catdir('Sample-0.01', 'blib');
+  ok ! -e File::Spec->catdir('Sample-0.01', 'blib');
 
   # Make sure all of the above was done by the new version of Module::Build
   my $fh = IO::File->new(File::Spec->catfile($goto, 'META.yml'));
   my $contents = do {local $/; <$fh>};
   $contents =~ /Module::Build version ([0-9_.]+)/m;
-  ok $1 == $build->VERSION, 1, "Check version used to create META.yml: $1 == " . $build->VERSION;
+  ok $1 == $build->VERSION, "Check version used to create META.yml: $1 == " . $build->VERSION;
   
   if ($build->check_installed_status('Archive::Tar', 0)
       or $build->isa('Module::Build::Platform::Unix')) {
     $build->add_to_cleanup($build->dist_dir . ".tar.gz");
     eval {$build->dispatch('dist')};
-    ok $@, '';
+    ok ! $@;
     
   } else {
     skip_subtest("not sure if we can create a tarball on this platform");
@@ -105,13 +113,13 @@ if ($have_yaml) {
   
   # Check that a shebang line is rewritten
   my $blib_script = File::Spec->catdir( qw( blib script script ) );
-  ok -e $blib_script; 
+  ok -e $blib_script;
   
   my $fh = IO::File->new($blib_script);
   my $first_line = <$fh>;
   print "# rewritten shebang?\n$first_line";
   
-  ok $first_line ne "#!perl -w\n";
+  isnt $first_line, "#!perl -w\n";
 }
 
 {
@@ -123,7 +131,7 @@ if ($have_yaml) {
   # This test is quite a hack since with XML you don't really want to
   # do a strict string comparison, but absent an XML parser it's the
   # best we can do.
-  ok $ppd, <<'EOF';
+  is $ppd, <<'EOF';
 <SOFTPKG NAME="Sample" VERSION="0,01,0,0">
     <TITLE>Sample</TITLE>
     <ABSTRACT>Foo foo sample foo</ABSTRACT>
@@ -138,8 +146,8 @@ EOF
 
 
 eval {$build->dispatch('realclean')};
-ok $@, '';
+ok ! $@;
 
-ok not -e $build->build_script;
-ok not -e $build->config_dir;
-ok not -e $build->dist_dir;
+ok ! -e $build->build_script;
+ok ! -e $build->config_dir;
+ok ! -e $build->dist_dir;
