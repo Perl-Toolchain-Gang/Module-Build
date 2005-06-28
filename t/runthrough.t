@@ -5,14 +5,62 @@ use strict;
 
 use Test::More tests => 28;
 
+my $have_yaml = Module::Build->current->feature('YAML_support');
+
 
 use File::Spec ();
 my $common_pl = File::Spec->catfile( 't', 'common.pl' );
 require $common_pl;
 
 
+#########################
+
 use Cwd ();
 my $cwd = Cwd::cwd;
+
+use DistGen;
+my $dist = DistGen->new;
+$dist->remove_file( 't/basic.t' );
+$dist->change_file( 'Build.PL', <<'---' );
+use Module::Build;
+
+my $build = new Module::Build(
+  module_name => 'Simple',
+  scripts     => [ 'script' ],
+  license     => 'perl',
+  requires    => { 'File::Spec' => 0 },
+);
+$build->create_build_script;
+---
+$dist->add_file( 'script', <<'---' );
+#!perl -w
+print "Hello, World!\n";
+---
+$dist->add_file( 'test.pl', <<'---' );
+#!/usr/bin/perl
+
+use Test;
+plan tests => 2;
+
+ok 1;
+
+require Module::Build;
+ok $INC{'Module/Build.pm'}, qr/blib/, 'Module::Build should be loaded from blib';
+print "# Cwd: ", Module::Build->cwd, "\n";
+print "# \@INC: (@INC)\n";
+print "Done.\n";  # t/compat.t looks for this
+---
+$dist->add_file( 'lib/Simple/Script.PL', <<'---' );
+#!perl -w
+
+my $filename = shift;
+open FH, "> $filename" or die "Can't create $filename: $!";
+print FH "Contents: $filename\n";
+close FH;
+---
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 #########################
 
@@ -23,15 +71,7 @@ like $INC{'Module/Build.pm'}, qr{/blib/}, "Make sure version from blib/ is loade
 
 #########################
 
-my $have_yaml = Module::Build->current->feature('YAML_support');
-
-my $start_dir = Module::Build->cwd;
-
-# Would be nice to just have a 'base_dir' parameter for M::B->new()
-my $goto = File::Spec->catdir( $start_dir, 't', 'Sample' );
-chdir $goto or die "can't chdir to $goto: $!";
-
-my $build = Module::Build->new_from_context();
+my $build = Module::Build->new_from_context;
 ok $build;
 is $build->license, 'perl';
 
@@ -42,7 +82,7 @@ eval {$build->create_build_script};
 ok ! $@;
 ok -e $build->build_script;
 
-is $build->dist_dir, 'Sample-0.01';
+is $build->dist_dir, 'Simple-0.01';
 
 # The 'cleanup' file doesn't exist yet
 ok grep {$_ eq 'before_script'} $build->cleanup;
@@ -59,15 +99,15 @@ my $output = eval {
 ok ! $@;
 like $output, qr/all tests successful/i;
 
-# This is the output of lib/Sample/Script.PL
-ok -e $build->localize_file_path('lib/Sample/Script');
+# This is the output of lib/Simple/Script.PL
+ok -e $build->localize_file_path('lib/Simple/Script');
 
 
 # We prefix all lines with "| " so Test::Harness doesn't get confused.
-print "vvvvvvvvvvvvvvvvvvvvv Sample/test.pl output vvvvvvvvvvvvvvvvvvvvv\n";
+print "vvvvvvvvvvvvvvvvvvvvv Simple/test.pl output vvvvvvvvvvvvvvvvvvvvv\n";
 $output =~ s/^/| /mg;
 print $output;
-print "^^^^^^^^^^^^^^^^^^^^^ Sample/test.pl output ^^^^^^^^^^^^^^^^^^^^^\n";
+print "^^^^^^^^^^^^^^^^^^^^^ Simple/test.pl output ^^^^^^^^^^^^^^^^^^^^^\n";
 
 SKIP: {
   skip( 'YAML_support feature is not enabled', 7 ) unless $have_yaml;
@@ -76,20 +116,20 @@ SKIP: {
   ok ! $@;
   
   # After a test, the distdir should contain a blib/ directory
-  ok -e File::Spec->catdir('Sample-0.01', 'blib');
+  ok -e File::Spec->catdir('Simple-0.01', 'blib');
   
   eval {$build->dispatch('distdir')};
   ok ! $@;
   
   # The 'distdir' should contain a lib/ directory
-  ok -e File::Spec->catdir('Sample-0.01', 'lib');
+  ok -e File::Spec->catdir('Simple-0.01', 'lib');
   
   # The freshly run 'distdir' should never contain a blib/ directory, or
   # else it could get into the tarball
-  ok ! -e File::Spec->catdir('Sample-0.01', 'blib');
+  ok ! -e File::Spec->catdir('Simple-0.01', 'blib');
 
   # Make sure all of the above was done by the new version of Module::Build
-  my $fh = IO::File->new(File::Spec->catfile($goto, 'META.yml'));
+  my $fh = IO::File->new(File::Spec->catfile($dist->dirname, 'META.yml'));
   my $contents = do {local $/; <$fh>};
   $contents =~ /Module::Build version ([0-9_.]+)/m;
   is $1, $build->VERSION, "Check version used to create META.yml: $1 == " . $build->VERSION;
@@ -126,16 +166,16 @@ SKIP: {
   # Check PPD
   $build->dispatch('ppd', args => {codebase => '/path/to/codebase'});
 
-  my $ppd = slurp('Sample.ppd');
+  my $ppd = slurp('Simple.ppd');
 
   # This test is quite a hack since with XML you don't really want to
   # do a strict string comparison, but absent an XML parser it's the
   # best we can do.
   is $ppd, <<'EOF';
-<SOFTPKG NAME="Sample" VERSION="0,01,0,0">
-    <TITLE>Sample</TITLE>
-    <ABSTRACT>Foo foo sample foo</ABSTRACT>
-    <AUTHOR>Sample Man &lt;sample@example.com&gt;</AUTHOR>
+<SOFTPKG NAME="Simple" VERSION="0,01,0,0">
+    <TITLE>Simple</TITLE>
+    <ABSTRACT>Perl extension for blah blah blah</ABSTRACT>
+    <AUTHOR>A. U. Thor, a.u.thor@a.galaxy.far.far.away</AUTHOR>
     <IMPLEMENTATION>
         <DEPENDENCY NAME="File-Spec" VERSION="0,0,0,0" />
         <CODEBASE HREF="/path/to/codebase" />
@@ -151,3 +191,8 @@ ok ! $@;
 ok ! -e $build->build_script;
 ok ! -e $build->config_dir;
 ok ! -e $build->dist_dir;
+
+
+# cleanup
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
