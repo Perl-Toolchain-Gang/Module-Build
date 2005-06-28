@@ -3,27 +3,15 @@
 use lib 't/lib';
 use strict;
 
-use Test::More;
-
-
 use File::Spec ();
 my $common_pl = File::Spec->catfile( 't', 'common.pl' );
 require $common_pl;
 
 
-use Cwd ();
-my $cwd = Cwd::cwd;
-
-use Module::Build;
-use Module::Build::Compat;
-
-use File::Path;
-use Config;
-
-use Carp;  $SIG{__WARN__} = \&Carp::cluck;
-
 #########################
 
+use Config;
+use Test::More;
 
 # Don't let our own verbosity/test_file get mixed up with our subprocess's
 my @makefile_keys = qw(TEST_VERBOSE HARNESS_VERBOSE TEST_FILES MAKEFLAGS);
@@ -39,13 +27,30 @@ if ( $Config{make} && find_in_path($Config{make}) ) {
 }
 ok(1);  # Loaded
 
+
 #########################
 
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+use DistGen;
+my $dist = DistGen->new;
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
+
+#########################
+
+use Module::Build;
+use Module::Build::Compat;
+
+use Carp;  $SIG{__WARN__} = \&Carp::cluck;
 
 my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
 
-my $goto = File::Spec->catdir( $cwd, 't', 'Sample' );
-chdir $goto or die "can't chdir to $goto: $!";
+#########################
+
 
 my $build = Module::Build->new_from_context;
 ok $build;
@@ -139,14 +144,15 @@ foreach my $type (@makefile_types) {
   $output = stdout_of( sub { $ran_ok = $new_build->do_system(@make, 'test') } );
   ok $ran_ok;
   $output =~ s/^/# /gm;  # Don't confuse our own test output
-  like $output, qr/# ok 1\s+# ok 2\s+/, 'Should be verbose';
+  like $output, qr/(?:# ok \d+\s+)+/, 'Should be verbose';
 
   # Make sure various Makefile arguments are supported
   $output = stdout_of( sub { $ran_ok = $build->do_system(@make, 'test', 'TEST_VERBOSE=0') } );
   ok $ran_ok;
   $output =~ s/^/# /gm;  # Don't confuse our own test output
-  like $output, qr/# test\.+ok\s+(?:[\d.]s\s*)?# All tests/, 'Should be non-verbose';
-  
+  like $output, qr/(?:# t[\/\w]+\.+ok\s+(?:[\d.]s\s*)?)+# All tests/,
+      'Should be non-verbose';
+
   $build->delete_filetree($libdir);
   ok ! -e $libdir, "Sample installation directory should be cleaned up";
 
