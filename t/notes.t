@@ -61,5 +61,6 @@ ok $m;
 is $m->notes('foo'), 'bar';
 
 
+# cleanup
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;

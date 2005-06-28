@@ -78,5 +78,6 @@ sub run_sample {
 }
 
 
+# cleanup
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;

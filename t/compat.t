@@ -192,3 +192,8 @@ sub test_makefile_creation {
     ok ! -e 'Makefile', "Makefile shouldn't exist";
   }
 }
+
+
+# cleanup
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;

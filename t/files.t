@@ -53,5 +53,6 @@ my @files;
   ok -e $file2;
 }
 
+# cleanup
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
