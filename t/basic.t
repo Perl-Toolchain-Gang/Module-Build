@@ -13,6 +13,13 @@ require $common_pl;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
+my $t_lib = File::Spec->catdir( $cwd, 't', 'lib' );
+
+use DistGen;
+my $dist = DistGen->new;
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 #########################
 
@@ -21,20 +28,19 @@ use_ok 'Module::Build';
 
 like $INC{'Module/Build.pm'}, qr|/blib/|, "Make sure Module::Build was loaded from blib/";
 
-chdir( 't' ) or die "Can't chdir to 't': $!";
 
 # Test object creation
 {
-  my $build = new Module::Build( module_name => 'ModuleBuildOne' );
-  ok $build;
-  is $build->module_name, 'ModuleBuildOne';
-  is $build->build_class, 'Module::Build';
-  is $build->dist_name, 'ModuleBuildOne';
-  
-  $build = Module::Build->new( dist_name => 'ModuleBuildOne', dist_version => 7 );
-  ok $build;
-  is $build->module_name, '';  # Make sure it's defined
-  is $build->dist_name, 'ModuleBuildOne';
+  my $m = Module::Build->new( module_name => $dist->name );
+  ok $m;
+  is $m->module_name, $dist->name;
+  is $m->build_class, 'Module::Build';
+  is $m->dist_name, $dist->name;
+
+  $m = Module::Build->new( dist_name => $dist->name, dist_version => 7 );
+  ok $m;
+  ok not $m->module_name;  # Make sure it's defined
+  is $m->dist_name, $dist->name;
 }
 
 # Make sure actions are defined, and known_actions works as class method
@@ -46,31 +52,31 @@ chdir( 't' ) or die "Can't chdir to 't': $!";
 
 # Test prerequisite checking
 {
-  local @INC = (@INC, 'lib');
+  local @INC = (File::Spec->catdir( $dist->dirname, 'lib' ), @INC);
   my $flagged = 0;
-  local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /ModuleBuildOne/};
-  my $m = new Module::Build
-    (
-     module_name => 'ModuleBuildOne',
-     requires => {ModuleBuildOne => 0},
-    );
-  ok !$flagged;
-  ok !$m->prereq_failures;
+  local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /@{[$dist->name]}/};
+  my $m = Module::Build->new(
+    module_name => $dist->name,
+    requires    => {$dist->name => 0},
+  );
+  ok not $flagged;
+  ok not $m->prereq_failures;
   $m->dispatch('realclean');
+  $dist->clean;
 
   $flagged = 0;
-  $m = new Module::Build
-    (
-     module_name => 'ModuleBuildOne',
-     requires => {ModuleBuildOne => 3},
-    );
+  $m = Module::Build->new(
+    module_name => $dist->name,
+    requires    => {$dist->name => 3.14159265},
+  );
   ok $flagged;
   ok $m->prereq_failures;
-  ok $m->prereq_failures->{requires}{ModuleBuildOne};
-  is $m->prereq_failures->{requires}{ModuleBuildOne}{have}, 0.01;
-  is $m->prereq_failures->{requires}{ModuleBuildOne}{need}, 3;
+  ok $m->prereq_failures->{requires}{$dist->name};
+  is $m->prereq_failures->{requires}{$dist->name}{have}, 0.01;
+  is $m->prereq_failures->{requires}{$dist->name}{need}, 3.14159265;
 
   $m->dispatch('realclean');
+  $dist->clean;
 
   # Make sure check_installed_status() works as a class method
   my $info = Module::Build->check_installed_status('File::Spec', 0);
@@ -80,7 +86,7 @@ chdir( 't' ) or die "Can't chdir to 't': $!";
   # Make sure check_installed_status() works with an advanced spec
   $info = Module::Build->check_installed_status('File::Spec', '> 0');
   ok $info->{ok};
-  
+
   # Use 2 lines for this, to avoid a "used only once" warning
   local $Foo::Module::VERSION;
   $Foo::Module::VERSION = '1.01_02';
@@ -93,86 +99,106 @@ chdir( 't' ) or die "Can't chdir to 't': $!";
 {
   # Make sure the correct warning message is generated when an
   # optional prereq isn't installed
-
   my $flagged = 0;
   local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /ModuleBuildNonExistent isn't installed/};
 
-  my $m = new Module::Build
-    (
-     module_name => 'ModuleBuildOne',
-     recommends => {ModuleBuildNonExistent => 3},
-    );
+  my $m = Module::Build->new(
+    module_name => $dist->name,
+    recommends  => {ModuleBuildNonExistent => 3},
+  );
   ok $flagged;
+  $dist->clean;
 }
 
 # Test verbosity
 {
-  my $cwd = Cwd::cwd();
-
-  chdir 'Sample';
-  my $m = new Module::Build(module_name => 'Sample');
+  my $m = Module::Build->new(module_name => $dist->name);
 
   $m->add_to_cleanup('save_out');
   # Use uc() so we don't confuse the current test output
-  like uc(stdout_of( sub {$m->dispatch('test', verbose => 1)} )), qr/^OK 2/m;
+  like uc(stdout_of( sub {$m->dispatch('test', verbose => 1)} )), qr/^OK \d/m;
   like uc(stdout_of( sub {$m->dispatch('test', verbose => 0)} )), qr/\.\.OK/;
-  
+
   $m->dispatch('realclean');
-  chdir $cwd or die "Can't change back to $cwd: $!";
+  $dist->clean;
 }
 
 # Make sure 'config' entries are respected on the command line, and that
 # Getopt::Long specs work as expected.
 {
-  my $cwd = Cwd::cwd();
   use Config;
-  
-  chdir 'Sample';
+  $dist->change_file( 'Build.PL', <<"---" );
+use Module::Build;
 
+my \$build = Module::Build->new(
+  module_name => @{[$dist->name]},
+  license     => 'perl',
+  get_options => { foo => {},
+                   bar => { type    => '+'  },
+                   bat => { type    => '=s' },
+                   dee => { type    => '=s',
+                            default => 'goo'
+                          },
+                 }
+);
+
+\$build->create_build_script;
+---
+
+  $dist->regen;
   eval {Module::Build->run_perl_script('Build.PL', [], ['skip_rcfile=1', '--config', "foocakes=barcakes", '--foo', '--bar', '--bar', '-bat=hello', 'gee=whiz', '--any', 'hey', '--destdir', 'yo', '--verbose', '1'])};
   ok not $@;
-  
-  my $b = Module::Build->resume();
-  is $b->config->{cc}, $Config{cc};
-  is $b->config->{foocakes}, 'barcakes';
+
+  my $m = Module::Build->resume;
+  is $m->config->{cc}, $Config{cc};
+  is $m->config->{foocakes}, 'barcakes';
 
   # Test args().
-  is $b->args('foo'), 1;
-  is $b->args('bar'), 2, 'bar';
-  is $b->args('bat'), 'hello', 'bat';
-  is $b->args('gee'), 'whiz';
-  is $b->args('any'), 'hey';
-  is $b->args('dee'), 'goo';
-  is $b->destdir, 'yo';
-  is $b->runtime_params('destdir'), 'yo';
-  is $b->runtime_params('verbose'), '1';
-  ok not $b->runtime_params('license');
-  ok my %runtime = $b->runtime_params;
+  is $m->args('foo'), 1;
+  is $m->args('bar'), 2, 'bar';
+  is $m->args('bat'), 'hello', 'bat';
+  is $m->args('gee'), 'whiz';
+  is $m->args('any'), 'hey';
+  is $m->args('dee'), 'goo';
+  is $m->destdir, 'yo';
+  is $m->runtime_params('destdir'), 'yo';
+  is $m->runtime_params('verbose'), '1';
+  ok not $m->runtime_params('license');
+  ok my %runtime = $m->runtime_params;
   is scalar keys %runtime, 4;
   is $runtime{destdir}, 'yo';
   is $runtime{verbose}, '1';
   ok $runtime{config};
 
-  ok my $argsref = $b->args;
+  ok my $argsref = $m->args;
   is $argsref->{foo}, 1;
   $argsref->{doo} = 'hee';
-  is $b->args('doo'), 'hee';
-  ok my %args = $b->args;
+  is $m->args('doo'), 'hee';
+  ok my %args = $m->args;
   is $args{foo}, 1;
 
-  chdir $cwd or die "Can't change back to $cwd: $!";
+  # revert test distribution to pristine state because we modified a file
+  chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+  $dist->remove;
+  $dist = DistGen->new;
+  $dist->regen;
+  chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 }
 
 # Test author stuff
 {
-  my $build = new Module::Build
-    (
-     module_name => 'ModuleBuildOne',
-     dist_author => 'Foo Meister <foo@example.com>',
-     build_class => 'My::Big::Fat::Builder',
-    );
-  ok $build;
-  ok ref($build->dist_author);
-  is $build->dist_author->[0], 'Foo Meister <foo@example.com>';
-  is $build->build_class, 'My::Big::Fat::Builder';
+  my $m = Module::Build->new(
+    module_name => $dist->name,
+    dist_author => 'Foo Meister <foo@example.com>',
+    build_class => 'My::Big::Fat::Builder',
+  );
+  ok $m;
+  ok ref($m->dist_author), 'dist_author converted to array if simple string';
+  is $m->dist_author->[0], 'Foo Meister <foo@example.com>';
+  is $m->build_class, 'My::Big::Fat::Builder';
 }
+
+
+# cleanup
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
