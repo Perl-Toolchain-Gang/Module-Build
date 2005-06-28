@@ -1,15 +1,16 @@
+#!/usr/bin/perl -w
 
+use lib 't/lib';
 use strict;
-use File::Spec;
 
-BEGIN {
-  my $t_lib = File::Spec->catdir('t', 'lib');
-  push @INC, $t_lib; # Let user's installed version override
-}
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+require $common_pl;
+
+#########################
+
 use Test::More;
 
-my $common_pl = File::Spec->catfile('t', 'common.pl');
-require $common_pl;
 
 my @unix_splits = 
   (
@@ -61,6 +62,8 @@ my @win_splits =
 );
 
 plan tests => 10 + 2*@unix_splits + 2*@win_splits;
+
+#########################
 
 use Module::Build;
 ok(1);
