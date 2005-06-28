@@ -1,22 +1,31 @@
 #!/usr/bin/perl -w
 
+use lib 't/lib';
 use strict;
 
-use File::Spec;
-use File::Path qw( rmtree );
-use Test;
-use Module::Build;
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+require $common_pl;
 
-BEGIN {
-  my $common_pl = File::Spec->catfile('t', 'common.pl');
-  require $common_pl;
-  skip_test("manpage_support feature is not enabled")
-    unless Module::Build->current->feature('manpage_support');
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+#########################
+
+use Test::More;
+
+use Module::Build;
+if ( Module::Build->current->feature('manpage_support') ) {
   plan tests => 21;
+} else {
+  plan skip_all => 'manpage_support feature is not enabled';
 }
 
-my $start = Module::Build->cwd;
-my $install = File::Spec->catdir( $start, 't', '_tmp' );
+#########################
+
+use File::Path qw( rmtree );
+
+my $install = File::Spec->catdir( $cwd, 't', '_tmp' );
 chdir File::Spec->catdir( 't','Sample' ) or die "Can't chdir to t/Sample: $!";
 
 my $m = new Module::Build
@@ -26,8 +35,8 @@ my $m = new Module::Build
    scripts      => [ 'script', File::Spec->catfile( 'bin', 'sample.pl' ) ],
   );
 
-ok( ref $m->{properties}->{bindoc_dirs}, 'ARRAY', 'bindoc_dirs' );
-ok( ref $m->{properties}->{libdoc_dirs}, 'ARRAY', 'libdoc_dirs' );
+is( ref $m->{properties}->{bindoc_dirs}, 'ARRAY', 'bindoc_dirs' );
+is( ref $m->{properties}->{libdoc_dirs}, 'ARRAY', 'libdoc_dirs' );
 
 my %man = (
 	   sep  => $m->manpage_separator,
@@ -50,17 +59,17 @@ my %distro = (
 $m->dispatch('build');
 
 eval {$m->dispatch('docs')};
-ok $@, '';
+ok ! $@;
 
 while (my ($from, $v) = each %distro) {
   if (!$v) {
-    ok $m->contains_pod($from), '', "$from should not contain POD";
+    ok ! $m->contains_pod($from), "$from should not contain POD";
     next;
   }
   
   my $to = File::Spec->catfile('blib', ($from =~ /^lib/ ? 'libdoc' : 'bindoc'), $v);
-  ok $m->contains_pod($from), 1, "$from should contain POD";
-  ok -e $to, 1, "Created $to manpage";
+  ok $m->contains_pod($from), "$from should contain POD";
+  ok -e $to, "Created $to manpage";
 }
 
 
@@ -70,7 +79,7 @@ $m->dispatch('install');
 while (my ($from, $v) = each %distro) {
   next unless $v;
   my $to = File::Spec->catfile($install, 'man', $man{($from =~ /^lib/ ? 'dir3' : 'dir1')}, $v);
-  ok -e $to, 1, "Created $to manpage";
+  ok -e $to, "Created $to manpage";
 }
 
 $m->dispatch('realclean');
@@ -82,7 +91,7 @@ my $m2 = new Module::Build
    libdoc_dirs => [qw( foo bar baz )],
   );
 
-ok( $m2->{properties}->{libdoc_dirs}->[0], 'foo', 'override libdoc_dirs' );
+is( $m2->{properties}->{libdoc_dirs}->[0], 'foo', 'override libdoc_dirs' );
 
 # Make sure we can find our own action documentation
 ok  $m2->get_action_docs('build');
@@ -91,6 +100,6 @@ ok !$m2->get_action_docs('foo');
 # Make sure those docs are the correct ones
 foreach ('ppd', 'disttest') {
   my $docs = $m2->get_action_docs($_);
-  ok $docs, "/=item $_/";
-  ok $docs !~ /\n=/, 1, $docs;
+  like $docs, qr/=item $_/;
+  unlike $docs, qr/\n=/, $docs;
 }

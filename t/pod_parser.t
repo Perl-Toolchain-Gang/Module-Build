@@ -1,10 +1,22 @@
+#!/usr/bin/perl -w
 
+use lib 't/lib';
 use strict;
-use Test;
-plan tests => 4;
 
-use Module::Build::PodParser;
-ok(1);
+use Test::More tests => 4;
+
+
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+require $common_pl;
+
+
+use Cwd ();
+my $cwd = Cwd::cwd;
+
+#########################
+
+use_ok 'Module::Build::PodParser';
 
 {
   package IO::StringBased;
@@ -38,7 +50,7 @@ EOF
 
 
 my $pp = Module::Build::PodParser->new(fh => \*FH);
-ok $pp;
+ok $pp, 'object created';
 
-ok $pp->get_author->[0], 'C<Foo::Bar> was written by Engelbert Humperdinck I<E<lt>eh@example.comE<gt>> in 2004.';
-ok $pp->get_abstract, 'Perl extension for blah blah blah';
+is $pp->get_author->[0], 'C<Foo::Bar> was written by Engelbert Humperdinck I<E<lt>eh@example.comE<gt>> in 2004.', 'author';
+is $pp->get_abstract, 'Perl extension for blah blah blah', 'abstract';
