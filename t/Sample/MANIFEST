@@ -1,9 +1,0 @@
-bin/sample.pl
-Build.PL
-lib/Sample.pm
-lib/Sample/Docs.pod
-lib/Sample/NoPod.pm
-lib/Sample/Script.PL
-MANIFEST
-script
-test.pl

@@ -39,7 +39,6 @@ t/extend.t
 t/files.t
 t/install.t
 t/lib/DistGen.pm
-t/lib/ModuleBuildOne.pm
 t/lib/Test/Builder.pm
 t/lib/Test/More.pm
 t/lib/Test/Simple.pm
@@ -49,17 +48,6 @@ t/notes.t
 t/parents.t
 t/pod_parser.t
 t/runthrough.t
-t/Sample/bin/sample.pl
-t/Sample/Build.PL
-t/Sample/lib/Sample.pm
-t/Sample/lib/Sample/Docs.pod
-t/Sample/lib/Sample/NoPod.pm
-t/Sample/lib/Sample/Script.PL
-t/Sample/MANIFEST
-t/Sample/META.yml
-t/Sample/script
-t/Sample/test.foo
-t/Sample/test.pl
 t/signature.t
 t/tilde.t
 t/versions.t
