@@ -158,6 +158,7 @@ sub _gen_manifest {
     $self->remove();
     die "Can't write '$manifest'\n";
   };
+  print $fh "MANIFEST\n";
   print $fh join( "\n", sort keys( %{$self->{filedata}} ) );
   print $fh "\n";
   close( $fh );
