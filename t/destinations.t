@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 66;
+use Test::More tests => 68;
 
 
 use File::Spec ();
@@ -24,6 +24,12 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 use Config;
 use File::Spec::Functions qw( catdir splitdir );
 
+#########################
+
+TODO: {
+  local $TODO = 'Test PREFIX pass-thru to compat Makefile.PL';
+  ok 0, 'PREFIX';
+}
 
 use Module::Build;
 my $M = Module::Build->new_from_context;
@@ -171,6 +177,11 @@ $M->prefix(undef);
     });
 }
 
+
+TODO: {
+  local $TODO = "install paths not defined.";
+  ok 0, '(bin|lib)doc install destination';
+}
 
 sub test_prefix {
     my ($prefix, $test_config) = @_;
