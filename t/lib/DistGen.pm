@@ -158,11 +158,14 @@ sub _gen_manifest {
     $self->remove();
     die "Can't write '$manifest'\n";
   };
-  print $fh "MANIFEST\n";
-  print $fh join( "\n", sort keys( %{$self->{filedata}} ) );
-  print $fh "\n";
+
+  my @files = ( 'MANIFEST', keys %{$self->{filedata}} );
+  my $data = join( "\n", sort @files ) . "\n";
+  print $fh $data;
   close( $fh );
 
+  $self->{filedata}{MANIFEST} = $data;
+  $self->{pending}{change}{MANIFEST} = 1;
 }
 
 sub name { shift()->{name} }
@@ -195,7 +198,9 @@ sub regen {
     foreach my $file ( @files ) {
       my $real_filename = $self->_real_filename( $file );
       my $fullname = File::Spec->catfile( $dist_dirname, $real_filename );
-      unlink( $fullname ) or die "Couldn't unlink '$file'\n";
+      if ( -e $fullname ) {
+	unlink( $fullname ) || die "Couldn't unlink '$file'\n";
+      }
       print "Unlinking pending file '$file'\n" if $VERBOSE;
       delete( $self->{pending}{remove}{$file} );
     }
