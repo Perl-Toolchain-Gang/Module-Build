@@ -23,32 +23,41 @@ if ( $ENV{TEST_SIGNATURE} ) {
 
 #########################
 
-
 use Cwd ();
 my $cwd = Cwd::cwd;
 
+use DistGen;
+my $dist = DistGen->new;
+$dist->change_file( 'Build.PL', <<"---" );
+use Module::Build;
+
+my \$build = new Module::Build(
+  module_name => @{[$dist->name]},
+  license     => 'perl',
+  sign        => 1,
+);
+\$build->create_build_script;
+---
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
+#########################
 
 use Module::Build;
 
-my $base_dir = File::Spec->catdir( $cwd, 't', 'Sample' );
-chdir $base_dir or die "can't chdir to $base_dir: $!";
+my $build = Module::Build->new_from_context;
 
-
-my $build = Module::Build->new( module_name => 'Sample',
-			        requires => { 'File::Spec' => 0 },
-			        license => 'perl',
-			        sign => 1,
-			      );
 
 {
   eval {$build->dispatch('distdir')};
   ok ! $@;
-  chdir $build->dist_dir or die "Can't chdir to ", $build->dist_dir, ": $!";
+  chdir( $build->dist_dir ) or die "Can't chdir to '@{[$build->dist_dir]}': $!";
   ok -e 'SIGNATURE';
   
   # Make sure the signature actually verifies
   ok Module::Signature::verify() == Module::Signature::SIGNATURE_OK();
-  chdir $base_dir or die "can't chdir back to $base_dir: $!";
+  chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 }
 
 {
@@ -68,3 +77,8 @@ my $build = Module::Build->new( module_name => 'Sample',
 
 eval { $build->dispatch('realclean') };
 ok ! $@;
+
+
+# cleanup
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
