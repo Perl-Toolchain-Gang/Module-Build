@@ -7,14 +7,12 @@ use File::Spec ();
 my $common_pl = File::Spec->catfile( 't', 'common.pl' );
 require $common_pl;
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 
 #########################
 
 use Test::More;
-
 use Module::Build;
+
 if ( Module::Build->current->feature('manpage_support') ) {
   plan tests => 21;
 } else {
@@ -23,17 +21,62 @@ if ( Module::Build->current->feature('manpage_support') ) {
 
 #########################
 
-use File::Path qw( rmtree );
 
-my $install = File::Spec->catdir( $cwd, 't', '_tmp' );
-chdir File::Spec->catdir( 't','Sample' ) or die "Can't chdir to t/Sample: $!";
+use Cwd ();
+my $cwd = Cwd::cwd;
 
-my $m = new Module::Build
-  (
-   install_base => $install,
-   module_name  => 'Sample',
-   scripts      => [ 'script', File::Spec->catfile( 'bin', 'sample.pl' ) ],
-  );
+
+use DistGen;
+my $dist = DistGen->new;
+$dist->add_file( 'bin/nopod.pl', <<'---' );
+#!perl -w
+print "sample script without pod to test manifypods action\n";
+---
+$dist->add_file( 'bin/haspod.pl', <<'---' );
+#!perl -w
+print "Hello, world";
+
+__END__
+
+=head1 NAME
+
+haspod.pl - sample script with pod to test manifypods action
+
+=cut
+---
+$dist->add_file( 'lib/Simple/NoPod.pm', <<'---' );
+package Simple::NoPod;
+1;
+---
+$dist->add_file( 'lib/Simple/AllPod.pod', <<'---' );
+=head1 NAME
+
+Simple::AllPod - Pure POD
+
+=head1 AUTHOR
+
+Simple Man <simple@example.com>
+
+=cut
+---
+$dist->regen;
+
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
+
+my $destdir = File::Spec->catdir($cwd, 't', 'install_test');
+
+
+my $m = Module::Build->new(
+  install_base => $destdir,
+  module_name  => $dist->name,
+  scripts      => [ File::Spec->catfile( 'bin', 'nopod.pl'  ),
+                    File::Spec->catfile( 'bin', 'haspod.pl' )  ],
+);
+
+$m->add_to_cleanup($destdir);
+
 
 is( ref $m->{properties}->{bindoc_dirs}, 'ARRAY', 'bindoc_dirs' );
 is( ref $m->{properties}->{libdoc_dirs}, 'ARRAY', 'libdoc_dirs' );
@@ -47,13 +90,13 @@ my %man = (
 	  );
 
 my %distro = (
-	      'bin/sample.pl' => "sample.pl.$man{ext1}",
-	      'lib/Sample/Docs.pod' => "Sample$man{sep}Docs.$man{ext3}",
-	      'lib/Sample.pm' => "Sample.$man{ext3}",
-	      'script' => '',
-	      'lib/Sample/NoPod.pm' => '',
+	      'bin/nopod.pl'          => '',
+              'bin/haspod.pl'         => "haspod.pl.$man{ext1}",
+	      'lib/Simple.pm'         => "Simple.$man{ext3}",
+              'lib/Simple/NoPod.pm'   => '',
+              'lib/Simple/AllPod.pod' => "Simple$man{sep}AllPod.$man{ext3}",
 	     );
-# foreach(keys %foo) doesn't give proper lvalues on 5.005, so we use the ugly way
+
 %distro = map {$m->localize_file_path($_), $distro{$_}} keys %distro;
 
 $m->dispatch('build');
@@ -73,23 +116,29 @@ while (my ($from, $v) = each %distro) {
 }
 
 
-$m->add_to_cleanup($install);
 $m->dispatch('install');
 
 while (my ($from, $v) = each %distro) {
   next unless $v;
-  my $to = File::Spec->catfile($install, 'man', $man{($from =~ /^lib/ ? 'dir3' : 'dir1')}, $v);
+  my $to = File::Spec->catfile($destdir, 'man', $man{($from =~ /^lib/ ? 'dir3' : 'dir1')}, $v);
   ok -e $to, "Created $to manpage";
 }
 
 $m->dispatch('realclean');
 
 
-my $m2 = new Module::Build
-  (
-   module_name     => 'Sample',
-   libdoc_dirs => [qw( foo bar baz )],
-  );
+# revert to a pristine state
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
+$dist = DistGen->new;
+$dist->regen;
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
+
+my $m2 = Module::Build->new(
+  module_name => $dist->name,
+  libdoc_dirs => [qw( foo bar baz )],
+);
 
 is( $m2->{properties}->{libdoc_dirs}->[0], 'foo', 'override libdoc_dirs' );
 
@@ -103,3 +152,8 @@ foreach ('ppd', 'disttest') {
   like $docs, qr/=item $_/;
   unlike $docs, qr/\n=/, $docs;
 }
+
+
+# cleanup
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
