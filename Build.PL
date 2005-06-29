@@ -3,7 +3,8 @@ use strict;
 # On some platforms (*ahem*, MacPerl 5.6.1) "use lib qw(lib);" doesn't
 # find the local "lib" directory, so we use File::Spec to do it properly.
 use File::Spec;
-use lib File::Spec->catdir('lib');
+use lib File::Spec->catdir('lib');      # use our self to install
+use lib File::Spec->catdir('t', 'lib'); # use bundled Test::More
 
 # We use Module::Build to test & install itself.
 use Module::Build;
@@ -44,7 +45,7 @@ my $build = new ModuleBuildBuilder
 		  'Module::Signature' => 0.21,
 		 },
    build_requires => {
-		      Test => 0,
+		      'Test::More' => 0,
 		     },
    sign => 1,
    create_readme => 1,
