@@ -2600,7 +2600,8 @@ sub find_dist_packages {
     
     foreach my $package ($pm_info->packages_inside($localfile)) {
       $out{$package}{file} = $dist_files{$file};
-      $out{$package}{version} = $pm_info->version( $package );
+      $out{$package}{version} = $pm_info->version( $package )
+	  if defined( $pm_info->version( $package ) );
     }
   }
   return \%out;
