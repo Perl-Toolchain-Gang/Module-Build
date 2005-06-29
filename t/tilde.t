@@ -15,9 +15,10 @@ require $common_pl;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
+my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
 use DistGen;
-my $dist = DistGen->new;
+my $dist = DistGen->new( dir => $tmp );
 $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
@@ -81,3 +82,6 @@ sub run_sample {
 # cleanup
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
+
+use File::Path;
+rmtree( $tmp );

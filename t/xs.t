@@ -35,9 +35,10 @@ use Module::Build;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
+my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
 use DistGen;
-my $dist = DistGen->new( xs_module => 1 );
+my $dist = DistGen->new( dir => $tmp, xs_module => 1 );
 $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
@@ -116,3 +117,6 @@ ok ! -e 'blib';
 # cleanup
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
+
+use File::Path;
+rmtree( $tmp );

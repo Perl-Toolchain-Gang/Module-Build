@@ -5,8 +5,12 @@ use strict;
 
 use Test::More tests => 2;
 
+use Cwd ();
+my $cwd = Cwd::cwd;
+my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
+
 use DistGen;
-my $dist = DistGen->new;
+my $dist = DistGen->new( dir => $tmp );
 $dist->regen;
 
 #########################
@@ -23,3 +27,6 @@ ok( Module::Build->compare_versions( '1.01_01', '>', '1.01' ), 'compare: 1.0_01 
 
 # cleanup
 $dist->remove;
+
+use File::Path;
+rmtree( $tmp );

@@ -25,9 +25,10 @@ if ( $ENV{TEST_SIGNATURE} ) {
 
 use Cwd ();
 my $cwd = Cwd::cwd;
+my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
 use DistGen;
-my $dist = DistGen->new;
+my $dist = DistGen->new( dir => $tmp );
 $dist->change_file( 'Build.PL', <<"---" );
 use Module::Build;
 
@@ -82,3 +83,6 @@ ok ! $@;
 # cleanup
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
+
+use File::Path;
+rmtree( $tmp );

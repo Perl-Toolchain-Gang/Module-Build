@@ -13,9 +13,10 @@ require $common_pl;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
+my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
 use DistGen;
-my $dist = DistGen->new;
+my $dist = DistGen->new( dir => $tmp );
 $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
@@ -114,7 +115,7 @@ foreach my $module ( @modules ) {
 # revert to pristine state
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-$dist = DistGen->new;
+$dist = DistGen->new( dir => $tmp );
 $dist->regen;
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
@@ -153,7 +154,7 @@ is( $pm_info->version, undef, 'no version w/o default package' );
 # revert to pristine state
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-$dist = DistGen->new;
+$dist = DistGen->new( dir => $tmp );
 $dist->regen;
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
@@ -275,3 +276,6 @@ is( $name, q|Simple - It's easy.|, 'collected pod section' );
 # cleanup
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
+
+use File::Path;
+rmtree( $tmp );

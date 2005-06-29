@@ -17,9 +17,10 @@ require $common_pl;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
+my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
 use DistGen;
-my $dist = DistGen->new;
+my $dist = DistGen->new( dir => $tmp );
 $dist->remove_file( 't/basic.t' );
 $dist->change_file( 'Build.PL', <<'---' );
 use Module::Build;
@@ -196,3 +197,6 @@ ok ! -e $build->dist_dir;
 # cleanup
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
+
+use File::Path;
+rmtree( $tmp );

@@ -24,10 +24,10 @@ if ( Module::Build->current->feature('manpage_support') ) {
 
 use Cwd ();
 my $cwd = Cwd::cwd;
-
+my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
 use DistGen;
-my $dist = DistGen->new;
+my $dist = DistGen->new( dir => $tmp );
 $dist->add_file( 'bin/nopod.pl', <<'---' );
 #!perl -w
 print "sample script without pod to test manifypods action\n";
@@ -130,7 +130,7 @@ $m->dispatch('realclean');
 # revert to a pristine state
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-$dist = DistGen->new;
+$dist = DistGen->new( dir => $tmp );
 $dist->regen;
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
@@ -157,3 +157,6 @@ foreach ('ppd', 'disttest') {
 # cleanup
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
+
+use File::Path;
+rmtree( $tmp );
