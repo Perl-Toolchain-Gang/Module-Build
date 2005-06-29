@@ -25,7 +25,7 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 use_ok 'Module::Build';
 
-like $INC{'Module/Build.pm'}, qr|/blib/|, "Make sure Module::Build was loaded from blib/";
+like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure Module::Build was loaded from blib/";
 
 
 # Test object creation

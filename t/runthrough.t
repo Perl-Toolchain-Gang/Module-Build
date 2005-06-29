@@ -67,7 +67,7 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 use Module::Build;
 ok(1);
 
-like $INC{'Module/Build.pm'}, qr{/blib/}, "Make sure version from blib/ is loaded";
+like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure version from blib/ is loaded";
 
 #########################
 

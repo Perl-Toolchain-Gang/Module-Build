@@ -150,7 +150,7 @@ foreach my $type (@makefile_types) {
   $output = stdout_of( sub { $ran_ok = $build->do_system(@make, 'test', 'TEST_VERBOSE=0') } );
   ok $ran_ok;
   $output =~ s/^/# /gm;  # Don't confuse our own test output
-  like $output, qr/(?:# t[\/\w]+\.+ok\s+(?:[\d.]s\s*)?)+# All tests/,
+  like $output, qr/(?:# .+basic\.+ok\s+(?:[\d.]s\s*)?)+# All tests/,
       'Should be non-verbose';
 
   $build->delete_filetree($libdir);

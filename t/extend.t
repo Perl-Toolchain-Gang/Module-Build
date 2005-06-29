@@ -58,7 +58,7 @@ print "Hello, World!\n";
   $m->test_files('*t*');
   my $files = $m->test_files;
   ok  grep {$_ eq 'script'}    @$files;
-  ok  grep {$_ eq 't/basic.t'} @$files;
+  ok  grep {$_ eq File::Spec->catfile('t', 'basic.t')} @$files;
   ok !grep {$_ eq 'Build.PL' } @$files;
 
   # Make sure order is preserved
