@@ -24,7 +24,7 @@ sub new {
 
   my %data = (
     skip_manifest => 0,
-    xs_module     => 0,
+    xs            => 0,
     %options,
   );
   my $self = bless( \%data, $package );
@@ -60,7 +60,7 @@ my \$builder = Module::Build->new(
   my $module_filename =
     join( '/', ('lib', split(/::/, $self->{name})) ) . '.pm';
 
-  unless ( $self->{xs_module} ) {
+  unless ( $self->{xs} ) {
     $self->add_file( $module_filename, <<"---" ) unless $self->{filedata}{$module_filename};
 package $self->{name};
 
@@ -368,7 +368,7 @@ The name of the module this distribution represents. The default is
 The directory in which to create the distribution directory. The
 default is File::Spec->curdir.
 
-=item xs_module
+=item xs
 
 Generates an XS based module.
 

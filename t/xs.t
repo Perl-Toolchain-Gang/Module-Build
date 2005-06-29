@@ -38,7 +38,7 @@ my $cwd = Cwd::cwd;
 my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
 use DistGen;
-my $dist = DistGen->new( dir => $tmp, xs_module => 1 );
+my $dist = DistGen->new( dir => $tmp, xs => 1 );
 $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
