@@ -29,6 +29,11 @@ sub new {
   );
   my $self = bless( \%data, $package );
 
+  if ( -d $self->dirname ) {
+    warn "Warning: Removing existing directory at '@{[$self->dirname]}'\n";
+    $self->remove;
+  }
+
   $self->_gen_default_filedata();
 
   return $self;
