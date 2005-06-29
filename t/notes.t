@@ -32,34 +32,34 @@ my \$build = Module::Build->new(
 
 $dist->regen;
 
-my $m = Module::Build->new_from_context;
+my $mb = Module::Build->new_from_context;
 
-is $m->notes('foo'), 'bar';
+is $mb->notes('foo'), 'bar';
 
 # Try setting & checking a new value
-$m->notes(argh => 'new');
-is $m->notes('argh'), 'new';
+$mb->notes(argh => 'new');
+is $mb->notes('argh'), 'new';
 
 # Change existing value
-$m->notes(foo => 'foo');
-is $m->notes('foo'), 'foo';
+$mb->notes(foo => 'foo');
+is $mb->notes('foo'), 'foo';
 
 # Change back so we can run this test again successfully
-$m->notes(foo => 'bar');
-is $m->notes('foo'), 'bar';
+$mb->notes(foo => 'bar');
+is $mb->notes('foo'), 'bar';
 
 ###################################
 # Make sure notes set before create_build_script() get preserved
-$m = Module::Build->new(module_name => $dist->name);
-ok $m;
-$m->notes(foo => 'bar');
-is $m->notes('foo'), 'bar';
+$mb = Module::Build->new(module_name => $dist->name);
+ok $mb;
+$mb->notes(foo => 'bar');
+is $mb->notes('foo'), 'bar';
 
-$m->create_build_script;
+$mb->create_build_script;
 
-$m = Module::Build->resume;
-ok $m;
-is $m->notes('foo'), 'bar';
+$mb = Module::Build->resume;
+ok $mb;
+is $mb->notes('foo'), 'bar';
 
 
 # cleanup

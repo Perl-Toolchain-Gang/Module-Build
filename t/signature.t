@@ -47,13 +47,13 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 use Module::Build;
 
-my $build = Module::Build->new_from_context;
+my $mb = Module::Build->new_from_context;
 
 
 {
-  eval {$build->dispatch('distdir')};
+  eval {$mb->dispatch('distdir')};
   ok ! $@;
-  chdir( $build->dist_dir ) or die "Can't chdir to '@{[$build->dist_dir]}': $!";
+  chdir( $mb->dist_dir ) or die "Can't chdir to '@{[$mb->dist_dir]}': $!";
   ok -e 'SIGNATURE';
   
   # Make sure the signature actually verifies
@@ -69,14 +69,14 @@ my $build = Module::Build->new_from_context;
     local $^W; # Skip 'redefined' warnings
     local *Module::Signature::sign              = sub { push @run_order, 'sign' };
     local *Module::Build::Base::ACTION_distmeta = sub { push @run_order, 'distmeta' };
-    eval { $build->dispatch('distdir') };
+    eval { $mb->dispatch('distdir') };
   }
   ok ! $@;
   is $run_order[0], 'distmeta';
   is $run_order[1], 'sign';
 }
 
-eval { $build->dispatch('realclean') };
+eval { $mb->dispatch('realclean') };
 ok ! $@;
 
 

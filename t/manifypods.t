@@ -68,25 +68,25 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 my $destdir = File::Spec->catdir($cwd, 't', 'install_test');
 
 
-my $m = Module::Build->new(
+my $mb = Module::Build->new(
   install_base => $destdir,
   module_name  => $dist->name,
   scripts      => [ File::Spec->catfile( 'bin', 'nopod.pl'  ),
                     File::Spec->catfile( 'bin', 'haspod.pl' )  ],
 );
 
-$m->add_to_cleanup($destdir);
+$mb->add_to_cleanup($destdir);
 
 
-is( ref $m->{properties}->{bindoc_dirs}, 'ARRAY', 'bindoc_dirs' );
-is( ref $m->{properties}->{libdoc_dirs}, 'ARRAY', 'libdoc_dirs' );
+is( ref $mb->{properties}->{bindoc_dirs}, 'ARRAY', 'bindoc_dirs' );
+is( ref $mb->{properties}->{libdoc_dirs}, 'ARRAY', 'libdoc_dirs' );
 
 my %man = (
-	   sep  => $m->manpage_separator,
+	   sep  => $mb->manpage_separator,
 	   dir1 => 'man1',
 	   dir3 => 'man3',
-	   ext1 => $m->{config}{man1ext},
-	   ext3 => $m->{config}{man3ext},
+	   ext1 => $mb->{config}{man1ext},
+	   ext3 => $mb->{config}{man3ext},
 	  );
 
 my %distro = (
@@ -97,26 +97,26 @@ my %distro = (
               'lib/Simple/AllPod.pod' => "Simple$man{sep}AllPod.$man{ext3}",
 	     );
 
-%distro = map {$m->localize_file_path($_), $distro{$_}} keys %distro;
+%distro = map {$mb->localize_file_path($_), $distro{$_}} keys %distro;
 
-$m->dispatch('build');
+$mb->dispatch('build');
 
-eval {$m->dispatch('docs')};
+eval {$mb->dispatch('docs')};
 ok ! $@;
 
 while (my ($from, $v) = each %distro) {
   if (!$v) {
-    ok ! $m->contains_pod($from), "$from should not contain POD";
+    ok ! $mb->contains_pod($from), "$from should not contain POD";
     next;
   }
   
   my $to = File::Spec->catfile('blib', ($from =~ /^lib/ ? 'libdoc' : 'bindoc'), $v);
-  ok $m->contains_pod($from), "$from should contain POD";
+  ok $mb->contains_pod($from), "$from should contain POD";
   ok -e $to, "Created $to manpage";
 }
 
 
-$m->dispatch('install');
+$mb->dispatch('install');
 
 while (my ($from, $v) = each %distro) {
   next unless $v;
@@ -124,7 +124,7 @@ while (my ($from, $v) = each %distro) {
   ok -e $to, "Created $to manpage";
 }
 
-$m->dispatch('realclean');
+$mb->dispatch('realclean');
 
 
 # revert to a pristine state
@@ -135,20 +135,20 @@ $dist->regen;
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 
-my $m2 = Module::Build->new(
+my $mb2 = Module::Build->new(
   module_name => $dist->name,
   libdoc_dirs => [qw( foo bar baz )],
 );
 
-is( $m2->{properties}->{libdoc_dirs}->[0], 'foo', 'override libdoc_dirs' );
+is( $mb2->{properties}->{libdoc_dirs}->[0], 'foo', 'override libdoc_dirs' );
 
 # Make sure we can find our own action documentation
-ok  $m2->get_action_docs('build');
-ok !$m2->get_action_docs('foo');
+ok  $mb2->get_action_docs('build');
+ok !$mb2->get_action_docs('foo');
 
 # Make sure those docs are the correct ones
 foreach ('ppd', 'disttest') {
-  my $docs = $m2->get_action_docs($_);
+  my $docs = $mb2->get_action_docs($_);
   like $docs, qr/=item $_/;
   unlike $docs, qr/\n=/, $docs;
 }

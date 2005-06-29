@@ -31,16 +31,16 @@ like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure Module::Build was loaded 
 
 # Test object creation
 {
-  my $m = Module::Build->new( module_name => $dist->name );
-  ok $m;
-  is $m->module_name, $dist->name;
-  is $m->build_class, 'Module::Build';
-  is $m->dist_name, $dist->name;
+  my $mb = Module::Build->new( module_name => $dist->name );
+  ok $mb;
+  is $mb->module_name, $dist->name;
+  is $mb->build_class, 'Module::Build';
+  is $mb->dist_name, $dist->name;
 
-  $m = Module::Build->new( dist_name => $dist->name, dist_version => 7 );
-  ok $m;
-  ok ! $m->module_name;  # Make sure it's defined
-  is $m->dist_name, $dist->name;
+  $mb = Module::Build->new( dist_name => $dist->name, dist_version => 7 );
+  ok $mb;
+  ok ! $mb->module_name;  # Make sure it's defined
+  is $mb->dist_name, $dist->name;
 }
 
 # Make sure actions are defined, and known_actions works as class method
@@ -55,27 +55,27 @@ like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure Module::Build was loaded 
   local @INC = (File::Spec->catdir( $dist->dirname, 'lib' ), @INC);
   my $flagged = 0;
   local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /@{[$dist->name]}/};
-  my $m = Module::Build->new(
+  my $mb = Module::Build->new(
     module_name => $dist->name,
     requires    => {$dist->name => 0},
   );
   ok ! $flagged;
-  ok ! $m->prereq_failures;
-  $m->dispatch('realclean');
+  ok ! $mb->prereq_failures;
+  $mb->dispatch('realclean');
   $dist->clean;
 
   $flagged = 0;
-  $m = Module::Build->new(
+  $mb = Module::Build->new(
     module_name => $dist->name,
     requires    => {$dist->name => 3.14159265},
   );
   ok $flagged;
-  ok $m->prereq_failures;
-  ok $m->prereq_failures->{requires}{$dist->name};
-  is $m->prereq_failures->{requires}{$dist->name}{have}, 0.01;
-  is $m->prereq_failures->{requires}{$dist->name}{need}, 3.14159265;
+  ok $mb->prereq_failures;
+  ok $mb->prereq_failures->{requires}{$dist->name};
+  is $mb->prereq_failures->{requires}{$dist->name}{have}, 0.01;
+  is $mb->prereq_failures->{requires}{$dist->name}{need}, 3.14159265;
 
-  $m->dispatch('realclean');
+  $mb->dispatch('realclean');
   $dist->clean;
 
   # Make sure check_installed_status() works as a class method
@@ -102,7 +102,7 @@ like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure Module::Build was loaded 
   my $flagged = 0;
   local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /ModuleBuildNonExistent isn't installed/};
 
-  my $m = Module::Build->new(
+  my $mb = Module::Build->new(
     module_name => $dist->name,
     recommends  => {ModuleBuildNonExistent => 3},
   );
@@ -112,14 +112,14 @@ like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure Module::Build was loaded 
 
 # Test verbosity
 {
-  my $m = Module::Build->new(module_name => $dist->name);
+  my $mb = Module::Build->new(module_name => $dist->name);
 
-  $m->add_to_cleanup('save_out');
+  $mb->add_to_cleanup('save_out');
   # Use uc() so we don't confuse the current test output
-  like uc(stdout_of( sub {$m->dispatch('test', verbose => 1)} )), qr/^OK \d/m;
-  like uc(stdout_of( sub {$m->dispatch('test', verbose => 0)} )), qr/\.\.OK/;
+  like uc(stdout_of( sub {$mb->dispatch('test', verbose => 1)} )), qr/^OK \d/m;
+  like uc(stdout_of( sub {$mb->dispatch('test', verbose => 0)} )), qr/\.\.OK/;
 
-  $m->dispatch('realclean');
+  $mb->dispatch('realclean');
   $dist->clean;
 }
 
@@ -149,32 +149,32 @@ my \$build = Module::Build->new(
   eval {Module::Build->run_perl_script('Build.PL', [], ['skip_rcfile=1', '--config', "foocakes=barcakes", '--foo', '--bar', '--bar', '-bat=hello', 'gee=whiz', '--any', 'hey', '--destdir', 'yo', '--verbose', '1'])};
   ok ! $@;
 
-  my $m = Module::Build->resume;
-  is $m->config->{cc}, $Config{cc};
-  is $m->config->{foocakes}, 'barcakes';
+  my $mb = Module::Build->resume;
+  is $mb->config->{cc}, $Config{cc};
+  is $mb->config->{foocakes}, 'barcakes';
 
   # Test args().
-  is $m->args('foo'), 1;
-  is $m->args('bar'), 2, 'bar';
-  is $m->args('bat'), 'hello', 'bat';
-  is $m->args('gee'), 'whiz';
-  is $m->args('any'), 'hey';
-  is $m->args('dee'), 'goo';
-  is $m->destdir, 'yo';
-  is $m->runtime_params('destdir'), 'yo';
-  is $m->runtime_params('verbose'), '1';
-  ok ! $m->runtime_params('license');
-  ok my %runtime = $m->runtime_params;
+  is $mb->args('foo'), 1;
+  is $mb->args('bar'), 2, 'bar';
+  is $mb->args('bat'), 'hello', 'bat';
+  is $mb->args('gee'), 'whiz';
+  is $mb->args('any'), 'hey';
+  is $mb->args('dee'), 'goo';
+  is $mb->destdir, 'yo';
+  is $mb->runtime_params('destdir'), 'yo';
+  is $mb->runtime_params('verbose'), '1';
+  ok ! $mb->runtime_params('license');
+  ok my %runtime = $mb->runtime_params;
   is scalar keys %runtime, 4;
   is $runtime{destdir}, 'yo';
   is $runtime{verbose}, '1';
   ok $runtime{config};
 
-  ok my $argsref = $m->args;
+  ok my $argsref = $mb->args;
   is $argsref->{foo}, 1;
   $argsref->{doo} = 'hee';
-  is $m->args('doo'), 'hee';
-  ok my %args = $m->args;
+  is $mb->args('doo'), 'hee';
+  ok my %args = $mb->args;
   is $args{foo}, 1;
 
   # revert test distribution to pristine state because we modified a file
@@ -187,15 +187,15 @@ my \$build = Module::Build->new(
 
 # Test author stuff
 {
-  my $m = Module::Build->new(
+  my $mb = Module::Build->new(
     module_name => $dist->name,
     dist_author => 'Foo Meister <foo@example.com>',
     build_class => 'My::Big::Fat::Builder',
   );
-  ok $m;
-  ok ref($m->dist_author), 'dist_author converted to array if simple string';
-  is $m->dist_author->[0], 'Foo Meister <foo@example.com>';
-  is $m->build_class, 'My::Big::Fat::Builder';
+  ok $mb;
+  ok ref($mb->dist_author), 'dist_author converted to array if simple string';
+  is $mb->dist_author->[0], 'Foo Meister <foo@example.com>';
+  is $mb->build_class, 'My::Big::Fat::Builder';
 }
 
 

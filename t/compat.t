@@ -53,27 +53,27 @@ my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
 #########################
 
 
-my $build = Module::Build->new_from_context;
-ok $build;
+my $mb = Module::Build->new_from_context;
+ok $mb;
 
 foreach my $type (@makefile_types) {
-  Module::Build::Compat->create_makefile_pl($type, $build);
-  test_makefile_creation($build);
+  Module::Build::Compat->create_makefile_pl($type, $mb);
+  test_makefile_creation($mb);
   
-  ok $build->do_system(@make);
+  ok $mb->do_system(@make);
   
   # Can't let 'test' STDOUT go to our STDOUT, or it'll confuse Test::Harness.
   my $success;
   my $output = stdout_of( sub {
-			    $success = $build->do_system(@make, 'test');
+			    $success = $mb->do_system(@make, 'test');
 			  } );
   ok $success;
   like uc $output, qr{DONE\.|SUCCESS};
   
-  ok $build->do_system(@make, 'realclean');
+  ok $mb->do_system(@make, 'realclean');
   
   # Try again with some Makefile.PL arguments
-  test_makefile_creation($build, [], 'INSTALLDIRS=vendor', 1);
+  test_makefile_creation($mb, [], 'INSTALLDIRS=vendor', 1);
   
   1 while unlink 'Makefile.PL';
   ok ! -e 'Makefile.PL';
@@ -102,7 +102,7 @@ foreach my $type (@makefile_types) {
     # Should fail with "can't find Foo/Builder.pm"
     my $warning = stderr_of
       (sub {
-	 my $result = $build->run_perl_script('Makefile.PL');
+	 my $result = $mb->run_perl_script('Makefile.PL');
 	 ok ! $result;
        });
     like $warning, qr{Foo/Builder.pm};
@@ -113,24 +113,24 @@ foreach my $type (@makefile_types) {
   foreach my $style ('passthrough', 'small') {
     Module::Build::Compat->create_makefile_pl($style, $bar_builder);
     ok -e 'Makefile.PL';
-    ok $build->run_perl_script('Makefile.PL');
+    ok $mb->run_perl_script('Makefile.PL');
   }
 }
 
 {
   # Make sure various Makefile.PL arguments are supported
-  Module::Build::Compat->create_makefile_pl('passthrough', $build);
+  Module::Build::Compat->create_makefile_pl('passthrough', $mb);
 
   my $libdir = File::Spec->catdir( $cwd, 't', 'libdir' );
-  my $result = $build->run_perl_script('Makefile.PL', [], 
-				       [
-					'SKIP_RCFILE=1',
-					"LIB=$libdir",
-					'TEST_VERBOSE=1',
-					'INSTALLDIRS=perl',
-					'POLLUTE=1',
-				       ]
-				      );
+  my $result = $mb->run_perl_script('Makefile.PL', [],
+				     [
+				      'SKIP_RCFILE=1',
+				      "LIB=$libdir",
+				      'TEST_VERBOSE=1',
+				      'INSTALLDIRS=perl',
+				      'POLLUTE=1',
+				     ]
+				   );
   ok $result;
   ok -e 'Build.PL';
 
@@ -148,16 +148,16 @@ foreach my $type (@makefile_types) {
   like $output, qr/(?:# ok \d+\s+)+/, 'Should be verbose';
 
   # Make sure various Makefile arguments are supported
-  $output = stdout_of( sub { $ran_ok = $build->do_system(@make, 'test', 'TEST_VERBOSE=0') } );
+  $output = stdout_of( sub { $ran_ok = $mb->do_system(@make, 'test', 'TEST_VERBOSE=0') } );
   ok $ran_ok;
   $output =~ s/^/# /gm;  # Don't confuse our own test output
   like $output, qr/(?:# .+basic\.+ok\s+(?:[\d.]s\s*)?)+# All tests/,
       'Should be non-verbose';
 
-  $build->delete_filetree($libdir);
+  $mb->delete_filetree($libdir);
   ok ! -e $libdir, "Sample installation directory should be cleaned up";
 
-  $build->do_system(@make, 'realclean');
+  $mb->do_system(@make, 'realclean');
   ok ! -e 'Makefile', "Makefile shouldn't exist";
 
   1 while unlink 'Makefile.PL';
@@ -169,14 +169,14 @@ foreach my $type (@makefile_types) {
   # C<glob> on MSWin32 uses $ENV{HOME} if defined to do tilde-expansion
   local $ENV{HOME} = 'C:/' if $^O =~ /MSWin/ && !exists( $ENV{HOME} );
 
-  Module::Build::Compat->create_makefile_pl('passthrough', $build);
+  Module::Build::Compat->create_makefile_pl('passthrough', $mb);
 
-  $build->run_perl_script('Makefile.PL', [], ['INSTALL_BASE=~/foo']);
+  $mb->run_perl_script('Makefile.PL', [], ['INSTALL_BASE=~/foo']);
   my $b2 = Module::Build->current;
   ok $b2->install_base;
   unlike $b2->install_base, qr/^~/, "Tildes should be expanded";
   
-  $build->do_system(@make, 'realclean');
+  $mb->do_system(@make, 'realclean');
   1 while unlink 'Makefile.PL';
 }
 #########################################################

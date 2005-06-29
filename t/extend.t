@@ -28,19 +28,19 @@ ok 1;
 
 # Here we make sure actions are only called once per dispatch()
 $::x = 0;
-my $m = Module::Build->subclass
+my $mb = Module::Build->subclass
   (
    code => "sub ACTION_loop { die 'recursed' if \$::x++; shift->depends_on('loop'); }"
   )->new( module_name => $dist->name );
-ok $m;
+ok $mb;
 
-$m->dispatch('loop');
+$mb->dispatch('loop');
 ok $::x;
 
-$m->dispatch('realclean');
+$mb->dispatch('realclean');
 
 # Make sure the subclass can be subclassed
-my $build2class = ref($m)->subclass
+my $build2class = ref($mb)->subclass
   (
    code => "sub ACTION_loop2 {}",
    class => 'MBB',
@@ -56,15 +56,15 @@ print "Hello, World!\n";
 ---
   $dist->regen;
 
-  $m->test_files('*t*');
-  my $files = $m->test_files;
+  $mb->test_files('*t*');
+  my $files = $mb->test_files;
   ok  grep {$_ eq 'script'}    @$files;
   ok  grep {$_ eq File::Spec->catfile('t', 'basic.t')} @$files;
   ok !grep {$_ eq 'Build.PL' } @$files;
 
   # Make sure order is preserved
-  $m->test_files('foo', 'bar');
-  $files = $m->test_files;
+  $mb->test_files('foo', 'bar');
+  $files = $mb->test_files;
   is @$files, 2;
   is $files->[0], 'foo';
   is $files->[1], 'bar';
@@ -80,15 +80,15 @@ print "Hello, World!\n";
   $dist->add_file( 'test.foo', "content\n" );
   $dist->regen;
 
-  my $m = Module::Build->new( module_name => $dist->name,
-			      foo_files => {'test.foo', 'lib/test.foo'} );
-  ok $m;
+  my $mb = Module::Build->new( module_name => $dist->name,
+			       foo_files => {'test.foo', 'lib/test.foo'} );
+  ok $mb;
 
-  $m->add_build_element('foo');
-  $m->dispatch('build');
-  ok -e File::Spec->catfile($m->blib, 'lib', 'test.foo');
+  $mb->add_build_element('foo');
+  $mb->dispatch('build');
+  ok -e File::Spec->catfile($mb->blib, 'lib', 'test.foo');
 
-  $m->dispatch('realclean');
+  $mb->dispatch('realclean');
 
   # revert distribution to a pristine state
   $dist->remove_file( 'test.foo' );
@@ -129,34 +129,34 @@ print "Hello, World!\n";
 
 
 {
-  ok my $m = MBSub->new( module_name => $dist->name );
-  isa_ok $m, 'Module::Build';
-  isa_ok $m, 'MBSub';
-  ok $m->valid_property('foo');
-  can_ok $m, 'module_name';
+  ok my $mb = MBSub->new( module_name => $dist->name );
+  isa_ok $mb, 'Module::Build';
+  isa_ok $mb, 'MBSub';
+  ok $mb->valid_property('foo');
+  can_ok $mb, 'module_name';
   
   # Check foo property.
-  can_ok $m, 'foo';
-  ok ! $m->foo;
-  ok $m->foo(1);
-  ok $m->foo;
+  can_ok $mb, 'foo';
+  ok ! $mb->foo;
+  ok $mb->foo(1);
+  ok $mb->foo;
   
   # Check bar property.
-  can_ok $m, 'bar';
-  is $m->bar, 'hey';
-  ok $m->bar('you');
-  is $m->bar, 'you';
+  can_ok $mb, 'bar';
+  is $mb->bar, 'hey';
+  ok $mb->bar('you');
+  is $mb->bar, 'you';
   
   # Check hash property.
-  ok $m = MBSub->new(
-		      module_name => $dist->name,
-		      hash        => { foo => 'bar', bin => 'foo'}
-		    );
+  ok $mb = MBSub->new(
+		       module_name => $dist->name,
+		       hash        => { foo => 'bar', bin => 'foo'}
+		     );
   
-  can_ok $m, 'hash';
-  isa_ok $m->hash, 'HASH';
-  is $m->hash->{foo}, 'bar';
-  is $m->hash->{bin}, 'foo';
+  can_ok $mb, 'hash';
+  isa_ok $mb->hash, 'HASH';
+  is $mb->hash->{foo}, 'bar';
+  is $mb->hash->{bin}, 'foo';
   
   # Check hash property passed via the command-line.
   {
@@ -164,47 +164,45 @@ print "Hello, World!\n";
 		   '--hash', 'foo=bar',
 		   '--hash', 'bin=foo',
 		  );
-    ok $m = MBSub->new(
-		        module_name => $dist->name,
-		      );
+    ok $mb = MBSub->new( module_name => $dist->name );
   }
 
-  can_ok $m, 'hash';
-  isa_ok $m->hash, 'HASH';
-  is $m->hash->{foo}, 'bar';
-  is $m->hash->{bin}, 'foo';
+  can_ok $mb, 'hash';
+  isa_ok $mb->hash, 'HASH';
+  is $mb->hash->{foo}, 'bar';
+  is $mb->hash->{bin}, 'foo';
   
   # Make sure that a different subclass with the same named property has a
   # different default.
-  ok $m = MBSub2->new( module_name => $dist->name );
-  isa_ok $m, 'Module::Build';
-  isa_ok $m, 'MBSub2';
-  ok $m->valid_property('bar');
-  can_ok $m, 'bar';
-  is $m->bar, 'yow';
+  ok $mb = MBSub2->new( module_name => $dist->name );
+  isa_ok $mb, 'Module::Build';
+  isa_ok $mb, 'MBSub2';
+  ok $mb->valid_property('bar');
+  can_ok $mb, 'bar';
+  is $mb->bar, 'yow';
 }
 
 {
   # Test the meta_add and meta_merge stuff
-  ok my $m = Module::Build->new(
-				 module_name => $dist->name,
-				 meta_add => {foo => 'bar'},
-				 conflicts => {'Foo::Barxx' => 0},
-			       );
+  ok my $mb = Module::Build->new(
+				  module_name => $dist->name,
+				  meta_add => {foo => 'bar'},
+				  conflicts => {'Foo::Barxx' => 0},
+			        );
   my %data;
-  $m->prepare_metadata( \%data );
+  $mb->prepare_metadata( \%data );
   is $data{foo}, 'bar';
 
-  $m->meta_merge(foo => 'baz');
-  $m->prepare_metadata( \%data );
+  $mb->meta_merge(foo => 'baz');
+  $mb->prepare_metadata( \%data );
   is $data{foo}, 'baz';
 
-  $m->meta_merge(conflicts => {'Foo::Fooxx' => 0});
-  $m->prepare_metadata( \%data );
+  $mb->meta_merge(conflicts => {'Foo::Fooxx' => 0});
+  $mb->prepare_metadata( \%data );
   is_deeply $data{conflicts}, {'Foo::Barxx' => 0, 'Foo::Fooxx' => 0};
 
-  $m->meta_add(conflicts => {'Foo::Bazxx' => 0});
-  $m->prepare_metadata( \%data );
+  $mb->meta_add(conflicts => {'Foo::Bazxx' => 0});
+  $mb->prepare_metadata( \%data );
   is_deeply $data{conflicts}, {'Foo::Bazxx' => 0, 'Foo::Fooxx' => 0};
 }
 

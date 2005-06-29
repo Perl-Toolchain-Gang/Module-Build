@@ -15,13 +15,13 @@ use Module::Build;
 
 { local $SIG{__WARN__} = sub {};
 
-  my $m = Module::Build->current;
-  $m->verbose( 0 );
+  my $mb = Module::Build->current;
+  $mb->verbose( 0 );
 
   my $have_c_compiler;
-  stderr_of( sub {$have_c_compiler = $m->have_c_compiler} );
+  stderr_of( sub {$have_c_compiler = $mb->have_c_compiler} );
 
-  if ( ! $m->feature('C_support') ) {
+  if ( ! $mb->feature('C_support') ) {
     plan skip_all => 'C_support not enabled';
   } elsif ( !$have_c_compiler ) {
     plan skip_all => 'C_support enabled, but no compiler found';
@@ -42,40 +42,40 @@ my $dist = DistGen->new( dir => $tmp, xs => 1 );
 $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
-my $m = Module::Build->new_from_context( skip_rcfile => 1 );
+my $mb = Module::Build->new_from_context( skip_rcfile => 1 );
 
 
-eval {$m->dispatch('clean')};
+eval {$mb->dispatch('clean')};
 ok ! $@;
 
-eval {$m->dispatch('build')};
+eval {$mb->dispatch('build')};
 ok ! $@;
 
 {
   # Try again in a subprocess 
-  eval {$m->dispatch('clean')};
+  eval {$mb->dispatch('clean')};
   ok ! $@;
 
-  $m->create_build_script;
+  $mb->create_build_script;
   ok -e 'Build';
 
-  eval {$m->run_perl_script('Build')};
+  eval {$mb->run_perl_script('Build')};
   ok ! $@;
 }
 
 # We can't be verbose in the sub-test, because Test::Harness will
 # think that the output is for the top-level test.
-eval {$m->dispatch('test')};
+eval {$mb->dispatch('test')};
 ok ! $@;
 
 {
-  $m->dispatch('ppd', args => {codebase => '/path/to/codebase-xs'});
+  $mb->dispatch('ppd', args => {codebase => '/path/to/codebase-xs'});
 
   (my $dist_filename = $dist->name) =~ s/::/-/g;
   my $ppd = slurp($dist_filename . '.ppd');
 
-  my $perl_version = Module::Build::PPMMaker->_ppd_version($m->perl_version);
-  my $varchname = Module::Build::PPMMaker->_varchname($m->config);
+  my $perl_version = Module::Build::PPMMaker->_ppd_version($mb->perl_version);
+  my $varchname = Module::Build::PPMMaker->_varchname($mb->config);
 
   # This test is quite a hack since with XML you don't really want to
   # do a strict string comparison, but absent an XML parser it's the
@@ -97,17 +97,17 @@ EOF
 
 SKIP: {
   skip( "skipping a couple Unixish-only tests", 2 )
-      unless $m->os_type eq 'Unix';
+      unless $mb->os_type eq 'Unix';
 
-  eval {$m->dispatch('clean')};
+  eval {$mb->dispatch('clean')};
   ok ! $@;
 
-  local $m->{config}{ld} = "FOO=BAR $m->{config}{ld}";
-  eval {$m->dispatch('build')};
+  local $mb->{config}{ld} = "FOO=BAR $mb->{config}{ld}";
+  eval {$mb->dispatch('build')};
   ok ! $@;
 }
 
-eval {$m->dispatch('realclean')};
+eval {$mb->dispatch('realclean')};
 ok ! $@;
 
 # Make sure blib/ is gone after 'realclean'

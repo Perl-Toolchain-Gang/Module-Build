@@ -72,36 +72,36 @@ like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure version from blib/ is loa
 
 #########################
 
-my $build = Module::Build->new_from_context;
-ok $build;
-is $build->license, 'perl';
+my $mb = Module::Build->new_from_context;
+ok $mb;
+is $mb->license, 'perl';
 
 # Make sure cleanup files added before create_build_script() get respected
-$build->add_to_cleanup('before_script');
+$mb->add_to_cleanup('before_script');
 
-eval {$build->create_build_script};
+eval {$mb->create_build_script};
 ok ! $@;
-ok -e $build->build_script;
+ok -e $mb->build_script;
 
-is $build->dist_dir, 'Simple-0.01';
+is $mb->dist_dir, 'Simple-0.01';
 
 # The 'cleanup' file doesn't exist yet
-ok grep {$_ eq 'before_script'} $build->cleanup;
+ok grep {$_ eq 'before_script'} $mb->cleanup;
 
-$build->add_to_cleanup('save_out');
+$mb->add_to_cleanup('save_out');
 
 # The 'cleanup' file now exists
-ok grep {$_ eq 'before_script'} $build->cleanup;
-ok grep {$_ eq 'save_out'     } $build->cleanup;
+ok grep {$_ eq 'before_script'} $mb->cleanup;
+ok grep {$_ eq 'save_out'     } $mb->cleanup;
 
 my $output = eval {
-  stdout_of( sub { $build->dispatch('test', verbose => 1) } )
+  stdout_of( sub { $mb->dispatch('test', verbose => 1) } )
 };
 ok ! $@;
 like $output, qr/all tests successful/i;
 
 # This is the output of lib/Simple/Script.PL
-ok -e $build->localize_file_path('lib/Simple/Script');
+ok -e $mb->localize_file_path('lib/Simple/Script');
 
 
 # We prefix all lines with "| " so Test::Harness doesn't get confused.
@@ -113,13 +113,13 @@ print "^^^^^^^^^^^^^^^^^^^^^ Simple/test.pl output ^^^^^^^^^^^^^^^^^^^^^\n";
 SKIP: {
   skip( 'YAML_support feature is not enabled', 7 ) unless $have_yaml;
 
-  eval {$build->dispatch('disttest')};
+  eval {$mb->dispatch('disttest')};
   ok ! $@;
   
   # After a test, the distdir should contain a blib/ directory
   ok -e File::Spec->catdir('Simple-0.01', 'blib');
   
-  eval {$build->dispatch('distdir')};
+  eval {$mb->dispatch('distdir')};
   ok ! $@;
   
   # The 'distdir' should contain a lib/ directory
@@ -133,15 +133,15 @@ SKIP: {
   my $fh = IO::File->new(File::Spec->catfile($dist->dirname, 'META.yml'));
   my $contents = do {local $/; <$fh>};
   $contents =~ /Module::Build version ([0-9_.]+)/m;
-  is $1, $build->VERSION, "Check version used to create META.yml: $1 == " . $build->VERSION;
+  is $1, $mb->VERSION, "Check version used to create META.yml: $1 == " . $mb->VERSION;
 
   SKIP: {
     skip( "not sure if we can create a tarball on this platform", 1 )
-      unless $build->check_installed_status('Archive::Tar', 0) ||
-	     $build->isa('Module::Build::Platform::Unix');
+      unless $mb->check_installed_status('Archive::Tar', 0) ||
+	     $mb->isa('Module::Build::Platform::Unix');
 
-    $build->add_to_cleanup($build->dist_dir . ".tar.gz");
-    eval {$build->dispatch('dist')};
+    $mb->add_to_cleanup($mb->dist_dir . ".tar.gz");
+    eval {$mb->dispatch('dist')};
     ok ! $@;
   }
 
@@ -149,7 +149,7 @@ SKIP: {
 
 {
   # Make sure the 'script' file was recognized as a script.
-  my $scripts = $build->script_files;
+  my $scripts = $mb->script_files;
   ok $scripts->{script};
   
   # Check that a shebang line is rewritten
@@ -165,7 +165,7 @@ SKIP: {
 
 {
   # Check PPD
-  $build->dispatch('ppd', args => {codebase => '/path/to/codebase'});
+  $mb->dispatch('ppd', args => {codebase => '/path/to/codebase'});
 
   my $ppd = slurp('Simple.ppd');
 
@@ -186,12 +186,12 @@ EOF
 }
 
 
-eval {$build->dispatch('realclean')};
+eval {$mb->dispatch('realclean')};
 ok ! $@;
 
-ok ! -e $build->build_script;
-ok ! -e $build->config_dir;
-ok ! -e $build->dist_dir;
+ok ! -e $mb->build_script;
+ok ! -e $mb->config_dir;
+ok ! -e $mb->dist_dir;
 
 
 # cleanup

@@ -33,25 +33,25 @@ TODO: {
 }
 
 use Module::Build;
-my $M = Module::Build->new_from_context;
-isa_ok( $M, 'Module::Build::Base' );
+my $mb = Module::Build->new_from_context;
+isa_ok( $mb, 'Module::Build::Base' );
 
-my $Install_Sets = $M->install_sets;
+my $install_sets = $mb->install_sets;
 
 
 # Get us into a known state.
-$M->installdirs('site');
-$M->install_base(undef);
-$M->prefix(undef);
+$mb->installdirs('site');
+$mb->install_base(undef);
+$mb->prefix(undef);
 
 
 # Check that we install into the proper default locations.
 {
-    is( $M->installdirs, 'site' );
-    is( $M->install_base, undef );
-    is( $M->prefix,       undef );
+    is( $mb->installdirs, 'site' );
+    is( $mb->install_base, undef );
+    is( $mb->prefix,       undef );
 
-    test_install_destinations( $M, {
+    test_install_destinations( $mb, {
         lib     => $Config{installsitelib},
         arch    => $Config{installsitearch},
         bin     => $Config{installsitebin} || $Config{installbin},
@@ -65,10 +65,10 @@ $M->prefix(undef);
 
 # Is installdirs honored?
 {
-    $M->installdirs('core');
-    is( $M->installdirs, 'core' );
+    $mb->installdirs('core');
+    is( $mb->installdirs, 'core' );
 
-    test_install_destinations( $M, {
+    test_install_destinations( $mb, {
         lib     => $Config{installprivlib},
         arch    => $Config{installarchlib},
         bin     => $Config{installbin},
@@ -77,21 +77,21 @@ $M->prefix(undef);
         libdoc  => $Config{installman3dir},
     });
 
-    $M->installdirs('site');
-    is( $M->installdirs, 'site' );
+    $mb->installdirs('site');
+    is( $mb->installdirs, 'site' );
 }
 
 
 # Check install_base()
 {
     my $install_base = catdir( 'foo', 'bar' );
-    $M->install_base( $install_base );
+    $mb->install_base( $install_base );
 
-    is( $M->prefix,       undef );
-    is( $M->install_base, $install_base );
+    is( $mb->prefix,       undef );
+    is( $mb->install_base, $install_base );
 
 
-    test_install_destinations( $M, {
+    test_install_destinations( $mb, {
         lib     => catdir( $install_base, 'lib', 'perl5' ),
         arch    => catdir( $install_base, 'lib', 'perl5', $Config{archname} ),
         bin     => catdir( $install_base, 'bin' ),
@@ -104,27 +104,27 @@ $M->prefix(undef);
 
 # Basic prefix test.  Ensure everything is under the prefix.
 {
-    $M->install_base( undef );
-    ok( !defined $M->install_base );
+    $mb->install_base( undef );
+    ok( !defined $mb->install_base );
 
     my $prefix = catdir( qw( some prefix ) );
-    $M->prefix( $prefix );
-    is( $M->{properties}{prefix}, $prefix );
+    $mb->prefix( $prefix );
+    is( $mb->{properties}{prefix}, $prefix );
 
-    test_prefix($prefix, $Install_Sets->{site});
+    test_prefix($prefix, $install_sets->{site});
 }
 
 
 # And now that prefix honors installdirs.
 {
-    $M->installdirs('core');
-    is( $M->installdirs, 'core' );
+    $mb->installdirs('core');
+    is( $mb->installdirs, 'core' );
 
     my $prefix = catdir( qw( some prefix ) );
     test_prefix($prefix);
 
-    $M->installdirs('site');
-    is( $M->installdirs, 'site' );
+    $mb->installdirs('site');
+    is( $mb->installdirs, 'site' );
 }
 
 
@@ -132,7 +132,7 @@ $M->prefix(undef);
 # the prefix.  Ensure it doesn't.
 {
     # Get the prefix defaults
-    my $defaults = $M->prefix_relpaths('site');
+    my $defaults = $mb->prefix_relpaths('site');
 
     # Create a configuration involving weird paths that are outside of
     # the configured prefix.
@@ -151,14 +151,14 @@ $M->prefix(undef);
 
     # Poke at the innards of MB to change the default install locations.
     while( my($key, $path) = each %test_config ) {
-        $M->{properties}{install_sets}{site}{$key} = $path;
+        $mb->{properties}{install_sets}{site}{$key} = $path;
     }
 
-    $M->{config}{siteprefixexp} = catdir(File::Spec->rootdir, 
+    $mb->{config}{siteprefixexp} = catdir(File::Spec->rootdir, 
                                          'wierd', 'prefix');
 
     my $prefix = catdir('another', 'prefix');
-    $M->prefix($prefix);
+    $mb->prefix($prefix);
     test_prefix($prefix, \%test_config);
 }
 
@@ -166,9 +166,9 @@ $M->prefix(undef);
 # Check that we can use install_base after setting prefix.
 {
     my $install_base = catdir( 'foo', 'bar' );
-    $M->install_base( $install_base );
+    $mb->install_base( $install_base );
 
-    test_install_destinations( $M, {
+    test_install_destinations( $mb, {
         lib     => catdir( $install_base, 'lib', 'perl5' ),
         arch    => catdir( $install_base, 'lib', 'perl5', $Config{archname} ),
         bin     => catdir( $install_base, 'bin' ),
@@ -190,7 +190,7 @@ sub test_prefix {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     foreach my $type (qw(lib arch bin script bindoc libdoc)) {
-        my $dest = $M->install_destination( $type );
+        my $dest = $mb->install_destination( $type );
         like( $dest, "/^\Q$prefix\E/", "$type prefixed");
 
         if( $test_config ) {
@@ -199,18 +199,17 @@ sub test_prefix {
 
             is( $dest_dirs[-1], $test_dirs[-1], '  suffix correctish' );
         }
-            
     }
 }
 
 
 sub test_install_destinations {
-    my($mb, $expect) = @_;
+    my($build, $expect) = @_;
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
     while( my($type, $expect) = each %$expect ) {
-        is( $mb->install_destination($type), $expect, "$type destination" );
+        is( $build->install_destination($type), $expect, "$type destination" );
     }
 }
 
