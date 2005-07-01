@@ -2610,11 +2610,11 @@ sub find_dist_packages {
 	$prime{$package}{file} = $dist_files{$file};
         $prime{$package}{version} = $version if defined( $version );
       } else {
-        if (  exists( $alt{$package} ) &&
-	      exists( $alt{$package}{version} ) &&
-	      defined( $alt{$package}{version} ) ) {
+        if (  exists(  $alt{$package} ) &&
+              exists(  $alt{$package}{version} ) &&
+              defined( $alt{$package}{version} ) ) {
 	  # This should never happen because M::B::ModuleInfo catches it first
-	  if ( $self->compare_versions( $version, '==',
+	  if ( $self->compare_versions( $version, '!=',
 					$alt{$package}{version} ) ) {
 	    $self->log_warn( "$package ($alt{$package}{version}) conflicts " .
 			     "with $package ($version)\n" );
