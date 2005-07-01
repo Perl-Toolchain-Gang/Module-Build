@@ -64,6 +64,7 @@ my \$builder = Module::Build->new(
     $self->add_file( $module_filename, <<"---" ) unless $self->{filedata}{$module_filename};
 package $self->{name};
 
+use vars qw( \$VERSION );
 \$VERSION = '0.01';
 
 use strict;
@@ -102,8 +103,9 @@ package $self->{name};
 
 use base qw( Exporter DynaLoader );
 
-our \$VERSION = '0.01';
-our \@EXPORT_OK = qw( ok );
+use vars qw( \$VERSION \@EXPORT_OK );
+\$VERSION = '0.01';
+\@EXPORT_OK = qw( ok );
 
 bootstrap $self->{name} \$VERSION;
 
@@ -340,10 +342,11 @@ __END__
 
 =head1 NAME
 
-DistGen
+DistGen - Creates simple distributions for testing.
 
 
 =head1 DESCRIPTION
+
 
 
 =head1 API
