@@ -105,7 +105,7 @@ sub _parse_file {
   my $fh = IO::File->new( $filename )
     or die( "Can't open '$filename': $!" );
 
-  my( $in_pod, $seen_end ) = ( 0, 0 );
+  my( $in_pod, $seen_end, $need_vers ) = ( 0, 0,0 );
   my( @pkgs, %vers, %pod, @pod );
   my $pkg = 'main';
   my $pod_sect = '';
@@ -143,10 +143,12 @@ sub _parse_file {
         $pkg = $1;
         push( @pkgs, $pkg ) unless grep( $pkg eq $_, @pkgs );
         $vers{$pkg} = undef unless exists( $vers{$pkg} );
+	$need_vers = 1;
 
       # first non-comment line in undeclared package main is VERSION
       } elsif ( !exists($vers{main}) && $pkg eq 'main' &&
-		$line =~ $VERS_REGEXP ) { 
+		$line =~ $VERS_REGEXP ) {
+	  $need_vers = 0;
           my $v = $self->_evaluate_version_line( $line );
 	  $vers{$pkg} = $v;
 	  push( @pkgs, 'main' );
@@ -154,15 +156,20 @@ sub _parse_file {
       # first non-comement line in undeclared packge defines package main
       } elsif ( !exists($vers{main}) && $pkg eq 'main' &&
 		$line =~ /\w+/ ) {
+	$need_vers = 1;
 	$vers{main} = '';
 	push( @pkgs, 'main' );
 
-      } elsif ( $line =~ $VERS_REGEXP ) {
+      } elsif ( $line =~ $VERS_REGEXP && $need_vers ) {
         # only first keep if this is the first $VERSION seen
-        unless ( defined $vers{$pkg} && length $vers{$pkg} ) {
-          my $v = $self->_evaluate_version_line( $line );
+	$need_vers = 0;
+        my $v = $self->_evaluate_version_line( $line );
+	unless ( defined $vers{$pkg} && length $vers{$pkg} ) {
 	  $vers{$pkg} = $v;
-        }
+        } else {
+	  warn "Package '$pkg' already declared with version '$vers{$pkg}'\n" .
+	       "  ignoring new version '$v'.\n";
+	}
 
       }
 

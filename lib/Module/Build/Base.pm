@@ -2576,7 +2576,7 @@ sub _read_manifest {
 
 sub find_dist_packages {
   my $self = shift;
-  
+
   # Only packages in .pm files are candidates for inclusion here.
   # Only include things in the MANIFEST, not things in developer's
   # private stock.
@@ -2589,22 +2589,60 @@ sub find_dist_packages {
                        keys %$manifest;
 
   my @pm_files = grep {exists $dist_files{$_}} keys %{ $self->find_pm_files };
-  
-  my %out;
+
+  my( %prime, %alt );
   foreach my $file (@pm_files) {
     next if $file =~ m{^t/};  # Skip things in t/
-    
-    my $localfile = File::Spec->catfile( split m{/}, $file );
+
+    my @path = split( /\//, $file );
+    (my $prime_package = join( '::', @path[1..$#path])) =~ s/\.pm$//;
+
+    my $localfile = File::Spec->catfile( @path );
 
     my $pm_info = Module::Build::ModuleInfo->new_from_file( $localfile );
-    
+
     foreach my $package ($pm_info->packages_inside($localfile)) {
-      $out{$package}{file} = $dist_files{$file};
-      $out{$package}{version} = $pm_info->version( $package )
-	  if defined( $pm_info->version( $package ) );
+      next if $package eq 'main'; # main can appear numerous times, ignore
+      next if (split( /::/, $package ))[-1] =~ /^_/; # private pkg, ignore
+
+      my $version = $pm_info->version( $package );
+      if ( $package eq $prime_package ) {
+	$prime{$package}{file} = $dist_files{$file};
+        $prime{$package}{version} = $version if defined( $version );
+      } else {
+        if (  exists( $alt{$package} ) &&
+	      exists( $alt{$package}{version} ) &&
+	      defined( $alt{$package}{version} ) ) {
+	  # This should never happen because M::B::ModuleInfo catches it first
+	  if ( $self->compare_versions( $version, '==',
+					$alt{$package}{version} ) ) {
+	    $self->log_warn( "$package ($alt{$package}{version}) conflicts " .
+			     "with $package ($version)\n" );
+	  }
+        } else {
+          $alt{$package}{file}    = $dist_files{$file};
+          $alt{$package}{version} = $version if defined( $version );
+	}
+      }
     }
   }
-  return \%out;
+
+  foreach my $package ( keys( %alt ) ) {
+    if ( exists( $prime{$package} ) ) {
+      my $p_vers = exists( $prime{$package}{version} ) ?
+	  $prime{$package}{version} : '<undef>';
+      if ( exists( $alt{$package}{version} ) &&
+	   $alt{$package}{version} ne $p_vers ) {
+        $self->log_warn( "Version declaration for package '$package' in " .
+          "'$prime{$package}{file}' ($p_vers) conflicts with " .
+          "'$alt{$package}{file}' ($alt{$package}{version})\n" );
+
+      }
+    } else {
+      $prime{$package} = $alt{$package};
+    }
+  }
+  return \%prime;
 }
 
 sub make_tarball {
