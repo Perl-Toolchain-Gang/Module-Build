@@ -1794,8 +1794,12 @@ sub _find_file_by_type {
 
 sub localize_file_path {
   my ($self, $path) = @_;
-  return $path unless $path =~ m{/};
   return File::Spec->catfile( split m{/}, $path );
+}
+
+sub localize_dir_path {
+  my ($self, $path) = @_;
+  return File::Spec->catdir( split m{/}, $path );
 }
 
 sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
@@ -1929,7 +1933,7 @@ sub _find_pods {
   my ($self, $dirs, %args) = @_;
   my %files;
   foreach my $spec (@$dirs) {
-    my $dir = $self->localize_file_path($spec);
+    my $dir = $self->localize_dir_path($spec);
     next unless -e $dir;
     FILE: foreach my $file ( @{ $self->rscan_dir( $dir ) } ) {
       foreach my $regexp ( @{ $args{exclude} } ) {
