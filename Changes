@@ -58,6 +58,11 @@ Revision history for Perl extension Module::Build.
    which threw off one of our tests.  We now allow for this different
    format. [Reported by Scott Godin]
 
+ - Fixed an issue that prevented Module::Build from upgrading itself
+   using its own API (which is how CPANPLUS uses it).  There are still
+   some issues with this solution, however.  See ticket #13169 in
+   rt.cpan.org. [Reported by Jos Boumans]
+
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
  Backward-incompatible (but better) changes:
