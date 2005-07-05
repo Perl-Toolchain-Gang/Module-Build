@@ -139,8 +139,9 @@ sub _construct {
   $p->{perl} = $self->find_perl_interpreter
     or $self->log_warn("Warning: Can't locate your perl binary");
 
-  $p->{bindoc_dirs} ||= [ "$p->{blib}/script" ];
-  $p->{libdoc_dirs} ||= [ "$p->{blib}/lib", "$p->{blib}/arch" ];
+  my $blibdir = sub { File::Spec->catdir($p->{blib}, @_) };
+  $p->{bindoc_dirs} ||= [ $blibdir->("script") ];
+  $p->{libdoc_dirs} ||= [ $blibdir->("lib"), $blibdir->("arch") ];
 
   $p->{dist_author} = [ $p->{dist_author} ] if defined $p->{dist_author} and not ref $p->{dist_author};
 
