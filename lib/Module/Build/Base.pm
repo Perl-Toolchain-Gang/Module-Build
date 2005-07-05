@@ -81,8 +81,15 @@ sub new_from_context {
   
   # XXX Read the META.yml and see whether we need to run the Build.PL?
   
-  # Run the Build.PL
-  $package->run_perl_script('Build.PL', [], [$package->unparse_args(\%args)]);
+  # Run the Build.PL.  We use do() rather than run_perl_script() so
+  # that it runs in this process rather than a subprocess, because we
+  # need to make sure that the environment is the same during Build.PL
+  # as it is during resume() (and thereafter).
+  {
+    local @ARGV = $package->unparse_args(\%args);
+    do 'Build.PL';
+    die $@ if $@;
+  }
   return $package->resume;
 }
 
