@@ -26,10 +26,10 @@ Revision history for Perl extension Module::Build.
    places, and help people not to panic when they look at it. [Spotted
    by Yves]
 
- - We now use Pod::Readme instead of Pod::Text to generate the README
-   file when the 'create_readme' option is used.  The disadvantage is
-   that it's not a core module, but the advantages are pretty nice.
-   [Robert Rothenberg]
+ - We now use Pod::Readme by default (instead of Pod::Text) to
+   generate the README file when the 'create_readme' option is used.
+   If Pod::Readme is not installed, we will still fall back to using
+   Pod::Text.  [Robert Rothenberg]
 
  - The values of the "prefix", "install_base", "install_path", and
    "install_dest" parameters can now begin with "~" or "~user", and

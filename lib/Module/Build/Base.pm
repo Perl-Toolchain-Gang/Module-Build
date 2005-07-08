@@ -2283,10 +2283,11 @@ sub do_create_makefile_pl {
 
 sub do_create_readme {
   my $self = shift;
-  require Pod::Readme;
   $self->delete_filetree('README');
-  $self->log_info("Creating README\n");
-  my $parser = Pod::Readme->new;
+  my $parser = eval {require Pod::Readme; 1} ? Pod::Readme->new :
+               eval {require Pod::Text;   1} ? Pod::Text->new :
+	       die "Can't load Pod::Readme or Pod::Text to create README";
+  $self->log_info("Creating README using " . ref($parser) . "\n");
   $parser->parse_from_file($self->dist_version_from, 'README', @_);
   $self->_add_to_manifest('MANIFEST', 'README');
 }
