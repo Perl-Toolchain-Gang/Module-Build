@@ -66,7 +66,7 @@ sub get_author {
   
   $self->parse_from_filehandle($self->{fh});
 
-  return $self->{author};  
+  return $self->{author} || [];
 }
 
 ################## Pod::Parser overrides ###########

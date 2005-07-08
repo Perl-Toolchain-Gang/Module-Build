@@ -63,6 +63,11 @@ Revision history for Perl extension Module::Build.
    some issues with this solution, however.  See ticket #13169 in
    rt.cpan.org. [Reported by Jos Boumans]
 
+ - Fixed a fatal error that occurred when a distribution's author
+   could not be determined from its POD nor from the call to
+   Module::Build->new() in its Build.PL.  See ticket #12318 in
+   rt.cpan.org. [Reported by Jos Boumans]
+
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
  Backward-incompatible (but better) changes:
