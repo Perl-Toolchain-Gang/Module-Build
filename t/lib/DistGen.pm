@@ -45,8 +45,6 @@ sub _gen_default_filedata {
 
   $self->add_file( 'Build.PL', <<"---" ) unless $self->{filedata}{'Build.PL'};
 use strict;
-use warnings;
-
 use Module::Build;
 
 my \$builder = Module::Build->new(
@@ -68,7 +66,6 @@ use vars qw( \$VERSION );
 \$VERSION = '0.01';
 
 use strict;
-use warnings;
 
 1;
 
