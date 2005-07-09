@@ -680,21 +680,24 @@ sub dist_name {
 sub dist_version {
   my ($self) = @_;
   my $p = $self->{properties};
-  
+
   return $p->{dist_version} if defined $p->{dist_version};
-  
+
   if ($self->module_name) {
     $p->{dist_version_from} ||= join( '/', 'lib', split '::', $self->module_name ) . '.pm';
   }
-  
+
+  if ( $p->{dist_version_from} ) {
+    my $version_from = File::Spec->catfile( split( qr{/}, $p->{dist_version_from} ) );
+    my $pm_info = Module::Build::ModuleInfo->new_from_file( $version_from );
+    $p->{dist_version} = $pm_info->version();
+  }
+
   die ("Can't determine distribution version, must supply either 'dist_version',\n".
        "'dist_version_from', or 'module_name' parameter")
-    unless $p->{dist_version_from};
-  
-  my $version_from = File::Spec->catfile( split '/', $p->{dist_version_from} );
-  
-  my $pm_info = Module::Build::ModuleInfo->new_from_file( $version_from );
-  return $p->{dist_version} = $pm_info->version();
+    unless $p->{dist_version};
+
+  return $p->{dist_version};
 }
 
 sub dist_author   { shift->_pod_parse('author')   }
