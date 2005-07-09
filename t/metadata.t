@@ -17,6 +17,16 @@ my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
 use DistGen;
 my $dist = DistGen->new( dir => $tmp );
+$dist->change_file( 'Build.PL', <<"---" );
+use Module::Build;
+my \$builder = Module::Build->new(
+    module_name         => '@{[$dist->name]}',
+    dist_version        => '3.14159265',
+    license             => 'perl',
+);
+
+\$builder->create_build_script();
+---
 $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
