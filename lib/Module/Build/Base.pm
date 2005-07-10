@@ -2606,59 +2606,144 @@ sub find_dist_packages {
 
   my @pm_files = grep {exists $dist_files{$_}} keys %{ $self->find_pm_files };
 
+  # First, we enumerate all packages & versions,
+  # seperating into primary & alternative candidates
   my( %prime, %alt );
   foreach my $file (@pm_files) {
-    next if $file =~ m{^t/};  # Skip things in t/
+    next if $dist_files{$file} =~ m{^t/};  # Skip things in t/
 
-    my @path = split( /\//, $file );
-    (my $prime_package = join( '::', @path[1..$#path])) =~ s/\.pm$//;
+    my @path = split( /\//, $dist_files{$file} );
+    (my $prime_package = join( '::', @path[1..$#path] )) =~ s/\.pm$//;
 
-    my $localfile = File::Spec->catfile( @path );
+    my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
 
-    my $pm_info = Module::Build::ModuleInfo->new_from_file( $localfile );
-
-    foreach my $package ($pm_info->packages_inside($localfile)) {
-      next if $package eq 'main'; # main can appear numerous times, ignore
-      next if (split( /::/, $package ))[-1] =~ /^_/; # private pkg, ignore
+    foreach my $package ( $pm_info->packages_inside ) {
+      next if $package eq 'main';  # main can appear numerous times, ignore
+      next if grep /^_/, split( /::/, $package ); # private package, ignore
 
       my $version = $pm_info->version( $package );
+
       if ( $package eq $prime_package ) {
-	$prime{$package}{file} = $dist_files{$file};
-        $prime{$package}{version} = $version if defined( $version );
+	if ( exists( $prime{$package} ) ) {
+	  # M::B::ModuleInfo will handle this conflict
+	  die "Unexpected conflict in '$package'; multiple versions found.\n";
+	} else {
+	  $prime{$package}{file} = $dist_files{$file};
+          $prime{$package}{version} = $version if defined( $version );
+        }
       } else {
-        if (  exists(  $alt{$package} ) &&
-              exists(  $alt{$package}{version} ) &&
-              defined( $alt{$package}{version} ) ) {
-	  # This should never happen because M::B::ModuleInfo catches it first
-	  if ( $self->compare_versions( $version, '!=',
-					$alt{$package}{version} ) ) {
-	    $self->log_warn( "$package ($alt{$package}{version}) conflicts " .
-			     "with $package ($version)\n" );
+	push( @{$alt{$package}}, {
+				  file    => $dist_files{$file},
+				  version => $version,
+			         } );
+      }
+    }
+  }
+
+  # Then we iterate over all the packages found above, identifying conflicts
+  # and selecting the "best" candidate for recording the file & version
+  # for each package.
+  foreach my $package ( keys( %alt ) ) {
+    my $result = $self->_resolve_module_versions( $alt{$package} );
+
+    if ( exists( $prime{$package} ) ) { # primary package selected
+
+      if ( $result->{err} ) {
+	# Use the selected primary package, but there are conflicting
+	# errors amoung multiple alternative packages that need to be
+	# reported
+        $self->log_warn(
+	  "Found conflicting versions for package '$package'\n" .
+	  "  $prime{$package}{file} ($prime{$package}{version})\n" .
+	  $result->{err}
+        );
+
+      } elsif ( defined( $result->{version} ) ) {
+	# There is a primary package selected, and exactly one
+	# alternative package
+
+	if ( exists( $prime{$package}{version} ) &&
+	     defined( $prime{$package}{version} ) ) {
+	  # Unless the version of the primary package agrees with the
+	  # version of the alternative package, report a conflict
+	  if ( $self->compare_versions( $prime{$package}{version}, '!=',
+					$result->{version} ) ) {
+            $self->log_warn(
+              "Found conflicting versions for package '$package'\n" .
+	      "  $prime{$package}{file} ($prime{$package}{version})\n" .
+	      "  $result->{file} ($result->{version})\n"
+            );
 	  }
-        } else {
-          $alt{$package}{file}    = $dist_files{$file};
-          $alt{$package}{version} = $version if defined( $version );
+
+	} else {
+	  # The prime package selected has no version so, we choose to
+	  # use any alternative package that does have a version
+	  $prime{$package}{file}    = $result->{file};
+	  $prime{$package}{version} = $result->{version};
+	}
+
+      } else {
+	# no alt package found with a version, but we have a prime
+	# package so we use it whether it has a version or not
+      }
+
+    } else { # No primary package was selected, use the best alternative
+
+      if ( $result->{err} ) {
+        $self->log_warn(
+          "Found conflicting versions for package '$package'\n" .
+	  $result->{err}
+        );
+      }
+
+      # Despite possible conflicting versions, we choose to record
+      # something rather than nothing
+      $prime{$package}{file}    = $result->{file};
+      $prime{$package}{version} = $result->{version}
+	  if defined( $result->{version} );
+    }
+  }
+
+  return \%prime;
+}
+
+# seperate out some of the conflict resolution logic from
+# $self->find_dist_packages(), above, into a helper function.
+#
+sub _resolve_module_versions {
+  my $self = shift;
+
+  my $packages = shift;
+
+  my( $file, $version );
+  my $err = '';
+    foreach my $p ( @$packages ) {
+      if ( defined( $p->{version} ) ) {
+	if ( defined( $version ) ) {
+ 	  if ( $self->compare_versions( $version, '!=', $p->{version} ) ) {
+	    $err .= "  $p->{file} ($p->{version})\n";
+	  } else {
+	    # same version declared multiple times, ignore
+	  }
+	} else {
+	  $file    = $p->{file};
+	  $version = $p->{version};
 	}
       }
+      $file ||= $p->{file} if defined( $p->{file} );
     }
+
+  if ( $err ) {
+    $err = "  $file ($version)\n" . $err;
   }
 
-  foreach my $package ( keys( %alt ) ) {
-    if ( exists( $prime{$package} ) ) {
-      my $p_vers = exists( $prime{$package}{version} ) ?
-	  $prime{$package}{version} : '<undef>';
-      if ( exists( $alt{$package}{version} ) &&
-	   $alt{$package}{version} ne $p_vers ) {
-        $self->log_warn( "Version declaration for package '$package' in " .
-          "'$prime{$package}{file}' ($p_vers) conflicts with " .
-          "'$alt{$package}{file}' ($alt{$package}{version})\n" );
+  my %result = (
+    file    => $file,
+    version => $version,
+    err     => $err
+  );
 
-      }
-    } else {
-      $prime{$package} = $alt{$package};
-    }
-  }
-  return \%prime;
+  return \%result;
 }
 
 sub make_tarball {
