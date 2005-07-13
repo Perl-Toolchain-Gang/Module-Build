@@ -68,6 +68,12 @@ Revision history for Perl extension Module::Build.
    Module::Build->new() in its Build.PL.  See ticket #12318 in
    rt.cpan.org. [Reported by Jos Boumans]
 
+ - Apparently on Windows and cygwin it's not possible to use the "-pi"
+   switch to perl without a backup extension, so now we use ".bak" and
+   remove the backup file when we're done.  Thus the "dist" action for
+   Module::Build itself can now be run on those platforms. [Yitzchak
+   Scott-Thoennes]
+
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
  Backward-incompatible (but better) changes:
