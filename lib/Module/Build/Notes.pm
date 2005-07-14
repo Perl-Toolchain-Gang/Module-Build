@@ -105,8 +105,6 @@ sub _dump {
 sub write_config_data {
   my ($self, %args) = @_;
 
-  # XXX need to handle auto_features
-
   my $fh = IO::File->new("> $args{file}") or die "Can't create '$args{file}': $!";
 
   printf $fh <<'EOF', $args{config_module};
@@ -122,7 +120,13 @@ sub config { $config->{$_[1]} }
 sub set_config { $config->{$_[1]} = $_[2] }
 sub set_feature { $features->{$_[1]} = 0+!!$_[2] }  # Constrain to 1 or 0
 
-sub feature_names { keys %%$features }
+sub auto_feature_names { grep !exists $features->{$_}, keys %%$auto_features }
+
+sub feature_names {
+  my @features = (keys %%$features, auto_feature_names());
+  @features;
+}
+
 sub config_names  { keys %%$config }
 
 sub write {
@@ -141,7 +145,7 @@ sub write {
 
   local $Data::Dumper::Terse = 1;
   seek($fh, tell($fh), 0);
-  $fh->print( Data::Dumper::Dumper([$config, $features]) );
+  $fh->print( Data::Dumper::Dumper([$config, $features, $auto_features]) );
   truncate($fh, tell($fh));
   $fh->close;
 
@@ -240,6 +244,13 @@ C<$notes_name>, or in scalar context the number of items.
 
 Returns a list of all the names of features currently defined in
 C<$notes_name>, or in scalar context the number of features.
+
+=item auto_feature_names()
+
+Returns a list of all the names of features whose availability is
+dynamically determined, or in scalar context the number of such
+features.  Does not include such features that have later been set to
+a fixed value.
 
 =item write()
 

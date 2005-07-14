@@ -74,6 +74,9 @@ Revision history for Perl extension Module::Build.
    Module::Build itself can now be run on those platforms. [Yitzchak
    Scott-Thoennes]
 
+ - Improved the handling of auto_features in the config_data access
+   script. [Yitzchak Scott-Thoennes]
+
 0.27_01 (Beta for 0.28)  Fri Apr 15 21:12:57 CDT 2005
 
  Backward-incompatible (but better) changes:

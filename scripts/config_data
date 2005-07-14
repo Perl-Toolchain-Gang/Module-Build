@@ -8,7 +8,7 @@ my %opt_defs = (
 		module      => {type => '=s',
 				desc => 'The name of the module to configure (required)'},
 		feature     => {type => ':s',
-				desc => 'Print the value of a feature'},
+				desc => 'Print the value of a feature or all features'},
 		config      => {type => ':s',
 				desc => 'Print the value of a config option'},
 		set_feature => {type => '=s%',
@@ -40,9 +40,13 @@ if (exists $opts{feature}) {
   if (length $opts{feature}) {
     print $cf->feature($opts{feature});
   } else {
+    my %auto;
+    # note: need to support older ConfigData.pm's
+    @auto{$cf->auto_feature_names} = () if $cf->can("auto_feature_names");
+
     print " Features defined in $cf:\n";
     foreach my $name (sort $cf->feature_names) {
-      print "  $name => ", $cf->feature($name), "\n";
+      print "  $name => ", $cf->feature($name), (exists $auto{$name} ? " (dynamic)" : ""), "\n";
     }
   }
 
