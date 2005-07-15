@@ -43,6 +43,7 @@ t/lib/Test/Builder.pm
 t/lib/Test/More.pm
 t/lib/Test/Simple.pm
 t/manifypods.t
+t/metadata.t
 t/moduleinfo.t
 t/notes.t
 t/parents.t
