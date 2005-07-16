@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 102;
+use Test::More tests => 33;
 
 
 use File::Spec ();
@@ -33,7 +33,7 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 use Module::Build;
 my $mb = Module::Build->new_from_context;
-
+my $provides; # Used a bunch of times below
 
 ############################## Single Module
 
@@ -46,22 +46,17 @@ $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-my $provides = $mb->find_dist_packages;
-ok( exists( $provides->{Simple} ), 'single package' );
-is( $provides->{Simple}{file}, 'lib/Simple.pm', '  in corresponding file' );
-is( $provides->{Simple}{version}, '1.23', '  with version' );
-is( keys( %$provides ), 1 );
+is_deeply($mb->find_dist_packages,
+	  {'Simple' => {file => 'lib/Simple.pm',
+			version => '1.23'}});
 
 $dist->change_file( 'lib/Simple.pm', <<'---' );
 package Simple;
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{Simple} ), 'single package' );
-is( $provides->{Simple}{file}, 'lib/Simple.pm', '  in corresponding file' );
-is( $provides->{Simple}{version}, undef, '  without version' );
-is( keys( %$provides ), 1 );
+is_deeply($mb->find_dist_packages,
+	  {'Simple' => {file => 'lib/Simple.pm'}});
 
 # File with no corresponding package (w/ or w/o version)
 # Simple.pm => Foo::Bar v1.23
@@ -72,26 +67,17 @@ $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{'Foo::Bar'} ), 'single package' );
-is( $provides->{'Foo::Bar'}{file}, 'lib/Simple.pm',
-    '  in non-corresponding file' );
-is( $provides->{'Foo::Bar'}{version}, '1.23', '  with version' );
-ok( ! exists( $provides->{Simple} ), '  no corresponding package for file' );
-is( keys( %$provides ), 1 );
+is_deeply($mb->find_dist_packages,
+	  {'Foo::Bar' => { file => 'lib/Simple.pm',
+			   version => '1.23' }});
 
 $dist->change_file( 'lib/Simple.pm', <<'---' );
 package Foo::Bar;
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{'Foo::Bar'} ), 'single package' );
-is( $provides->{'Foo::Bar'}{file}, 'lib/Simple.pm',
-    '  in non-corresponding file' );
-is( $provides->{'Foo::Bar'}{version}, undef, '  without version' );
-ok( ! exists( $provides->{Simple} ), '  no corresponding package for file' );
-is( keys( %$provides ), 1 );
+is_deeply($mb->find_dist_packages,
+	  {'Foo::Bar' => { file => 'lib/Simple.pm'}});
 
 
 # Single file with multiple differing packages (w/ or w/o version)
@@ -106,13 +92,11 @@ $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-is( $provides->{Simple}{version}, '1.23', 'multiple packages with versions' );
-is( $provides->{'Foo::Bar'}{version}, '1.23' );
-is( $provides->{Simple}{file}, 'lib/Simple.pm',
-    '  with file corresponding to one package' );
-is( $provides->{'Foo::Bar'}{file}, 'lib/Simple.pm' );
-is( keys( %$provides ), 2 );
+is_deeply($mb->find_dist_packages,
+	  {'Simple'   => { file => 'lib/Simple.pm',
+			   version => '1.23' },
+	   'Foo::Bar' => { file => 'lib/Simple.pm',
+			   version => '1.23' }});
 
 
 # Single file with multiple differing packages, no corresponding package
@@ -127,12 +111,11 @@ $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-is( $provides->{Foo}{version}, '1.23', 'multiple packages with versions' );
-is( $provides->{'Foo::Bar'}{version}, '1.23' );
-ok( ! exists( $provides->{Simple} ),
-    '  without package corresponding to file' );
-is( keys( %$provides ), 2 );
+is_deeply($mb->find_dist_packages,
+	  {'Foo'      => { file => 'lib/Simple.pm',
+			   version => '1.23' },
+	   'Foo::Bar' => { file => 'lib/Simple.pm',
+			   version => '1.23' }});
 
 
 # Single file with same package appearing multiple times, no version
@@ -146,11 +129,8 @@ package Simple;
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{Simple} ),
-    'single file with corresponding package multiple times' );
-ok( ! exists( $provides->{Simple}{version} ), '  without version' );
-is( keys( %$provides ), 1, '  records only one occurrence' );
+is_deeply($mb->find_dist_packages,
+	  {'Simple' => { file => 'lib/Simple.pm' }});
 
 
 # Single file with same package appearing multiple times, single
@@ -165,12 +145,9 @@ package Simple;
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{Simple} ),
-    'single file with corresponding package multiple times' );
-is( $provides->{Simple}{version}, '1.23',
-    '  with version only in first occurrence' );
-is( keys( %$provides ), 1 );
+is_deeply($mb->find_dist_packages,
+	  {'Simple' => { file => 'lib/Simple.pm',
+			 version => '1.23' }});
 
 
 # Single file with same package appearing multiple times, single
@@ -185,12 +162,9 @@ $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{Simple} ),
-    'single file with corresponding package multiple times' );
-is( $provides->{Simple}{version}, '1.23',
-    '  with version only in second occurrence' );
-is( keys( %$provides ), 1 );
+is_deeply($mb->find_dist_packages,
+	  {'Simple' => { file => 'lib/Simple.pm',
+			 version => '1.23' }});
 
 
 # Single file with same package appearing multiple times, conflicting versions
@@ -207,11 +181,10 @@ $dist->regen( clean => 1 );
 my $err = '';
 $err = stderr_of( sub { $mb = Module::Build->new_from_context } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
-ok( exists( $provides->{Simple} ),
-    'single file with corresponding package multiple times' );
+is_deeply($provides,
+	  {'Simple' => { file => 'lib/Simple.pm',
+			 version => '1.23' }}); # XXX should be 2.34?
 like( $err, qr/already declared/, '  with conflicting versions reported' );
-is( $provides->{Simple}{version}, '1.23', '  only first version is recorded' );
-is( keys( %$provides ), 1 );
 
 
 # (Same as above three cases except with no corresponding package)
@@ -227,11 +200,10 @@ $VERSION = '2.34';
 $dist->regen( clean => 1 );
 $err = stderr_of( sub { $mb = Module::Build->new_from_context } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
-ok( ! exists( $provides->{Simple} ),
-    'single file with non-corresponding package multiple times' );
+is_deeply($provides,
+	  {'Foo' => { file => 'lib/Simple.pm',
+		      version => '1.23' }}); # XXX should be 2.34?
 like( $err, qr/already declared/, '  with conflicting versions reported' );
-is( $provides->{Foo}{version}, '1.23', '  only first version is recorded' );
-is( keys( %$provides ), 1 );
 
 
 
@@ -249,13 +221,8 @@ package Simple;
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{Simple} ), 'multiple files with same package' );
-ok( ! exists( $provides->{Simple}{version} ), '  without any versions' );
-is( $provides->{Simple}{file}, 'lib/Simple.pm',
-    '  only recording occurrence in corresponding file' );
-is( keys( %$provides ), 1 );
-
+is_deeply($mb->find_dist_packages,
+	  {'Simple' => { file => 'lib/Simple.pm' }});
 $dist->remove_file( 'lib/Simple2.pm' );
 
 
@@ -272,14 +239,9 @@ package Simple;
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{Simple} ), 'multiple files with same package' );
-is( $provides->{Simple}{version}, '1.23',
-    '  with version in corresponding file' );
-is( $provides->{Simple}{file}, 'lib/Simple.pm',
-    '  only recording occurrence with version' );
-is( keys( %$provides ), 1 );
-
+is_deeply($mb->find_dist_packages,
+	  {'Simple' => { file => 'lib/Simple.pm',
+			 version => '1.23' }});
 $dist->remove_file( 'lib/Simple2.pm' );
 
 
@@ -297,14 +259,9 @@ $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{Simple} ), 'multiple files with same package' );
-is( $provides->{Simple}{version}, '1.23',
-    '  with version in non-corresponding file' );
-is( $provides->{Simple}{file}, 'lib/Simple2.pm',
-    '  only recording occurrence with version' );
-is( keys( %$provides ), 1 );
-
+is_deeply($mb->find_dist_packages,
+	  {'Simple' => { file => 'lib/Simple2.pm',
+			 version => '1.23' }});
 $dist->remove_file( 'lib/Simple2.pm' );
 
 
@@ -323,14 +280,11 @@ $VERSION = '2.34';
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
-ok( exists( $provides->{Simple} ), 'multiple files with same package' );
+is_deeply($provides,
+	  {'Simple' => { file => 'lib/Simple.pm',
+			 version => '1.23' }});
 like( $err, qr/Found conflicting versions for package/,
       '  with conflicting versions reported' );
-is( $provides->{Simple}{version}, '1.23',
-    '  only recording occurrence with package in corresponding file' );
-is( $provides->{Simple}{file}, 'lib/Simple.pm' );
-is( keys( %$provides ), 1 );
-
 $dist->remove_file( 'lib/Simple2.pm' );
 
 
@@ -349,13 +303,9 @@ $VERSION = '1.23';
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
-ok( exists( $provides->{Simple} ), 'multiple files with same package' );
-is( $provides->{Simple}{version}, '1.23', '  with same version' );
-is( $provides->{Simple}{file}, 'lib/Simple.pm',
-    '  only recording occurrence with package in corresponding file' );
-is( $err, '', '  no conflicts reported' );
-is( keys( %$provides ), 1 );
-
+is_deeply($provides,
+	  {'Simple' => { file => 'lib/Simple.pm',
+			 version => '1.23' }});
 $dist->remove_file( 'lib/Simple2.pm' );
 
 
@@ -376,11 +326,8 @@ package Foo;
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{Foo} ), 'multiple files with same package' );
-ok( ! exists( $provides->{Foo}{version} ), '  without any versions' );
-is( keys( %$provides ), 1 );
-
+is_deeply($mb->find_dist_packages,
+	  {'Foo' => { file => 'lib/Simple.pm' }});
 $dist->remove_file( 'lib/Simple2.pm' );
 
 
@@ -397,13 +344,9 @@ package Foo;
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{Foo} ), 'multiple files with same package' );
-is( $provides->{Foo}{version}, '1.23' );
-is( $provides->{Foo}{file}, 'lib/Simple.pm',
-    '  only recording occurrence with version' );
-is( keys( %$provides ), 1 );
-
+is_deeply($mb->find_dist_packages,
+	  {'Foo' => { file => 'lib/Simple.pm',
+		      version => '1.23' }});
 $dist->remove_file( 'lib/Simple2.pm' );
 
 
@@ -420,13 +363,9 @@ $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{Foo} ), 'multiple files with same package' );
-is( $provides->{Foo}{version}, '1.23' );
-is( $provides->{Foo}{file}, 'lib/Simple2.pm',
-    '  only recording occurrence with version' );
-is( keys( %$provides ), 1 );
-
+is_deeply($mb->find_dist_packages,
+	  {'Foo' => { file => 'lib/Simple2.pm',
+		      version => '1.23' }});
 $dist->remove_file( 'lib/Simple2.pm' );
 
 
@@ -445,13 +384,11 @@ $VERSION = '2.34';
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
-ok( exists( $provides->{Foo} ), 'multiple files with same package' );
+is_deeply($provides,
+	  {'Foo' => { file => 'lib/Simple.pm',
+		      version => '1.23' }});
 like( $err, qr/Found conflicting versions for package/,
       '  with conflicting versions reported' );
-ok( exists( $provides->{Foo}{version} ), '  recording any version' );
-ok( exists( $provides->{Foo}{file} ), '  recording any file' );
-is( keys( %$provides ), 1 );
-
 $dist->remove_file( 'lib/Simple2.pm' );
 
 
@@ -470,15 +407,14 @@ $VERSION = '1.23';
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
-ok( exists( $provides->{Foo} ), 'multiple files with same package' );
-is( $provides->{Foo}{version}, '1.23', '  with same version' );
+is_deeply($provides,
+	  {'Foo' => { file => 'lib/Simple.pm',
+		      version => '1.23' }});
 is( $err, '', '  no conflicts reported' );
-is( keys( %$provides ), 1 );
-
 $dist->remove_file( 'lib/Simple2.pm' );
 
 ############################################################
-# Conflicts amoung primary & multiple alternatives
+# Conflicts among primary & multiple alternatives
 
 # multiple files, conflicting version in corresponding file
 $dist->change_file( 'lib/Simple.pm', <<'---' );
@@ -496,14 +432,11 @@ $VERSION = '2.34';
 $dist->regen( clean => 1 );
 $err = stderr_of( sub { $mb = Module::Build->new_from_context } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
-ok( exists( $provides->{Simple} ), 'multiple files with same package' );
+is_deeply($provides,
+	  {'Simple' => { file => 'lib/Simple.pm',
+			 version => '1.23' }});
 like( $err, qr/Found conflicting versions for package/,
       '  corresponding package conflicts with multiple alternatives' );
-is( $provides->{Simple}{version}, '1.23' );
-is( $provides->{Simple}{file}, 'lib/Simple.pm',
-    '  recording occurrence in corresponding file' );
-is( keys( %$provides ), 1 );
-
 $dist->remove_file( 'lib/Simple2.pm' );
 $dist->remove_file( 'lib/Simple3.pm' );
 
@@ -523,14 +456,11 @@ $VERSION = '2.34';
 $dist->regen( clean => 1 );
 $err = stderr_of( sub { $mb = Module::Build->new_from_context } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
-ok( exists( $provides->{Simple} ), 'multiple files with same package' );
+is_deeply($provides,
+	  {'Simple' => { file => 'lib/Simple.pm',
+			 version => '1.23' }});
 like( $err, qr/Found conflicting versions for package/,
       '  only one alternative conflicts with corresponding package' );
-is( $provides->{Simple}{version}, '1.23' );
-is( $provides->{Simple}{file}, 'lib/Simple.pm',
-    '  recording occurrence in corresponding file' );
-is( keys( %$provides ), 1 );
-
 $dist->remove_file( 'lib/Simple2.pm' );
 $dist->remove_file( 'lib/Simple3.pm' );
 
@@ -550,14 +480,9 @@ $VERSION = '3.45';
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-ok( exists( $provides->{Simple} ),
-    'single file with single non-private package' );
-ok( ! exists( $provides->{'Simple::_private'} ),
-    "  no private package 'Simple::_private'" );
-ok( ! exists( $provides->{'Simple::_private::too'} ),
-    "  no private sub-package 'Simple::_private::too'" );
-is( keys( %$provides ), 1 );
+is_deeply($mb->find_dist_packages,
+	  {'Simple' => { file => 'lib/Simple.pm',
+			 version => '1.23' }});
 
 
 ############################################################
@@ -568,8 +493,7 @@ is( keys( %$provides ), 1 );
 $dist->change_file( 'lib/Simple.pm', '' );
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-is( keys( %$provides ), 0 );
+is_deeply( $mb->find_dist_packages, {} );
 
 # Simple.pm => =pod..=cut (no package declaration)
 $dist->change_file( 'lib/Simple.pm', <<'---' );
@@ -587,13 +511,12 @@ Doesn't do anything.
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-$provides = $mb->find_dist_packages;
-is( keys( %$provides ), 0 );
+is_deeply($mb->find_dist_packages, {});
 
 
 ############################################################
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+chdir( $cwd ) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
 
 use File::Path;
