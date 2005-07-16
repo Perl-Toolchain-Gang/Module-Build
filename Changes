@@ -1,5 +1,13 @@
 Revision history for Perl extension Module::Build.
 
+0.27_03
+
+ - Fixed an issue on Win32 (and other case-tolerant
+   non-case-preserving systems, possibly like VMS?) in which the
+   current working directory would sometimes be reported with
+   different case, fooling us into thinking that we were in the wrong
+   directory. [David Golden]
+
 0.27_02 (Beta for 0.28)  Fri Jul 15 07:34:58 CDT 2005
 
  - Provided initial support for the --prefix installation parameter,
