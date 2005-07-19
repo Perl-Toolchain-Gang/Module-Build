@@ -387,6 +387,11 @@ Specifies the licensing terms of your distribution.  Valid options include:
 
 =over 4
 
+=item apache
+
+The distribution is licensed under the Apache Software License
+(http://opensource.org/licenses/apachepl.php).
+
 =item artistic
 
 The distribution is licensed under the Artistic License, as specified
@@ -399,14 +404,25 @@ The distribution is licensed under the BSD License
 
 =item gpl
 
-The distribution is distributed under the terms of the Gnu General
+The distribution is licensed under the terms of the Gnu General
 Public License (http://www.opensource.org/licenses/gpl-license.php).
 
 =item lgpl
 
-The distribution is distributed under the terms of the Gnu Lesser
+The distribution is licensed under the terms of the Gnu Lesser
 General Public License
 (http://www.opensource.org/licenses/lgpl-license.php).
+
+=item mit
+
+The distribution is licensed under the MIT License
+(http://opensource.org/licenses/mit-license.php).
+
+=item mozilla
+
+The distribution is licensed under the Mozilla Public
+License. (http://opensource.org/licenses/mozilla1.0.php or
+http://opensource.org/licenses/mozilla1.1.php)
 
 =item open_source
 
@@ -437,7 +453,10 @@ restrictions.
 
 Note that you must still include the terms of your license in your
 documentation - this field only lets automated tools figure out your
-licensing restrictions.  Humans still need something to read.
+licensing restrictions.  Humans still need something to read.  If you
+choose to provide this field, you should make sure that you keep it in
+sync with your written documentation if you ever change your licensing
+terms.
 
 It is a fatal error to use a license other than the ones mentioned
 above.  This is not because I wish to impose licensing terms on you -
