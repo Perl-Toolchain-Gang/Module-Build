@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.27_03
 
+ - We now use ExtUtils::CBuilder to do all compiling of C code (for
+   example, when compiling XS modules).  (This change actually
+   occurred in 0.27_01, but it was mistakenly omitted from the Changes
+   file.)
+
  - Fixed an issue on Win32 (and other case-tolerant
    non-case-preserving systems, possibly like VMS?) in which the
    current working directory would sometimes be reported with
@@ -119,6 +124,9 @@ Revision history for Perl extension Module::Build.
 
  - Now reads per-action default options from '$ENV{HOME}/.modulebuildrc'
    if it exists. Command line options override anything set in the rc file.
+
+ - We now use ExtUtils::CBuilder to do all compiling of C code (for
+   example, when compiling XS modules).
 
  - Extend prerequisite specifications to apply to all actions. It is
    now a fatal error if 'requires' or 'conflicts' for a given action
