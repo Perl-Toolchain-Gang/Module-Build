@@ -530,6 +530,7 @@ __PACKAGE__->add_property(html_css => ($^O =~ /Win32/) ? 'Active.css' : '');
 __PACKAGE__->add_property(html_backlink => '__top');
 __PACKAGE__->add_property(meta_add => {});
 __PACKAGE__->add_property(meta_merge => {});
+__PACKAGE__->add_property(metafile => 'META.yml');
 __PACKAGE__->add_property($_) for qw(
    base_dir
    dist_name
@@ -2309,9 +2310,9 @@ sub ACTION_distdir {
   delete $dist_files->{SIGNATURE};  # Don't copy, create a fresh one
   die "No files found in MANIFEST - try running 'manifest' action?\n"
     unless ($dist_files and keys %$dist_files);
-  
-  $self->log_warn("*** Did you forget to add $self->{metafile} to the MANIFEST?\n")
-    unless exists $dist_files->{$self->{metafile}};
+  my $metafile = $self->metafile;
+  $self->log_warn("*** Did you forget to add $metafile to the MANIFEST?\n")
+    unless exists $dist_files->{$metafile};
   
   my $dist_dir = $self->dist_dir;
   $self->delete_filetree($dist_dir);
@@ -2480,7 +2481,7 @@ sub _write_minimal_metadata {
   my $self = shift;
   my $p = $self->{properties};
 
-  my $file = $self->{metafile};
+  my $file = $self->metafile;
   my $fh = IO::File->new("> $file")
     or die "Can't open $file: $!";
 
@@ -2503,15 +2504,15 @@ sub ACTION_distmeta {
 
   $self->do_create_makefile_pl if $self->create_makefile_pl;
   $self->do_create_readme if $self->create_readme;
-  $self->do_create_meta_yml;
+  $self->do_create_metafile;
 }
 
-sub do_create_meta_yml {
+sub do_create_metafile {
   my $self = shift;
   return if $self->{wrote_metadata};
   
   my $p = $self->{properties};
-  $self->{metafile} = 'META.yml';
+  my $metafile = $self->metafile;
   
   unless ($p->{license}) {
     $self->log_warn("No license specified, setting license = 'unknown'\n");
@@ -2522,8 +2523,8 @@ sub do_create_meta_yml {
   }
 
   # If we're in the distdir, the metafile may exist and be non-writable.
-  $self->delete_filetree($self->{metafile});
-  $self->log_info("Creating $self->{metafile}\n");
+  $self->delete_filetree($metafile);
+  $self->log_info("Creating $metafile\n");
 
   # Since we're building ourself, we have to do some special stuff
   # here: the ConfigData module is found in blib/lib.
@@ -2532,6 +2533,13 @@ sub do_create_meta_yml {
     $self->depends_on('config_data');
     push @INC, File::Spec->catdir($self->blib, 'lib');
   }
+
+  $self->write_metafile;
+}
+
+sub write_metafile {
+  my $self = shift;
+  my $metafile = $self->metafile;
 
   require Module::Build::ConfigData;  # Only works after the 'build'
   if (Module::Build::ConfigData->feature('YAML_support')) {
@@ -2542,7 +2550,7 @@ sub do_create_meta_yml {
     
     # YAML API changed after version 0.30
     my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
-    $self->{wrote_metadata} = $yaml_sub->($self->{metafile}, $node );
+    $self->{wrote_metadata} = $yaml_sub->($metafile, $node );
 
   } else {
     $self->log_warn(<<EOM);
@@ -2553,7 +2561,7 @@ EOM
     $self->_write_minimal_metadata;
   }
 
-  $self->_add_to_manifest('MANIFEST', $self->{metafile});
+  $self->_add_to_manifest('MANIFEST', $metafile);
 }
 
 sub prepare_metadata {

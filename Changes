@@ -19,6 +19,14 @@ Revision history for Perl extension Module::Build.
  - Fixed a pretty significant typo in the documentation for
    auto_features. [Spotted by Jonas B. Nielsen]
 
+ - In order to aid people who want to do customization of the META.yml
+   file, we've added a "metafile" property that can then be easily
+   overridden in subclasses, changed do_create_meta_yml() to
+   do_create_metafile(), and split out the code that actually
+   generates the YAML into a new method, write_metafile(). [David
+   Wheeler]
+
+
 0.27_02 (Beta for 0.28)  Fri Jul 15 07:34:58 CDT 2005
 
  - Provided initial support for the --prefix installation parameter,
