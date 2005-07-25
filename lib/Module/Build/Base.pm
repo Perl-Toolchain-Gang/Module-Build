@@ -2444,8 +2444,26 @@ sub script_files {
 }
 BEGIN { *scripts = \&script_files; }
 
-sub valid_licenses {
-  return { map {$_, 1} qw(perl gpl artistic lgpl bsd mit mozilla apache open_source unrestricted restrictive unknown) };
+{
+  my %licenses =
+    (
+     perl => 'http://search.cpan.org/src/NWCLARK/perl-5.8.7/README',
+     gpl => 'http://www.opensource.org/licenses/gpl-license.php',
+     apache => 'http://apache.org/licenses/LICENSE-2.0',
+     artistic => 'http://opensource.org/licenses/artistic-license.php',
+     lgpl => 'http://opensource.org/licenses/artistic-license.php',
+     bsd => 'http://www.opensource.org/licenses/bsd-license.php',
+     gpl => 'http://www.opensource.org/licenses/gpl-license.php',
+     mit => 'http://opensource.org/licenses/mit-license.php',
+     mozilla => 'http://opensource.org/licenses/mozilla1.1.php',
+     open_source => undef,
+     unrestricted => undef,
+     restrictive => undef,
+     unknown => undef,
+    );
+  sub valid_licenses {
+    return \%licenses;
+  }
 }
 
 sub meta_add {
@@ -2571,6 +2589,9 @@ sub prepare_metadata {
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
     (my $name = $_) =~ s/^dist_//;
     $node->{$name} = $self->$_();
+  }
+  if (defined( my $url = $self->valid_licenses->{ $self->license } )) {
+    $node->{license_url} = $url;
   }
 
   foreach ( @{$self->prereq_action_types} ) {
