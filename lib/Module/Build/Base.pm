@@ -2591,7 +2591,7 @@ sub prepare_metadata {
     $node->{$name} = $self->$_();
   }
   if (defined( my $url = $self->valid_licenses->{ $self->license } )) {
-    $node->{license_url} = $url;
+    $node->{urls}{license} = $url;
   }
 
   foreach ( @{$self->prereq_action_types} ) {
