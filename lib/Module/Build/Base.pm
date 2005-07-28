@@ -2614,7 +2614,8 @@ sub prepare_metadata {
     (my $name = $_) =~ s/^dist_//;
     $node->{$name} = $self->$_();
   }
-  if (defined( my $url = $self->valid_licenses->{ $self->license } )) {
+  if (defined( $self->license ) &&
+      defined( my $url = $self->valid_licenses->{ $self->license } )) {
     $node->{resources}{license} = $url;
   }
 

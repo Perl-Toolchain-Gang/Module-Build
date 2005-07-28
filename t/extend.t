@@ -186,6 +186,7 @@ print "Hello, World!\n";
   # Test the meta_add and meta_merge stuff
   ok my $mb = Module::Build->new(
 				  module_name => $dist->name,
+				  license => 'perl',
 				  meta_add => {foo => 'bar'},
 				  conflicts => {'Foo::Barxx' => 0},
 			        );
