@@ -75,6 +75,14 @@ my $build = new ModuleBuildBuilder
 
    add_to_cleanup => ['t/Sample/pod2htm*'],
    script_files => ['scripts/config_data'],
+   meta_merge => {
+		  resources =>
+		  {
+		   homepage => 'http://sourceforge.net/projects/module-build',
+		   bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Module-Build',
+		   MailingList => 'http://lists.sourceforge.net/lists/listinfo/module-build-general',
+		  }
+		 },
   );
 
 $build->create_build_script;
