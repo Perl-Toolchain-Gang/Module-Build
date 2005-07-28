@@ -2447,7 +2447,7 @@ BEGIN { *scripts = \&script_files; }
 {
   my %licenses =
     (
-     perl => 'http://search.cpan.org/src/NWCLARK/perl-5.8.7/README',
+     perl => 'http://dev.perl.org/licenses/',
      gpl => 'http://www.opensource.org/licenses/gpl-license.php',
      apache => 'http://apache.org/licenses/LICENSE-2.0',
      artistic => 'http://opensource.org/licenses/artistic-license.php',
@@ -2591,7 +2591,7 @@ sub prepare_metadata {
     $node->{$name} = $self->$_();
   }
   if (defined( my $url = $self->valid_licenses->{ $self->license } )) {
-    $node->{urls}{license} = $url;
+    $node->{resources}{license} = $url;
   }
 
   foreach ( @{$self->prereq_action_types} ) {
