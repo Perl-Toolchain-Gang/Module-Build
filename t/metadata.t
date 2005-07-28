@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 33;
+use Test::More tests => 35;
 
 
 use File::Spec ();
@@ -326,8 +326,8 @@ package Foo;
 ---
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
-is_deeply($mb->find_dist_packages,
-	  {'Foo' => { file => 'lib/Simple.pm' }});
+$provides = $mb->find_dist_packages;
+ok( exists( $provides->{Foo} ) ); # it exist, can't predict which file
 $dist->remove_file( 'lib/Simple2.pm' );
 
 
@@ -384,9 +384,8 @@ $VERSION = '2.34';
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
-is_deeply($provides,
-	  {'Foo' => { file => 'lib/Simple.pm',
-		      version => '1.23' }});
+# XXX Should 'Foo' exist ??? Can't predict values for file & version
+ok( exists( $provides->{Foo} ) );
 like( $err, qr/Found conflicting versions for package/,
       '  with conflicting versions reported' );
 $dist->remove_file( 'lib/Simple2.pm' );
@@ -407,9 +406,9 @@ $VERSION = '1.23';
 $dist->regen( clean => 1 );
 $mb = Module::Build->new_from_context;
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
-is_deeply($provides,
-	  {'Foo' => { file => 'lib/Simple.pm',
-		      version => '1.23' }});
+ok( exists( $provides->{Foo} ) );
+is( $provides->{Foo}{version}, '1.23' );
+ok( exists( $provides->{Foo}{file} ) ); # Can't predict which file
 is( $err, '', '  no conflicts reported' );
 $dist->remove_file( 'lib/Simple2.pm' );
 
