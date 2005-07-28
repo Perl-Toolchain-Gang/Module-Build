@@ -175,9 +175,13 @@ sub _set_install_paths {
   my $c = $self->{config};
   my $p = $self->{properties};
 
-  my @libstyle = $c->{installstyle} ? File::Spec->splitdir($c->{installstyle}) : qw(lib perl5);
+  my @libstyle = $c->{installstyle} ?
+      File::Spec->splitdir($c->{installstyle}) : qw(lib perl5);
   my $arch     = $c->{archname};
   my $version  = $c->{version};
+
+  my $html1dir = $c->{installhtml1dir} || $c->{installhtmldir};
+  my $html3dir = $c->{installhtml3dir} || $c->{installhtmldir};
 
   $p->{install_sets} =
     {
@@ -188,25 +192,30 @@ sub _set_install_paths {
 		script  => $c->{installscript},
 		bindoc  => $c->{installman1dir},
 		libdoc  => $c->{installman3dir},
-		html    => $c->{installhtmldir},
+		binhtml => $html1dir,
+		libhtml => $html3dir,
 	       },
      site   => {
 		lib     => $c->{installsitelib},
 		arch    => $c->{installsitearch},
 		bin     => $c->{installsitebin} || $c->{installbin},
-		script  => $c->{installsitescript} || $c->{installsitebin} || $c->{installscript},
+		script  => $c->{installsitescript} ||
+		           $c->{installsitebin} || $c->{installscript},
 		bindoc  => $c->{installsiteman1dir} || $c->{installman1dir},
 		libdoc  => $c->{installsiteman3dir} || $c->{installman3dir},
-		html    => $c->{installsitehtmldir} || $c->{installhtmldir},
+		binhtml => $c->{installsitehtml1dir} || $html1dir,
+		libhtml => $c->{installsitehtml3dir} || $html3dir,
 	       },
      vendor => {
 		lib     => $c->{installvendorlib},
 		arch    => $c->{installvendorarch},
 		bin     => $c->{installvendorbin} || $c->{installbin},
-		script  => $c->{installvendorscript} || $c->{installvendorbin} || $c->{installscript},
+		script  => $c->{installvendorscript} ||
+		           $c->{installvendorbin} || $c->{installscript},
 		bindoc  => $c->{installvendorman1dir} || $c->{installman1dir},
 		libdoc  => $c->{installvendorman3dir} || $c->{installman3dir},
-		html    => $c->{installvendorhtmldir} || $c->{installhtmldir},
+		binhtml => $c->{installvendorhtml1dir} || $html1dir,
+		libhtml => $c->{installvendorhtml3dir} || $html3dir,
 	       },
     };
 
@@ -227,46 +236,51 @@ sub _set_install_paths {
      script  => ['bin'],
      bindoc  => ['man', 'man1'],
      libdoc  => ['man', 'man3'],
-     html    => ['html'],
+     binhtml => ['html', 'script'],
+     libhtml => ['html', 'lib'],
     };
 
-  $p->{prefix_relpaths} = 
+  $p->{prefix_relpaths} =
     {
      core => {
 	      lib        => [@libstyle],
 	      arch       => [@libstyle, $version, $arch],
 	      bin        => ['bin'],
 	      script     => ['bin'],
-	      libdoc     => ['man', 'man3'],
 	      bindoc     => ['man', 'man1'],
-	      html       => ['html'],
+	      libdoc     => ['man', 'man3'],
+	      binhtml    => ['html', 'script'],
+	      libhtml    => ['html', 'lib'],
 	     },
      vendor => {
 		lib        => [@libstyle],
 		arch       => [@libstyle, $version, $arch],
 		bin        => ['bin'],
 		script     => ['bin'],
-		libdoc     => ['man', 'man3'],
 		bindoc     => ['man', 'man1'],
-		html       => ['html'],
+		libdoc     => ['man', 'man3'],
+		binhtml    => ['html', 'script'],
+		libhtml    => ['html', 'lib'],
 	       },
      site => {
 	      lib        => [@libstyle, 'site_perl'],
 	      arch       => [@libstyle, 'site_perl', $version, $arch],
 	      bin        => ['bin'],
 	      script     => ['bin'],
-	      libdoc     => ['man', 'man3'],
 	      bindoc     => ['man', 'man1'],
-	      html       => ['html'],
+	      libdoc     => ['man', 'man3'],
+	      binhtml    => ['html', 'script'],
+	      libhtml    => ['html', 'lib'],
 	     },
     };
 
 
   my $installdirs = $p->{installdirs};
 
-  $p->{gen_manpages} ||= ( $p->{install_sets}{$installdirs}{libdoc} &&
-                           $p->{install_sets}{$installdirs}{bindoc} ) ? 1 : 0;
-  $p->{gen_html}     ||= $p->{install_sets}{$installdirs}{html}       ? 1 : 0;
+  $p->{gen_manpages} ||= ( $p->{install_sets}{$installdirs}{bindoc} &&
+                           $p->{install_sets}{$installdirs}{libdoc} ) ? 1 : 0;
+  $p->{gen_html}     ||= ( $p->{install_sets}{$installdirs}{binhtml} &&
+			   $p->{install_sets}{$installdirs}{libhtml} ) ? 1 : 0;
 
   $p->{install_manpages} ||= $p->{gen_manpages} ? 1 : 0;
   $p->{install_html}     ||= $p->{gen_html}     ? 1 : 0;
@@ -1305,7 +1319,13 @@ sub read_args {
 
     for my $subkey (keys %{$args{$key}}) {
       next if !defined $args{$key}{$subkey};
-      $args{$key}{$subkey} = _detildefy($args{$key}{$subkey});
+      my $subkey_ext = _detildefy($args{$key}{$subkey});
+      if ( $subkey eq 'html' ) { # translate for compatability
+	$args{$key}{binhtml} = $subkey_ext;
+	$args{$key}{libhtml} = $subkey_ext;
+      } else {
+	$args{$key}{$subkey} = $subkey_ext;
+      }
     }
   }
 
@@ -2918,7 +2938,10 @@ sub install_types {
   my $p = $self->{properties};
   my %types = (%{$p->{install_path}}, %{ $p->{install_sets}{$p->{installdirs}} });
 
-  delete( $types{html} ) unless $self->gen_html && $self->install_html;
+  unless ( $self->gen_html && $self->install_html ) {
+    delete( $types{binhtml} );
+    delete( $types{libhtml} );
+  }
 
   unless ( $self->gen_manpages && $self->install_manpages ) {
     delete( $types{bindoc} );

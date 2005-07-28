@@ -59,7 +59,10 @@ $mb->prefix(undef);
                    $Config{installscript},
         bindoc  => $Config{installsiteman1dir} || $Config{installman1dir},
         libdoc  => $Config{installsiteman3dir} || $Config{installman3dir},
-        html    => $Config{installsitehtmldir} || $Config{installhtmldir}
+        binhtml => $Config{installsitehtml1dir} ||
+		   $Config{installhtml1dir} || $Config{installhtmldir},
+        libhtml => $Config{installsitehtml3dir} ||
+		   $Config{installhtml3dir} || $Config{installhtmldir},
     });
 }
 
@@ -76,7 +79,8 @@ $mb->prefix(undef);
         script  => $Config{installscript} || $Config{installbin},
         bindoc  => $Config{installman1dir},
         libdoc  => $Config{installman3dir},
-        html    => $Config{installhtmldir},
+        binhtml => $Config{installhtml1dir} || $Config{installhtmldir},
+        libhtml => $Config{installhtml3dir} || $Config{installhtmldir},
     });
 
     $mb->installdirs('site');
@@ -100,7 +104,8 @@ $mb->prefix(undef);
         script  => catdir( $install_base, 'bin' ),
         bindoc  => catdir( $install_base, 'man', 'man1'),
         libdoc  => catdir( $install_base, 'man', 'man3' ),
-        html    => catdir( $install_base, 'html' ),
+        binhtml => catdir( $install_base, 'html', 'script'),
+        libhtml => catdir( $install_base, 'html', 'lib' ),
     });
 }
 
@@ -178,7 +183,8 @@ $mb->prefix(undef);
         script  => catdir( $install_base, 'bin' ),
         bindoc  => catdir( $install_base, 'man', 'man1'),
         libdoc  => catdir( $install_base, 'man', 'man3' ),
-        html    => catdir( $install_base, 'html'),
+        binhtml => catdir( $install_base, 'html', 'script'),
+        libhtml => catdir( $install_base, 'html', 'lib' ),
     });
 }
 
@@ -188,7 +194,7 @@ sub test_prefix {
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    foreach my $type (qw(lib arch bin script bindoc libdoc html)) {
+    foreach my $type (qw(lib arch bin script bindoc libdoc binhtml libhtml)) {
         my $dest = $mb->install_destination( $type );
         like( $dest, "/^\Q$prefix\E/", "$type prefixed");
 

@@ -5,7 +5,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 
 use File::Spec ();
@@ -66,7 +66,9 @@ sub run_sample {
 					lib  => '~/lib'   }
                     );
     is( $mb->install_destination('lib'),  "$ENV{HOME}/lib" );
-    is( $mb->install_destination('html'), "$ENV{HOME}/html" );
+    # 'html' is translated to 'binhtml' & 'libhtml'
+    is( $mb->install_destination('binhtml'), "$ENV{HOME}/html" );
+    is( $mb->install_destination('libhtml'), "$ENV{HOME}/html" );
 
     $mb = run_sample( install_path => { lib => '~/lib' } );
     is( $mb->install_destination('lib'),  "$ENV{HOME}/lib" );
