@@ -69,8 +69,9 @@ my $destdir = File::Spec->catdir($cwd, 't', 'install_test');
 
 
 my $mb = Module::Build->new(
-  install_base => $destdir,
-  module_name  => $dist->name,
+  module_name      => $dist->name,
+  install_base     => $destdir,
+  gen_manpages     => 1, # some platforms don't by default
   scripts      => [ File::Spec->catfile( 'bin', 'nopod.pl'  ),
                     File::Spec->catfile( 'bin', 'haspod.pl' )  ],
 );

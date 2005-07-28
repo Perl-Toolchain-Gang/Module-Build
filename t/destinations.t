@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 68;
+use Test::More 'no_plan';   # tests => 68;
 
 
 use File::Spec ();
@@ -58,7 +58,8 @@ $mb->prefix(undef);
         script  => $Config{installsitescript} || $Config{installsitebin} ||
                    $Config{installscript},
         bindoc  => $Config{installsiteman1dir} || $Config{installman1dir},
-        libdoc  => $Config{installsiteman3dir} || $Config{installman3dir}
+        libdoc  => $Config{installsiteman3dir} || $Config{installman3dir},
+        html    => $Config{installsitehtmldir} || $Config{installhtmldir}
     });
 }
 
@@ -75,6 +76,7 @@ $mb->prefix(undef);
         script  => $Config{installscript} || $Config{installbin},
         bindoc  => $Config{installman1dir},
         libdoc  => $Config{installman3dir},
+        html    => $Config{installhtmldir},
     });
 
     $mb->installdirs('site');
@@ -98,6 +100,7 @@ $mb->prefix(undef);
         script  => catdir( $install_base, 'bin' ),
         bindoc  => catdir( $install_base, 'man', 'man1'),
         libdoc  => catdir( $install_base, 'man', 'man3' ),
+        html    => catdir( $install_base, 'html' ),
     });
 }
 
@@ -175,25 +178,21 @@ $mb->prefix(undef);
         script  => catdir( $install_base, 'bin' ),
         bindoc  => catdir( $install_base, 'man', 'man1'),
         libdoc  => catdir( $install_base, 'man', 'man3' ),
+        html    => catdir( $install_base, 'html'),
     });
 }
 
 
-TODO: {
-  local $TODO = "install paths not defined.";
-  ok 0, '(bin|lib)doc install destination';
-}
-
 sub test_prefix {
     my ($prefix, $test_config) = @_;
-  
+
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    foreach my $type (qw(lib arch bin script bindoc libdoc)) {
+    foreach my $type (qw(lib arch bin script bindoc libdoc html)) {
         my $dest = $mb->install_destination( $type );
         like( $dest, "/^\Q$prefix\E/", "$type prefixed");
 
-        if( $test_config ) {
+        if( $test_config && $test_config->{$type} ) {
             my @test_dirs = splitdir( $test_config->{$type} );
             my @dest_dirs = splitdir( $dest );
 

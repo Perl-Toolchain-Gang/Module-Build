@@ -178,7 +178,6 @@ sub _set_install_paths {
   my @libstyle = $c->{installstyle} ? File::Spec->splitdir($c->{installstyle}) : qw(lib perl5);
   my $arch     = $c->{archname};
   my $version  = $c->{version};
-  my @html     = $c->{installhtmldir} ? (html => $c->{installhtmldir}) : ();
 
   $p->{install_sets} =
     {
@@ -189,7 +188,7 @@ sub _set_install_paths {
 		script  => $c->{installscript},
 		bindoc  => $c->{installman1dir},
 		libdoc  => $c->{installman3dir},
-		@html,
+		html    => $c->{installhtmldir},
 	       },
      site   => {
 		lib     => $c->{installsitelib},
@@ -198,7 +197,7 @@ sub _set_install_paths {
 		script  => $c->{installsitescript} || $c->{installsitebin} || $c->{installscript},
 		bindoc  => $c->{installsiteman1dir} || $c->{installman1dir},
 		libdoc  => $c->{installsiteman3dir} || $c->{installman3dir},
-		@html,
+		html    => $c->{installsitehtmldir} || $c->{installhtmldir},
 	       },
      vendor => {
 		lib     => $c->{installvendorlib},
@@ -207,7 +206,7 @@ sub _set_install_paths {
 		script  => $c->{installvendorscript} || $c->{installvendorbin} || $c->{installscript},
 		bindoc  => $c->{installvendorman1dir} || $c->{installman1dir},
 		libdoc  => $c->{installvendorman3dir} || $c->{installman3dir},
-		@html,
+		html    => $c->{installvendorhtmldir} || $c->{installhtmldir},
 	       },
     };
 
@@ -228,6 +227,7 @@ sub _set_install_paths {
      script  => ['bin'],
      bindoc  => ['man', 'man1'],
      libdoc  => ['man', 'man3'],
+     html    => ['html'],
     };
 
   $p->{prefix_relpaths} = 
@@ -239,6 +239,7 @@ sub _set_install_paths {
 	      script     => ['bin'],
 	      libdoc     => ['man', 'man3'],
 	      bindoc     => ['man', 'man1'],
+	      html       => ['html'],
 	     },
      vendor => {
 		lib        => [@libstyle],
@@ -247,6 +248,7 @@ sub _set_install_paths {
 		script     => ['bin'],
 		libdoc     => ['man', 'man3'],
 		bindoc     => ['man', 'man1'],
+		html       => ['html'],
 	       },
      site => {
 	      lib        => [@libstyle, 'site_perl'],
@@ -255,8 +257,20 @@ sub _set_install_paths {
 	      script     => ['bin'],
 	      libdoc     => ['man', 'man3'],
 	      bindoc     => ['man', 'man1'],
+	      html       => ['html'],
 	     },
     };
+
+
+  my $installdirs = $p->{installdirs};
+
+  $p->{gen_manpages} ||= ( $p->{install_sets}{$installdirs}{libdoc} &&
+                           $p->{install_sets}{$installdirs}{bindoc} ) ? 1 : 0;
+  $p->{gen_html}     ||= $p->{install_sets}{$installdirs}{html}       ? 1 : 0;
+
+  $p->{install_manpages} ||= $p->{gen_manpages} ? 1 : 0;
+  $p->{install_html}     ||= $p->{gen_html}     ? 1 : 0;
+
 }
 
 sub _find_nested_builds {
@@ -531,6 +545,12 @@ __PACKAGE__->add_property(html_backlink => '__top');
 __PACKAGE__->add_property(meta_add => {});
 __PACKAGE__->add_property(meta_merge => {});
 __PACKAGE__->add_property(metafile => 'META.yml');
+__PACKAGE__->add_property($_ => 0) for qw(
+   gen_manpages
+   gen_html
+   install_manpages
+   install_html
+);
 __PACKAGE__->add_property($_) for qw(
    base_dir
    dist_name
@@ -1879,6 +1899,7 @@ sub ACTION_testpod {
 
 sub ACTION_docs {
   my $self = shift;
+
   $self->depends_on('code');
 
   if (($self->module_name || '') eq 'Module::Build') {
@@ -1888,12 +1909,15 @@ sub ACTION_docs {
   } else {
     require Module::Build::ConfigData;
   }
-  if (Module::Build::ConfigData->feature('manpage_support')) {
-    $self->manify_bin_pods() if $self->install_destination('bindoc');
-    $self->manify_lib_pods() if $self->install_destination('libdoc');
+
+  if ( Module::Build::ConfigData->feature('manpage_support') &&
+       $self->gen_manpages )
+  {
+    $self->manify_bin_pods();
+    $self->manify_lib_pods();
   }
 
-  $self->htmlify_pods()    if $self->install_destination('html');
+  $self->htmlify_pods() if $self->gen_html;
 }
 
 sub manify_bin_pods {
@@ -2847,22 +2871,15 @@ sub _prefixify {
   $self->log_verbose("  prefixify $path from $sprefix to $rprefix\n");
   
   if( length $path == 0 ) {
-    $self->log_verbose("  no path to prefixify.\n");
-    # XXX the 'return' here is not a very good failure mechanism
-    return;
+    $self->log_verbose("  no path to prefixify, falling back to default.\n");
+    return $self->_prefixify_default( $type, $rprefix );
   } elsif( !File::Spec->file_name_is_absolute($path) ) {
     $self->log_verbose("    path is relative, not prefixifying.\n");
   } elsif( $sprefix eq $rprefix ) {
     $self->log_verbose("  no new prefix.\n");
   } elsif( $path !~ s{^\Q$sprefix\E\b}{}s ) {
     $self->log_verbose("    cannot prefixify, falling back to default.\n");
-    my $default = $self->prefix_relpaths($self->installdirs, $type);
-    if( !$default ) {
-      $self->log_verbose("    no default install location for type '$type', using prefix '$rprefix'.\n");  
-      return $rprefix;
-    }
-  
-    return $default;
+    return $self->_prefixify_default( $type, $rprefix );
   }
   
   $self->log_verbose("    now $path in $rprefix\n");
@@ -2870,6 +2887,19 @@ sub _prefixify {
   return $path;
 }
 
+sub _prefixify_default {
+  my $self = shift;
+  my $type = shift;
+  my $rprefix = shift;
+
+  my $default = $self->prefix_relpaths($self->installdirs, $type);
+  if( !$default ) {
+    $self->log_verbose("    no default install location for type '$type', using prefix '$rprefix'.\n");
+    return $rprefix;
+  } else {
+    return $default;
+  }
+}
 
 sub install_destination {
   my ($self, $type) = @_;
@@ -2885,6 +2915,14 @@ sub install_types {
   my $self = shift;
   my $p = $self->{properties};
   my %types = (%{$p->{install_path}}, %{ $p->{install_sets}{$p->{installdirs}} });
+
+  delete( $types{html} ) unless $self->gen_html && $self->install_html;
+
+  unless ( $self->gen_manpages && $self->install_manpages ) {
+    delete( $types{bindoc} );
+    delete( $types{libdoc} );
+  }
+
   return sort keys %types;
 }
 
