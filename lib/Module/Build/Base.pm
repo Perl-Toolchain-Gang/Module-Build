@@ -2865,13 +2865,14 @@ sub prefix_relpaths {
 # Translated from ExtUtils::MM_Unix::prefixify()
 sub _prefixify {
   my($self, $path, $sprefix, $type) = @_;
+
   my $rprefix = $self->prefix;
-  
   $rprefix .= '/' if $sprefix =~ m|/$|;
-  
-  $self->log_verbose("  prefixify $path from $sprefix to $rprefix\n");
-  
-  if( length $path == 0 ) {
+
+  $self->log_verbose("  prefixify $path from $sprefix to $rprefix\n")
+    if defined( $path ) && length( $path );
+
+  if( !defined( $path ) || ( length( $path ) == 0 ) ) {
     $self->log_verbose("  no path to prefixify, falling back to default.\n");
     return $self->_prefixify_default( $type, $rprefix );
   } elsif( !File::Spec->file_name_is_absolute($path) ) {
@@ -2882,7 +2883,7 @@ sub _prefixify {
     $self->log_verbose("    cannot prefixify, falling back to default.\n");
     return $self->_prefixify_default( $type, $rprefix );
   }
-  
+
   $self->log_verbose("    now $path in $rprefix\n");
 
   return $path;
