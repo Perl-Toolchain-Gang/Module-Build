@@ -26,6 +26,13 @@ Revision history for Perl extension Module::Build.
    generates the YAML into a new method, write_metafile(). [David
    Wheeler]
 
+ - Fixed a couple of non-helpful behaviors with extra_compiler_flags
+   and extra_linker_flags.  These will automatically be run through
+   split_like_shell() when given to new() as strings.
+
+ - When the user doesn't have ExtUtils::ParseXS installed, the
+   displayed command line for creating the .c file from the .xs file
+   was missing its newline.  Now it's got it.
 
 0.27_02 (Beta for 0.28)  Fri Jul 15 07:34:58 CDT 2005
 

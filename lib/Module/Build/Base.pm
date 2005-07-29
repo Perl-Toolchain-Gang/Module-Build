@@ -149,6 +149,11 @@ sub _construct {
   $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
   $p->{script_files} = delete $p->{scripts} if exists $p->{scripts};
 
+  # Convert to arrays
+  for ('extra_compiler_flags', 'extra_linker_flags') {
+    $p->{$_} = [ $self->split_like_shell($p->{$_}) ] if exists $p->{$_};
+  }
+
   $self->add_to_cleanup( @{delete $p->{add_to_cleanup}} )
     if $p->{add_to_cleanup};
   
@@ -597,6 +602,7 @@ __PACKAGE__->add_property($_) for qw(
    create_readme
    pollute
    extra_compiler_flags
+   extra_linker_flags
    bindoc_dirs
    libdoc_dirs
    get_options
@@ -654,11 +660,15 @@ sub mb_parents {
     return @out;
 }
 
-sub extra_compiler_flags {
-  my $self = shift;
+sub extra_linker_flags   { shift->_list_accessor('extra_linker_flags',   @_) }
+sub extra_compiler_flags { shift->_list_accessor('extra_compiler_flags', @_) }
+
+sub _list_accessor {
+  (my $self, local $_) = (shift, shift);
   my $p = $self->{properties};
-  $p->{extra_compiler_flags} = [@_] if @_;
-  return ref($p->{extra_compiler_flags}) ? $p->{extra_compiler_flags} : [$p->{extra_compiler_flags}];
+  $p->{$_} = [@_] if @_;
+  $p->{$_} = [] unless exists $p->{$_};
+  return ref($p->{$_}) ? $p->{$_} : [$p->{$_}];
 }
 
 # XXX Problem - if Module::Build is loaded from a different directory,
@@ -3071,7 +3081,9 @@ sub compile_c {
 
   $b->compile(source => $file,
 	      object_file => $obj_file,
-	      include_dirs => $self->include_dirs);
+	      include_dirs => $self->include_dirs,
+	      extra_compiler_flags => $self->extra_compiler_flags,
+	     );
 
   return $obj_file;
 }
@@ -3131,7 +3143,7 @@ sub compile_xs {
     my $command = (qq{$perl "-I$cf->{installarchlib}" "-I$cf->{installprivlib}" "$xsubpp" -noprototypes } .
 		   qq{$typemaps "$file"});
     
-    $self->log_info($command);
+    $self->log_info("$command\n");
     my $fh = IO::File->new("> $args{outfile}") or die "Couldn't write $args{outfile}: $!";
     print $fh `$command`;
     close $fh;
