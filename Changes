@@ -34,6 +34,10 @@ Revision history for Perl extension Module::Build.
    displayed command line for creating the .c file from the .xs file
    was missing its newline.  Now it's got it.
 
+ - The extra_compiler_flags setting was not actually being passed
+   along to ExtUtils::CBuilder so it could pass it along to the
+   compiler.
+
 0.27_02 (Beta for 0.28)  Fri Jul 15 07:34:58 CDT 2005
 
  - Provided initial support for the --prefix installation parameter,
