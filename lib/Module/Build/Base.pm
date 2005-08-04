@@ -2041,6 +2041,7 @@ sub htmlify_pods {
 
     my $pods = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
 				  exclude => [ qr/\.(?:bat|com|html)$/ ] );
+    next unless %$pods;  # nothing to do
 
     my $podpath = join ':',
                   map  $_->[1],
