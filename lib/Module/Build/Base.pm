@@ -241,8 +241,8 @@ sub _set_install_paths {
      script  => ['bin'],
      bindoc  => ['man', 'man1'],
      libdoc  => ['man', 'man3'],
-     binhtml => ['html', 'script'],
-     libhtml => ['html', 'lib'],
+     binhtml => ['html'],
+     libhtml => ['html'],
     };
 
   $p->{prefix_relpaths} =
@@ -254,8 +254,8 @@ sub _set_install_paths {
 	      script     => ['bin'],
 	      bindoc     => ['man', 'man1'],
 	      libdoc     => ['man', 'man3'],
-	      binhtml    => ['html', 'script'],
-	      libhtml    => ['html', 'lib'],
+	      binhtml    => ['html'],
+	      libhtml    => ['html'],
 	     },
      vendor => {
 		lib        => [@libstyle],
@@ -264,8 +264,8 @@ sub _set_install_paths {
 		script     => ['bin'],
 		bindoc     => ['man', 'man1'],
 		libdoc     => ['man', 'man3'],
-		binhtml    => ['html', 'script'],
-		libhtml    => ['html', 'lib'],
+		binhtml    => ['html'],
+		libhtml    => ['html'],
 	       },
      site => {
 	      lib        => [@libstyle, 'site_perl'],
@@ -274,8 +274,8 @@ sub _set_install_paths {
 	      script     => ['bin'],
 	      bindoc     => ['man', 'man1'],
 	      libdoc     => ['man', 'man3'],
-	      binhtml    => ['html', 'script'],
-	      libhtml    => ['html', 'lib'],
+	      binhtml    => ['html'],
+	      libhtml    => ['html'],
 	     },
     };
 
@@ -560,7 +560,6 @@ __PACKAGE__->add_property(config => {});
 __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(build_class => 'Module::Build');
 __PACKAGE__->add_property(html_css => ($^O =~ /Win32/) ? 'Active.css' : '');
-__PACKAGE__->add_property(html_backlink => '__top');
 __PACKAGE__->add_property(meta_add => {});
 __PACKAGE__->add_property(meta_merge => {});
 __PACKAGE__->add_property(metafile => 'META.yml');
@@ -1943,11 +1942,11 @@ sub ACTION_docs {
   if ( Module::Build::ConfigData->feature('manpage_support') &&
        $self->gen_manpages )
   {
-    $self->manify_bin_pods();
-    $self->manify_lib_pods();
+    $self->manify_bin_pods;
+    $self->manify_lib_pods;
   }
 
-  $self->htmlify_pods() if $self->gen_html;
+  $self->htmlify_pods if $self->gen_html;
 }
 
 sub manify_bin_pods {
@@ -2025,83 +2024,83 @@ sub ACTION_html {
   $self->htmlify_pods;
 }
 
+# XXX This is wrong, wrong, wrong.
+# 1) It assumes installation into site directories
+# 2) If it's an ActiveState perl install, we need to run
+#    ActivePerl::DocTools->UpdateTOC;
+# 3) Links to other modules are not being generated
 sub htmlify_pods {
   my $self = shift;
 
   require Module::Build::PodParser;
   require Pod::Html;
 
-  my $pods = $self->_find_pods( [ @{$self->libdoc_dirs},
-                                  @{$self->bindoc_dirs} ],
-                                exclude => [ qr/\.(?:bat|com|html)$/ ] );
-
-  my $podpath = join ':',
-                map  $_->[1],
-	        grep -e $_->[0],
-	        map  [File::Spec->catdir($self->blib, $_), $_],
-		qw( script lib );
-
-  my $htmldir = File::Spec->catdir($self->blib, 'html');
-  unless (-d $htmldir) {
-    File::Path::mkpath($htmldir, 0, 0755) or die "Couldn't mkdir $htmldir: $!";
-  }
-
   $self->add_to_cleanup('pod2htm*');
 
-  foreach my $pod (keys %$pods){
+  foreach my $type ( qw(bin lib) ) {
 
-    my $isbin = 0;
-    {
-      my @d = File::Spec->splitdir(
-		File::Spec->canonpath( (File::Spec->splitpath($pod))[1] ) );
-      $isbin = pop( @d ) eq 'script';
+    my $pods = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
+				  exclude => [ qr/\.(?:bat|com|html)$/ ] );
+
+    my $podpath = join ':',
+                  map  $_->[1],
+	          grep -e $_->[0],
+	          map  [File::Spec->catdir($self->blib, $_), $_],
+		  qw( script lib );
+
+    my $htmldir = File::Spec->catdir($self->blib, "${type}html");
+    unless ( -d $htmldir ) {
+      File::Path::mkpath($htmldir, 0, 0755)
+	or die "Couldn't mkdir $htmldir: $!";
     }
 
-    my @rootdirs = $isbin ? ('bin') : ('site', 'lib');
+    my @rootdirs = ($type eq 'bin') ? qw(bin) : qw(site lib);
 
-    my ($name, $path) = File::Basename::fileparse($pods->{$pod}, qr{\..*});
-    my @dirs = File::Spec->splitdir( File::Spec->canonpath( $path ) );
-    pop( @dirs ) if $dirs[-1] eq File::Spec->curdir;
+    foreach my $pod ( keys %$pods ) {
 
-    my $fulldir = File::Spec->catfile($htmldir, @rootdirs, @dirs);
-    my $outfile = File::Spec->catfile($fulldir, $name . '.html');
-    my $infile  = File::Spec->abs2rel($pod);
+      my ($name, $path) = File::Basename::fileparse($pods->{$pod}, qr{\..*});
+      my @dirs = File::Spec->splitdir( File::Spec->canonpath( $path ) );
+      pop( @dirs ) if $dirs[-1] eq File::Spec->curdir;
 
-    return if $self->up_to_date($infile, $outfile);
+      my $fulldir = File::Spec->catfile($htmldir, @rootdirs, @dirs);
+      my $outfile = File::Spec->catfile($fulldir, "${name}.html");
+      my $infile  = File::Spec->abs2rel($pod);
 
-    unless (-d $fulldir){
-      File::Path::mkpath($fulldir, 0, 0755)
-        or die "Couldn't mkdir $fulldir: $!";
-    }
+      return if $self->up_to_date($infile, $outfile);
 
-    my $path2root = "../" x (@rootdirs+@dirs);
-    my $htmlroot = "$path2root/site";
+      unless ( -d $fulldir ){
+        File::Path::mkpath($fulldir, 0, 0755)
+          or die "Couldn't mkdir $fulldir: $!";
+      }
 
-    my $title = join('::', (@dirs, $name));
-    {
+      my $path2root = join( '/', ('..') x (@rootdirs+@dirs) );
+      my $htmlroot = "$path2root/site";
+
       my $fh = IO::File->new($infile);
       my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
+
+      my $title = join( '::', (@dirs, $name) );
       $title .= " - $abstract" if $abstract;
+
+
+      my @opts = (
+                  '--flush',
+                  "--title=$title",
+                  "--podpath=$podpath",
+                  "--infile=$infile",
+                  "--outfile=$outfile",
+                  '--podroot=' . $self->blib,
+                  "--htmlroot=$htmlroot",
+                  eval {Pod::Html->VERSION(1.03); 1} ?
+		    ('--header', '--backlink=Back to Top') : (),
+                 );
+
+      push( @opts, "--css=$path2root/". $self->html_css ) if $self->html_css;
+
+      $self->log_info("HTMLifying $infile -> $outfile\n");
+      $self->log_verbose("pod2html @opts\n");
+      Pod::Html::pod2html(@opts);	# or warn "pod2html @opts failed: $!";
     }
-
-    my @opts = (
-                '--flush',
-                "--title=$title",
-                "--podpath=$podpath",
-                "--infile=$infile",
-                "--outfile=$outfile",
-                '--podroot=' . $self->blib,
-                "--htmlroot=$htmlroot",
-                eval {Pod::Html->VERSION(1.03); 1} ?
-		  ('--header', '--backlink=' . $self->html_backlink) : (),
-               );
-
-    push( @opts, "--css=$path2root/". $self->html_css ) if $self->html_css;
-
-    $self->log_info("HTMLifying $infile -> $outfile\n");
-    $self->log_verbose("pod2html @opts\n");
-   Pod::Html::pod2html(@opts);	# or warn "pod2html @opts failed: $!";
-
   }
 
 }
@@ -2994,7 +2993,7 @@ sub install_map {
   }
   
   $map{read} = '';  # To keep ExtUtils::Install quiet
-  
+
   return \%map;
 }
 

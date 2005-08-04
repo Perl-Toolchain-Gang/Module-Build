@@ -104,8 +104,8 @@ $mb->prefix(undef);
         script  => catdir( $install_base, 'bin' ),
         bindoc  => catdir( $install_base, 'man', 'man1'),
         libdoc  => catdir( $install_base, 'man', 'man3' ),
-        binhtml => catdir( $install_base, 'html', 'script'),
-        libhtml => catdir( $install_base, 'html', 'lib' ),
+        binhtml => catdir( $install_base, 'html' ),
+        libhtml => catdir( $install_base, 'html' ),
     });
 }
 
@@ -183,8 +183,8 @@ $mb->prefix(undef);
         script  => catdir( $install_base, 'bin' ),
         bindoc  => catdir( $install_base, 'man', 'man1'),
         libdoc  => catdir( $install_base, 'man', 'man3' ),
-        binhtml => catdir( $install_base, 'html', 'script'),
-        libhtml => catdir( $install_base, 'html', 'lib' ),
+        binhtml => catdir( $install_base, 'html' ),
+        libhtml => catdir( $install_base, 'html' ),
     });
 }
 
