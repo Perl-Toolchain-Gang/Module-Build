@@ -16,6 +16,9 @@ Revision history for Perl extension Module::Build.
  - Added the Apache, MIT, and Mozilla licenses to the list of licenses
    that this module knows about. [Bob Ippolito]
 
+ - Added a URL for each license type that we know about, which will
+   appear as resources=>license: in the generated META.yml file.
+
  - Fixed a pretty significant typo in the documentation for
    auto_features. [Spotted by Jonas B. Nielsen]
 
