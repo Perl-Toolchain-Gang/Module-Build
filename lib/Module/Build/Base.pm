@@ -1270,8 +1270,40 @@ sub args {
     return $self->{args}{$key};
 }
 
+sub _translate_option {
+  my $self = shift;
+  my $opt  = shift;
+
+  (my $tr_opt = $opt) =~ tr/-/_/;
+
+  return $tr_opt if grep $_ eq $tr_opt, qw(
+    install_path
+    html_css
+    meta_add
+    meta_merge
+    gen_manpages
+    gen_html
+    install_manpages
+    install_html
+    test_files
+    install_base
+    create_makefile_pl
+    create_readme
+    extra_compiler_flags
+    extra_linker_flags
+    ignore_prereq_conflicts
+    ignore_prereq_requires
+    ignore_prereqs
+    skip_rcfile
+  ); # normalize only selected option names
+
+  return $opt;
+}
+
 sub _read_arg {
   my ($self, $args, $key, $val) = @_;
+
+  $key = $self->_translate_option($key);
 
   if ( exists $args->{$key} ) {
     $args->{$key} = [ $args->{$key} ] unless ref $args->{$key};
@@ -1281,21 +1313,64 @@ sub _read_arg {
   }
 }
 
+sub _optional_arg {
+  my $self = shift;
+  my $opt  = shift;
+  my $argv = shift;
+
+  $opt = $self->_translate_option($opt);
+
+  my @bool_opts = qw(
+    gen_manpages
+    gen_html
+    install_manpages
+    install_html
+    verbose
+    create_readme
+    pollute
+    quiet
+    ignore_prereq_conflicts
+    ignore_prereq_requires
+    ignore_prereqs
+    skip_rcfile
+  );
+
+  # inverted boolean options; eg --noverbose or --no-verbose
+  # converted to proper name & returned with false value (verbose, 0)
+  if ( grep $opt =~ /^no-?$_$/, @bool_opts ) {
+    $opt =~ s/^no-?//;
+    return ($opt, 0);
+  }
+
+  # non-boolean option; return option unchanged along with its argument
+  return ($opt, shift(@$argv)) unless grep $_ eq $opt, @bool_opts;
+
+  # we're punting a bit here, if an option appears followed by a digit
+  # we take the digit as the argument for the option. If there is
+  # nothing that looks like a digit, we pretent the option is a flag
+  # that is being set and has no argument.
+  my $arg = 1;
+  $arg = shift(@$argv) if @$argv && $argv->[0] =~ /^\d+$/;
+
+  return ($opt, $arg);
+}
+
 sub read_args {
   my $self = shift;
   my ($action, @argv);
   (my $args, @_) = $self->cull_options(@_);
   my %args = %$args;
 
+  my $opt_re = qr/[\w\-]+/;
+
   while (@_) {
     local $_ = shift;
-    if ( /^(\w+)=(.*)/ ) {
+    if ( /^(?:--)?($opt_re)=(.*)$/ ) {
       $self->_read_arg(\%args, $1, $2);
-    } elsif ( /^--(\w+)$/ ) {
-      $self->_read_arg(\%args, $1, shift());
-    } elsif ( /^--(\w+)=(.*)$/ ) {
-      $self->_read_arg(\%args, $1, $2);
-    } elsif ( /^(\w+)$/ and !defined($action)) {
+    } elsif ( /^--($opt_re)$/ ) {
+      my($opt, $arg) = $self->_optional_arg($1, \@_);
+      $self->_read_arg(\%args, $opt, $arg);
+    } elsif ( /^($opt_re)$/ and !defined($action)) {
       $action = $1;
     } else {
       push @argv, $_;
