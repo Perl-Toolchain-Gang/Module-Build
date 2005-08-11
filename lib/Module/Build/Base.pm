@@ -2142,7 +2142,7 @@ sub htmlify_pods {
       my $outfile = File::Spec->catfile($fulldir, "${name}.html");
       my $infile  = File::Spec->abs2rel($pod);
 
-      return if $self->up_to_date($infile, $outfile);
+      next if $self->up_to_date($infile, $outfile);
 
       unless ( -d $fulldir ){
         File::Path::mkpath($fulldir, 0, 0755)
