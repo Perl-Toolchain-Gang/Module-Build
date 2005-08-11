@@ -2590,8 +2590,8 @@ sub do_create_metafile {
     $self->log_warn("No license specified, setting license = 'unknown'\n");
     $p->{license} = 'unknown';
   }
-  unless ($self->valid_licenses->{ $p->{license} }) {
-    die "Unknown license type '$p->{license}";
+  unless (exists $self->valid_licenses->{ $p->{license} }) {
+    die "Unknown license type '$p->{license}'";
   }
 
   # If we're in the distdir, the metafile may exist and be non-writable.
