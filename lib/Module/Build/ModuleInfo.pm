@@ -11,7 +11,7 @@ use IO::File;
 
 
 my $PKG_REGEXP  = qr/^[\s\{;]*package\s+([\w:]+)/;
-my $VERS_REGEXP = qr/([\$*])(([\w\:\']*)\bVERSION)\b.*\=/;
+my $VERS_REGEXP = qr/([\$*])(([\w\:\']*)\bVERSION)\b\s*=[^=]/;
 
 
 sub new_from_file {

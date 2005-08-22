@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 33;
+use Test::More tests => 48;
 
 
 use File::Spec ();
@@ -96,18 +96,53 @@ $VERSION = '2.34';
 package Simple;
 $VERSION = '1.23';
 ---
+  <<'---', # mentions another module's $VERSION
+package Simple;
+$VERSION = '1.23';
+if ( $Other::VERSION ) {
+    # whatever
+}
+---
+  <<'---', # mentions another module's $VERSION in a different package
+package Simple;
+$VERSION = '1.23';
+package Simple2;
+if ( $Simple::VERSION ) {
+    # whatever
+}
+---
+  <<'---', # $VERSION checked only in assignments, not relational ops
+package Simple;
+$VERSION = '1.23';
+if ( $VERSION == 3.45 ) {
+    # whatever
+}
+---
+  <<'---', # $VERSION checked only in assignments, not relational ops
+package Simple;
+$VERSION = '1.23';
+package Simple2;
+if ( $Simple::VERSION == 3.45 ) {
+    # whatever
+}
+---
 );
 
 my( $i, $n ) = ( 1, scalar( @modules ) );
 foreach my $module ( @modules ) {
  SKIP: {
-    skip "No our() support until perl 5.6", 1 if $] < 5.006 && $module =~ /\bour\b/;
+    skip( "No our() support until perl 5.6", 2 )
+	if $] < 5.006 && $module =~ /\bour\b/;
 
     $dist->change_file( 'lib/Simple.pm', $module );
     $dist->regen;
+
+    my $warnings = '';
+    local $SIG{__WARN__} = sub { $warnings .= $_ for @_ };
     my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
     is( $pm_info->version, '1.23',
 	"correct module version ($i of $n)" );
+    is( $warnings, '', 'no warnings from parsing' );
     $i++;
   }
 }
