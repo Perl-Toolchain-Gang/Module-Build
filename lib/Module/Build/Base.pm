@@ -2488,7 +2488,7 @@ sub have_c_compiler {
   
   print "Checking if compiler tools configured... " if $p->{verbose};
   
-  my $c_file = $self->config_file('compilet.c');
+  my $c_file = File::Spec->catfile(File::Spec->tmpdir, 'compilet.c');
   {
     my $fh = IO::File->new("> $c_file") or die "Can't create $c_file: $!";
     print $fh "int boot_compilet() { return 1; }\n";

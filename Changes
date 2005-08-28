@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+0.2612
+
+ - We now use File::Spec->tmpdir rather than the local _build/
+   directory when checking for a C compiler, because sometimes the
+   latter doesn't exist (yet). [Jerry D. Hedden]
+
 0.2611  Mon Jun 13 22:22:53 CDT 2005
 
  - Fix the output of an informational message that we output when
