@@ -733,7 +733,8 @@ sub dist_version {
 
   if ( $p->{dist_version_from} ) {
     my $version_from = File::Spec->catfile( split( qr{/}, $p->{dist_version_from} ) );
-    my $pm_info = Module::Build::ModuleInfo->new_from_file( $version_from );
+    my $pm_info = Module::Build::ModuleInfo->new_from_file( $version_from )
+      or die "Can't find file $version_from to determine version";
     $p->{dist_version} = $pm_info->version();
   }
 
