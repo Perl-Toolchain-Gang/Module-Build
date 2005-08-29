@@ -2731,6 +2731,7 @@ sub prepare_metadata {
 
   $node->{dynamic_config} = $p->{dynamic_config} if exists $p->{dynamic_config};
   $node->{provides} = $self->find_dist_packages;
+  $node->{no_index} = $p->{no_index} if exists $p->{no_index};
 
   $node->{generated_by} = "Module::Build version $Module::Build::VERSION";
 

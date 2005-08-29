@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.27_03
 
+ - If the user passes a no_index parameter to our constructor, we now
+   pass that through when building the META.yml file. [Richard
+   Soderberg, RT #9603]
+
  - Some versions of MakeMaker, CPANPLUS, and/or PAUSE thought that a
    certain line of our code was declaring a $VERSION when we didn't
    intend to.  The line has been obscurified so they won't think that
