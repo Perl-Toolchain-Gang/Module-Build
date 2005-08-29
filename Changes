@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.27_03
 
+ - Some versions of MakeMaker, CPANPLUS, and/or PAUSE thought that a
+   certain line of our code was declaring a $VERSION when we didn't
+   intend to.  The line has been obscurified so they won't think that
+   anymore. [Jos Boumans, RT #14226]
+
  - We now use ExtUtils::CBuilder to do all compiling of C code (for
    example, when compiling XS modules).  (This change actually
    occurred in 0.27_01, but it was mistakenly omitted from the Changes

@@ -209,12 +209,15 @@ sub _evaluate_version_line {
 
   # version.pm will change the ->VERSION method, so we mitigate the
   # potential effects here.  Unfortunately local(*UNIVERSAL::VERSION)
-  # will crash perl < 5.8.1.
+  # will crash perl < 5.8.1.  We also use *{Foo::VERSION} instead of
+  # *Foo::VERSION so that old versions of CPAN.pm, etc. with a
+  # too-permissive regex don't think we're actually declaring a
+  # version.
 
   my $old_version = \&UNIVERSAL::VERSION;
   eval {require version};
   my $result = eval $eval;
-  *UNIVERSAL::VERSION = $old_version;
+  *{UNIVERSAL::VERSION} = $old_version;
   warn "Error evaling version line '$eval' in $self->{filename}: $@\n" if $@;
 
   # Unbless it if it's a version.pm object
