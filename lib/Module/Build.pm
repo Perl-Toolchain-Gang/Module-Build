@@ -662,9 +662,9 @@ C<install_base> parameter to point to a directory on your system.  For
 instance, if you set C<install_base> to "/home/ken" on a Linux
 system, you'll install as follows:
 
- lib     => /home/ken/lib
- arch    => /home/ken/lib/i386-linux
- script  => /home/ken/scripts
+ lib     => /home/ken/lib/perl5
+ arch    => /home/ken/lib/perl5/i386-linux
+ script  => /home/ken/bin
  bin     => /home/ken/bin
  bindoc  => /home/ken/man/man1
  libdoc  => /home/ken/man/man3
