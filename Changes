@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.27_03
 
+ - Previously, we assumed that any custom subclass of Module::Build
+   was located in _build/lib/.  This is only true if the author used
+   the subclass() method, though.  We now use %INC to find where the
+   custom subclass really is, so that we can "use lib" it. [Spotted by
+   Peter Tandler]
+
  - If the user passes a no_index parameter to our constructor, we now
    pass that through when building the META.yml file. [Richard
    Soderberg, RT #9603]
