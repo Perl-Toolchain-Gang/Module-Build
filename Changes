@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_03
 
+ - Our POD parser will now accept "AUTHORS" as well as "AUTHOR" when
+   looking for the author list in a module. [David Wheeler]
+
  - Previously, we assumed that any custom subclass of Module::Build
    was located in _build/lib/.  This is only true if the author used
    the subclass() method, though.  We now use %INC to find where the
