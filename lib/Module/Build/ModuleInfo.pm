@@ -18,7 +18,7 @@ sub new_from_file {
   my $package  = shift;
   my $filename = File::Spec->rel2abs( shift );
   return undef unless defined( $filename ) && -f $filename;
-  return __PACKAGE__->_init( undef, $filename, @_ );
+  return $package->_init( undef, $filename, @_ );
 }
 
 sub new_from_module {
@@ -26,9 +26,9 @@ sub new_from_module {
   my $module  = shift;
   my %props   = @_;
   $props{inc} ||= \@INC;
-  my $filename = __PACKAGE__->find_module_by_name( $module, $props{inc} );
+  my $filename = $package->find_module_by_name( $module, $props{inc} );
   return undef unless defined( $filename ) && -f $filename;
-  return __PACKAGE__->_init( $module, $filename, %props );
+  return $package->_init( $module, $filename, %props );
 }
 
 sub _init {
