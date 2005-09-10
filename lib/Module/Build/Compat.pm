@@ -140,6 +140,8 @@ sub makefile_to_build_args {
   shift;
   my @out;
   foreach my $arg (@_) {
+    next if $arg eq '';
+    
     my ($key, $val) = ($arg =~ /^(\w+)=(.+)/ ? ($1, $2) :
 		       die "Malformed argument '$arg'");
 
