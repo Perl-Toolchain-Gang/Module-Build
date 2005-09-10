@@ -8,6 +8,7 @@ use File::Spec;
 use IO::File;
 use Config;
 use Module::Build;
+use Module::Build::ModuleInfo;
 use Data::Dumper;
 
 my %makefile_to_build = 
@@ -131,12 +132,8 @@ EOF
 sub subclass_dir {
   my ($self, $build) = @_;
   
-  my $build_mod = join('/', split /::/, ref($build)) . '.pm';
-  return File::Spec->catdir($build->config_dir, 'lib')
-    unless exists $INC{$build_mod};
-
-  my ($build_vol, $build_dir) = File::Spec->splitpath($INC{$build_mod});
-  return File::Spec->catpath($build_vol, $build_dir, '');
+  return (Module::Build::ModuleInfo->find_module_dir_by_name(ref $build)
+	  || File::Spec->catdir($build->config_dir, 'lib'));
 }
 
 sub makefile_to_build_args {

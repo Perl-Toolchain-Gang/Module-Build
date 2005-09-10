@@ -81,7 +81,7 @@ sub _init {
 }
 
 # class method
-sub find_module_by_name {
+sub _do_find_module {
   my $package = shift;
   my $module  = shift || die 'find_module_by_name() requires a package name';
   my $dirs    = shift || \@INC;
@@ -89,12 +89,24 @@ sub find_module_by_name {
   my $file = File::Spec->catfile(split( /::/, $module));
   foreach my $dir ( @$dirs ) {
     my $testfile = File::Spec->catfile($dir, $file);
-    return File::Spec->rel2abs( $testfile )
+    return [ File::Spec->rel2abs( $testfile ), $dir ]
 	if -e $testfile and !-d _;  # For stuff like ExtUtils::xsubpp
-    return File::Spec->rel2abs( "$testfile.pm" )
+    return [ File::Spec->rel2abs( "$testfile.pm" ), $dir ]
 	if -e "$testfile.pm";
   }
   return;
+}
+
+# class method
+sub find_module_by_name {
+  my $found = shift()->_do_find_module(@_) or return;
+  return $found->[0];
+}
+
+# class method
+sub find_module_dir_by_name {
+  my $found = shift()->_do_find_module(@_) or return;
+  return $found->[1];
 }
 
 
@@ -325,6 +337,14 @@ Returns the path to a module given the module or package name. A list
 of directories can be passed in as an optional paramater, otherwise
 @INC is searched.
 
-Can be called as both an object and a class method.
+Can be called as either an object or a class method.
+
+=head2 find_module_dir_by_name( $module [ , \@dirs ] )
+
+Returns the entry in C<@dirs> (or C<@INC> by default) that contains
+the module C<$module>. A list of directories can be passed in as an
+optional paramater, otherwise @INC is searched.
+
+Can be called as either an object or a class method.
 
 =cut
