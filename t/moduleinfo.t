@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 48;
+use Test::More tests => 50;
 
 
 use File::Spec ();
@@ -124,6 +124,13 @@ $VERSION = '1.23';
 package Simple2;
 if ( $Simple::VERSION == 3.45 ) {
     # whatever
+}
+---
+  <<'---', # $VERSION declared as package variable from within 'main' package
+$Simple::VERSION = '1.23';
+{
+  package Simple;
+  $x = $y, $cats = $dogs;
 }
 ---
 );
