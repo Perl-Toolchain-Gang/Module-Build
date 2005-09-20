@@ -12,6 +12,8 @@ Revision history for Perl extension Module::Build.
    issue a warning if it seems to be outside the build directory.
    [Spotted by Peter Tandler]
 
+ - Added a dir_contains() method.
+
  - If the user passes a no_index parameter to our constructor, we now
    pass that through when building the META.yml file. [Richard
    Soderberg, RT #9603]

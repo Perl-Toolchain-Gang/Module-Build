@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 
 use Cwd ();
@@ -52,6 +52,14 @@ my @files;
   my $file2 = $mb->copy_if_modified(from => $file, to_dir => $tmp[2]);
   ok $file2;
   ok -e $file2;
+}
+
+{
+  # Try some dir_contains() combinations
+  my $first  = File::Spec->catdir('', 'one', 'two');
+  my $second = File::Spec->catdir('', 'one', 'two', 'three');
+  
+  ok( Module::Build->dir_contains($first, $second) );
 }
 
 # cleanup

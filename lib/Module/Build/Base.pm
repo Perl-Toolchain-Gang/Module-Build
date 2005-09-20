@@ -3362,6 +3362,28 @@ sub up_to_date {
   return 1;
 }
 
+sub dir_contains {
+  my ($self, $first, $second) = @_;
+  # File::Spec doesn't have an easy way to check whether one directory
+  # is inside another, unfortunately.
+  
+  ($first, $second) = map File::Spec->canonpath($_), ($first, $second);
+  my @first_dirs = File::Spec->splitdir($first);
+  my @second_dirs = File::Spec->splitdir($second);
+
+  return 0 if @second_dirs < @first_dirs;
+  
+  my $is_same = ( File::Spec->case_tolerant
+		  ? sub {lc(shift()) eq lc(shift())}
+		  : sub {shift() eq shift()} );
+  
+  while (@first_dirs) {
+    return 0 unless $is_same->(shift @first_dirs, shift @second_dirs);
+  }
+  
+  return 1;
+}
+
 1;
 __END__
 
