@@ -426,6 +426,18 @@ sub features     {
 }
 BEGIN { *feature = \&features }
 
+sub _mb_feature {
+  my $self = shift;
+  
+  if (($self->module_name || '') eq 'Module::Build') {
+    # We're building Module::Build itself, so ...::ConfigData isn't
+    # valid, but $self->features() should be.
+    return $self->feature(@_);
+  } else {
+    require Module::Build::ConfigData;
+    return Module::Build::ConfigData->feature(@_);
+  }
+}
 
 
 sub add_build_element {
@@ -2007,15 +2019,7 @@ sub ACTION_docs {
 
   $self->depends_on('code');
 
-  if (($self->module_name || '') eq 'Module::Build') {
-    # Need to load from blib/
-    local @INC = (File::Spec->catdir($self->blib, 'lib'), @INC);
-    require Module::Build::ConfigData;
-  } else {
-    require Module::Build::ConfigData;
-  }
-
-  if ( Module::Build::ConfigData->feature('manpage_support') &&
+  if ( $self->_mb_feature('manpage_support') &&
        $self->gen_manpages )
   {
     $self->manify_bin_pods;
@@ -2689,8 +2693,7 @@ sub write_metafile {
   my $self = shift;
   my $metafile = $self->metafile;
 
-  require Module::Build::ConfigData;  # Only works after the 'build'
-  if (Module::Build::ConfigData->feature('YAML_support')) {
+  if ($self->_mb_feature('YAML_support')) {
     require YAML;
 
     # We use YAML::Node to get the order nice in the YAML file.
@@ -3122,15 +3125,8 @@ sub _cbuilder {
   my $p = $self->{properties};
   return $p->{_cbuilder} if $p->{_cbuilder};
 
-  my $cdata = $self;
-  if ($self->module_name ne 'Module::Build') {
-    # If we're not building M::B itself
-    require Module::Build::ConfigData;
-    $cdata = 'Module::Build::ConfigData';
-  }
-  
   die "Module::Build is not configured with C_support"
-    unless $cdata->feature('C_support');
+    unless $self->_mb_feature('C_support');
   
   require ExtUtils::CBuilder;
   return $p->{_cbuilder} = ExtUtils::CBuilder->new(config => $self->{config});
