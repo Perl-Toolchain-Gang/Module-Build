@@ -5,6 +5,10 @@ Revision history for Perl extension Module::Build.
  - Our POD parser will now accept "AUTHORS" as well as "AUTHOR" when
    looking for the author list in a module. [David Wheeler]
 
+ - The synonyms 'scripts' and 'prereq' for 'script_files' and
+   'requires' were broken in a previous version (0.27_01, probably),
+   but now they're fixed. [David Golden]
+ 
  - Previously, we assumed that any custom subclass of Module::Build
    was located in _build/lib/.  This is only true if the author used
    the subclass() method, though.  We now use %INC to find where the

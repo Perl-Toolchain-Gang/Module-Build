@@ -146,8 +146,8 @@ sub _construct {
   $p->{dist_author} = [ $p->{dist_author} ] if defined $p->{dist_author} and not ref $p->{dist_author};
 
   # Synonyms
-  $p->{requires} = delete $p->{prereq} if exists $p->{prereq};
-  $p->{script_files} = delete $p->{scripts} if exists $p->{scripts};
+  $p->{requires} = delete $p->{prereq} if defined $p->{prereq};
+  $p->{script_files} = delete $p->{scripts} if defined $p->{scripts};
 
   # Convert to arrays
   for ('extra_compiler_flags', 'extra_linker_flags') {
