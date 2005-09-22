@@ -5,6 +5,9 @@ Revision history for Perl extension Module::Build.
  - Our POD parser will now accept "AUTHORS" as well as "AUTHOR" when
    looking for the author list in a module. [David Wheeler]
 
+ - The recommended dependency on ExtUtils::ParseXS has been moved into
+   the "C_support" auto_feature.
+
  - The synonyms 'scripts' and 'prereq' for 'script_files' and
    'requires' were broken in a previous version (0.27_01, probably),
    but now they're fixed. [David Golden]
