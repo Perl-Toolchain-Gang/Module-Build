@@ -8,6 +8,9 @@ Revision history for Perl extension Module::Build.
  - The recommended dependency on ExtUtils::ParseXS has been moved into
    the "C_support" auto_feature.
 
+ - When building XS files, we now pass the -DVERSION and -DXS_VERSION
+   flags to the compiler. [Suggested by Jerry Hedden]
+
  - If a distribution has XS files and Module::Build has not been
    configured with the "C_support" feature, we now issued a
    warning. [Suggested by Jerry Hedden]

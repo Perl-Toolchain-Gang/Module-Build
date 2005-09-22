@@ -3152,17 +3152,23 @@ sub have_c_compiler {
 }
 
 sub compile_c {
-  my ($self, $file) = @_;
+  my ($self, $file, %args) = @_;
   my $b = $self->_cbuilder;
 
   my $obj_file = $b->object_file($file);
   $self->add_to_cleanup($obj_file);
   return $obj_file if $self->up_to_date($file, $obj_file);
 
+  # XXX the -D syntax might not be very portable
+  my $flags = $self->extra_compiler_flags;
+  if ($args{defines}) {
+    $flags = [@$flags, map "-D$_=$args{defines}{$_}", keys %{$args{defines}}];
+  }
+
   $b->compile(source => $file,
 	      object_file => $obj_file,
 	      include_dirs => $self->include_dirs,
-	      extra_compiler_flags => $self->extra_compiler_flags,
+	      extra_compiler_flags => $flags,
 	     );
 
   return $obj_file;
@@ -3279,7 +3285,8 @@ sub process_xs {
   }
   
   # .c -> .o
-  $self->compile_c($c_file);
+  my $v = $self->dist_version;
+  $self->compile_c($c_file, defines => {VERSION => $v, XSVERSION => $v});
 
   # The .bs and .a files don't go in blib/lib/, they go in blib/arch/auto/.
   # Unfortunately we have to pre-compute the whole path.
