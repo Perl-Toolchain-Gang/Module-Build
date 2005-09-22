@@ -903,6 +903,13 @@ sub prereq_failures {
 sub check_prereq {
   my $self = shift;
 
+  # If we have XS files, make sure we can process them.
+  my $xs_files = $self->find_xs_files;
+  if (keys %$xs_files && !$self->_mb_feature('C_support')) {
+    $self->log_warn("Warning: this distribution contains XS files, ".
+		    "but Module::Build is not configured with C_support");
+  }
+
   my $failures = $self->prereq_failures;
   return 1 unless $failures;
   

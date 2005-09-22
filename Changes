@@ -8,6 +8,10 @@ Revision history for Perl extension Module::Build.
  - The recommended dependency on ExtUtils::ParseXS has been moved into
    the "C_support" auto_feature.
 
+ - If a distribution has XS files and Module::Build has not been
+   configured with the "C_support" feature, we now issued a
+   warning. [Suggested by Jerry Hedden]
+
  - The synonyms 'scripts' and 'prereq' for 'script_files' and
    'requires' were broken in a previous version (0.27_01, probably),
    but now they're fixed. [David Golden]
