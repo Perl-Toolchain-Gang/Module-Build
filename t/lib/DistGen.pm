@@ -140,6 +140,20 @@ ok()
         RETVAL = newSVpv( "ok", 0 );
     OUTPUT:
         RETVAL
+
+char *
+xs_version()
+    CODE:
+	RETVAL = XS_VERSION;
+    OUTPUT:
+	RETVAL
+
+char *
+version()
+    CODE:
+	RETVAL = VERSION;
+    OUTPUT:
+	RETVAL
 ---
 
   $self->add_file( 't/basic.t', <<"---" ) unless $self->{filedata}{'t/basic.t'};

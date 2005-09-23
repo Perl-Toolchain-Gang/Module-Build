@@ -26,7 +26,7 @@ use Module::Build;
   } elsif ( !$have_c_compiler ) {
     plan skip_all => 'C_support enabled, but no compiler found';
   } else {
-    plan tests => 14;
+    plan tests => 18;
   }
 }
 
@@ -58,9 +58,15 @@ ok ! $@;
   
   my $sub = $dist->name->can('ok');
   ok $sub, "ok() function should be defined";
-
-  my $val = $sub->();
-  is $val, 'ok', "The ok() function should return the string 'ok'";
+  is $sub->(), 'ok', "The ok() function should return the string 'ok'";
+  
+  $sub = $dist->name->can('version');
+  ok $sub, "version() function should be defined";
+  is $sub->(), "0.01", "version() should return the string '0.01'";
+  
+  $sub = $dist->name->can('xs_version');
+  ok $sub, "xs_version() function should be defined";
+  is $sub->(), "0.01", "xs_version() should return the string '0.01'";
 }
 
 {
