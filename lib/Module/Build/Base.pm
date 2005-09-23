@@ -3286,7 +3286,7 @@ sub process_xs {
   
   # .c -> .o
   my $v = $self->dist_version;
-  $self->compile_c($c_file, defines => {VERSION => $v, XSVERSION => $v});
+  $self->compile_c($c_file, defines => {VERSION => qq{"$v"}, XS_VERSION => qq{"$v"}});
 
   # The .bs and .a files don't go in blib/lib/, they go in blib/arch/auto/.
   # Unfortunately we have to pre-compute the whole path.
