@@ -26,7 +26,7 @@ use Module::Build;
   } elsif ( !$have_c_compiler ) {
     plan skip_all => 'C_support enabled, but no compiler found';
   } else {
-    plan tests => 11;
+    plan tests => 14;
   }
 }
 
@@ -50,6 +50,18 @@ ok ! $@;
 
 eval {$mb->dispatch('build')};
 ok ! $@;
+
+{
+  # Make sure it actually works
+  eval 'use blib; require ' . $dist->name;
+  is $@, '';
+  
+  my $sub = $dist->name->can('ok');
+  ok $sub, "ok() function should be defined";
+
+  my $val = $sub->();
+  is $val, 'ok', "The ok() function should return the string 'ok'";
+}
 
 {
   # Try again in a subprocess 
