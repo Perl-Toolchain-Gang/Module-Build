@@ -1761,6 +1761,17 @@ sub ACTION_testcover {
   }
 
   $self->add_to_cleanup('coverage', 'cover_db');
+  $self->depends_on('code');
+
+  # See whether any of the *.pm files have changed since last time
+  # testcover was run.  If so, start over.
+  if (-e 'cover_db') {
+    my $pm_files = $self->rscan_dir(File::Spec->catdir($self->blib, 'lib'), qr{\.pm$} );
+    my $cover_files = $self->rscan_dir('cover_db', sub {-f $_ and not /\.html$/});
+    
+    $self->do_system(qw(cover -delete))
+      unless $self->up_to_date($pm_files, $cover_files);
+  }
 
   local $Test::Harness::switches    = 
   local $Test::Harness::Switches    = 
