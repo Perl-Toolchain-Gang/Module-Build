@@ -12,7 +12,7 @@ Revision history for Perl extension Module::Build.
    flags to the compiler. [Suggested by Jerry Hedden]
 
  - If a distribution has XS files and Module::Build has not been
-   configured with the "C_support" feature, we now issued a
+   configured with the "C_support" feature, we now issue a
    warning. [Suggested by Jerry Hedden]
 
  - The synonyms 'scripts' and 'prereq' for 'script_files' and
