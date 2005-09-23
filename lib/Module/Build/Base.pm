@@ -766,8 +766,10 @@ sub _pod_parse {
   my $member = "dist_$part";
   return $p->{$member} if defined $p->{$member};
   
-  return unless $p->{dist_version_from};
-  my $fh = IO::File->new($p->{dist_version_from}) or return;
+  my $docfile = $self->_main_docfile
+    or return;
+  my $fh = IO::File->new($docfile)
+    or return;
   
   require Module::Build::PodParser;
   my $parser = Module::Build::PodParser->new(fh => $fh);
@@ -2448,11 +2450,15 @@ sub do_create_readme {
                eval {require Pod::Text;   1} ? Pod::Text->new :
 	       die "Can't load Pod::Readme or Pod::Text to create README";
   $self->log_info("Creating README using " . ref($parser) . "\n");
+  $parser->parse_from_file($self->_main_docfile, 'README', @_);
+  $self->_add_to_manifest('MANIFEST', 'README');
+}
+
+sub _main_docfile {
+  my $self = shift;
   my $pm_file = $self->dist_version_from;
   (my $pod_file = $pm_file) =~ s/.pm$/.pod/;
-  $parser->parse_from_file
-    ((-e $pod_file ? $pod_file : $pm_file), 'README', @_);
-  $self->_add_to_manifest('MANIFEST', 'README');
+  return (-e $pod_file ? $pod_file : $pm_file);
 }
 
 sub ACTION_distdir {

@@ -5,9 +5,10 @@ Revision history for Perl extension Module::Build.
  - Our POD parser will now accept "AUTHORS" as well as "AUTHOR" when
    looking for the author list in a module. [David Wheeler]
 
- - When looking for the POD to auto-generate a README file, we now
-   also look for a *.pod with the same name as the *.pm file specified
-   by 'version_from'. [David Golden]
+ - When looking for the POD to auto-generate a README file, or for the
+   AUTHOR or ABSTRACT for the distribution, we now also look for a
+   *.pod with the same name as the *.pm file specified by
+   'version_from'. [David Golden]
 
  - The recommended dependency on ExtUtils::ParseXS has been moved into
    the "C_support" auto_feature.
