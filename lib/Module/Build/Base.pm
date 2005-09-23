@@ -2448,7 +2448,10 @@ sub do_create_readme {
                eval {require Pod::Text;   1} ? Pod::Text->new :
 	       die "Can't load Pod::Readme or Pod::Text to create README";
   $self->log_info("Creating README using " . ref($parser) . "\n");
-  $parser->parse_from_file($self->dist_version_from, 'README', @_);
+  my $pm_file = $self->dist_version_from;
+  (my $pod_file = $pm_file) =~ s/.pm$/.pod/;
+  $parser->parse_from_file
+    ((-e $pod_file ? $pod_file : $pm_file), 'README', @_);
   $self->_add_to_manifest('MANIFEST', 'README');
 }
 
