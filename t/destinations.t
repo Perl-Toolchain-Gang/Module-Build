@@ -27,11 +27,6 @@ use File::Spec::Functions qw( catdir splitdir );
 
 #########################
 
-TODO: {
-  local $TODO = 'Test PREFIX pass-thru to compat Makefile.PL';
-  ok 0, 'PREFIX';
-}
-
 use Module::Build;
 my $mb = Module::Build->new_from_context;
 isa_ok( $mb, 'Module::Build::Base' );
@@ -199,10 +194,10 @@ sub test_prefix {
         like( $dest, "/^\Q$prefix\E/", "$type prefixed");
 
         if( $test_config && $test_config->{$type} ) {
-            my @test_dirs = splitdir( $test_config->{$type} );
             my @dest_dirs = splitdir( $dest );
+            my @test_dirs = splitdir( $test_config->{$type} );
 
-            is( $dest_dirs[-1], $test_dirs[-1], '  suffix correctish' );
+            is( $dest_dirs[-1], $test_dirs[-1], "  suffix correctish ($dest vs $test_config->{$type})" );
         }
     }
 }
