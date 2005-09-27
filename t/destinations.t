@@ -153,12 +153,9 @@ $mb->prefix(undef);
     }
 
     # Poke at the innards of MB to change the default install locations.
-    while( my($key, $path) = each %test_config ) {
-        $mb->{properties}{install_sets}{site}{$key} = $path;
-    }
-
-    $mb->{config}{siteprefixexp} = catdir(File::Spec->rootdir, 
-                                         'wierd', 'prefix');
+    local $mb->install_sets->{site} = \%test_config;
+    $mb->config(siteprefixexp => catdir(File::Spec->rootdir, 
+					'wierd', 'prefix'));
 
     my $prefix = catdir('another', 'prefix');
     $mb->prefix($prefix);
