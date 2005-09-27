@@ -2511,14 +2511,16 @@ sub _write_default_maniskip {
   my $fh = IO::File->new("> $file")
     or die "Can't open $file: $!";
 
-  # This is pretty much straight out of
-  # MakeMakers default MANIFEST.SKIP file
+  # This is derived from MakeMaker's default MANIFEST.SKIP file with
+  # some new entries
+
   print $fh <<'EOF';
 # Avoid version control files.
 \bRCS\b
 \bCVS\b
 ,v$
 \B\.svn\b
+\b\.cvsignore$
 
 # Avoid Makemaker generated and utility files.
 \bMakefile$
@@ -2532,6 +2534,9 @@ sub _write_default_maniskip {
 \bBuild$
 \b_build
 
+# Avoid Devel::Cover generated files
+\bcover_db
+
 # Avoid temp and backup files.
 ~$
 \.tmp$
@@ -2539,7 +2544,18 @@ sub _write_default_maniskip {
 \.bak$
 \#$
 \b\.#
+\.rej$
+
+# Avoid OS-specific files/dirs
+#   Mac OSX metadata
+\b\.DS_Store
+#   Mac OSX SMB mount metadata files
+\b\._
+# Avoid archives of this distribution
 EOF
+
+  # Skip, for example, "Module-Build-0.27.tar.gz'
+  print $fh '\b'.$self->dist_name.'-[\d\.\_]+'."\n";
 
   $fh->close();
 }

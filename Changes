@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_03
 
+ - Added some more entries to the default MANIFEST.SKIP file. [Chris
+   Dolan]
+
  - Our POD parser will now accept "AUTHORS" as well as "AUTHOR" when
    looking for the author list in a module. [David Wheeler]
 
