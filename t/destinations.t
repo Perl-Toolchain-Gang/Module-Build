@@ -191,14 +191,18 @@ sub test_prefix {
 	ok $mb->dir_contains($prefix, $dest), "$type prefixed";
 
         if( $test_config && $test_config->{$type} ) {
-            my @dest_dirs = splitdir( $dest );
-            my @test_dirs = splitdir( $test_config->{$type} );
-
-            is( $dest_dirs[-1], $test_dirs[-1], "  suffix correctish ($test_config->{$type} + $prefix = $dest)" );
+	    have_same_ending($dest, $test_config->{$type},
+			     "  suffix correctish ($test_config->{$type} + $prefix = $dest)" );
         }
     }
 }
 
+sub have_same_ending {
+  my ($dir1, $dir2, $message) = @_;
+  my @dir1 = splitdir $dir1;
+  my @dir2 = splitdir $dir2;
+  is $dir1[-1], $dir2[-1], $message;
+}
 
 sub test_install_destinations {
     my($build, $expect) = @_;
