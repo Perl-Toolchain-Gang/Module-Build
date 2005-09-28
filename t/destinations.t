@@ -188,13 +188,13 @@ sub test_prefix {
 
     foreach my $type (qw(lib arch bin script bindoc libdoc binhtml libhtml)) {
         my $dest = $mb->install_destination( $type );
-        like( $dest, "/^\Q$prefix\E/", "$type prefixed");
+	ok $mb->dir_contains($prefix, $dest), "$type prefixed";
 
         if( $test_config && $test_config->{$type} ) {
             my @dest_dirs = splitdir( $dest );
             my @test_dirs = splitdir( $test_config->{$type} );
 
-            is( $dest_dirs[-1], $test_dirs[-1], "  suffix correctish ($dest vs $test_config->{$type})" );
+            is( $dest_dirs[-1], $test_dirs[-1], "  suffix correctish ($test_config->{$type} + $prefix = $dest)" );
         }
     }
 }
