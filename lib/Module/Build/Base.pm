@@ -733,15 +733,21 @@ sub dist_name {
   return $p->{dist_name};
 }
 
+sub _find_dist_version_from {
+  my ($self) = @_;
+  my $p = $self->{properties};
+  if ($self->module_name) {
+    $p->{dist_version_from} ||= join( '/', 'lib', split '::', $self->module_name ) . '.pm';
+  }
+}
+
 sub dist_version {
   my ($self) = @_;
   my $p = $self->{properties};
 
   return $p->{dist_version} if defined $p->{dist_version};
-
-  if ($self->module_name) {
-    $p->{dist_version_from} ||= join( '/', 'lib', split '::', $self->module_name ) . '.pm';
-  }
+  
+  $self->_find_dist_version_from;
 
   if ( $p->{dist_version_from} ) {
     my $version_from = File::Spec->catfile( split( qr{/}, $p->{dist_version_from} ) );
@@ -2456,6 +2462,7 @@ sub do_create_readme {
 
 sub _main_docfile {
   my $self = shift;
+  $self->_find_dist_version_from;
   my $pm_file = $self->dist_version_from;
   (my $pod_file = $pm_file) =~ s/.pm$/.pod/;
   return (-e $pod_file ? $pod_file : $pm_file);
