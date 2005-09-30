@@ -2286,14 +2286,14 @@ sub ACTION_install {
   my ($self) = @_;
   require ExtUtils::Install;
   $self->depends_on('build');
-  ExtUtils::Install::install($self->install_map, 1, 0, $self->{args}{uninst}||0);
+  ExtUtils::Install::install($self->install_map, !$self->quiet, 0, $self->{args}{uninst}||0);
 }
 
 sub ACTION_fakeinstall {
   my ($self) = @_;
   require ExtUtils::Install;
   $self->depends_on('build');
-  ExtUtils::Install::install($self->install_map, 1, 1, $self->{args}{uninst}||0);
+  ExtUtils::Install::install($self->install_map, !$self->quiet, 1, $self->{args}{uninst}||0);
 }
 
 sub ACTION_versioninstall {
@@ -3356,9 +3356,11 @@ sub do_system {
 sub copy_if_modified {
   my $self = shift;
   my %args = (@_ > 3
-	      ? ( verbose => 1, @_ )
+	      ? ( @_ )
 	      : ( from => shift, to_dir => shift, flatten => shift )
 	     );
+  $args{verbose} = !$self->quiet
+    unless exists $args{verbose};
   
   my $file = $args{from};
   unless (defined $file and length $file) {

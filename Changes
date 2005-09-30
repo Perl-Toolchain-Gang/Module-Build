@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_03
 
+ - A few more status messages can now be suppressed by using 'quiet'
+   mode.  [Dave Rolsky]
+
  - Added some more entries to the default MANIFEST.SKIP file. [Chris
    Dolan]
 
