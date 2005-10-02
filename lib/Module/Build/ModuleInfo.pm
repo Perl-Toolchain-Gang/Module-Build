@@ -11,7 +11,8 @@ use IO::File;
 
 
 my $PKG_REGEXP  = qr/^[\s\{;]*package\s+([\w:]+)/;
-my $VERS_REGEXP = qr/([\$*])(([\w\:\']*)\bVERSION)\b\s*=[^=]/;
+#my $VERS_REGEXP = qr/([\$*])(([\w\:\']*)\bVERSION)\b\s*=[^=]/;
+my $VERS_REGEXP = qr/([\$*])(((?:::|')?(?:\w+(?:::|'))*)?VERSION)\b\s*=[^=]/;
 
 
 sub new_from_file {
@@ -152,18 +153,35 @@ sub _parse_file {
       $pod_data = '';
 
       if ( $line =~ $PKG_REGEXP ) {
-        $pkg = $1;
-        push( @pkgs, $pkg ) unless grep( $pkg eq $_, @pkgs );
-        $vers{$pkg} = undef unless exists( $vers{$pkg} );
+	$pkg = $1;
+	push( @pkgs, $pkg ) unless grep( $pkg eq $_, @pkgs );
+	$vers{$pkg} = undef unless exists( $vers{$pkg} );
 	$need_vers = 1;
+
+      # VERSION defined with full package spec, i.e. $Module::VERSION
+      } elsif ( $line =~ $VERS_REGEXP && length($3) ) {
+	my ($l_sig, $l_var, $l_pkg) = ($1, $2, $3);
+	$l_pkg = ($l_pkg eq '::') ? 'main' : $l_pkg;
+	$l_pkg =~ s/::$//;
+
+	push( @pkgs, $l_pkg ) unless grep( $l_pkg eq $_, @pkgs );
+	$need_vers = 0 if $l_pkg eq $pkg;
+
+	my $v = $self->_evaluate_version_line( $line );
+	unless ( defined $vers{$l_pkg} && length $vers{$l_pkg} ) {
+	  $vers{$l_pkg} = $v;
+	} else {
+	  warn "Package '$l_pkg' already declared with version '$vers{$l_pkg}'\n" .
+	       "  ignoring new version '$v'.\n";
+	}
 
       # first non-comment line in undeclared package main is VERSION
       } elsif ( !exists($vers{main}) && $pkg eq 'main' &&
 		$line =~ $VERS_REGEXP ) {
-	  $need_vers = 0;
-          my $v = $self->_evaluate_version_line( $line );
-	  $vers{$pkg} = $v;
-	  push( @pkgs, 'main' );
+	$need_vers = 0;
+	my $v = $self->_evaluate_version_line( $line );
+	$vers{$pkg} = $v;
+	push( @pkgs, 'main' );
 
       # first non-comement line in undeclared packge defines package main
       } elsif ( !exists($vers{main}) && $pkg eq 'main' &&
@@ -172,13 +190,13 @@ sub _parse_file {
 	$vers{main} = '';
 	push( @pkgs, 'main' );
 
+      # only first keep if this is the first $VERSION seen
       } elsif ( $line =~ $VERS_REGEXP && $need_vers ) {
-        # only first keep if this is the first $VERSION seen
 	$need_vers = 0;
-        my $v = $self->_evaluate_version_line( $line );
+	my $v = $self->_evaluate_version_line( $line );
 	unless ( defined $vers{$pkg} && length $vers{$pkg} ) {
 	  $vers{$pkg} = $v;
-        } else {
+	} else {
 	  warn "Package '$pkg' already declared with version '$vers{$pkg}'\n" .
 	       "  ignoring new version '$v'.\n";
 	}
@@ -206,7 +224,6 @@ sub _evaluate_version_line {
   # Some of this code came from the ExtUtils:: hierarchy.
 
   my ($sigil, $var) = ($line =~ $VERS_REGEXP);
-
 
   my $eval = qq{q#  Hide from _packages_inside()
 		 #; package Module::Build::ModuleInfo::_version;

@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 50;
+use Test::More tests => 58;
 
 
 use File::Spec ();
@@ -126,6 +126,20 @@ if ( $Simple::VERSION == 3.45 ) {
     # whatever
 }
 ---
+  <<'---', # Fully qualified $VERSION declared in package
+package Simple;
+$Simple::VERSION = 1.23;
+---
+  <<'---', # Differentiate fully qualified $VERSION in a package
+package Simple;
+$Simple2::VERSION = '999';
+$Simple::VERSION = 1.23;
+---
+  <<'---', # Differentiate fully qualified $VERSION and unqualified
+package Simple;
+$Simple2::VERSION = '999';
+$VERSION = 1.23;
+---
   <<'---', # $VERSION declared as package variable from within 'main' package
 $Simple::VERSION = '1.23';
 {
@@ -147,6 +161,7 @@ foreach my $module ( @modules ) {
     my $warnings = '';
     local $SIG{__WARN__} = sub { $warnings .= $_ for @_ };
     my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
+
     is( $pm_info->version, '1.23',
 	"correct module version ($i of $n)" );
     is( $warnings, '', 'no warnings from parsing' );
@@ -238,6 +253,16 @@ package _private;
 $VERSION = '999';
 package main;
 $VERSION = '0.01';
+---
+  <<'---', # define 'main' version from other package
+package _private;
+$::VERSION = 0.01;
+$VERSION = '999';
+---
+  <<'---', # define 'main' version from other package
+package _private;
+$VERSION = '999';
+$::VERSION = 0.01;
 ---
 );
 
