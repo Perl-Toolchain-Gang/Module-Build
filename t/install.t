@@ -53,7 +53,7 @@ $mb->add_to_cleanup($destdir);
 
 {
   eval {$mb->dispatch('install', destdir => $destdir)};
-  ok ! $@;
+  is $@, '';
   
   my $libdir = strip_volume( $mb->install_destination('lib') );
   my $install_to = File::Spec->catfile($destdir, $libdir, $dist->name ) . '.pm';
@@ -62,7 +62,7 @@ $mb->add_to_cleanup($destdir);
   
   local @INC = (@INC, File::Spec->catdir($destdir, $libdir));
   eval "require @{[$dist->name]}";
-  ok ! $@;
+  is $@, '';
   
   # Make sure there's a packlist installed
   my $archdir = $mb->install_destination('arch');
@@ -73,7 +73,7 @@ $mb->add_to_cleanup($destdir);
 
 {
   eval {$mb->dispatch('install', installdirs => 'core', destdir => $destdir)};
-  ok ! $@;
+  is $@, '';
   my $libdir = strip_volume( $Config{installprivlib} );
   my $install_to = File::Spec->catfile($destdir, $libdir, $dist->name ) . '.pm';
   print "Should have installed module as $install_to\n";

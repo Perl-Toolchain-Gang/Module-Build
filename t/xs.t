@@ -46,10 +46,10 @@ my $mb = Module::Build->new_from_context( skip_rcfile => 1 );
 
 
 eval {$mb->dispatch('clean')};
-ok ! $@;
+is $@, '';
 
 eval {$mb->dispatch('build')};
-ok ! $@;
+is $@, '';
 
 {
   # Make sure it actually works
@@ -72,19 +72,19 @@ ok ! $@;
 {
   # Try again in a subprocess 
   eval {$mb->dispatch('clean')};
-  ok ! $@;
+  is $@, '';
 
   $mb->create_build_script;
   ok -e 'Build';
 
   eval {$mb->run_perl_script('Build')};
-  ok ! $@;
+  is $@, '';
 }
 
 # We can't be verbose in the sub-test, because Test::Harness will
 # think that the output is for the top-level test.
 eval {$mb->dispatch('test')};
-ok ! $@;
+is $@, '';
 
 {
   $mb->dispatch('ppd', args => {codebase => '/path/to/codebase-xs'});
@@ -118,15 +118,15 @@ SKIP: {
       unless $mb->os_type eq 'Unix';
 
   eval {$mb->dispatch('clean')};
-  ok ! $@;
+  is $@, '';
 
   local $mb->{config}{ld} = "FOO=BAR $mb->{config}{ld}";
   eval {$mb->dispatch('build')};
-  ok ! $@;
+  is $@, '';
 }
 
 eval {$mb->dispatch('realclean')};
-ok ! $@;
+is $@, '';
 
 # Make sure blib/ is gone after 'realclean'
 ok ! -e 'blib';

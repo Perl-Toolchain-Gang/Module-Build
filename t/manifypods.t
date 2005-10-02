@@ -103,7 +103,7 @@ my %distro = (
 $mb->dispatch('build');
 
 eval {$mb->dispatch('docs')};
-ok ! $@;
+is $@, '';
 
 while (my ($from, $v) = each %distro) {
   if (!$v) {

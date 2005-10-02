@@ -85,7 +85,7 @@ foreach my $type (@makefile_types) {
   my $warning = '';
   local $SIG{__WARN__} = sub { $warning = shift; };
   my $maketext = eval { Module::Build::Compat->fake_makefile(makefile => 'Makefile') };
-  ok ! $@;
+  is $@, '';
   like $maketext, qr/^realclean/m;
   like $warning, qr/build_class/;
 }

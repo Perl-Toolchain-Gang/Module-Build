@@ -52,7 +52,7 @@ my $mb = Module::Build->new_from_context;
 
 {
   eval {$mb->dispatch('distdir')};
-  ok ! $@;
+  is $@, '';
   chdir( $mb->dist_dir ) or die "Can't chdir to '@{[$mb->dist_dir]}': $!";
   ok -e 'SIGNATURE';
   
@@ -71,13 +71,13 @@ my $mb = Module::Build->new_from_context;
     local *Module::Build::Base::ACTION_distmeta = sub { push @run_order, 'distmeta' };
     eval { $mb->dispatch('distdir') };
   }
-  ok ! $@;
+  is $@, '';
   is $run_order[0], 'distmeta';
   is $run_order[1], 'sign';
 }
 
 eval { $mb->dispatch('realclean') };
-ok ! $@;
+is $@, '';
 
 
 # cleanup

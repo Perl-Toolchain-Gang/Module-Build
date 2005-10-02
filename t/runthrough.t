@@ -80,7 +80,7 @@ is $mb->license, 'perl';
 $mb->add_to_cleanup('before_script');
 
 eval {$mb->create_build_script};
-ok ! $@;
+is $@, '';
 ok -e $mb->build_script;
 
 is $mb->dist_dir, 'Simple-0.01';
@@ -97,7 +97,7 @@ ok grep {$_ eq 'save_out'     } $mb->cleanup;
 my $output = eval {
   stdout_of( sub { $mb->dispatch('test', verbose => 1) } )
 };
-ok ! $@;
+is $@, '';
 like $output, qr/all tests successful/i;
 
 # This is the output of lib/Simple/Script.PL
@@ -114,13 +114,13 @@ SKIP: {
   skip( 'YAML_support feature is not enabled', 7 ) unless $have_yaml;
 
   eval {$mb->dispatch('disttest')};
-  ok ! $@;
+  is $@, '';
   
   # After a test, the distdir should contain a blib/ directory
   ok -e File::Spec->catdir('Simple-0.01', 'blib');
   
   eval {$mb->dispatch('distdir')};
-  ok ! $@;
+  is $@, '';
   
   # The 'distdir' should contain a lib/ directory
   ok -e File::Spec->catdir('Simple-0.01', 'lib');
@@ -142,7 +142,7 @@ SKIP: {
 
     $mb->add_to_cleanup($mb->dist_dir . ".tar.gz");
     eval {$mb->dispatch('dist')};
-    ok ! $@;
+    is $@, '';
   }
 
 }
@@ -187,7 +187,7 @@ EOF
 
 
 eval {$mb->dispatch('realclean')};
-ok ! $@;
+is $@, '';
 
 ok ! -e $mb->build_script;
 ok ! -e $mb->config_dir;
