@@ -859,20 +859,33 @@ sub check_autofeatures {
   my ($self) = @_;
   my $features = $self->auto_features;
   
+  return unless %$features;
+
+  $self->log_info("Checking features:\n");
+
+  my $max_name_len;
+  $max_name_len = ( length($_) > $max_name_len ) ?
+                    length($_) : $max_name_len
+    for keys %$features;
+
   while (my ($name, $info) = each %$features) {
-    my $failures = $self->prereq_failures($info);
-    if ($failures) {
-      my $log_text = "Feature '$name' disabled because of the following prerequisite failures:\n";
+    $self->log_info("  $name" . '.' x ($max_name_len - length($name) + 4));
+
+    if ( my $failures = $self->prereq_failures($info) ) {
+      $self->log_info("disabled\n");
+      my $log_text;
       foreach my $type ( grep $failures->{$_}, @{$self->prereq_action_types} ) {
 	while (my ($module, $status) = each %{$failures->{$type}}) {
-	  $log_text .= " * $status->{message}\n";
+	  $log_text .= "    - $status->{message}\n";
 	}
       }
-      $self->log_warn("$log_text\n");
+      $self->log_warn("$log_text") unless $self->quiet;
     } else {
-      $self->log_info("Feature '$name' enabled.\n\n");
+      $self->log_info("enabled\n");
     }
   }
+
+  $self->log_warn("\n");
 }
 
 sub prereq_failures {
@@ -891,13 +904,13 @@ sub prereq_failures {
       if ($type =~ /conflicts$/) {
 	next if !$status->{ok};
 	$status->{conflicts} = delete $status->{need};
-	$status->{message} = "Installed version '$status->{have}' of $modname conflicts with this distribution";
+	$status->{message} = "$modname ($status->{have}) conflicts with this distribution";
 
       } elsif ($type =~ /recommends$/) {
 	next if $status->{ok};
 	$status->{message} = ($status->{have} eq '<none>'
-			      ? "Optional prerequisite $modname isn't installed"
-			      : "Version $status->{have} of $modname is installed, but we prefer to have $spec");
+			      ? "Optional prerequisite $modname is not installed"
+			      : "$modname ($status->{have}) is installed, but we prefer to have $spec");
       } else {
 	next if $status->{ok};
       }
@@ -919,20 +932,37 @@ sub check_prereq {
 		    "but Module::Build is not configured with C_support");
   }
 
+  $self->log_info("Checking prerequisites...\n");
+
   my $failures = $self->prereq_failures;
-  return 1 unless $failures;
-  
-  foreach my $type ( @{$self->prereq_action_types} ) {
-    next unless $failures->{$type};
-    my $prefix = $type =~ /recommends$/ ? '' : 'ERROR: ';
-    while (my ($module, $status) = each %{$failures->{$type}}) {
-      $self->log_warn(" * $prefix$status->{message}\n");
+
+  if ( $failures ) {
+
+    foreach my $type ( @{$self->prereq_action_types} ) {
+      next unless $failures->{$type};
+      while (my ($module, $status) = each %{$failures->{$type}}) {
+        if ( $type =~ /recommends$/ ) {
+          $self->log_warn(" * $status->{message}\n");
+        } else {
+          $self->log_warn(" - ERROR: $status->{message}\n");
+        }
+      }
     }
+
+    $self->log_warn(<<'ERRSTR');
+
+ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions
+of the modules indicated above before proceeding with this installation
+
+ERRSTR
+    return 0;
+
+  } else {
+
+    $self->log_info("Looks good\n\n");
+    return 1;
+
   }
-  
-  $self->log_warn("ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions\n".
-		  " of the modules indicated above before proceeding with this installation.\n\n");
-  return 0;
 }
 
 sub perl_version {
@@ -973,7 +1003,7 @@ sub check_installed_status {
   } else {
     my $pm_info = Module::Build::ModuleInfo->new_from_module( $modname );
     unless (defined( $pm_info )) {
-      @status{ qw(have message) } = ('<none>', "Prerequisite $modname isn't installed");
+      @status{ qw(have message) } = ('<none>', "Prerequisite $modname is not installed");
       return \%status;
     }
     
@@ -1149,7 +1179,7 @@ sub create_build_script {
     = map $self->$_(), qw(build_script dist_name dist_version);
   
   if ( $self->delete_filetree($build_script) ) {
-    $self->log_info("Removed previous script '$build_script'\n");
+    $self->log_info("Removed previous script '$build_script'\n\n");
   }
 
   $self->log_info("Creating new '$build_script' script for ",
@@ -1173,12 +1203,13 @@ sub check_manifest {
   require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
   local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
   
+  $self->log_info("Checking whether your kit is complete...\n");
   if (my @missed = ExtUtils::Manifest::manicheck()) {
-    $self->log_warn("Warning: the following files are missing in your kit:\n",
+    $self->log_warn("WARNING: the following files are missing in your kit:\n",
 		    "\t", join("\n\t", @missed), "\n",
-		    "Please inform the author.\n");
+		    "Please inform the author.\n\n");
   } else {
-    $self->log_info("Checking whether your kit is complete...\nLooks good\n");
+    $self->log_info("Looks good\n\n");
   }
 }
 

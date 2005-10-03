@@ -100,7 +100,7 @@ like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure Module::Build was loaded 
   # Make sure the correct warning message is generated when an
   # optional prereq isn't installed
   my $flagged = 0;
-  local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /ModuleBuildNonExistent isn't installed/};
+  local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /ModuleBuildNonExistent is not installed/};
 
   my $mb = Module::Build->new(
     module_name => $dist->name,
