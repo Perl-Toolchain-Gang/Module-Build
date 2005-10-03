@@ -1362,6 +1362,7 @@ sub _optional_arg {
     ignore_prereq_requires
     ignore_prereqs
     skip_rcfile
+    uninst
   );
 
   # inverted boolean options; eg --noverbose or --no-verbose
