@@ -876,7 +876,8 @@ sub check_autofeatures {
       my $log_text;
       foreach my $type ( grep $failures->{$_}, @{$self->prereq_action_types} ) {
 	while (my ($module, $status) = each %{$failures->{$type}}) {
-	  $log_text .= "    - $status->{message}\n";
+	  my $prefix = ($type =~ /recommends$/) ? '*' : '-';
+	  $log_text .= "    $prefix $status->{message}\n";
 	}
       }
       $self->log_warn("$log_text") unless $self->quiet;
@@ -941,11 +942,8 @@ sub check_prereq {
     foreach my $type ( @{$self->prereq_action_types} ) {
       next unless $failures->{$type};
       while (my ($module, $status) = each %{$failures->{$type}}) {
-        if ( $type =~ /recommends$/ ) {
-          $self->log_warn(" * $status->{message}\n");
-        } else {
-          $self->log_warn(" - ERROR: $status->{message}\n");
-        }
+	my $prefix = ($type =~ /recommends$/) ? '*' : '- ERROR:';
+	$self->log_warn(" $prefix $status->{message}\n");
       }
     }
 
@@ -1003,7 +1001,7 @@ sub check_installed_status {
   } else {
     my $pm_info = Module::Build::ModuleInfo->new_from_module( $modname );
     unless (defined( $pm_info )) {
-      @status{ qw(have message) } = ('<none>', "Prerequisite $modname is not installed");
+      @status{ qw(have message) } = ('<none>', "$modname is not installed");
       return \%status;
     }
     
@@ -1026,7 +1024,7 @@ sub check_installed_status {
     next if $op eq '>=' and !$version;  # Module doesn't have to actually define a $VERSION
     
     unless ($self->compare_versions( $status{have}, $op, $version )) {
-      $status{message} = "Version $status{have} of $modname is installed, but we need version $op $version";
+      $status{message} = "$modname ($status{have}) is installed, but we need version $op $version";
       return \%status;
     }
   }
