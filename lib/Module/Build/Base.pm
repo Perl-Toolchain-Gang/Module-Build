@@ -3187,7 +3187,7 @@ sub _cbuilder {
 sub have_c_compiler {
   my ($self) = @_;
   
-  my $p = $self->{properties}; 
+  my $p = $self->{properties};
   return $p->{have_compiler} if defined $p->{have_compiler};
   
   $self->log_verbose("Checking if compiler tools configured... ");
@@ -3204,16 +3204,11 @@ sub compile_c {
   $self->add_to_cleanup($obj_file);
   return $obj_file if $self->up_to_date($file, $obj_file);
 
-  # XXX the -D syntax might not be very portable
-  my $flags = $self->extra_compiler_flags;
-  if ($args{defines}) {
-    $flags = [@$flags, map "-D$_=$args{defines}{$_}", keys %{$args{defines}}];
-  }
-
   $b->compile(source => $file,
+	      defines => $args{defines},
 	      object_file => $obj_file,
 	      include_dirs => $self->include_dirs,
-	      extra_compiler_flags => $flags,
+	      extra_compiler_flags => $self->extra_compiler_flags,
 	     );
 
   return $obj_file;

@@ -58,7 +58,7 @@ my $build = new ModuleBuildBuilder
 		     C_support =>
 		     {
 		      description => "Can compile/link C & XS code",
-		      requires => { 'ExtUtils::CBuilder' => 0.02,
+		      requires => { 'ExtUtils::CBuilder' => 0.15,
 				    'ExtUtils::ParseXS'  => 2.02, },
 		     },
 		     manpage_support =>
