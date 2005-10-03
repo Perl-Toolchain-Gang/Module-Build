@@ -933,6 +933,11 @@ sub check_prereq {
 		    "but Module::Build is not configured with C_support");
   }
 
+  # Check to see if there are any prereqs to check
+  my $has_prereqs = grep { keys %{$self->$_()} }
+                    @{ $self->prereq_action_types };
+  return 1 unless $has_prereqs;
+
   $self->log_info("Checking prerequisites...\n");
 
   my $failures = $self->prereq_failures;
