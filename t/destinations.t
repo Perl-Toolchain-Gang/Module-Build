@@ -199,8 +199,13 @@ sub test_prefix {
 
 sub have_same_ending {
   my ($dir1, $dir2, $message) = @_;
+
+  $dir1 =~ s{/$}{} if $^O eq 'cygwin'; # remove any trailing slash
   my @dir1 = splitdir $dir1;
+
+  $dir2 =~ s{/$}{} if $^O eq 'cygwin'; # remove any trailing slash
   my @dir2 = splitdir $dir2;
+
   is $dir1[-1], $dir2[-1], $message;
 }
 
