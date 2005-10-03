@@ -182,6 +182,7 @@ sub _set_install_paths {
 
   my @libstyle = $c->{installstyle} ?
       File::Spec->splitdir($c->{installstyle}) : qw(lib perl5);
+
   my $arch     = $c->{archname};
   my $version  = $c->{version};
 
@@ -235,8 +236,8 @@ sub _set_install_paths {
 
   $p->{install_base_relpaths} =
     {
-     lib     => ['lib', 'perl5'],
-     arch    => ['lib', 'perl5', $arch],
+     lib     => [@libstyle],
+     arch    => [@libstyle, $arch],
      bin     => ['bin'],
      script  => ['bin'],
      bindoc  => ['man', 'man1'],

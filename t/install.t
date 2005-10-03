@@ -93,7 +93,10 @@ $mb->add_to_cleanup($destdir);
   my $libdir = File::Spec->catdir(File::Spec->rootdir, 'foo', 'base');
   eval {$mb->dispatch('install', install_base => $libdir, destdir => $destdir)};
   is $@, '';
-  my $install_to = File::Spec->catfile($destdir, $libdir, 'lib', 'perl5', $dist->name ) . '.pm';
+
+  my @libstyle = $mb->{config}{installstyle} ?
+     File::Spec->splitdir($mb->{config}{installstyle}) : qw(lib perl5);
+  my $install_to = File::Spec->catfile($destdir, $libdir, @libstyle, $dist->name ) . '.pm';
   print "Should have installed module as $install_to\n";
   ok -e $install_to;
 }
