@@ -32,8 +32,6 @@ my $mb = Module::Build->new_from_context;
 isa_ok( $mb, 'Module::Build::Base' );
 
 my $install_sets = $mb->install_sets;
-my @libstyle = $mb->{config}{installstyle} ?
-   File::Spec->splitdir($mb->{config}{installstyle}) : qw(lib perl5);
 
 
 # Get us into a known state.
@@ -93,9 +91,10 @@ $mb->prefix(undef);
     is( $mb->prefix,       undef );
     is( $mb->install_base, $install_base );
 
+
     test_install_destinations( $mb, {
-        lib     => catdir( $install_base, @libstyle ),
-        arch    => catdir( $install_base, @libstyle, $Config{archname} ),
+        lib     => catdir( $install_base, 'lib', 'perl5' ),
+        arch    => catdir( $install_base, 'lib', 'perl5', $Config{archname} ),
         bin     => catdir( $install_base, 'bin' ),
         script  => catdir( $install_base, 'bin' ),
         bindoc  => catdir( $install_base, 'man', 'man1'),
@@ -170,8 +169,8 @@ $mb->prefix(undef);
     $mb->install_base( $install_base );
 
     test_install_destinations( $mb, {
-        lib     => catdir( $install_base, @libstyle ),
-        arch    => catdir( $install_base, @libstyle, $Config{archname} ),
+        lib     => catdir( $install_base, 'lib', 'perl5' ),
+        arch    => catdir( $install_base, 'lib', 'perl5', $Config{archname} ),
         bin     => catdir( $install_base, 'bin' ),
         script  => catdir( $install_base, 'bin' ),
         bindoc  => catdir( $install_base, 'man', 'man1'),
