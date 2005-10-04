@@ -233,6 +233,10 @@ sub _set_install_paths {
     };
   $p->{original_prefix}{site} ||= $p->{original_prefix}{core};
 
+  # Note: you might be tempted to use $Config{installstyle} here
+  # instead of hard-coding lib/perl5, but that's been considered and
+  # (at least for now) rejected.  `perldoc Config` has some wisdom
+  # about it.
   $p->{install_base_relpaths} =
     {
      lib     => ['lib', 'perl5'],
