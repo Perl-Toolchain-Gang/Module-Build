@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 58;
+use Test::More tests => 62;
 
 
 use File::Spec ();
@@ -146,6 +146,14 @@ $Simple::VERSION = '1.23';
   package Simple;
   $x = $y, $cats = $dogs;
 }
+---
+  <<'---', # $VERSION wrapped in parens - space inside
+package Simple;
+( $VERSION ) = '1.23';
+---
+  <<'---', # $VERSION wrapped in parens - no space inside
+package Simple;
+($VERSION) = '1.23';
 ---
 );
 

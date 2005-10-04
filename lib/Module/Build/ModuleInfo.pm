@@ -11,7 +11,27 @@ use IO::File;
 
 
 my $PKG_REGEXP  = qr/^[\s\{;]*package\s+([\w:]+)/;
-my $VERS_REGEXP = qr/([\$*])(((?:::|')?(?:\w+(?:::|'))*)?VERSION)\b\s*=[^=]/;
+
+my $VARNAME_REGEXP = qr/ # match fully-qualified VERSION name
+  ([\$*])         # sigil - $ or *
+  (
+    (             # optional leading package name
+      (?:::|\')?  # possibly starting like just :: (ala $::VERSION)
+      (?:\w+(?:::|\'))*  # Foo::Bar:: ...
+    )?
+    VERSION
+  )\b
+/x;
+
+my $VERS_REGEXP = qr/ # match a VERSION definition
+  (?:
+    \(\s*$VARNAME_REGEXP\s*\) # with parens
+  |
+    $VARNAME_REGEXP           # without parens
+  )
+  \s*
+  =[^=]  # = but not ==
+/x;
 
 
 sub new_from_file {
@@ -109,6 +129,7 @@ sub find_module_dir_by_name {
   return $found->[1];
 }
 
+
 # given a line of perl code, attempt to parse it if it looks like a
 # $VERSION assignment, returning sigil, full name, & package name
 sub _parse_version_expression {
@@ -117,7 +138,7 @@ sub _parse_version_expression {
 
   my( $sig, $var, $pkg );
   if ( $line =~ $VERS_REGEXP ) {
-    ( $sig, $var, $pkg ) = ( $1, $2, $3 );
+    ( $sig, $var, $pkg ) = $2 ? ( $1, $2, $3 ) : ( $4, $5, $6 );
     if ( $pkg ) {
       $pkg = ($pkg eq '::') ? 'main' : $pkg;
       $pkg =~ s/::$//;
