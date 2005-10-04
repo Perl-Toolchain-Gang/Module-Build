@@ -11,7 +11,6 @@ use IO::File;
 
 
 my $PKG_REGEXP  = qr/^[\s\{;]*package\s+([\w:]+)/;
-#my $VERS_REGEXP = qr/([\$*])(([\w\:\']*)\bVERSION)\b\s*=[^=]/;
 my $VERS_REGEXP = qr/([\$*])(((?:::|')?(?:\w+(?:::|'))*)?VERSION)\b\s*=[^=]/;
 
 
@@ -110,6 +109,23 @@ sub find_module_dir_by_name {
   return $found->[1];
 }
 
+# given a line of perl code, attempt to parse it if it looks like a
+# $VERSION assignment, returning sigil, full name, & package name
+sub _parse_version_expression {
+  my $self = shift;
+  my $line = shift;
+
+  my( $sig, $var, $pkg );
+  if ( $line =~ $VERS_REGEXP ) {
+    ( $sig, $var, $pkg ) = ( $1, $2, $3 );
+    if ( $pkg ) {
+      $pkg = ($pkg eq '::') ? 'main' : $pkg;
+      $pkg =~ s/::$//;
+    }
+  }
+
+  return ( $sig, $var, $pkg );
+}
 
 sub _parse_file {
   my $self = shift;
@@ -118,7 +134,7 @@ sub _parse_file {
   my $fh = IO::File->new( $filename )
     or die( "Can't open '$filename': $!" );
 
-  my( $in_pod, $seen_end, $need_vers ) = ( 0, 0,0 );
+  my( $in_pod, $seen_end, $need_vers ) = ( 0, 0, 0 );
   my( @pkgs, %vers, %pod, @pod );
   my $pkg = 'main';
   my $pod_sect = '';
@@ -152,6 +168,10 @@ sub _parse_file {
       $pod_sect = '';
       $pod_data = '';
 
+      # parse $line to see if it's a $VERSION declaration
+      my( $vers_sig, $vers_fullname, $vers_pkg ) =
+	  $self->_parse_version_expression( $line );
+
       if ( $line =~ $PKG_REGEXP ) {
 	$pkg = $1;
 	push( @pkgs, $pkg ) unless grep( $pkg eq $_, @pkgs );
@@ -159,46 +179,49 @@ sub _parse_file {
 	$need_vers = 1;
 
       # VERSION defined with full package spec, i.e. $Module::VERSION
-      } elsif ( $line =~ $VERS_REGEXP && length($3) ) {
-	my ($l_sig, $l_var, $l_pkg) = ($1, $2, $3);
-	$l_pkg = ($l_pkg eq '::') ? 'main' : $l_pkg;
-	$l_pkg =~ s/::$//;
+      } elsif ( $vers_fullname && $vers_pkg ) {
+	push( @pkgs, $vers_pkg ) unless grep( $vers_pkg eq $_, @pkgs );
+	$need_vers = 0 if $vers_pkg eq $pkg;
 
-	push( @pkgs, $l_pkg ) unless grep( $l_pkg eq $_, @pkgs );
-	$need_vers = 0 if $l_pkg eq $pkg;
-
-	my $v = $self->_evaluate_version_line( $line );
-	unless ( defined $vers{$l_pkg} && length $vers{$l_pkg} ) {
-	  $vers{$l_pkg} = $v;
+	my $v =
+	  $self->_evaluate_version_line( $vers_sig, $vers_fullname, $line );
+	unless ( defined $vers{$vers_pkg} && length $vers{$vers_pkg} ) {
+	  $vers{$vers_pkg} = $v;
 	} else {
-	  warn "Package '$l_pkg' already declared with version '$vers{$l_pkg}'\n" .
-	       "  ignoring new version '$v'.\n";
+	  warn <<"EOM";
+Package '$vers_pkg' already declared with version '$vers{$vers_pkg}'
+ignoring new version '$v'.
+EOM
 	}
 
       # first non-comment line in undeclared package main is VERSION
-      } elsif ( !exists($vers{main}) && $pkg eq 'main' &&
-		$line =~ $VERS_REGEXP ) {
+      } elsif ( !exists($vers{main}) && $pkg eq 'main' && $vers_fullname ) {
 	$need_vers = 0;
-	my $v = $self->_evaluate_version_line( $line );
+	my $v =
+	  $self->_evaluate_version_line( $vers_sig, $vers_fullname, $line );
 	$vers{$pkg} = $v;
 	push( @pkgs, 'main' );
 
       # first non-comement line in undeclared packge defines package main
-      } elsif ( !exists($vers{main}) && $pkg eq 'main' &&
-		$line =~ /\w+/ ) {
+      } elsif ( !exists($vers{main}) && $pkg eq 'main' && $line =~ /\w+/ ) {
 	$need_vers = 1;
 	$vers{main} = '';
 	push( @pkgs, 'main' );
 
-      # only first keep if this is the first $VERSION seen
-      } elsif ( $line =~ $VERS_REGEXP && $need_vers ) {
+      # only keep if this is the first $VERSION seen
+      } elsif ( $vers_fullname && $need_vers ) {
 	$need_vers = 0;
-	my $v = $self->_evaluate_version_line( $line );
+	my $v =
+	  $self->_evaluate_version_line( $vers_sig, $vers_fullname, $line );
+
+
 	unless ( defined $vers{$pkg} && length $vers{$pkg} ) {
 	  $vers{$pkg} = $v;
 	} else {
-	  warn "Package '$pkg' already declared with version '$vers{$pkg}'\n" .
-	       "  ignoring new version '$v'.\n";
+	  warn <<"EOM";
+Package '$pkg' already declared with version '$vers{$pkg}'
+ignoring new version '$v'.
+EOM
 	}
 
       }
@@ -219,11 +242,9 @@ sub _parse_file {
 
 sub _evaluate_version_line {
   my $self = shift;
-  my $line = shift;
+  my( $sigil, $var, $line ) = @_;
 
   # Some of this code came from the ExtUtils:: hierarchy.
-
-  my ($sigil, $var) = ($line =~ $VERS_REGEXP);
 
   my $eval = qq{q#  Hide from _packages_inside()
 		 #; package Module::Build::ModuleInfo::_version;
