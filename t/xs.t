@@ -52,6 +52,9 @@ eval {$mb->dispatch('build')};
 is $@, '';
 
 {
+  use DynaLoader;
+  my $librefs_highwater = @DynaLoader::dl_librefs;
+
   # Make sure it actually works
   eval 'use blib; require ' . $dist->name;
   is $@, '';
@@ -67,6 +70,10 @@ is $@, '';
   $sub = $dist->name->can('xs_version');
   ok $sub, "xs_version() function should be defined";
   is $sub->(), "0.01", "xs_version() should return the string '0.01'";
+
+  # unload the dll so it can be unlinked
+  DynaLoader::dl_unload_file($DynaLoader::dl_librefs[$librefs_highwater])
+    if DynaLoader->can('dl_unload_file');
 }
 
 {
