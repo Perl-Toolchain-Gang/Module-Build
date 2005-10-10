@@ -2,6 +2,39 @@ Revision history for Perl extension Module::Build.
 
 0.27_03
 
+ - We now use ExtUtils::CBuilder to do all compiling of C code (for
+   example, when compiling XS modules).  (This change actually
+   occurred in 0.27_01, but it was mistakenly omitted from the Changes
+   file.)
+
+ - Fixed an issue on Win32 (and other case-tolerant
+   non-case-preserving systems, possibly like VMS?) in which the
+   current working directory would sometimes be reported with
+   different case, fooling us into thinking that we were in the wrong
+   directory. [David Golden]
+
+ - The extra_compiler_flags setting was not actually being passed
+   along to ExtUtils::CBuilder so it could pass it along to the
+   compiler.  Now it is.
+
+ - The synonyms 'scripts' and 'prereq' for 'script_files' and
+   'requires' were broken in a previous version (0.27_01, probably),
+   but now they're fixed. [David Golden]
+ 
+ - Previously, we assumed that any custom subclass of Module::Build
+   was located in _build/lib/.  This is only true if the author used
+   the subclass() method, though.  We now use %INC to find where the
+   custom subclass really is, so that we can "use lib" it.  We also
+   issue a warning if it seems to be outside the build directory.
+   [Spotted by Peter Tandler]
+
+ - Added a URL for each license type that we know about, which will
+   appear as resources=>license: in the generated META.yml file.
+
+ - If the user passes a no_index parameter to our constructor, we now
+   pass that through when building the META.yml file. [Richard
+   Soderberg, RT #9603]
+
  - A few more status messages can now be suppressed by using 'quiet'
    mode.  [Dave Rolsky]
 
@@ -20,50 +53,21 @@ Revision history for Perl extension Module::Build.
    the "C_support" auto_feature.
 
  - When building XS files, we now pass the -DVERSION and -DXS_VERSION
-   flags to the compiler. [Suggested by Jerry Hedden]
+   flags to the compiler. [Spotted by Jerry Hedden]
 
  - If a distribution has XS files and Module::Build has not been
    configured with the "C_support" feature, we now issue a
    warning. [Suggested by Jerry Hedden]
 
- - The synonyms 'scripts' and 'prereq' for 'script_files' and
-   'requires' were broken in a previous version (0.27_01, probably),
-   but now they're fixed. [David Golden]
- 
- - Previously, we assumed that any custom subclass of Module::Build
-   was located in _build/lib/.  This is only true if the author used
-   the subclass() method, though.  We now use %INC to find where the
-   custom subclass really is, so that we can "use lib" it.  We also
-   issue a warning if it seems to be outside the build directory.
-   [Spotted by Peter Tandler]
-
  - Added a dir_contains() method.
-
- - If the user passes a no_index parameter to our constructor, we now
-   pass that through when building the META.yml file. [Richard
-   Soderberg, RT #9603]
 
  - Some versions of MakeMaker, CPANPLUS, and/or PAUSE thought that a
    certain line of our code was declaring a $VERSION when we didn't
    intend to.  The line has been obscurified so they won't think that
    anymore. [Jos Boumans, RT #14226]
 
- - We now use ExtUtils::CBuilder to do all compiling of C code (for
-   example, when compiling XS modules).  (This change actually
-   occurred in 0.27_01, but it was mistakenly omitted from the Changes
-   file.)
-
- - Fixed an issue on Win32 (and other case-tolerant
-   non-case-preserving systems, possibly like VMS?) in which the
-   current working directory would sometimes be reported with
-   different case, fooling us into thinking that we were in the wrong
-   directory. [David Golden]
-
  - Added the Apache, MIT, and Mozilla licenses to the list of licenses
    that this module knows about. [Bob Ippolito]
-
- - Added a URL for each license type that we know about, which will
-   appear as resources=>license: in the generated META.yml file.
 
  - Fixed a pretty significant typo in the documentation for
    auto_features. [Spotted by Jonas B. Nielsen]
@@ -79,13 +83,9 @@ Revision history for Perl extension Module::Build.
    and extra_linker_flags.  These will automatically be run through
    split_like_shell() when given to new() as strings.
 
- - When the user doesn't have ExtUtils::ParseXS installed, the
-   displayed command line for creating the .c file from the .xs file
-   was missing its newline.  Now it's got it.
-
- - The extra_compiler_flags setting was not actually being passed
-   along to ExtUtils::CBuilder so it could pass it along to the
-   compiler.
+ - When the user doesn't have ExtUtils::ParseXS installed and we use
+   the old 'xsubpp', the displayed command line for creating the .c
+   file from the .xs file was missing its newline.  Now it's got it.
 
 0.27_02 (Beta for 0.28)  Fri Jul 15 07:34:58 CDT 2005
 
