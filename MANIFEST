@@ -44,6 +44,7 @@ t/lib/Test/More.pm
 t/lib/Test/Simple.pm
 t/manifypods.t
 t/metadata.t
+t/metadata2.t
 t/moduleinfo.t
 t/notes.t
 t/parents.t
