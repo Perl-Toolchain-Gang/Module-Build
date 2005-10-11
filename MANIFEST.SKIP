@@ -1,4 +1,5 @@
 ^_build
+^inc
 ^kwiki
 (^|/)blib
 CVS

@@ -1,6 +1,5 @@
 Build.PL
 Changes
-inc/ModuleBuildBuilder.pm
 INSTALL
 lib/Module/Build.pm
 lib/Module/Build/Authoring.pod
