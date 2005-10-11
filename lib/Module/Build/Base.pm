@@ -3104,18 +3104,16 @@ sub _prefixify_default {
 
 sub install_destination {
   my ($self, $type) = @_;
-  my $p = $self->{properties};
   
-  return $p->{install_path}{$type} if exists $p->{install_path}{$type};
-  return File::Spec->catdir($p->{install_base}, $self->install_base_relpaths($type)) if $p->{install_base};
-  return File::Spec->catdir($p->{prefix}, $self->prefix_relative($type)) if $p->{prefix};
-  return $p->{install_sets}{ $p->{installdirs} }{$type};
+  return $self->install_path->{$type} if exists $self->install_path->{$type};
+  return File::Spec->catdir($self->install_base, $self->install_base_relpaths($type)) if $self->install_base;
+  return File::Spec->catdir($self->prefix, $self->prefix_relative($type)) if $self->prefix;
+  return $self->install_sets->{ $self->installdirs }{$type};
 }
 
 sub install_types {
   my $self = shift;
-  my $p = $self->{properties};
-  my %types = (%{$p->{install_path}}, %{ $p->{install_sets}{$p->{installdirs}} });
+  my %types = (%{$self->install_path}, %{ $self->install_sets->{$self->installdirs} });
 
   unless ( $self->gen_html && $self->install_html ) {
     delete( $types{binhtml} );
