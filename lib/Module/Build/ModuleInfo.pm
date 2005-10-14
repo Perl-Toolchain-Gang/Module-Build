@@ -10,7 +10,14 @@ use File::Spec;
 use IO::File;
 
 
-my $PKG_REGEXP  = qr/^[\s\{;]*package\s+([\w:]+)/;
+my $PKG_REGEXP  = qr/   # match a package declaration
+  ^[\s\{;]*             # intro chars on a line
+  package               # the word 'package'
+  \s+                   # whitespace
+  ([\w:]+)              # a package name
+  \s*                   # optional whitespace
+  ;                     # semicolon line terminator
+/x;
 
 my $VARNAME_REGEXP = qr/ # match fully-qualified VERSION name
   ([\$*])         # sigil - $ or *

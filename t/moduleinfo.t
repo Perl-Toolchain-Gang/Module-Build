@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 62;
+use Test::More tests => 64;
 
 
 use File::Spec ();
@@ -154,6 +154,14 @@ package Simple;
   <<'---', # $VERSION wrapped in parens - no space inside
 package Simple;
 ($VERSION) = '1.23';
+---
+  <<'---', # $VERSION follows a spurious 'package' in a quoted construct
+package Simple;
+__PACKAGE__->mk_accessors(qw(
+    program socket proc
+    package filename line codeline subroutine finished));
+
+our $VERSION = "1.23";
 ---
 );
 
