@@ -969,6 +969,23 @@ Returns true if the current system seems to have a working C compiler.
 We currently determine this by attempting to compile a simple C source
 file and reporting whether the attempt was successful.
 
+=item install_destination($type)
+
+Returns the directory in which items of type C<$type> (e.g. C<lib>,
+C<arch>, C<bin>, or anything else returned by the C<install_types()>
+method) will be installed during the C<install> action.  Any settings
+for C<install_path>, C<install_base>, and C<prefix> are taken into
+account when determining the return value.
+
+=item install_types()
+
+Returns a list of installable types that this build knows about.
+These types each correspond to the name of a directory in F<blib/>,
+and the list usually includes items such as C<lib>, C<arch>, C<bin>,
+C<script>, C<libdoc>, C<bindoc>, and if HTML documentation is to be
+built, C<libhtml> and C<binhtml>.  Other user-defined types may also
+exist.
+
 =item notes()
 
 =item notes($key)

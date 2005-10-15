@@ -5,6 +5,8 @@ Revision history for Perl extension Module::Build.
  - Fixed an edge case in $VERSION parsing where we thought a package()
    declaration was happening but it wasn't. [David Golden]
 
+ - Added docs for the install_destination() and install_types() methods.
+
 0.27_03 (Beta for 0.28)  Mon Oct 10 11:19:23 EDT 2005
 
  - We now use ExtUtils::CBuilder to do all compiling of C code (for
