@@ -1492,7 +1492,7 @@ sub read_args {
 sub _detildefy {
     my $arg = shift;
 
-    ($arg) = $arg =~ /^~/ ? glob($arg) : $arg;
+    ($arg) = glob($arg) if $arg =~ /^~/;
 
     return $arg;
 }
