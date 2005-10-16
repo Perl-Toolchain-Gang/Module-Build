@@ -8,11 +8,16 @@ BEGIN{
 
 
 if (@ARGV==2) {
-  $subs{$1}++ if m/^\s*sub\s+([^_\W]\w+)/;
+  m/^\s*sub\s+ACTION_(\w+)/ ? $actions{$1}++ :
+  m/^\s*sub\s+([^_\W]\w+)/  ? $subs{$1}++    :
+  undef;
 } else {
-  $docs{$1}++ if m/^=item (\w+)\(/;
+  $docs{$1}++ if m/^=item (\w+)/;
 }
 
 END{
+  print "Methods:";
   print ($docs{$_} ? "$_*" : $_) for sort keys %subs;
+  print "\nActions:";
+  print ($docs{$_} ? "$_*" : $_) for sort keys %actions;
 }
