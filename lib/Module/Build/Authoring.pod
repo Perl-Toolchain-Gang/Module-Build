@@ -755,6 +755,12 @@ stored in the args hash for that option key. When called with two arguments,
 the second argument is assigned to the args hash under the key passed as the
 first argument.
 
+=item autosplit_file($from, $to)
+
+Invokes the C<AutoSplit> module on the C<$from> file, sending the
+output to the C<lib/auto> directory inside C<$to>.  C<$to> is
+typically the C<blib/> directory.
+
 =item base_dir()
 
 Returns a string containing the root-level directory of this build,
@@ -826,6 +832,17 @@ true.
 In general you might prefer to use C<check_installed_status> if you
 need detailed information, or this method if you just need a yes/no
 answer.
+
+=item compare_versions($v1, $op, $v2)
+
+Compares two module versions C<$v1> and C<$v2> using the operator
+C<$op>, which should be one of Perl's numeric operators like C<!=> or
+C<< >= >> or the like.  We do at least a halfway-decent job of
+handling versions that aren't strictly numeric, like C<0.27_02>, but
+exotic stuff will likely cause problems.
+
+In the future, the guts of this method might be replaced with a call
+out to C<version.pm>.
 
 =item config()
 
@@ -914,6 +931,12 @@ Currently (though this may change), an action C<foo> will invoke the
 C<ACTION_foo> method.  All arguments (including everything mentioned
 in L<Module::Build/"ACTIONS"> ) are contained in the
 C<< $self->{args} >> hash reference.
+
+=item dist_dir()
+
+Returns the name of the directory that will be created during the
+C<dist> action.  The name is derived from the C<dist_name> and
+C<dist_version> properties.
 
 =item dist_name()
 
