@@ -21,45 +21,33 @@ use DistGen;
 
 ############################## ACTION distmeta works without a MANIFEST file
 
-my $dist = DistGen->new( dir => $tmp, skip_manifest => 1 );
-$dist->regen;
+SKIP: {
+  skip( 'YAML_support feature is not enabled', 4 )
+      unless Module::Build->current->feature('YAML_support');
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+  my $dist = DistGen->new( dir => $tmp, skip_manifest => 1 );
+  $dist->regen;
 
-ok ! -e 'MANIFEST';
+  chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
-my $mb = Module::Build->new_from_context;
+  ok ! -e 'MANIFEST';
 
-my $out;
-$out = eval { stderr_of(sub{$mb->dispatch('distmeta')}) };
-is $@, '';
+  my $mb = Module::Build->new_from_context;
 
-like $out, qr/Nothing to enter for 'provides'/;
+  my $out;
+  $out = eval { stderr_of(sub{$mb->dispatch('distmeta')}) };
+  is $@, '';
 
-ok -e 'META.yml';
+  like $out, qr/Nothing to enter for 'provides'/;
 
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
-$dist->remove;
+  ok -e 'META.yml';
+
+  chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+  $dist->remove;
+}
 
 
 ############################## Check generation of README file
-
-$dist = DistGen->new( dir => $tmp );
-
-$dist->change_file( 'Build.PL', <<"---" );
-use Module::Build;
-my \$builder = Module::Build->new(
-    module_name         => '@{[$dist->name]}',
-    dist_version        => '3.14159265',
-    license             => 'perl',
-    create_readme       => 1,
-);
-
-\$builder->create_build_script();
----
-$dist->regen;
-
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 my $provides; # Used a bunch of times below
 
@@ -87,7 +75,25 @@ sub _slurp {
 }
 
 
-# .pm File with pod 
+my $dist = DistGen->new( dir => $tmp );
+
+$dist->change_file( 'Build.PL', <<"---" );
+use Module::Build;
+my \$builder = Module::Build->new(
+    module_name         => '@{[$dist->name]}',
+    dist_version        => '3.14159265',
+    license             => 'perl',
+    create_readme       => 1,
+);
+
+\$builder->create_build_script();
+---
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
+
+# .pm File with pod
 #
 
 $dist->change_file( 'lib/Simple.pm', <<'---' . $pod_text);
@@ -96,8 +102,8 @@ $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
 ok( -e "lib/Simple.pm", "Creating Simple.pm" );
-$mb = Module::Build->new_from_context;
-$mb->dispatch('distmeta');
+my $mb = Module::Build->new_from_context;
+$mb->do_create_readme;
 like( _slurp("README"), qr/NAME/, 
     "Generating README from .pm");
 is( $mb->dist_author->[0], 'Simple Simon <simon@simple.sim>', 
@@ -118,7 +124,7 @@ $dist->regen( clean => 1 );
 ok( -e "lib/Simple.pm", "Creating Simple.pm" );
 ok( -e "lib/Simple.pod", "Creating Simple.pod" );
 $mb = Module::Build->new_from_context;
-$mb->dispatch('distmeta');
+$mb->do_create_readme;
 like( _slurp("README"), qr/NAME/, "Generating README from .pod");
 is( $mb->dist_author->[0], 'Simple Simon <simon@simple.sim>', 
     "Extracting AUTHOR from .pod");
@@ -143,7 +149,7 @@ $dist->regen( clean => 1 );
 ok( -e "lib/Simple.pm", "Creating Simple.pm" );
 ok( -e "lib/Simple.pod", "Creating Simple.pod" );
 $mb = Module::Build->new_from_context;
-$mb->dispatch('distmeta');
+$mb->do_create_readme;
 like( _slurp("README"), qr/NAME/, "Generating README from .pod over .pm");
 is( $mb->dist_author->[0], 'Simple Simon <simon@simple.sim>', 
     "Extracting AUTHOR from .pod over .pm");
