@@ -28,7 +28,7 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 ok ! -e 'MANIFEST';
 
-my $mb = Module::Build->new_from_context;
+my $mb = Module::Build->new_from_context( use_rcfile => 0 );
 
 my $out;
 $out = eval { stderr_of(sub{$mb->dispatch('distmeta')}) };
@@ -96,7 +96,7 @@ $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
 ok( -e "lib/Simple.pm", "Creating Simple.pm" );
-$mb = Module::Build->new_from_context;
+$mb = Module::Build->new_from_context( use_rcfile => 0 );
 $mb->dispatch('distmeta');
 like( _slurp("README"), qr/NAME/, 
     "Generating README from .pm");
@@ -117,7 +117,7 @@ $dist->regen( clean => 1 );
 
 ok( -e "lib/Simple.pm", "Creating Simple.pm" );
 ok( -e "lib/Simple.pod", "Creating Simple.pod" );
-$mb = Module::Build->new_from_context;
+$mb = Module::Build->new_from_context( use_rcfile => 0 );
 $mb->dispatch('distmeta');
 like( _slurp("README"), qr/NAME/, "Generating README from .pod");
 is( $mb->dist_author->[0], 'Simple Simon <simon@simple.sim>', 
@@ -142,7 +142,7 @@ $dist->change_file( 'lib/Simple.pod', $pod_text );
 $dist->regen( clean => 1 );
 ok( -e "lib/Simple.pm", "Creating Simple.pm" );
 ok( -e "lib/Simple.pod", "Creating Simple.pod" );
-$mb = Module::Build->new_from_context;
+$mb = Module::Build->new_from_context( use_rcfile => 0 );
 $mb->dispatch('distmeta');
 like( _slurp("README"), qr/NAME/, "Generating README from .pod over .pm");
 is( $mb->dist_author->[0], 'Simple Simon <simon@simple.sim>', 

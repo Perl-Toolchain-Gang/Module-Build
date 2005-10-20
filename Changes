@@ -2,6 +2,14 @@ Revision history for Perl extension Module::Build.
 
 0.27_04
 
+ - Documented and improved reliminary support for more Getopt::Long
+   style options are supported, including boolean options (--verbose,
+   --no-verbose), and use of hyphens in option names in addition to
+   underscores.
+
+ - The option to disable/enable reading of the ~/.modulebuildrc file
+   is changed from 'skip_rcfile' to 'use_rcfile'
+
  - Allow the 'distmeta' action to continue when 'MANIFEST' is missing,
    omitting the generation of the 'provieds' field. [Steven Schubiger]
 

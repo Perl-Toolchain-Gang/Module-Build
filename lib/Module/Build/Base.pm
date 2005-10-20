@@ -579,6 +579,8 @@ __PACKAGE__->add_property(html_css => ($^O =~ /Win32/) ? 'Active.css' : '');
 __PACKAGE__->add_property(meta_add => {});
 __PACKAGE__->add_property(meta_merge => {});
 __PACKAGE__->add_property(metafile => 'META.yml');
+__PACKAGE__->add_property(use_rcfile => 1);
+
 __PACKAGE__->add_property($_ => 0) for qw(
    gen_manpages
    gen_html
@@ -625,7 +627,6 @@ __PACKAGE__->add_property($_) for qw(
    ignore_prereq_conflicts
    ignore_prereq_requires
    ignore_prereqs
-   skip_rcfile
    prefix
 );
 
@@ -1342,7 +1343,7 @@ sub _translate_option {
 
   (my $tr_opt = $opt) =~ tr/-/_/;
 
-  return $tr_opt if grep $_ eq $tr_opt, qw(
+  return $tr_opt if grep $tr_opt =~ /^(?:no_?)?$_$/, qw(
     install_path
     html_css
     meta_add
@@ -1360,7 +1361,7 @@ sub _translate_option {
     ignore_prereq_conflicts
     ignore_prereq_requires
     ignore_prereqs
-    skip_rcfile
+    use_rcfile
   ); # normalize only selected option names
 
   return $opt;
@@ -1398,13 +1399,13 @@ sub _optional_arg {
     ignore_prereq_conflicts
     ignore_prereq_requires
     ignore_prereqs
-    skip_rcfile
+    use_rcfile
     uninst
   );
 
   # inverted boolean options; eg --noverbose or --no-verbose
   # converted to proper name & returned with false value (verbose, 0)
-  if ( grep $opt =~ /^no-?$_$/, @bool_opts ) {
+  if ( grep $opt =~ /^no[-_]?$_$/, @bool_opts ) {
     $opt =~ s/^no-?//;
     return ($opt, 0);
   }
@@ -1613,7 +1614,7 @@ sub cull_args {
   my $self = shift;
   my ($args, $action) = $self->read_args(@_);
   $self->merge_args($action, %$args);
-  $self->merge_modulebuildrc( $action, %$args ) unless $self->skip_rcfile;
+  $self->merge_modulebuildrc( $action, %$args ) if $self->use_rcfile;
 }
 
 sub super_classes {
@@ -2547,10 +2548,13 @@ sub ACTION_disttest {
   my $dist_dir = $self->dist_dir;
   chdir $dist_dir or die "Cannot chdir to $dist_dir: $!";
   # XXX could be different names for scripts
-  
-  $self->run_perl_script('Build.PL') or die "Error executing 'Build.PL' in dist directory: $!";
-  $self->run_perl_script('Build') or die "Error executing 'Build' in dist directory: $!";
-  $self->run_perl_script('Build', [], ['test']) or die "Error executing 'Build test' in dist directory";
+
+  $self->run_perl_script('Build.PL') # XXX Should this be run w/ --nouse-rcfile
+      or die "Error executing 'Build.PL' in dist directory: $!";
+  $self->run_perl_script('Build')
+      or die "Error executing 'Build' in dist directory: $!";
+  $self->run_perl_script('Build', [], ['test'])
+      or die "Error executing 'Build test' in dist directory";
   chdir $start_dir;
 }
 

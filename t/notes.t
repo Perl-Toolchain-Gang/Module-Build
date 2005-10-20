@@ -32,7 +32,7 @@ my \$build = Module::Build->new(
 
 $dist->regen;
 
-my $mb = Module::Build->new_from_context;
+my $mb = Module::Build->new_from_context( use_rcfile => 0 );
 
 is $mb->notes('foo'), 'bar';
 

@@ -499,6 +499,51 @@ version-specific installs.
 =back
 
 
+=head2 General Commandline Options
+
+The following options can be used during any invokation of Build.PL or
+the Build script, during any action.
+
+NOTE: There is some preliminary support for options to use the more
+familiar long option style. Most options can be preceeded with the
+C<--> long option prefix, and the underscores changed to dashes
+(e.g. --ignore-prereqs). Additionally, the argument to boolean options
+is optional (e.g. --verbose), and boolean options can be negated by
+prefixing them with 'no' or 'no-' (e.g. --noverbose or --no-verbose).
+
+=over 4
+
+=item ignore_prereq_conflicts
+
+When set to true, the Build will not abort when any conflicting
+prerequisite is found.
+
+=item ignore_prereq_requires
+
+When set to true, the Build will not abort when any required
+prerequisite is missing.
+
+=item ignore_prereqs
+
+When set to true, the Build will not abort for any type of
+prerequisite is not satisfied.
+
+=item quiet
+
+Suppress informative messages on output.
+
+=item use_rcfile
+
+Load the F<~/.modulebuildrc> option file. This option can be set to
+false to prevent the custom resource file from being loaded.
+
+=item verbose
+
+Display extra information about the Build on output.
+
+=back
+
+
 =head2 Default Commandline Options (F<.modulebuildrc>)
 
 When Module::Build starts up, it will look for a file,

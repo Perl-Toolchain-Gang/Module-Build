@@ -35,7 +35,7 @@ sub run_sample {
 
     my $mb;
     stdout_of( sub {
-      $mb = Module::Build->new_from_context( @args );
+      $mb = Module::Build->new_from_context( @args, use_rcfile => 0 );
     } );
 
     return $mb;

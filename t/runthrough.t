@@ -72,7 +72,7 @@ like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure version from blib/ is loa
 
 #########################
 
-my $mb = Module::Build->new_from_context;
+my $mb = Module::Build->new_from_context( use_rcfile => 0 );
 ok $mb;
 is $mb->license, 'perl';
 
@@ -113,7 +113,9 @@ print "^^^^^^^^^^^^^^^^^^^^^ Simple/test.pl output ^^^^^^^^^^^^^^^^^^^^^\n";
 SKIP: {
   skip( 'YAML_support feature is not enabled', 7 ) unless $have_yaml;
 
-  eval {$mb->dispatch('disttest')};
+  my $output = eval {
+    stdout_of( sub { $mb->dispatch('disttest') } )
+  };
   is $@, '';
   
   # After a test, the distdir should contain a blib/ directory

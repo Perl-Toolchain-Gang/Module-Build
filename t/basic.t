@@ -146,7 +146,7 @@ my \$build = Module::Build->new(
 ---
 
   $dist->regen;
-  eval {Module::Build->run_perl_script('Build.PL', [], ['skip_rcfile=1', '--config', "foocakes=barcakes", '--foo', '--bar', '--bar', '-bat=hello', 'gee=whiz', '--any', 'hey', '--destdir', 'yo', '--verbose', '1'])};
+  eval {Module::Build->run_perl_script('Build.PL', [], ['--nouse-rcfile', '--config', "foocakes=barcakes", '--foo', '--bar', '--bar', '-bat=hello', 'gee=whiz', '--any', 'hey', '--destdir', 'yo', '--verbose', '1'])};
   is $@, '';
 
   my $mb = Module::Build->resume;

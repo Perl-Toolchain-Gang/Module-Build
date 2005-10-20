@@ -42,7 +42,7 @@ my $dist = DistGen->new( dir => $tmp, xs => 1 );
 $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
-my $mb = Module::Build->new_from_context( skip_rcfile => 1 );
+my $mb = Module::Build->new_from_context( use_rcfile => 0 );
 
 
 eval {$mb->dispatch('clean')};
