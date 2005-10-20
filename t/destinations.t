@@ -28,7 +28,7 @@ use File::Spec::Functions qw( catdir splitdir );
 #########################
 
 use Module::Build;
-my $mb = Module::Build->new_from_context( use_rcfile => 0 );
+my $mb = Module::Build->new_from_context;
 isa_ok( $mb, 'Module::Build::Base' );
 
 my $install_sets = $mb->install_sets;

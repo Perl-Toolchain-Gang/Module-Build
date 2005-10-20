@@ -5,6 +5,10 @@ use strict;
 
 use Test::More tests => 27;
 
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+require $common_pl;
+
 
 #########################
 

@@ -44,7 +44,7 @@ my \$build = new Module::Build(
 ---
 $dist->regen;
 
-my $mb = Module::Build->new_from_context( use_rcfile => 0 );
+my $mb = Module::Build->new_from_context;
 ok $mb;
 
 

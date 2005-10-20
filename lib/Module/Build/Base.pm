@@ -1537,11 +1537,24 @@ sub _home_dir {
 sub read_modulebuildrc {
   my( $self, $action ) = @_;
 
-  my $home = $self->_home_dir;
-  return () unless defined $home;
+  return () unless $self->use_rcfile;
 
-  my $modulebuildrc = File::Spec->catfile( $home, '.modulebuildrc' );
-  return () unless -e $modulebuildrc;
+  my $modulebuildrc;
+  if ( exists($ENV{MODULEBUILDRC}) && $ENV{MODULEBUILDRC} eq 'NONE' ) {
+    return ();
+  } elsif ( exists($ENV{MODULEBUILDRC}) && -e $ENV{MODULEBUILDRC} ) {
+    $modulebuildrc = $ENV{MODULEBUILDRC};
+  } elsif ( exists($ENV{MODULEBUILDRC}) ) {
+    $self->log_warn("WARNING: Can't find resource file " .
+		    "'$ENV{MODULEBUILDRC}' defined in environment.\n" .
+		    "No options loaded\n");
+    return ();
+  } else {
+    my $home = $self->_home_dir;
+    return () unless defined $home;
+    $modulebuildrc = File::Spec->catfile( $home, '.modulebuildrc' );
+    return () unless -e $modulebuildrc;
+  }
 
   my $fh = IO::File->new( $modulebuildrc )
       or die "Can't open $modulebuildrc: $!";
@@ -1614,7 +1627,7 @@ sub cull_args {
   my $self = shift;
   my ($args, $action) = $self->read_args(@_);
   $self->merge_args($action, %$args);
-  $self->merge_modulebuildrc( $action, %$args ) if $self->use_rcfile;
+  $self->merge_modulebuildrc( $action, %$args );
 }
 
 sub super_classes {

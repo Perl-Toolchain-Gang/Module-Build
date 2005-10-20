@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.27_04
 
+ - Added support for environment variable, 'MODULEBUILDRC', which can
+   be used to specify the full path to an option file to use instead
+   of the default location of ~/.modulebuildrc. A special undocumented
+   setting of 'NONE' tells Module::Build not to load any user settings,
+   so tests can be run without tainting from user options.
+
  - Documented and improved reliminary support for more Getopt::Long
    style options are supported, including boolean options (--verbose,
    --no-verbose), and use of hyphens in option names in addition to

@@ -72,7 +72,7 @@ like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure version from blib/ is loa
 
 #########################
 
-my $mb = Module::Build->new_from_context( use_rcfile => 0 );
+my $mb = Module::Build->new_from_context;
 ok $mb;
 is $mb->license, 'perl';
 

@@ -571,6 +571,10 @@ when you invoke C<perl Build.PL>.
  install  install_base=/home/ken
           --install_path html=/home/ken/docs/html
 
+If you wish to locate your resource file in a different location, you
+can set the environment variable 'MODULEBUILDRC' to the complete
+absolute path of the file containing your options.
+
 
 =head2 How Installation Paths are Determined
 

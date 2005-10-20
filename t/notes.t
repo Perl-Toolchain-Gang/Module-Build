@@ -5,6 +5,9 @@ use strict;
 
 use Test::More tests => 8;
 
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+require $common_pl;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -32,7 +35,7 @@ my \$build = Module::Build->new(
 
 $dist->regen;
 
-my $mb = Module::Build->new_from_context( use_rcfile => 0 );
+my $mb = Module::Build->new_from_context;
 
 is $mb->notes('foo'), 'bar';
 

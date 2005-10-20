@@ -47,7 +47,7 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 use Module::Build;
 
-my $mb = Module::Build->new_from_context( use_rcfile => 0 );
+my $mb = Module::Build->new_from_context;
 
 
 {

@@ -5,6 +5,10 @@ use strict;
 
 use Test::More tests => 2;
 
+use File::Spec ();
+my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+require $common_pl;
+
 use Cwd ();
 my $cwd = Cwd::cwd;
 my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
@@ -16,7 +20,6 @@ $dist->regen;
 #########################
 
 use Module::Build;
-use File::Spec;
 
 my @mod = split( /::/, $dist->name );
 my $file = File::Spec->catfile( $dist->dirname, 'lib', @mod ) . '.pm';
