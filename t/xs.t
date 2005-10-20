@@ -26,7 +26,7 @@ use Module::Build;
   } elsif ( !$have_c_compiler ) {
     plan skip_all => 'C_support enabled, but no compiler found';
   } else {
-    plan tests => 18;
+    plan tests => 15;
   }
 }
 
@@ -52,28 +52,25 @@ eval {$mb->dispatch('build')};
 is $@, '';
 
 {
-  use DynaLoader;
-  my $librefs_highwater = @DynaLoader::dl_librefs;
+  # Make sure it actually works: that we can call methods in the XS module
 
-  # Make sure it actually works
-  eval 'use blib; require ' . $dist->name;
-  is $@, '';
-  
-  my $sub = $dist->name->can('ok');
-  ok $sub, "ok() function should be defined";
-  is $sub->(), 'ok', "The ok() function should return the string 'ok'";
-  
-  $sub = $dist->name->can('version');
-  ok $sub, "version() function should be defined";
-  is $sub->(), "0.01", "version() should return the string '0.01'";
-  
-  $sub = $dist->name->can('xs_version');
-  ok $sub, "xs_version() function should be defined";
-  is $sub->(), "0.01", "xs_version() should return the string '0.01'";
+  # Unfortunately, We must do this is a subprocess because some OS will not
+  # release the handle on a dynamic lib until the attaching process terminates
 
-  # unload the dll so it can be unlinked
-  DynaLoader::dl_unload_file($DynaLoader::dl_librefs[$librefs_highwater])
-    if DynaLoader->can('dl_unload_file');
+  ok $mb->run_perl_command(['-Mblib', '-M'.$dist->name, '-e1']);
+
+  like stdout_of( sub {$mb->run_perl_command([
+       '-Mblib', '-M'.$dist->name,
+       '-we', "print @{[$dist->name]}::ok()"])}), qr/ok$/;
+
+  like stdout_of( sub {$mb->run_perl_command([
+       '-Mblib', '-M'.$dist->name,
+       '-we', "print @{[$dist->name]}::version()"])}), qr/0.01$/;
+
+  like stdout_of( sub {$mb->run_perl_command([
+       '-Mblib', '-M'.$dist->name,
+       '-we', "print @{[$dist->name]}::xs_version()"])}), qr/0.01$/;
+
 }
 
 {
