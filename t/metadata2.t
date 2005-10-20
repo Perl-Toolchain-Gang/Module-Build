@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More 'no_plan'; # tests => 35;
+use Test::More tests => 18;
 
 
 use File::Spec ();
@@ -15,8 +15,37 @@ use Cwd ();
 my $cwd = Cwd::cwd;
 my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
+use Module::Build;
 use DistGen;
-my $dist = DistGen->new( dir => $tmp );
+
+
+############################## ACTION distmeta works without a MANIFEST file
+
+my $dist = DistGen->new( dir => $tmp, skip_manifest => 1 );
+$dist->regen;
+
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
+ok ! -e 'MANIFEST';
+
+my $mb = Module::Build->new_from_context;
+
+my $out;
+$out = eval { stderr_of(sub{$mb->dispatch('distmeta')}) };
+is $@, '';
+
+like $out, qr/Nothing to enter for 'provides'/;
+
+ok -e 'META.yml';
+
+chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+$dist->remove;
+
+
+############################## Check generation of README file
+
+$dist = DistGen->new( dir => $tmp );
+
 $dist->change_file( 'Build.PL', <<"---" );
 use Module::Build;
 my \$builder = Module::Build->new(
@@ -32,8 +61,6 @@ $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
-use Module::Build;
-my $mb = Module::Build->new_from_context;
 my $provides; # Used a bunch of times below
 
 my $pod_text = <<'---'; 
@@ -59,7 +86,7 @@ sub _slurp {
     return scalar <$fh>;
 }
 
-############################## Single Module
+
 # .pm File with pod 
 #
 

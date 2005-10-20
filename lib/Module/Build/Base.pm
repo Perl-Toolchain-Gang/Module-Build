@@ -2409,6 +2409,8 @@ sub _add_to_manifest {
   $lines = [$lines] unless ref $lines;
 
   my $existing_files = $self->_read_manifest($manifest);
+  return unless defined( $existing_files );
+
   @$lines = grep {!exists $existing_files->{$_}} @$lines
     or return;
 
@@ -2416,7 +2418,8 @@ sub _add_to_manifest {
   chmod($mode | 0222, $manifest) or die "Can't make $manifest writable: $!";
   
   my $fh = IO::File->new("< $manifest") or die "Can't read $manifest: $!";
-  my $has_newline = (<$fh>)[-1] =~ /\n$/;
+  my $last_line = (<$fh>)[-1] || "\n";
+  my $has_newline = $last_line =~ /\n$/;
   $fh->close;
 
   $fh = IO::File->new(">> $manifest") or die "Can't write to $manifest: $!";
@@ -2566,7 +2569,7 @@ sub _write_default_maniskip {
 \bCVS\b
 ,v$
 \B\.svn\b
-\b\.cvsignore$
+\B\.cvsignore$
 
 # Avoid Makemaker generated and utility files.
 \bMakefile$
@@ -2589,18 +2592,18 @@ sub _write_default_maniskip {
 \.old$
 \.bak$
 \#$
-\b\.#
+\.#
 \.rej$
 
 # Avoid OS-specific files/dirs
 #   Mac OSX metadata
-\b\.DS_Store
+\B\.DS_Store
 #   Mac OSX SMB mount metadata files
-\b\._
+\B\._
 # Avoid archives of this distribution
 EOF
 
-  # Skip, for example, "Module-Build-0.27.tar.gz'
+  # Skip, for example, 'Module-Build-0.27.tar.gz'
   print $fh '\b'.$self->dist_name.'-[\d\.\_]+'."\n";
 
   $fh->close();
@@ -2822,7 +2825,14 @@ sub prepare_metadata {
   }
 
   $node->{dynamic_config} = $p->{dynamic_config} if exists $p->{dynamic_config};
-  $node->{provides} = $self->find_dist_packages;
+  my $pkgs = eval { $self->find_dist_packages };
+  if ($@) {
+    $self->log_warn("WARNING: Possible missing or corrupt 'MANIFEST' file.\n" .
+		    "Nothing to enter for 'provides' field in META.yml\n");
+  } else {
+    $node->{provides} = $pkgs if %$pkgs;
+  }
+;
   $node->{no_index} = $p->{no_index} if exists $p->{no_index};
 
   $node->{generated_by} = "Module::Build version $Module::Build::VERSION";

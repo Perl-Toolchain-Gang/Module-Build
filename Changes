@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.27_04
 
+ - Allow the 'distmeta' action to continue when 'MANIFEST' is missing,
+   omitting the generation of the 'provieds' field.
+
+ - Fixed some failing regex from generated MANIFEST.SKIP file.
+
  - Fixed an edge case in $VERSION parsing where we thought a package()
    declaration was happening but it wasn't. [David Golden]
 
