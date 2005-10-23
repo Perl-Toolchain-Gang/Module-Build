@@ -2081,6 +2081,8 @@ sub ACTION_docs {
 sub ACTION_manpages {
   my $self = shift;
 
+  return unless $self->_mb_feature('manpage_support');
+
   if ( $self->invoked_action ne 'manpages' ) {
     foreach my $type ( qw(bin lib) ) {
       my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
@@ -2093,10 +2095,8 @@ sub ACTION_manpages {
 
   $self->depends_on('code');
 
-  if ( $self->_mb_feature('manpage_support') ) {
-    $self->manify_bin_pods;
-    $self->manify_lib_pods;
-  }
+  $self->manify_bin_pods;
+  $self->manify_lib_pods;
 }
 
 sub manify_bin_pods {
@@ -2171,6 +2171,8 @@ sub contains_pod {
 sub ACTION_html {
   my $self = shift;
 
+  return unless $self->_mb_feature('HTML_support');
+
   if ( $self->invoked_action ne 'html' ) {
     foreach my $type ( qw(bin lib) ) {
       my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
@@ -2182,7 +2184,7 @@ sub ACTION_html {
 
   $self->depends_on('code');
 
-  $self->htmlify_pods if $self->_mb_feature('HTML_support');
+  $self->htmlify_pods;
 }
 
 
@@ -3156,7 +3158,7 @@ sub install_map {
     my $localdir = File::Spec->catdir( $blib, $type );
     next unless -e $localdir;
     
-    if (my $dest = $self->install_destination($type) ) {
+    if (my $dest = $self->install_destination($type)) {
       $map{$localdir} = $dest;
     } else {
       # Platforms like Win32, MacOS, etc. may not build man pages &
