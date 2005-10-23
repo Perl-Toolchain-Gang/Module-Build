@@ -2087,8 +2087,7 @@ sub ACTION_manpages {
     foreach my $type ( qw(bin lib) ) {
       my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
                                      exclude => [ qr/\.bat$/ ] );
-      return if !%$files ||
-	        (%$files && !$self->install_destination("${type}doc"));
+      return if %$files && !$self->install_destination("${type}doc");
 
     }
   }
@@ -2177,8 +2176,7 @@ sub ACTION_html {
     foreach my $type ( qw(bin lib) ) {
       my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
 				      exclude => [ qr/\.(?:bat|com|html)$/ ] );
-      return if !%$files ||
-	        (%$files && !$self->install_destination("${type}html"));
+      return if %$files && !$self->install_destination("${type}html");
     }
   }
 
