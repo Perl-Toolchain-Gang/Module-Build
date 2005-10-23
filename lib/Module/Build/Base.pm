@@ -72,6 +72,7 @@ sub resume {
   
   $self->cull_args(@ARGV);
   $self->{action} ||= 'build';
+  $self->{invoked_action} = $self->{action};
   
   return $self;
 }
@@ -283,17 +284,6 @@ sub _set_install_paths {
 	     },
     };
 
-
-  my $installdirs = $p->{installdirs};
-
-  $p->{gen_manpages} ||= ( $p->{install_sets}{$installdirs}{bindoc} &&
-                           $p->{install_sets}{$installdirs}{libdoc} ) ? 1 : 0;
-  $p->{gen_html}     ||= ( $p->{install_sets}{$installdirs}{binhtml} &&
-			   $p->{install_sets}{$installdirs}{libhtml} ) ? 1 : 0;
-
-  $p->{install_manpages} ||= $p->{gen_manpages} ? 1 : 0;
-  $p->{install_html}     ||= $p->{gen_html}     ? 1 : 0;
-
 }
 
 sub _find_nested_builds {
@@ -398,6 +388,7 @@ sub y_n {
 }
 
 sub current_action { shift->{action} }
+sub invoked_action { shift->{invoked_action} }
 
 sub notes        { shift()->{phash}{notes}->access(@_) }
 sub config_data  { shift()->{phash}{config_data}->access(@_) }
@@ -581,12 +572,6 @@ __PACKAGE__->add_property(meta_merge => {});
 __PACKAGE__->add_property(metafile => 'META.yml');
 __PACKAGE__->add_property(use_rcfile => 1);
 
-__PACKAGE__->add_property($_ => 0) for qw(
-   gen_manpages
-   gen_html
-   install_manpages
-   install_html
-);
 __PACKAGE__->add_property($_) for qw(
    base_dir
    dist_name
@@ -1227,7 +1212,8 @@ sub dispatch {
   if (@_) {
     my ($action, %p) = @_;
     my $args = $p{args} ? delete($p{args}) : {};
-    
+
+    local $self->{invoked_action} = $action;
     local $self->{args} = {%{$self->{args}}, %$args};
     local $self->{properties} = {%{$self->{properties}}, %p};
     return $self->_call_action($action);
@@ -1348,10 +1334,6 @@ sub _translate_option {
     html_css
     meta_add
     meta_merge
-    gen_manpages
-    gen_html
-    install_manpages
-    install_html
     test_files
     install_base
     create_makefile_pl
@@ -1388,10 +1370,6 @@ sub _optional_arg {
   $opt = $self->_translate_option($opt);
 
   my @bool_opts = qw(
-    gen_manpages
-    gen_html
-    install_manpages
-    install_html
     verbose
     create_readme
     pollute
@@ -2097,15 +2075,28 @@ sub ACTION_docs {
   my $self = shift;
 
   $self->depends_on('code');
+  $self->depends_on('manpages', 'html');
+}
 
-  if ( $self->_mb_feature('manpage_support') &&
-       $self->gen_manpages )
-  {
+sub ACTION_manpages {
+  my $self = shift;
+
+  if ( $self->invoked_action ne 'manpages' ) {
+    foreach my $type ( qw(bin lib) ) {
+      my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
+                                     exclude => [ qr/\.bat$/ ] );
+      return if !%$files ||
+	        (%$files && !$self->install_destination("${type}doc"));
+
+    }
+  }
+
+  $self->depends_on('code');
+
+  if ( $self->_mb_feature('manpage_support') ) {
     $self->manify_bin_pods;
     $self->manify_lib_pods;
   }
-
-  $self->htmlify_pods if $self->gen_html;
 }
 
 sub manify_bin_pods {
@@ -2179,9 +2170,21 @@ sub contains_pod {
 
 sub ACTION_html {
   my $self = shift;
+
+  if ( $self->invoked_action ne 'html' ) {
+    foreach my $type ( qw(bin lib) ) {
+      my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
+				      exclude => [ qr/\.(?:bat|com|html)$/ ] );
+      return if !%$files ||
+	        (%$files && !$self->install_destination("${type}html"));
+    }
+  }
+
   $self->depends_on('code');
-  $self->htmlify_pods;
+
+  $self->htmlify_pods if $self->_mb_feature('HTML_support');
 }
+
 
 # XXX This is wrong, wrong, wrong.
 # 1) It assumes installation into site directories
@@ -3141,17 +3144,6 @@ sub install_destination {
 sub install_types {
   my $self = shift;
   my %types = (%{$self->install_path}, %{ $self->install_sets->{$self->installdirs} });
-
-  unless ( $self->gen_html && $self->install_html ) {
-    delete( $types{binhtml} );
-    delete( $types{libhtml} );
-  }
-
-  unless ( $self->gen_manpages && $self->install_manpages ) {
-    delete( $types{bindoc} );
-    delete( $types{libdoc} );
-  }
-
   return sort keys %types;
 }
 
@@ -3164,12 +3156,13 @@ sub install_map {
     my $localdir = File::Spec->catdir( $blib, $type );
     next unless -e $localdir;
     
-    if (my $dest = $self->install_destination($type)) {
+    if (my $dest = $self->install_destination($type) ) {
       $map{$localdir} = $dest;
     } else {
-      # Platforms like Win32, MacOS, etc. may not build man pages
+      # Platforms like Win32, MacOS, etc. may not build man pages &
+      # Many platforms don't supply default locations for html docs
       die "Can't figure out where to install things of type '$type'"
-	unless $type =~ /^(lib|bin)doc$/;
+	unless $type =~ /^(lib|bin)(doc|html)$/;
     }
   }
   

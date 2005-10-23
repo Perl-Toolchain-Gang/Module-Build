@@ -94,6 +94,7 @@ if (grep {-e File::Spec->catfile($_, qw(Module Build Platform), $^O) . '.pm'} @I
 sub os_type { $OSTYPES{$^O} }
 
 1;
+
 __END__
 
 
@@ -330,12 +331,21 @@ With an optional argument specifying an action name (e.g. C<Build help
 test>), the 'help' action will show you any POD documentation it can
 find for that action.
 
+=item html
+
+This will generate HTML documentation for any binary or library files
+under B<blib/> that contain POD. The HTML documentation will only be
+installed if the install paths can be determined from values in
+C<Config.pm>. You can also supply or override install paths by
+specifying there values on the command line with the C<binhtml> and
+C<libhtml> installation targets.
+
 =item install
 
 This action will use C<ExtUtils::Install> to install the files from
-C<blib/> into the system.  See L<How Installation Paths are Determined> for details
-about how Module::Build determines where to install things, and how to
-influence this process.
+C<blib/> into the system. See L<How Installation Paths are Determined>
+for details about how Module::Build determines where to install
+things, and how to influence this process.
 
 If you want the installation process to look around in C<@INC> for
 other versions of the stuff you're installing and try to delete it,
@@ -372,6 +382,15 @@ add your own stuff to it:
 
 See the L<distcheck> and L<skipcheck> actions if you want to find out
 what the C<manifest> action would do, without actually doing anything.
+
+=item manpages
+
+This will generate man pages for any binary or library files under
+B<blib/> that contain POD. The man pages will only be installed if the
+install paths can be determined from values in C<Config.pm>. You can
+also supply or override install paths by specifying there values on
+the command line with the C<bindoc> and C<libdoc> installation
+targets.
 
 =item ppd
 

@@ -2,6 +2,13 @@ Revision history for Perl extension Module::Build.
 
 0.27_04
 
+ - Introduced two actions: html & manpages that will generate
+   documentation for POD when the respective feature is enabled. The
+   actions will generate the documents even if there is no set place
+   to install to. However, if the actions are invoked as a dependency
+   of another action (e.g. build), the documentation will only be
+   built when there is a default or user-specified place to install to.
+
  - Added support for environment variable, 'MODULEBUILDRC', which can
    be used to specify the full path to an option file to use instead
    of the default location of ~/.modulebuildrc. A special undocumented
