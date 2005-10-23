@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.27_04
 
+ - Add 'meta-spec' field to the generated META.yml file, including the
+   version of the specification followed by the current Module::Build
+   and the url where the specification can be found.
+
  - Introduced two actions: html & manpages that will generate
    documentation for POD when the respective feature is enabled. The
    actions will generate the documents even if there is no set place

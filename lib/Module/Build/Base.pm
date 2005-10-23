@@ -2833,6 +2833,7 @@ sub prepare_metadata {
 
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
     (my $name = $_) =~ s/^dist_//;
+    die "Missing required field '$name' for META.yml\n" unless length($name);
     $node->{$name} = $self->$_();
   }
   if (defined( $self->license ) &&
@@ -2856,6 +2857,12 @@ sub prepare_metadata {
   $node->{no_index} = $p->{no_index} if exists $p->{no_index};
 
   $node->{generated_by} = "Module::Build version $Module::Build::VERSION";
+
+  $node->{'meta-spec'} = {
+    version => '1.2',
+    url     => 'http://module-build.sourceforge.net/META-spec-v1.2.html',
+  };
+
 
   while (my($k, $v) = each %{$p->{meta_add}}) {
     $node->{$k} = $v;
