@@ -85,7 +85,6 @@ EOF
       
       # Save this 'cause CPAN will chdir all over the place.
       my $cwd = Cwd::cwd();
-      my $makefile = File::Spec->rel2abs($0);
       
       CPAN::Shell->install('Module::Build::Compat')
 	or die " *** Cannot install without Module::Build.  Exiting ...\n";
