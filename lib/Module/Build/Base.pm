@@ -2833,7 +2833,6 @@ sub prepare_metadata {
 
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
     (my $name = $_) =~ s/^dist_//;
-    die "Missing required field '$name' for META.yml\n" unless length($name);
     $node->{$name} = $self->$_();
   }
   if (defined( $self->license ) &&
