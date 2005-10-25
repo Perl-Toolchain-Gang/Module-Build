@@ -727,7 +727,10 @@ sub _find_dist_version_from {
   my ($self) = @_;
   my $p = $self->{properties};
   if ($self->module_name) {
-    $p->{dist_version_from} ||= join( '/', 'lib', split '::', $self->module_name ) . '.pm';
+    return $p->{dist_version_from} ||=
+	join( '/', 'lib', split(/::/, $self->module_name) ) . '.pm';
+  } else {
+    return undef;
   }
 }
 
@@ -941,12 +944,12 @@ sub check_prereq {
       }
     }
 
-    $self->log_warn(<<'ERRSTR');
+    $self->log_warn(<<EOF);
 
 ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions
 of the modules indicated above before proceeding with this installation
 
-ERRSTR
+EOF
     return 0;
 
   } else {
@@ -2514,17 +2517,27 @@ sub do_create_readme {
   my $parser = eval {require Pod::Readme; 1} ? Pod::Readme->new :
                eval {require Pod::Text;   1} ? Pod::Text->new :
 	       die "Can't load Pod::Readme or Pod::Text to create README";
-  $self->log_info("Creating README using " . ref($parser) . "\n");
-  $parser->parse_from_file($self->_main_docfile, 'README', @_);
-  $self->_add_to_manifest('MANIFEST', 'README');
+  if ( my $docfile = $self->_main_docfile ) {
+    $self->log_info("Creating README using " . ref($parser) . "\n");
+    $parser->parse_from_file($self->_main_docfile, 'README', @_);
+    $self->_add_to_manifest('MANIFEST', 'README');
+  } else {
+    $self->log_warn(<<EOF);
+Cannot create README; can't determine which file contains documentation;
+Must supply either 'dist_version_from', or 'module_name' parameter.
+EOF
+  }
 }
 
 sub _main_docfile {
   my $self = shift;
   $self->_find_dist_version_from;
-  my $pm_file = $self->dist_version_from;
-  (my $pod_file = $pm_file) =~ s/.pm$/.pod/;
-  return (-e $pod_file ? $pod_file : $pm_file);
+  if ( my $pm_file = $self->dist_version_from ) {
+    (my $pod_file = $pm_file) =~ s/.pm$/.pod/;
+    return (-e $pod_file ? $pod_file : $pm_file);
+  } else {
+    return undef;
+  }
 }
 
 sub ACTION_distdir {
@@ -2751,7 +2764,7 @@ sub _write_minimal_metadata {
 
   # XXX Add the meta_add & meta_merge stuff
 
-  print $fh <<"END_OF_META";
+  print $fh <<"EOF";
 --- #YAML:1.0
 name: $p->{dist_name}
 version: $p->{dist_version}
@@ -2760,7 +2773,7 @@ author:
 abstract: @{[ $self->dist_abstract ]}
 license: $p->{license}
 generated_by: Module::Build version $Module::Build::VERSION, without YAML.pm
-END_OF_META
+EOF
 }
 
 sub ACTION_distmeta {
@@ -2816,10 +2829,12 @@ sub write_metafile {
     $self->{wrote_metadata} = $yaml_sub->($metafile, $node );
 
   } else {
-    $self->log_warn(<<EOM);
-\nCouldn't load YAML.pm, generating a minimal META.yml without it.
-Please check and edit the generated metadata, or consider installing YAML.pm.\n
-EOM
+    $self->log_warn(<<EOF);
+
+Couldn't load YAML.pm, generating a minimal META.yml without it.
+Please check and edit the generated metadata, or consider installing YAML.pm.
+
+EOF
 
     $self->_write_minimal_metadata;
   }
