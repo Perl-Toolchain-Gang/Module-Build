@@ -307,8 +307,8 @@ that directory.
 
 =item docs
 
-This will generate documentation (ie: Unix man pages and html
-documents) for any binary and library files under B<blib/> that
+This will generate documentation (e.g. Unix man pages and html
+documents) for any installable items under B<blib/> that
 contain POD.  If there are no C<bindoc> or C<libdoc> installation
 targets defined (as will be the case on systems that don't support
 Unix manpages) no action is taken for manpages. If there are no
@@ -336,9 +336,9 @@ find for that action.
 This will generate HTML documentation for any binary or library files
 under B<blib/> that contain POD. The HTML documentation will only be
 installed if the install paths can be determined from values in
-C<Config.pm>. You can also supply or override install paths by
-specifying there values on the command line with the C<binhtml> and
-C<libhtml> installation targets.
+C<Config.pm>.  You can also supply or override install paths on the
+command line by specifying C<install_path> values for the C<binhtml>
+and/or C<libhtml> installation targets.
 
 =item install
 

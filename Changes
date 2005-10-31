@@ -6,10 +6,10 @@ Revision history for Perl extension Module::Build.
    version of the specification followed by the current Module::Build
    and the url where the specification can be found.
 
- - Introduced two actions: html & manpages that will generate
-   documentation for POD when the respective feature is enabled. The
+ - Introduced two actions, 'html' & 'manpages', that generate
+   documentation for POD when the respective feature is enabled.  The
    actions will generate the documents even if there is no set place
-   to install to. However, if the actions are invoked as a dependency
+   to install to.  However, if the actions are invoked as a dependency
    of another action (e.g. build), the documentation will only be
    built when there is a default or user-specified place to install to.
 
