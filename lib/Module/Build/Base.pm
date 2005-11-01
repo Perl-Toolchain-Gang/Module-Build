@@ -22,7 +22,7 @@ use Module::Build::Notes;
 sub new {
   my $self = shift()->_construct(@_);
 
-  $self->{action} = 'Build_PL';
+  $self->{invoked_action} = $self->{action} ||= 'Build_PL';
   $self->cull_args(@ARGV);
   
   die "Too early to specify a build action '$self->{action}'.  Do 'Build $self->{action}' instead.\n"
@@ -71,8 +71,7 @@ sub resume {
     unless $mb_version eq $self->{properties}{mb_version};
   
   $self->cull_args(@ARGV);
-  $self->{action} ||= 'build';
-  $self->{invoked_action} = $self->{action};
+  $self->{invoked_action} = $self->{action} ||= 'build';
   
   return $self;
 }
