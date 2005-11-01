@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_04
 
+ - Add an invoked_action() method to return the name of the original
+   action invoked by the user.
+
  - Add 'meta-spec' field to the generated META.yml file, including the
    version of the specification followed by the current Module::Build
    and the url where the specification can be found.

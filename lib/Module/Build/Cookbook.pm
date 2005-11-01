@@ -43,7 +43,7 @@ directories like so:
  Build install
 
 The F<Build> script knows what perl was used to run C<Build.PL>, so
-you don't need to reinvoke the F<Build> script with the complete perl
+you don't need to re-invoke the F<Build> script with the complete perl
 path each time.  If you invoke it with the I<wrong> perl path, you'll
 get a warning.
 
@@ -68,7 +68,7 @@ following contents:
  Module::Build::Compat->run_build_pl(args => \@ARGV);
  Module::Build::Compat->write_makefile();
 
-Now CPAN will work as usual, ie: `perl Makefile.PL`, `make`, `make test`,
+Now CPAN will work as usual, i.e.: `perl Makefile.PL`, `make`, `make test`,
 and `make install`.
 
 Alternatively, see the C<create_makefile_pl> parameter to the C<<
@@ -110,7 +110,7 @@ To do this, specify the C<destdir> parameter to the C<install> action:
 =head2 Running a single test file
 
 C<Module::Builde> supports running a single test, which enables you to
-track down errors more quickly. Use the following format:
+track down errors more quickly.  Use the following format:
 
   ./Build test --test_files t/mytest.t
 
@@ -163,7 +163,7 @@ effective guessing, but there's still a small chance we can get it
 wrong.  Or not find one at all.
 
 Therefore, if you want to explicitly tell C<Module::Build> which perl
-binary you're targetting, you can override C<$Config{perlpath}>, like
+binary you're targeting, you can override C<$Config{perlpath}>, like
 so:
 
   /foo/perl Build.PL --config perlpath=/foo/perl
@@ -261,7 +261,7 @@ Or you can call the C<install_path()> method later:
 
   $b->install_path->{conf} || $installation_path;
 
-(Sneakily, or perhaps uglyly, C<install_path()> returns a reference to
+(Sneakily, or perhaps uglily, C<install_path()> returns a reference to
 a hash of install paths, and you can modify that hash to your heart's
 content.)
 

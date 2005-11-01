@@ -67,7 +67,7 @@ stabilizes.
 
 =item current()
 
-This method returns a reasonable faxsimile of the currently-executing
+This method returns a reasonable facsimile of the currently-executing
 C<Module::Build> object representing the current build.  You can use
 this object to query its C<notes()> method, inquire about installed
 modules, and so on.  This is a great way to share information between
@@ -78,7 +78,7 @@ during a regression test:
  # In Build.PL:
  my $color = $build->prompt("What is your favorite color?");
  $build->notes(color => $color);
- 
+
  # In t/colortest.t:
  use Module::Build;
  my $build = Module::Build->current;
@@ -154,16 +154,16 @@ should be split, the argument may be given as an array of the files to
 split.
 
 In general I don't consider autosplitting a great idea, because it's
-not always clear that
-autosplitting achieves its intended performance benefits.  It may even
-harm performance in environments like mod_perl, where as much as
-possible of a module's code should be loaded during startup.
+not always clear that autosplitting achieves its intended performance
+benefits.  It may even harm performance in environments like mod_perl,
+where as much as possible of a module's code should be loaded during
+startup.
 
 =item build_class
 
 The Module::Build class or subclass to use in the build
-script. Defaults to "Module::Build" or the class name passed to or
-created by a call to C<subclass()>. This property is useful if you're
+script.  Defaults to "Module::Build" or the class name passed to or
+created by a call to C<subclass()>.  This property is useful if you're
 writing a custom Module::Build subclass and have a bootstrapping
 problem--that is, your subclass requires modules that may not be
 installed when C<perl Build.PL> is executed, but you've listed in
@@ -212,10 +212,9 @@ documentation.
 This parameter tells Module::Build to automatically create a F<README>
 file at the top level of your distribution.  Currently it will simply
 use C<Pod::Text> (or C<Pod::Readme> if it's installed) on the file
-indicated by C<dist_version_from> and put
-the result in the F<README> file.  This is by no means the only
-recommended style for writing a README, but it seems to be one common
-one used on the CPAN.
+indicated by C<dist_version_from> and put the result in the F<README>
+file.  This is by no means the only recommended style for writing a
+README, but it seems to be one common one used on the CPAN.
 
 If you generate a F<README> in this way, it's probably a good idea to
 create a separate F<INSTALL> file if that information isn't in the
@@ -267,7 +266,7 @@ the first line that matches the regular expression
 
    /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/
 
-, eval()-ing that line, then checking the value of the C<$VERSION>
+eval()-ing that line, then checking the value of the C<$VERSION>
 variable.  Quite ugly, really, but all the modules on CPAN depend on
 this process, so there's no real opportunity to change to something
 better.
@@ -312,14 +311,15 @@ To link your XS code against glib you might write something like:
 
 =item get_options
 
-You can pass arbitrary command-line options to F<Build.PL> or F<Build>, and they will be
-stored in the Module::Build object and can be accessed via the C<args()>
-method. However, sometimes you want more flexibility out of your argument
-processing than this allows. In such cases, use the C<get_options> parameter
-to pass in a hash reference of argument specifications, and the list of
-arguments to F<Build.PL> or F<Build> will be processed according to those
-specifications before they're passed on to C<Module::Build>'s own argument
-processing.
+You can pass arbitrary command line options to F<Build.PL> or
+F<Build>, and they will be stored in the Module::Build object and can
+be accessed via the C<args()> method.  However, sometimes you want
+more flexibility out of your argument processing than this allows.  In
+such cases, use the C<get_options> parameter to pass in a hash
+reference of argument specifications, and the list of arguments to
+F<Build.PL> or F<Build> will be processed according to those
+specifications before they're passed on to C<Module::Build>'s own
+argument processing.
 
 The supported option specification hash keys are:
 
@@ -328,8 +328,8 @@ The supported option specification hash keys are:
 
 =item type
 
-The type of option. The types are those supported by Getopt::Long; consult
-its documentation for a complete list. Typical types are C<=s> for strings,
+The type of option.  The types are those supported by Getopt::Long; consult
+its documentation for a complete list.  Typical types are C<=s> for strings,
 C<+> for additive options, and C<!> for negatable options.  If the
 type is not specified, it will be considered a boolean, i.e. no
 argument is taken and a value of 1 will be assigned when the option is
@@ -343,7 +343,7 @@ hash returned by the C<args()> method.
 
 =item default
 
-A default value for the option. If no default value is specified and no option
+A default value for the option.  If no default value is specified and no option
 is passed, then the option key will not exist in the hash returned by
 C<args()>.
 
@@ -352,7 +352,7 @@ C<args()>.
 
 You can combine references to your own variables or subroutines with
 unreferenced specifications, for which the result will also be stored in the
-has returned by C<args()>. For example:
+has returned by C<args()>.  For example:
 
  my $loud = 0;
  my $build = Module::Build->new(
@@ -387,8 +387,8 @@ a list reference indicating multiple directories.
 =item installdirs
 
 Determines where files are installed within the normal perl hierarchy
-as determined by F<Config.pm>. Valid values are: C<core>, C<site>,
-C<vendor>. The default is C<site>. See
+as determined by F<Config.pm>.  Valid values are: C<core>, C<site>,
+C<vendor>.  The default is C<site>.  See
 L<Module::Build/"How Installation Paths are Determined">
 
 =item license
@@ -432,7 +432,7 @@ The distribution is licensed under the MIT License
 =item mozilla
 
 The distribution is licensed under the Mozilla Public
-License. (http://opensource.org/licenses/mozilla1.0.php or
+License.  (http://opensource.org/licenses/mozilla1.0.php or
 http://opensource.org/licenses/mozilla1.1.php)
 
 =item open_source
@@ -618,7 +618,7 @@ of its dependencies isn't satisfied, unless a "force" command is given
 by the user.  If the tools are helpful, they should also offer to
 install the dependencies.
 
-A sysnonym for C<requires> is C<prereq>, to help succour people
+A synonym for C<requires> is C<prereq>, to help succour people
 transitioning from C<ExtUtils::MakeMaker>.  The C<requires> term is
 preferred, but the C<prereq> term will remain valid in future
 distributions.
@@ -680,7 +680,7 @@ F<META.yml> file (in other words, the base directory of a
 distribution), this method will run the F<Build.PL> and return the
 resulting C<Module::Build> object to the caller.  Any key-value
 arguments given to C<new_from_context()> are essentially like
-command-line arguments given to the F<Build.PL> script, so for example
+command line arguments given to the F<Build.PL> script, so for example
 you could pass C<< verbose => 1 >> to this method to turn on
 verbosity.
 
@@ -690,7 +690,7 @@ You'll probably never call this method directly, it's only called from
 the auto-generated C<Build> script.  The C<new()> method is only
 called once, when the user runs C<perl Build.PL>.  Thereafter, when
 the user runs C<Build test> or another action, the C<Module::Build>
-object is created using the C<resume()> method to reinstantiate with
+object is created using the C<resume()> method to re-instantiate with
 the settings given earlier to C<new()>.
 
 =item subclass()
@@ -744,14 +744,14 @@ code that creates them.
   my $arg_value = $build->args($key);
   $build->args($key, $value);
 
-This method is the preferred interface for retreiving the arguments passed via
-command-line options to F<Build.PL> or F<Build>, minus the Module-Build
+This method is the preferred interface for retrieving the arguments passed via
+command line options to F<Build.PL> or F<Build>, minus the Module-Build
 specific options.
 
 When called in in a scalar context with no arguments, this method returns a
 reference to the hash storing all of the arguments; in an array context, it
-returns the hash itself. When passed a single argument, it returns the value
-stored in the args hash for that option key. When called with two arguments,
+returns the hash itself.  When passed a single argument, it returns the value
+stored in the args hash for that option key.  When called with two arguments,
 the second argument is assigned to the args hash under the key passed as the
 first argument.
 
@@ -806,7 +806,7 @@ or as a class method
 =item check_installed_version($module, $version)
 
 Like C<check_installed_status()>, but simply returns true or false
-depending on whether module C<$module> statisfies the dependency
+depending on whether module C<$module> satisfies the dependency
 C<$version>.
 
 If the check succeeds, the return value is the actual version of
@@ -823,7 +823,7 @@ following:
 If the check fails, we return false and set C<$@> to an informative
 error message.
 
-If C<$version> is any nontrue value (notably zero) and any version of
+If C<$version> is any non-true value (notably zero) and any version of
 C<$module> is installed, we return true.  In this case, if C<$module>
 doesn't define a version, or if its version is zero, we return the
 special value "0 but true", which is numerically zero, but logically
@@ -859,7 +859,7 @@ With a single argument, returns the value of the configuration
 variable C<$name>.  With two arguments, sets the given configuration
 variable to the given value.  The value may be any perl scalar that's
 serializable with C<Data::Dumper>.  For instance, if you write a
-module that can use a MySQL or PostgreSQL backend, you might create
+module that can use a MySQL or PostgreSQL back-end, you might create
 configuration variables called C<mysql_connect> and
 C<postgres_connect>, and set each to an array of connection parameters
 for C<< DBI->connect() >>.
@@ -913,7 +913,16 @@ when the C<realclean> action is performed.
 
 =item current_action()
 
-Returns the name of the currently-running action, such as "build" or "test".
+Returns the name of the currently-running action, such as "build" or
+"test".  This action is not necessarily the action that was originally
+invoked by the user.  For example, if the user invoked the "test"
+action, current_action() would initially return "test".  However,
+action "test" depends on action "code", so current_action() will
+return "code" while that dependency is being executed.  Once that
+action has completed, current_action() will again return "test".
+
+If you need to know the name of the original action invoked by the
+user, see L<invoked_action()> below.
 
 =item dir_contains($first_dir, $second_dir)
 
@@ -925,7 +934,7 @@ C<Path::Class> does...).
 =item dispatch($action, %args)
 
 This method is also called from the auto-generated C<Build> script.
-It parses the command-line arguments into an action and an argument
+It parses the command line arguments into an action and an argument
 list, then calls the appropriate routine to handle the action.
 Currently (though this may change), an action C<foo> will invoke the
 C<ACTION_foo> method.  All arguments (including everything mentioned
@@ -1009,6 +1018,16 @@ C<script>, C<libdoc>, C<bindoc>, and if HTML documentation is to be
 built, C<libhtml> and C<binhtml>.  Other user-defined types may also
 exist.
 
+=item invoked_action()
+
+This is the name of the original action invoked by the user.  This
+value is set when the user invokes F<Build.PL>, the F<Build> script,
+or programatically through the L<dispatch()> method.  It does not
+change as sub-actions are executed as dependencies are evaluated.
+
+To get the name of the currently executing dependency, see
+L<current_action()> above.
+
 =item notes()
 
 =item notes($key)
@@ -1020,9 +1039,9 @@ information about the build, and to share that information among
 different entities involved in the build.  See the example in the
 C<current()> method.
 
-The C<notes()> method is essentally a glorified hash access. With no
-arguments, C<notes()> returns the entire hash of notes. With one argument,
-C<notes($key)> returns the value associated with the given key. With two
+The C<notes()> method is essentally a glorified hash access.  With no
+arguments, C<notes()> returns the entire hash of notes.  With one argument,
+C<notes($key)> returns the value associated with the given key.  With two
 arguments, C<notes($key, $value)> sets the value associated with the given key
 to C<$value>.
 
@@ -1036,17 +1055,17 @@ run again or the C<clean> action is run.
 
 =item runtime_params($key)
 
-The C<runtime_params()> method stores the values passed on the command-line
-for valid properties (that is, any command-line options for which
-C<valid_property()> returns a true value). The value on the command-line may
+The C<runtime_params()> method stores the values passed on the command line
+for valid properties (that is, any command line options for which
+C<valid_property()> returns a true value).  The value on the command line may
 override the default value for a property, as well as any value specified in a
-call to C<new()>. This allows you to programmatically tell if C<perl Build.PL>
-or any execution of C<./Build> had command-line options specified that
+call to C<new()>.  This allows you to programmatically tell if C<perl Build.PL>
+or any execution of C<./Build> had command line options specified that
 override valid properties.
 
-The C<runtime_params()> method is essentally a glorified read-only hash. With
+The C<runtime_params()> method is essentally a glorified read-only hash.  With
 no arguments, C<runtime_params()> returns the entire hash of properties
-specified on the command-line. With one argument, C<runtime_params($key)>
+specified on the command line.  With one argument, C<runtime_params($key)>
 returns the value associated with the given key.
 
 The lifetime of the C<runtime_params> data is for "a build" - that is, the
@@ -1059,7 +1078,7 @@ C<clean> action is run.
 
 If you're subclassing Module::Build and some code needs to alter its
 behavior based on the current platform, you may only need to know
-whether you're running on Windows, Unix, MacOS, VMS, etc. and not the
+whether you're running on Windows, Unix, MacOS, VMS, etc., and not the
 fine-grained value of Perl's C<$^O> variable.  The C<os_type()> method
 will return a string like C<Windows>, C<Unix>, C<MacOS>, C<VMS>, or
 whatever is appropriate.  If you're running on an unknown platform, it
@@ -1069,8 +1088,8 @@ though.
 =item prepare_metadata()
 
 This method is provided for authors to override to customize the
-fields of F<META.yml>. It is passed a YAML::Node node object which can
-be modified as desired and then returned. Eg.
+fields of F<META.yml>.  It is passed a YAML::Node node object which can
+be modified as desired and then returned.  E.g.
 
   package My::Builder;
   use base 'Module::Build';
@@ -1221,7 +1240,7 @@ automatically be created for you, where C<Foo::Bar> is the
 C<module_name> parameter as passed to C<new()>.  This module provides
 access to the data saved by these methods, and a way to update the
 values.  There is also a utility script called C<config_data>
-distributed with Module::Build that provides a command-line interface
+distributed with Module::Build that provides a command line interface
 to this same functionality.  See also the generated
 C<Foo::Bar::ConfigData> documentation, and the C<config_data>
 script's documentation, for more information.

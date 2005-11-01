@@ -159,7 +159,7 @@ You can run the 'help' action for a complete list of actions.
 There are some general principles at work here.  First, each task when
 building a module is called an "action".  These actions are listed
 above; they correspond to the building, testing, installing,
-packaging, etc. tasks.
+packaging, etc., tasks.
 
 Second, arguments are processed in a very systematic way.  Arguments
 are always key=value pairs.  They may be specified at C<perl Build.PL>
@@ -167,7 +167,7 @@ time (i.e.  C<perl Build.PL destdir=/my/secret/place>), in which case
 their values last for the lifetime of the C<Build> script.  They may
 also be specified when executing a particular action (i.e.
 C<Build test verbose=1>), in which case their values last only for the
-lifetime of that command.  Per-action command-line parameters take
+lifetime of that command.  Per-action command line parameters take
 precedence over parameters specified at C<perl Build.PL> time.
 
 The build process also relies heavily on the C<Config.pm> module, and
@@ -267,7 +267,7 @@ want by supplying an explicit C<tar> (and optional C<gzip>) parameter:
 =item distcheck
 
 Reports which files are in the build directory but not in the
-F<MANIFEST> file, and vice versa. (See L<manifest> for details)
+F<MANIFEST> file, and vice versa.  (See L<manifest> for details.)
 
 =item distclean
 
@@ -311,7 +311,7 @@ This will generate documentation (e.g. Unix man pages and html
 documents) for any installable items under B<blib/> that
 contain POD.  If there are no C<bindoc> or C<libdoc> installation
 targets defined (as will be the case on systems that don't support
-Unix manpages) no action is taken for manpages. If there are no
+Unix manpages) no action is taken for manpages.  If there are no
 C<binhtml> or C<libhtml> installation targets defined no action is
 taken for html documents.
 
@@ -334,7 +334,7 @@ find for that action.
 =item html
 
 This will generate HTML documentation for any binary or library files
-under B<blib/> that contain POD. The HTML documentation will only be
+under B<blib/> that contain POD.  The HTML documentation will only be
 installed if the install paths can be determined from values in
 C<Config.pm>.  You can also supply or override install paths on the
 command line by specifying C<install_path> values for the C<binhtml>
@@ -343,7 +343,7 @@ and/or C<libhtml> installation targets.
 =item install
 
 This action will use C<ExtUtils::Install> to install the files from
-C<blib/> into the system. See L<How Installation Paths are Determined>
+C<blib/> into the system.  See L<How Installation Paths are Determined>
 for details about how Module::Build determines where to install
 things, and how to influence this process.
 
@@ -386,8 +386,8 @@ what the C<manifest> action would do, without actually doing anything.
 =item manpages
 
 This will generate man pages for any binary or library files under
-B<blib/> that contain POD. The man pages will only be installed if the
-install paths can be determined from values in C<Config.pm>. You can
+B<blib/> that contain POD.  The man pages will only be installed if the
+install paths can be determined from values in C<Config.pm>.  You can
 also supply or override install paths by specifying there values on
 the command line with the C<bindoc> and C<libdoc> installation
 targets.
@@ -398,7 +398,7 @@ Build a PPD file for your distribution.
 
 This action takes an optional argument C<codebase> which is used in
 the generated ppd file to specify the (usually relative) URL of the
-distribution. By default, this value is the distribution name without
+distribution.  By default, this value is the distribution name without
 any path information.
 
 Example:
@@ -486,7 +486,7 @@ argument.
 =item testpod
 
 This checks all the files described in the C<docs> action and 
-produces C<Test::Harness>-style output. If you are a module author,
+produces C<Test::Harness>-style output.  If you are a module author,
 this is useful to run before creating a new release.
 
 =item versioninstall
@@ -497,7 +497,7 @@ experimental. **
 
 If you have the C<only.pm> module installed on your system, you can
 use this action to install a module into the version-specific library
-trees. This means that you can have several versions of the same
+trees.  This means that you can have several versions of the same
 module installed and C<use> a specific one like this:
 
  use only MyModule => 0.55;
@@ -518,15 +518,15 @@ version-specific installs.
 =back
 
 
-=head2 General Commandline Options
+=head2 General Command Line Options
 
-The following options can be used during any invokation of Build.PL or
+The following options can be used during any invocation of Build.PL or
 the Build script, during any action.
 
 NOTE: There is some preliminary support for options to use the more
-familiar long option style. Most options can be preceeded with the
+familiar long option style.  Most options can be preceded with the
 C<--> long option prefix, and the underscores changed to dashes
-(e.g. --ignore-prereqs). Additionally, the argument to boolean options
+(e.g. --ignore-prereqs).  Additionally, the argument to boolean options
 is optional (e.g. --verbose), and boolean options can be negated by
 prefixing them with 'no' or 'no-' (e.g. --noverbose or --no-verbose).
 
@@ -553,7 +553,7 @@ Suppress informative messages on output.
 
 =item use_rcfile
 
-Load the F<~/.modulebuildrc> option file. This option can be set to
+Load the F<~/.modulebuildrc> option file.  This option can be set to
 false to prevent the custom resource file from being loaded.
 
 =item verbose
@@ -563,20 +563,20 @@ Display extra information about the Build on output.
 =back
 
 
-=head2 Default Commandline Options (F<.modulebuildrc>)
+=head2 Default Command Line Options (F<.modulebuildrc>)
 
 When Module::Build starts up, it will look for a file,
-F<$ENV{HOME}/.modulebuildrc>. If the file exists, the options
+F<$ENV{HOME}/.modulebuildrc>.  If the file exists, the options
 specified there will be used as defaults, as if they were typed on the
-command line. The defaults can be overridden by specifying new values
+command line.  The defaults can be overridden by specifying new values
 on the command line.
 
 The action name must come at the beginning of the line, followed by any
-amount of whitespace and then the options. Options are given the same
-as they would be on the commandline. They can be separated by any
+amount of whitespace and then the options.  Options are given the same
+as they would be on the command line.  They can be separated by any
 amount of whitespace, including newlines, as long there is whitespace at
-the beginning of each continued line. Anything following a hash mark (C<#>)
-is considered a comment, and is stripped before parsing. If more than
+the beginning of each continued line.  Anything following a hash mark (C<#>)
+is considered a comment, and is stripped before parsing.  If more than
 one line begins with the same action name, those lines are merged into
 one set of options.
 
@@ -827,9 +827,10 @@ in Module::Build, here's a summary of the reasons why:
 Many systems have Perl configs that make little sense with PREFIX.
 For example, OS X, where core modules go in
 F</System/Library/Perl/...>, user-installed modules go in
-F</Library/Perl/...>, and man pages go in F</usr/share/man/...>.  The PREFIX is thus set to F</>.
-Install L<Foo::Bar> on OS X with C<PREFIX=/home/spurkis> and you get
-things like F</home/spurkis/Library/Perl/5.8.1/Foo/Bar.pm> and
+F</Library/Perl/...>, and man pages go in F</usr/share/man/...>.  The
+PREFIX is thus set to F</>.  Install L<Foo::Bar> on OS X with
+C<PREFIX=/home/spurkis> and you get things like
+F</home/spurkis/Library/Perl/5.8.1/Foo/Bar.pm> and
 F</home/spurkis/usr/share/man/man3/Foo::Bar.3pm>.  Not too pretty.
 
 The problem is not limited to Unix-like platforms, either - on Windows
@@ -869,7 +870,7 @@ have been you or it could have been some guy at Redhat.
 =head2 PREFIX will be supported
 
 The current maintainer of MakeMaker has offered to implement C<PREFIX>
-pass-through support in Module::Build B<for backwards compatability
+pass-through support in Module::Build B<for backwards compatibility
 only>.  You are still strongly recommended to use C<install_base>.
 
 =head1 MOTIVATIONS
