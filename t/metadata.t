@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 35;
+use Test::More tests => 43;
 
 
 use File::Spec ();
@@ -15,14 +15,21 @@ use Cwd ();
 my $cwd = Cwd::cwd;
 my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
+
+use Module::Build;
+my $has_YAML = Module::Build->current->feature('YAML_support');
+
+
 use DistGen;
 my $dist = DistGen->new( dir => $tmp );
 $dist->change_file( 'Build.PL', <<"---" );
 use Module::Build;
 my \$builder = Module::Build->new(
-    module_name         => '@{[$dist->name]}',
-    dist_version        => '3.14159265',
-    license             => 'perl',
+    module_name   => '@{[$dist->name]}',
+    dist_version  => '3.14159265',
+    dist_author   => [ 'Simple Simon <ss\@somewhere.priv>' ],
+    dist_abstract => 'Something interesting',
+    license       => 'perl',
 );
 
 \$builder->create_build_script();
@@ -33,7 +40,45 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 use Module::Build;
 my $mb = Module::Build->new_from_context;
+
+##################################################
+#
+# Test for valid META.yml
+
+SKIP: {
+  skip( 'YAML_support feature is not enabled', 8 ) unless $has_YAML;
+
+  require YAML;
+  my $node = YAML::Node->new({});
+  $node = $mb->prepare_metadata( $node );
+
+  # exists() doesn't seem to work here
+  ok defined( $node->{name} ),     "'name' field present in META.yml";
+  ok defined( $node->{version} ),  "'version' field present in META.yml";
+  ok defined( $node->{abstract} ), "'abstract' field present in META.yml";
+  ok defined( $node->{author} ),   "'author' field present in META.yml";
+  ok defined( $node->{license} ),  "'license' field present in META.yml";
+  ok defined( $node->{generated_by} ),
+      "'generated_by' field present in META.yml";
+  ok defined( $node->{'meta-spec'}{version} ),
+      "'meta-spec' -> 'version' field present in META.yml";
+  ok defined( $node->{'meta-spec'}{url} ),
+      "'meta-spec' -> 'url' field present in META.yml";
+
+  # TODO : find a way to test for failure when above fields are not present
+}
+
+$dist->clean;
+
+
+##################################################
+#
+# Tests to ensure that the correct packages and versions are
+# recorded for the 'provides' field of META.yml
+
 my $provides; # Used a bunch of times below
+
+sub new_build { return Module::Build->new_from_context( quiet => 1, @_ ) }
 
 ############################## Single Module
 
@@ -45,7 +90,7 @@ package Simple;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => {file => 'lib/Simple.pm',
 			version => '1.23'}});
@@ -54,7 +99,7 @@ $dist->change_file( 'lib/Simple.pm', <<'---' );
 package Simple;
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => {file => 'lib/Simple.pm'}});
 
@@ -66,7 +111,7 @@ package Foo::Bar;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Foo::Bar' => { file => 'lib/Simple.pm',
 			   version => '1.23' }});
@@ -75,7 +120,7 @@ $dist->change_file( 'lib/Simple.pm', <<'---' );
 package Foo::Bar;
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Foo::Bar' => { file => 'lib/Simple.pm'}});
 
@@ -91,7 +136,7 @@ package Foo::Bar;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Simple'   => { file => 'lib/Simple.pm',
 			   version => '1.23' },
@@ -110,7 +155,7 @@ package Foo::Bar;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Foo'      => { file => 'lib/Simple.pm',
 			   version => '1.23' },
@@ -128,7 +173,7 @@ package Simple;
 package Simple;
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm' }});
 
@@ -144,7 +189,7 @@ $VERSION = '1.23';
 package Simple;
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm',
 			 version => '1.23' }});
@@ -161,7 +206,7 @@ package Simple;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm',
 			 version => '1.23' }});
@@ -179,7 +224,7 @@ $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
 my $err = '';
-$err = stderr_of( sub { $mb = Module::Build->new_from_context } );
+$err = stderr_of( sub { $mb = new_build } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Simple' => { file => 'lib/Simple.pm',
@@ -198,7 +243,7 @@ package Foo;
 $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
-$err = stderr_of( sub { $mb = Module::Build->new_from_context } );
+$err = stderr_of( sub { $mb = new_build } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Foo' => { file => 'lib/Simple.pm',
@@ -220,7 +265,7 @@ $dist->add_file( 'lib/Simple2.pm', <<'---' );
 package Simple;
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm' }});
 $dist->remove_file( 'lib/Simple2.pm' );
@@ -238,7 +283,7 @@ $dist->add_file( 'lib/Simple2.pm', <<'---' );
 package Simple;
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm',
 			 version => '1.23' }});
@@ -258,7 +303,7 @@ package Simple;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple2.pm',
 			 version => '1.23' }});
@@ -278,7 +323,7 @@ package Simple;
 $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Simple' => { file => 'lib/Simple.pm',
@@ -301,7 +346,7 @@ package Simple;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Simple' => { file => 'lib/Simple.pm',
@@ -325,7 +370,7 @@ $dist->add_file( 'lib/Simple2.pm', <<'---' );
 package Foo;
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 $provides = $mb->find_dist_packages;
 ok( exists( $provides->{Foo} ) ); # it exist, can't predict which file
 $dist->remove_file( 'lib/Simple2.pm' );
@@ -343,7 +388,7 @@ $dist->add_file( 'lib/Simple2.pm', <<'---' );
 package Foo;
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Foo' => { file => 'lib/Simple.pm',
 		      version => '1.23' }});
@@ -362,7 +407,7 @@ package Foo;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Foo' => { file => 'lib/Simple2.pm',
 		      version => '1.23' }});
@@ -382,7 +427,7 @@ package Foo;
 $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 # XXX Should 'Foo' exist ??? Can't predict values for file & version
 ok( exists( $provides->{Foo} ) );
@@ -404,7 +449,7 @@ package Foo;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 ok( exists( $provides->{Foo} ) );
 is( $provides->{Foo}{version}, '1.23' );
@@ -430,7 +475,7 @@ $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
 $err = stderr_of( sub {
-  $mb = Module::Build->new_from_context;
+  $mb = new_build;
 } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
@@ -456,7 +501,7 @@ $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
 $err = stderr_of( sub {
-  $mb = Module::Build->new_from_context;
+  $mb = new_build;
 } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
@@ -482,7 +527,7 @@ package Simple::_private::too;
 $VERSION = '3.45';
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm',
 			 version => '1.23' }});
@@ -495,7 +540,7 @@ is_deeply($mb->find_dist_packages,
 
 $dist->change_file( 'lib/Simple.pm', '' );
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply( $mb->find_dist_packages, {} );
 
 # Simple.pm => =pod..=cut (no package declaration)
@@ -513,7 +558,7 @@ Doesn't do anything.
 =cut
 ---
 $dist->regen( clean => 1 );
-$mb = Module::Build->new_from_context;
+$mb = new_build;
 is_deeply($mb->find_dist_packages, {});
 
 
