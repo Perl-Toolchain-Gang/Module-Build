@@ -1222,6 +1222,7 @@ sub dispatch {
   }
 
   die "No build action specified" unless $self->{action};
+  local $self->{invoked_action} = $self->{action};
   $self->_call_action($self->{action});
 }
 
