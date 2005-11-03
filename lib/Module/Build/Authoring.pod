@@ -924,6 +924,18 @@ action has completed, current_action() will again return "test".
 If you need to know the name of the original action invoked by the
 user, see L<invoked_action()> below.
 
+=item depends_on(@actions)
+
+Invokes the named action or list of actions in sequence.  Using this
+method is preferred to calling the action explicitly because it
+performs some internal record-keeping, and it ensures that the same
+action is not invoked multiple times.
+
+This method is intended to be used by Module::Build subclasses when
+defining custom actions that depend on other sub-actions.  If you need
+to invoke an action outside of the build process, see L<dispatch>
+below.
+
 =item dir_contains($first_dir, $second_dir)
 
 Returns true if the first directory logically contains the second
@@ -933,13 +945,25 @@ C<Path::Class> does...).
 
 =item dispatch($action, %args)
 
-This method is also called from the auto-generated C<Build> script.
-It parses the command line arguments into an action and an argument
-list, then calls the appropriate routine to handle the action.
-Currently (though this may change), an action C<foo> will invoke the
-C<ACTION_foo> method.  All arguments (including everything mentioned
-in L<Module::Build/"ACTIONS"> ) are contained in the
-C<< $self->{args} >> hash reference.
+Invokes the build action C<$action>.  Optionally, a list of options
+and their values can be passed in.  This is equivalent to invoking an
+action at the command line, passing in a list of options.
+
+Custom options that have not been registered must be passed in as a
+hash reference in a key named "args":
+
+ $mb->dispatch('foo', verbose => 1, args => { my_option => 'value' });
+
+This method is intended to be used to programmatically invoke build
+actions.  I.e. It's primarily to be used by applications controlling
+Module::Build based builds rather than by subclasses.  If you need to
+invoke an action from within a F<Build.PL> script or a subclass, see
+L<depends_on> above.
+
+Unlike C<< depends_on() >>, this method resets the list of previously
+invoked actions, so actions in a previous C<< dispatch() >> call will
+be invoked again in subsequent calls. However, within a single call
+actions are still run only a single time.
 
 =item dist_dir()
 
