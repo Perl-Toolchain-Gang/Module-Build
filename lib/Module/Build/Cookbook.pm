@@ -245,7 +245,7 @@ directory during the build process: F<lib/>, F<arch/>, F<bin/>,
 F<script/>, F<bindoc/>, F<libdoc/>, and F<html/> (some of these may be
 missing or empty if there's nothing to go in them).  Anything copied
 to these directories during the build will eventually be installed
-during the C<install> action (see L<Module::Build/"How Installation Paths are Determined">.
+during the C<install> action (see L<Module::Build/"INSTALL PATHS">.
 
 If you need to create a new type of installable element, e.g. C<conf>,
 then you need to tell Module::Build where things in F<blib/conf/>

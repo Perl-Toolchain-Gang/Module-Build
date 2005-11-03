@@ -389,7 +389,7 @@ a list reference indicating multiple directories.
 Determines where files are installed within the normal perl hierarchy
 as determined by F<Config.pm>.  Valid values are: C<core>, C<site>,
 C<vendor>.  The default is C<site>.  See
-L<Module::Build/"How Installation Paths are Determined">
+L<Module::Build/"INSTALL PATHS">
 
 =item license
 

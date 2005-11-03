@@ -343,7 +343,7 @@ and/or C<libhtml> installation targets.
 =item install
 
 This action will use C<ExtUtils::Install> to install the files from
-C<blib/> into the system.  See L<How Installation Paths are Determined>
+C<blib/> into the system.  See L<INSTALL PATHS>
 for details about how Module::Build determines where to install
 things, and how to influence this process.
 
@@ -518,10 +518,13 @@ version-specific installs.
 =back
 
 
-=head2 General Command Line Options
+=head1 OPTIONS
+
+=head2 Command Line Options
 
 The following options can be used during any invocation of Build.PL or
-the Build script, during any action.
+the Build script, during any action. For information on other options
+specific to an action, see the documentation for the respective action.
 
 NOTE: There is some preliminary support for options to use the more
 familiar long option style.  Most options can be preceded with the
@@ -563,7 +566,7 @@ Display extra information about the Build on output.
 =back
 
 
-=head2 Default Command Line Options (F<.modulebuildrc>)
+=head2 Default Options File (F<.modulebuildrc>)
 
 When Module::Build starts up, it will look for a file,
 F<$ENV{HOME}/.modulebuildrc>.  If the file exists, the options
@@ -595,7 +598,7 @@ can set the environment variable 'MODULEBUILDRC' to the complete
 absolute path of the file containing your options.
 
 
-=head2 How Installation Paths are Determined
+=head1 INSTALL PATHS
 
 When you invoke Module::Build's C<build> action, it needs to figure
 out where to install things.  The nutshell version of how this works
@@ -740,11 +743,10 @@ system, you'll install as follows:
  libhtml => /home/ken/html
 
 Note that this is I<different> from how MakeMaker's C<PREFIX>
-parameter works.  Module::Build doesn't support MakeMaker's C<PREFIX>
-option.  See L</"Why PREFIX is not supported"> for more details.
-C<install_base> just gives you a default layout under the directory
-you specify, which may have little to do with the C<installdirs=site>
-layout.
+parameter works.  See L</"Why PREFIX is not recommended"> for more
+details.  C<install_base> just gives you a default layout under the
+directory you specify, which may have little to do with the
+C<installdirs=site> layout.
 
 The exact layout under the directory you specify may vary by system -
 we try to do the "sensible" thing on each platform.
@@ -769,41 +771,7 @@ platform you're installing on.
 
 =back
 
-=head1 Alternatives to PREFIX
-
-Module::Build offers L</install_base> as a simple, predictable, and
-user-configurable alternative to ExtUtils::MakeMaker's C<PREFIX>.
-What's more, MakeMaker will soon accept C<INSTALL_BASE> -- we strongly
-urge you to make the switch.
-
-Here's a quick comparison of the two when installing modules to your
-home directory on a unix box:
-
-MakeMaker [*]:
-
-  % perl Makefile.PL PREFIX=/home/spurkis
-  PERL5LIB=/home/spurkis/lib/perl5/5.8.5:/home/spurkis/lib/perl5/site_perl/5.8.5
-  PATH=/home/spurkis/bin
-  MANPATH=/home/spurkis/man
-
-Module::Build:
-
-  % perl Build.PL install_base=/home/spurkis
-  PERL5LIB=/home/spurkis/lib/perl5
-  PATH=/home/spurkis/bin
-  MANPATH=/home/spurkis/man
-
-[*] Note that MakeMaker's behaviour cannot be guaranteed in even this
-common scenario, and differs among different versions of MakeMaker.
-
-In short, using C<install_base> is similar to the following MakeMaker usage:
-
-  perl Makefile.PL PREFIX=/home/spurkis LIB=/home/spurkis/lib/perl5
-
-See L</How Installation Paths are Determined> for details on other
-installation options available and how to configure them.
-
-=head2 Why PREFIX is not supported
+=head2 About PREFIX Support
 
 First, it is necessary to understand the original idea behind
 C<PREFIX>.  If, for example, the default installation locations for
@@ -817,8 +785,10 @@ each path.
 
 However, the real world is more complicated than that.  The C<PREFIX>
 idea is fundamentally broken when your machine doesn't jibe with
-C<PREFIX>'s worldview.  A design decision was made not to support it
-in Module::Build, here's a summary of the reasons why:
+C<PREFIX>'s worldview.
+
+
+=head3 Why PREFIX is not recommended
 
 =over 4
 
@@ -867,11 +837,41 @@ have been you or it could have been some guy at Redhat.
 
 =back
 
-=head2 PREFIX will be supported
 
-The current maintainer of MakeMaker has offered to implement C<PREFIX>
-pass-through support in Module::Build B<for backwards compatibility
-only>.  You are still strongly recommended to use C<install_base>.
+=head3 Alternatives to PREFIX
+
+Module::Build offers L</install_base> as a simple, predictable, and
+user-configurable alternative to ExtUtils::MakeMaker's C<PREFIX>.
+What's more, MakeMaker will soon accept C<INSTALL_BASE> -- we strongly
+urge you to make the switch.
+
+Here's a quick comparison of the two when installing modules to your
+home directory on a unix box:
+
+MakeMaker [*]:
+
+  % perl Makefile.PL PREFIX=/home/spurkis
+  PERL5LIB=/home/spurkis/lib/perl5/5.8.5:/home/spurkis/lib/perl5/site_perl/5.8.5
+  PATH=/home/spurkis/bin
+  MANPATH=/home/spurkis/man
+
+Module::Build:
+
+  % perl Build.PL install_base=/home/spurkis
+  PERL5LIB=/home/spurkis/lib/perl5
+  PATH=/home/spurkis/bin
+  MANPATH=/home/spurkis/man
+
+[*] Note that MakeMaker's behaviour cannot be guaranteed in even this
+common scenario, and differs among different versions of MakeMaker.
+
+In short, using C<install_base> is similar to the following MakeMaker usage:
+
+  perl Makefile.PL PREFIX=/home/spurkis LIB=/home/spurkis/lib/perl5
+
+See L</INSTALL PATHS> for details on other
+installation options available and how to configure them.
+
 
 =head1 MOTIVATIONS
 
@@ -950,9 +950,9 @@ requires tracing all dependencies backward, it runs into problems on
 NFS, and it's just generally flimsy.  It would be better to use an MD5
 signature or the like, if available.  See C<cons> for an example.
 
-- append to perllocal.pod
-- write .packlist in appropriate location (needed for un-install)
-- add a 'plugin' functionality
+ - append to perllocal.pod
+ - write .packlist in appropriate location (needed for un-install)
+ - add a 'plugin' functionality
 
 
 =head1 AUTHOR
