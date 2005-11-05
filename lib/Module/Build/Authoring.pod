@@ -929,12 +929,19 @@ user, see L<invoked_action()> below.
 Invokes the named action or list of actions in sequence.  Using this
 method is preferred to calling the action explicitly because it
 performs some internal record-keeping, and it ensures that the same
-action is not invoked multiple times.
+action is not invoked multiple times (note: in future versions of
+Module::Build it's conceivable that this run-only-once mechanism will
+be changed to something more intelligent).
 
-This method is intended to be used by Module::Build subclasses when
-defining custom actions that depend on other sub-actions.  If you need
-to invoke an action outside of the build process, see L<dispatch>
-below.
+Note that the name of this method is something of a misnomer; it
+should really be called something like
+C<invoke_actions_unless_already_invoked()> or something, but for
+better or worse (perhaps better!) we were still thinking in
+C<make>-like dependency terms when we created this method.
+
+See also C<dispatch()>.  The main distinction between the two is that
+C<depends_on()> is meant to call an action from inside another action,
+whereas C<dispatch()> is meant to set the very top action in motion.
 
 =item dir_contains($first_dir, $second_dir)
 
@@ -955,15 +962,12 @@ hash reference in a key named "args":
  $mb->dispatch('foo', verbose => 1, args => { my_option => 'value' });
 
 This method is intended to be used to programmatically invoke build
-actions.  I.e. It's primarily to be used by applications controlling
-Module::Build based builds rather than by subclasses.  If you need to
-invoke an action from within a F<Build.PL> script or a subclass, see
-L<depends_on> above.
+actions, e.g. by applications controlling Module::Build-based builds
+rather than by subclasses.
 
-Unlike C<< depends_on() >>, this method resets the list of previously
-invoked actions, so actions in a previous C<< dispatch() >> call will
-be invoked again in subsequent calls. However, within a single call
-actions are still run only a single time.
+See also C<depends_on()>.  The main distinction between the two is that
+C<depends_on()> is meant to call an action from inside another action,
+whereas C<dispatch()> is meant to set the very top action in motion.
 
 =item dist_dir()
 
