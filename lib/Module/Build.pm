@@ -951,7 +951,6 @@ NFS, and it's just generally flimsy.  It would be better to use an MD5
 signature or the like, if available.  See C<cons> for an example.
 
  - append to perllocal.pod
- - write .packlist in appropriate location (needed for un-install)
  - add a 'plugin' functionality
 
 
