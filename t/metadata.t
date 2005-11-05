@@ -90,7 +90,7 @@ package Simple;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => {file => 'lib/Simple.pm',
 			version => '1.23'}});
@@ -99,7 +99,7 @@ $dist->change_file( 'lib/Simple.pm', <<'---' );
 package Simple;
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => {file => 'lib/Simple.pm'}});
 
@@ -111,7 +111,7 @@ package Foo::Bar;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Foo::Bar' => { file => 'lib/Simple.pm',
 			   version => '1.23' }});
@@ -120,7 +120,7 @@ $dist->change_file( 'lib/Simple.pm', <<'---' );
 package Foo::Bar;
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Foo::Bar' => { file => 'lib/Simple.pm'}});
 
@@ -136,7 +136,7 @@ package Foo::Bar;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Simple'   => { file => 'lib/Simple.pm',
 			   version => '1.23' },
@@ -155,7 +155,7 @@ package Foo::Bar;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Foo'      => { file => 'lib/Simple.pm',
 			   version => '1.23' },
@@ -173,7 +173,7 @@ package Simple;
 package Simple;
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm' }});
 
@@ -189,7 +189,7 @@ $VERSION = '1.23';
 package Simple;
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm',
 			 version => '1.23' }});
@@ -206,7 +206,7 @@ package Simple;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm',
 			 version => '1.23' }});
@@ -224,7 +224,7 @@ $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
 my $err = '';
-$err = stderr_of( sub { $mb = new_build } );
+$err = stderr_of( sub { $mb = new_build() } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Simple' => { file => 'lib/Simple.pm',
@@ -243,7 +243,7 @@ package Foo;
 $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
-$err = stderr_of( sub { $mb = new_build } );
+$err = stderr_of( sub { $mb = new_build() } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Foo' => { file => 'lib/Simple.pm',
@@ -265,7 +265,7 @@ $dist->add_file( 'lib/Simple2.pm', <<'---' );
 package Simple;
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm' }});
 $dist->remove_file( 'lib/Simple2.pm' );
@@ -283,7 +283,7 @@ $dist->add_file( 'lib/Simple2.pm', <<'---' );
 package Simple;
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm',
 			 version => '1.23' }});
@@ -303,7 +303,7 @@ package Simple;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple2.pm',
 			 version => '1.23' }});
@@ -323,7 +323,7 @@ package Simple;
 $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Simple' => { file => 'lib/Simple.pm',
@@ -346,7 +346,7 @@ package Simple;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Simple' => { file => 'lib/Simple.pm',
@@ -370,7 +370,7 @@ $dist->add_file( 'lib/Simple2.pm', <<'---' );
 package Foo;
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 $provides = $mb->find_dist_packages;
 ok( exists( $provides->{Foo} ) ); # it exist, can't predict which file
 $dist->remove_file( 'lib/Simple2.pm' );
@@ -388,7 +388,7 @@ $dist->add_file( 'lib/Simple2.pm', <<'---' );
 package Foo;
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Foo' => { file => 'lib/Simple.pm',
 		      version => '1.23' }});
@@ -407,7 +407,7 @@ package Foo;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Foo' => { file => 'lib/Simple2.pm',
 		      version => '1.23' }});
@@ -427,7 +427,7 @@ package Foo;
 $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 # XXX Should 'Foo' exist ??? Can't predict values for file & version
 ok( exists( $provides->{Foo} ) );
@@ -449,7 +449,7 @@ package Foo;
 $VERSION = '1.23';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 ok( exists( $provides->{Foo} ) );
 is( $provides->{Foo}{version}, '1.23' );
@@ -475,7 +475,7 @@ $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
 $err = stderr_of( sub {
-  $mb = new_build;
+  $mb = new_build();
 } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
@@ -501,7 +501,7 @@ $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
 $err = stderr_of( sub {
-  $mb = new_build;
+  $mb = new_build();
 } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
@@ -527,7 +527,7 @@ package Simple::_private::too;
 $VERSION = '3.45';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages,
 	  {'Simple' => { file => 'lib/Simple.pm',
 			 version => '1.23' }});
@@ -540,7 +540,7 @@ is_deeply($mb->find_dist_packages,
 
 $dist->change_file( 'lib/Simple.pm', '' );
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply( $mb->find_dist_packages, {} );
 
 # Simple.pm => =pod..=cut (no package declaration)
@@ -558,7 +558,7 @@ Doesn't do anything.
 =cut
 ---
 $dist->regen( clean => 1 );
-$mb = new_build;
+$mb = new_build();
 is_deeply($mb->find_dist_packages, {});
 
 
