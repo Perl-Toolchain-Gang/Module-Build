@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.27_04
 
+ - Added a 'prereq_report' action that shows the user a well-formatted
+   list of all prerequisites, the versions required, and the versions
+   actually installed. [David Wheeler]
+
  - Add an invoked_action() method to return the name of the original
    action invoked by the user.
 

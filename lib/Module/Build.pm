@@ -236,6 +236,13 @@ it works for you.
 
 ...
 
+=item prereq_report
+
+This action prints out a list of all prerequisites, the versions required, and
+the versions actually installed. This can be useful for reviewing the
+configuration of your system prior to a build, or when compiling data to send
+for a bug report.
+
 =item diff
 
 This action will compare the files about to be installed with their

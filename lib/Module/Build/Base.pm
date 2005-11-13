@@ -1686,6 +1686,51 @@ sub get_action_docs {
   return join '', @docs;
 }
 
+sub ACTION_prereq_report {
+    my $self = shift;
+    my @types = @{ $self->prereq_action_types };
+    my $info = { map { $_ => $self->$_() } @types };
+
+    foreach my $type (@types) {
+        my $prereqs = $info->{$type};
+        next unless %$prereqs;
+        $self->log_info("\n$type:\n");
+        my $mod_len = 2;
+        my $ver_len = 4;
+        my %mods;
+        while ( my ($modname, $spec) = each %$prereqs ) {
+            my $len  = length $modname;
+            $mod_len = $len if $len > $mod_len;
+            $spec    ||= '0';
+            $len     = length $spec;
+            $ver_len = $len if $len > $ver_len;
+            my $data = [ $modname => $spec ];
+
+            my $info = Module::Build::ModuleInfo->new_from_module($modname);
+            push @$data, $info ? $info->version : '[NONE]';
+            $mods{lc $modname} = $data;
+        }
+
+        my $space  = q{ } x ($mod_len - 3);
+        my $vspace = q{ } x ($ver_len - 3);
+        my $sline  = q{-} x ($mod_len - 3);
+        my $vline  = q{-} x ($ver_len - 3);
+        $self->log_info(
+            "    Module $space  Need $vspace  Have\n",
+            "    ------$sline+------$vline-+----------\n",
+        );
+
+        for my $k (sort keys %mods) {
+            my $data = $mods{$k};
+            my $space  = q{ } x ($mod_len - length $k);
+            my $vspace = q{ } x ($ver_len - length $data->[1]);
+            $self->log_info(
+                "    $data->[0] $space     $data->[1]  $vspace   $data->[2]\n"
+            );
+        }
+    }
+}
+
 sub ACTION_help {
   my ($self) = @_;
   my $actions = $self->known_actions;
@@ -3195,7 +3240,8 @@ sub install_map {
   my @ext = split /::/, $self->module_name;
   $map{write} = File::Spec->catdir($archdir, 'auto', @ext, '.packlist');
   
-  if (length(my $destdir = $self->{properties}{destdir} || '')) {
+  # Handle destdir
+  if (length(my $destdir = $self->destdir || '')) {
     foreach (keys %map) {
       # Need to remove volume from $map{$_} using splitpath, or else
       # we'll create something crazy like C:\Foo\Bar\E:\Baz\Quux
