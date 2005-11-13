@@ -1177,6 +1177,15 @@ Examples:
     }
   }
 
+=item prereq_report()
+
+Returns a human-readable (table-form) string showing all
+prerequisites, the versions required, and the versions actually
+installed. This can be useful for reviewing the configuration of your
+system prior to a build, or when compiling data to send for a bug
+report.  The C<prereq_report> action is just a thin wrapper around the
+C<prereq_report()> method.
+
 =item prompt($message, $default)
 
 Asks the user a question and returns their response as a string.  The

@@ -1688,13 +1688,19 @@ sub get_action_docs {
 
 sub ACTION_prereq_report {
     my $self = shift;
+    $self->log_info( $self->prereq_report );
+}
+
+sub prereq_report {
+    my $self = shift;
     my @types = @{ $self->prereq_action_types };
     my $info = { map { $_ => $self->$_() } @types };
 
+    my $output = '';
     foreach my $type (@types) {
         my $prereqs = $info->{$type};
         next unless %$prereqs;
-        $self->log_info("\n$type:\n");
+        $output .= "\n$type:\n";
         my $mod_len = 2;
         my $ver_len = 4;
         my %mods;
@@ -1715,20 +1721,19 @@ sub ACTION_prereq_report {
         my $vspace = q{ } x ($ver_len - 3);
         my $sline  = q{-} x ($mod_len - 3);
         my $vline  = q{-} x ($ver_len - 3);
-        $self->log_info(
-            "    Module $space  Need $vspace  Have\n",
-            "    ------$sline+------$vline-+----------\n",
-        );
+        $output .= 
+            "    Module $space  Need $vspace  Have\n".
+            "    ------$sline+------$vline-+----------\n";
 
         for my $k (sort keys %mods) {
             my $data = $mods{$k};
             my $space  = q{ } x ($mod_len - length $k);
             my $vspace = q{ } x ($ver_len - length $data->[1]);
-            $self->log_info(
-                "    $data->[0] $space     $data->[1]  $vspace   $data->[2]\n"
-            );
+            $output .=
+                "    $data->[0] $space     $data->[1]  $vspace   $data->[2]\n";
         }
     }
+    return $output;
 }
 
 sub ACTION_help {
