@@ -3269,7 +3269,7 @@ sub install_map {
   }
 
   $self->log_warn(
-    "WARNING: Can't figure out where to install file types: @skipping\n" .
+    "WARNING: Can't figure out install path for types: @skipping\n" .
     "Files will not be installed.\n"
   ) if @skipping;
   
