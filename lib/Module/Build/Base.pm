@@ -185,8 +185,11 @@ sub _set_install_paths {
   my $arch     = $c->{archname};
   my $version  = $c->{version};
 
-  my $html1dir = $c->{installhtml1dir} || $c->{installhtmldir};
-  my $html3dir = $c->{installhtml3dir} || $c->{installhtmldir};
+  my $bindoc  = $c->{installman1dir} || undef;
+  my $libdoc  = $c->{installman3dir} || undef;
+
+  my $binhtml = $c->{installhtml1dir} || $c->{installhtmldir} || undef;
+  my $libhtml = $c->{installhtml3dir} || $c->{installhtmldir} || undef;
 
   $p->{install_sets} =
     {
@@ -195,10 +198,10 @@ sub _set_install_paths {
 		arch    => $c->{installarchlib},
 		bin     => $c->{installbin},
 		script  => $c->{installscript},
-		bindoc  => $c->{installman1dir},
-		libdoc  => $c->{installman3dir},
-		binhtml => $html1dir,
-		libhtml => $html3dir,
+		bindoc  => $bindoc,
+		libdoc  => $libdoc,
+		binhtml => $binhtml,
+		libhtml => $libhtml,
 	       },
      site   => {
 		lib     => $c->{installsitelib},
@@ -206,10 +209,10 @@ sub _set_install_paths {
 		bin     => $c->{installsitebin} || $c->{installbin},
 		script  => $c->{installsitescript} ||
 		           $c->{installsitebin} || $c->{installscript},
-		bindoc  => $c->{installsiteman1dir} || $c->{installman1dir},
-		libdoc  => $c->{installsiteman3dir} || $c->{installman3dir},
-		binhtml => $c->{installsitehtml1dir} || $html1dir,
-		libhtml => $c->{installsitehtml3dir} || $html3dir,
+		bindoc  => $c->{installsiteman1dir} || $bindoc,
+		libdoc  => $c->{installsiteman3dir} || $libdoc,
+		binhtml => $c->{installsitehtml1dir} || $binhtml,
+		libhtml => $c->{installsitehtml3dir} || $libhtml,
 	       },
      vendor => {
 		lib     => $c->{installvendorlib},
@@ -217,10 +220,10 @@ sub _set_install_paths {
 		bin     => $c->{installvendorbin} || $c->{installbin},
 		script  => $c->{installvendorscript} ||
 		           $c->{installvendorbin} || $c->{installscript},
-		bindoc  => $c->{installvendorman1dir} || $c->{installman1dir},
-		libdoc  => $c->{installvendorman3dir} || $c->{installman3dir},
-		binhtml => $c->{installvendorhtml1dir} || $html1dir,
-		libhtml => $c->{installvendorhtml3dir} || $html3dir,
+		bindoc  => $c->{installvendorman1dir} || $bindoc,
+		libdoc  => $c->{installvendorman3dir} || $libdoc,
+		binhtml => $c->{installvendorhtml1dir} || $binhtml,
+		libhtml => $c->{installvendorhtml3dir} || $libhtml,
 	       },
     };
 
@@ -2136,19 +2139,23 @@ sub ACTION_manpages {
 
   return unless $self->_mb_feature('manpage_support');
 
-  if ( $self->invoked_action ne 'manpages' ) {
-    foreach my $type ( qw(bin lib) ) {
-      my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
-                                     exclude => [ qr/\.bat$/ ] );
-      return if %$files && !$self->install_destination("${type}doc");
+  $self->depends_on('code');
 
+  foreach my $type ( qw(bin lib) ) {
+    my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
+                                   exclude => [ qr/\.bat$/ ] );
+    next unless %$files;
+
+    my $sub = $self->can("manify_${type}_pods");
+    next unless defined( $sub );
+
+    if ( $self->invoked_action eq 'manpages' ) {
+      $self->$sub();
+    } elsif ( $self->install_destination("${type}doc") ) {
+      $self->$sub();
     }
   }
 
-  $self->depends_on('code');
-
-  $self->manify_bin_pods;
-  $self->manify_lib_pods;
 }
 
 sub manify_bin_pods {
@@ -2225,17 +2232,20 @@ sub ACTION_html {
 
   return unless $self->_mb_feature('HTML_support');
 
-  if ( $self->invoked_action ne 'html' ) {
-    foreach my $type ( qw(bin lib) ) {
-      my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
-				      exclude => [ qr/\.(?:bat|com|html)$/ ] );
-      return if %$files && !$self->install_destination("${type}html");
+  $self->depends_on('code');
+
+  foreach my $type ( qw(bin lib) ) {
+    my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
+				   exclude => [ qr/\.(?:bat|com|html)$/ ] );
+    next unless %$files;
+
+    if ( $self->invoked_action eq 'html' ) {
+      $self->htmlify_pods( $type );
+    } elsif ( $self->install_destination("${type}html") ) {
+      $self->htmlify_pods( $type );
     }
   }
 
-  $self->depends_on('code');
-
-  $self->htmlify_pods;
 }
 
 
@@ -2246,77 +2256,74 @@ sub ACTION_html {
 # 3) Links to other modules are not being generated
 sub htmlify_pods {
   my $self = shift;
+  my $type = shift;
 
   require Module::Build::PodParser;
   require Pod::Html;
 
   $self->add_to_cleanup('pod2htm*');
 
-  foreach my $type ( qw(bin lib) ) {
+  my $pods = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
+                                exclude => [ qr/\.(?:bat|com|html)$/ ] );
+  next unless %$pods;  # nothing to do
 
-    my $pods = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
-				  exclude => [ qr/\.(?:bat|com|html)$/ ] );
-    next unless %$pods;  # nothing to do
+  my $podpath = join ':',
+                map  $_->[1],
+                grep -e $_->[0],
+                map  [File::Spec->catdir($self->blib, $_), $_],
+                qw( script lib );
 
-    my $podpath = join ':',
-                  map  $_->[1],
-	          grep -e $_->[0],
-	          map  [File::Spec->catdir($self->blib, $_), $_],
-		  qw( script lib );
+  my $htmldir = File::Spec->catdir($self->blib, "${type}html");
+  unless ( -d $htmldir ) {
+    File::Path::mkpath($htmldir, 0, 0755)
+      or die "Couldn't mkdir $htmldir: $!";
+  }
 
-    my $htmldir = File::Spec->catdir($self->blib, "${type}html");
-    unless ( -d $htmldir ) {
-      File::Path::mkpath($htmldir, 0, 0755)
-	or die "Couldn't mkdir $htmldir: $!";
+  my @rootdirs = ($type eq 'bin') ? qw(bin) : qw(site lib);
+
+  foreach my $pod ( keys %$pods ) {
+
+    my ($name, $path) = File::Basename::fileparse($pods->{$pod}, qr{\..*});
+    my @dirs = File::Spec->splitdir( File::Spec->canonpath( $path ) );
+    pop( @dirs ) if $dirs[-1] eq File::Spec->curdir;
+
+    my $fulldir = File::Spec->catfile($htmldir, @rootdirs, @dirs);
+    my $outfile = File::Spec->catfile($fulldir, "${name}.html");
+    my $infile  = File::Spec->abs2rel($pod);
+
+    next if $self->up_to_date($infile, $outfile);
+
+    unless ( -d $fulldir ){
+      File::Path::mkpath($fulldir, 0, 0755)
+        or die "Couldn't mkdir $fulldir: $!";
     }
 
-    my @rootdirs = ($type eq 'bin') ? qw(bin) : qw(site lib);
+    my $path2root = join( '/', ('..') x (@rootdirs+@dirs) );
+    my $htmlroot = "$path2root/site";
 
-    foreach my $pod ( keys %$pods ) {
+    my $fh = IO::File->new($infile);
+    my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
 
-      my ($name, $path) = File::Basename::fileparse($pods->{$pod}, qr{\..*});
-      my @dirs = File::Spec->splitdir( File::Spec->canonpath( $path ) );
-      pop( @dirs ) if $dirs[-1] eq File::Spec->curdir;
+    my $title = join( '::', (@dirs, $name) );
+    $title .= " - $abstract" if $abstract;
 
-      my $fulldir = File::Spec->catfile($htmldir, @rootdirs, @dirs);
-      my $outfile = File::Spec->catfile($fulldir, "${name}.html");
-      my $infile  = File::Spec->abs2rel($pod);
+    my @opts = (
+                '--flush',
+                "--title=$title",
+                "--podpath=$podpath",
+                "--infile=$infile",
+                "--outfile=$outfile",
+                '--podroot=' . $self->blib,
+                "--htmlroot=$htmlroot",
+                eval {Pod::Html->VERSION(1.03); 1} ?
+		  ('--header', '--backlink=Back to Top') : (),
+               );
 
-      next if $self->up_to_date($infile, $outfile);
+    push( @opts, "--css=$path2root/". $self->html_css ) if $self->html_css;
 
-      unless ( -d $fulldir ){
-        File::Path::mkpath($fulldir, 0, 0755)
-          or die "Couldn't mkdir $fulldir: $!";
-      }
-
-      my $path2root = join( '/', ('..') x (@rootdirs+@dirs) );
-      my $htmlroot = "$path2root/site";
-
-      my $fh = IO::File->new($infile);
-      my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
-
-      my $title = join( '::', (@dirs, $name) );
-      $title .= " - $abstract" if $abstract;
-
-
-      my @opts = (
-                  '--flush',
-                  "--title=$title",
-                  "--podpath=$podpath",
-                  "--infile=$infile",
-                  "--outfile=$outfile",
-                  '--podroot=' . $self->blib,
-                  "--htmlroot=$htmlroot",
-                  eval {Pod::Html->VERSION(1.03); 1} ?
-		    ('--header', '--backlink=Back to Top') : (),
-                 );
-
-      push( @opts, "--css=$path2root/". $self->html_css ) if $self->html_css;
-
-      $self->log_info("HTMLifying $infile -> $outfile\n");
-      $self->log_verbose("pod2html @opts\n");
-      Pod::Html::pod2html(@opts);	# or warn "pod2html @opts failed: $!";
-    }
+    $self->log_info("HTMLifying $infile -> $outfile\n");
+    $self->log_verbose("pod2html @opts\n");
+    Pod::Html::pod2html(@opts);	# or warn "pod2html @opts failed: $!";
   }
 
 }
@@ -3144,8 +3151,10 @@ sub prefix_relative {
   my ($self, $type) = @_;
   my $installdirs = $self->installdirs;
 
-  return $self->_prefixify($self->install_sets->{$installdirs}{$type},
-			   $self->original_prefix->{$installdirs}, 
+  my $relpath = $self->install_sets->{$installdirs}{$type};
+
+  return $self->_prefixify($relpath,
+			   $self->original_prefix->{$installdirs},
 			   $type,
 			  );
 }
@@ -3208,10 +3217,19 @@ sub _prefixify_default {
 
 sub install_destination {
   my ($self, $type) = @_;
-  
+
   return $self->install_path->{$type} if exists $self->install_path->{$type};
-  return File::Spec->catdir($self->install_base, $self->install_base_relpaths($type)) if $self->install_base;
-  return File::Spec->catdir($self->prefix, $self->prefix_relative($type)) if $self->prefix;
+
+  if ( $self->install_base ) {
+    my $relpath = $self->install_base_relpaths($type);
+    return $relpath ? File::Spec->catdir($self->install_base, $relpath) : undef;
+  }
+
+  if ( $self->prefix ) {
+    my $relpath = $self->prefix_relative($type);
+    return $relpath ? File::Spec->catdir($self->prefix, $relpath) : undef;
+  }
+
   return $self->install_sets->{ $self->installdirs }{$type};
 }
 
@@ -3225,20 +3243,22 @@ sub install_map {
   my ($self, $blib) = @_;
   $blib ||= $self->blib;
 
-  my %map;
+  my( %map, @skipping );
   foreach my $type ($self->install_types) {
     my $localdir = File::Spec->catdir( $blib, $type );
     next unless -e $localdir;
-    
+
     if (my $dest = $self->install_destination($type)) {
       $map{$localdir} = $dest;
     } else {
-      # Platforms like Win32, MacOS, etc. may not build man pages &
-      # Many platforms don't supply default locations for html docs
-      die "Can't figure out where to install things of type '$type'"
-	unless $type =~ /^(lib|bin)(doc|html)$/;
+      push( @skipping, $type );
     }
   }
+
+  $self->log_warn(
+    "WARNING: Can't figure out where to install file types: @skipping\n" .
+    "Files will not be installed.\n"
+  ) if @skipping;
   
   # Write the packlist into the same place as ExtUtils::MakeMaker.
   my $archdir = $self->install_destination('arch');

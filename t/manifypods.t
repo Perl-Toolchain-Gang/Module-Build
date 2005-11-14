@@ -64,16 +64,25 @@ $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
-
-my $destdir = File::Spec->catdir($cwd, 't', 'install_test');
+use File::Spec::Functions qw( catdir );
+my $destdir = catdir($cwd, 't', 'install_test');
 
 
 my $mb = Module::Build->new(
   module_name      => $dist->name,
   install_base     => $destdir,
-  gen_manpages     => 1, # some platforms don't by default
   scripts      => [ File::Spec->catfile( 'bin', 'nopod.pl'  ),
                     File::Spec->catfile( 'bin', 'haspod.pl' )  ],
+
+  # need default install paths to ensure manpages & HTML get generated
+  installdirs => 'site',
+  config => {
+    installsiteman1dir  => catdir($tmp, 'site', 'man', 'man1'),
+    installsiteman3dir  => catdir($tmp, 'site', 'man', 'man3'),
+    installsitehtml1dir => catdir($tmp, 'site', 'html'),
+    installsitehtml3dir => catdir($tmp, 'site', 'html'),
+  }
+
 );
 
 $mb->add_to_cleanup($destdir);

@@ -44,7 +44,26 @@ my \$build = new Module::Build(
 ---
 $dist->regen;
 
-my $mb = Module::Build->new_from_context;
+
+use File::Spec::Functions qw( catdir );
+
+my $mb = Module::Build->new_from_context(
+  # need default install paths to ensure manpages & HTML get generated
+  installdirs => 'site',
+  config => {
+    installman1dir  => catdir($tmp, 'man', 'man1'),
+    installman3dir  => catdir($tmp, 'man', 'man3'),
+    installhtml1dir => catdir($tmp, 'html'),
+    installhtml3dir => catdir($tmp, 'html'),
+
+    installsiteman1dir  => catdir($tmp, 'site', 'man', 'man1'),
+    installsiteman3dir  => catdir($tmp, 'site', 'man', 'man3'),
+    installsitehtml1dir => catdir($tmp, 'site', 'html'),
+    installsitehtml3dir => catdir($tmp, 'site', 'html'),
+  }
+
+);
+
 ok $mb;
 
 
