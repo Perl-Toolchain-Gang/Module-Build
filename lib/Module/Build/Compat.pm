@@ -49,9 +49,13 @@ sub create_makefile_pl {
     
     if (File::Spec->file_name_is_absolute($subclass_dir)) {
       my $base_dir = $build->base_dir;
-      $build->log_warn("Warning: builder subclass " . ref($build) . 
-		       " doesn't seem to have been loaded from within $base_dir")
-	unless $build->dir_contains($base_dir, $subclass_dir);
+
+      if ($build->dir_contains($base_dir, $subclass_dir)) {
+	$subclass_dir = File::Spec->abs2rel($subclass_dir, $base_dir);
+      } else {
+	$build->log_warn("Warning: builder subclass " . ref($build) . 
+			 " doesn't seem to have been loaded from within $base_dir");
+      }
     }
     $subclass_load = "use lib '$subclass_dir';";
   }
