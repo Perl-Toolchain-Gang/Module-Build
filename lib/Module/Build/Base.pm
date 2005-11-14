@@ -2134,6 +2134,19 @@ sub ACTION_docs {
   $self->depends_on('manpages', 'html');
 }
 
+# Given a file type, will return true if the file type would normally
+# be installed when neither install-base nor prefix has been set.
+# I.e. it will be true only if the path is set from Config.pm or
+# set explicitly by the user via install-path.
+sub _is_default_installable {
+  my $self = shift;
+  my $type = shift;
+  return ( $self->install_destination($type) &&
+           ( $self->install_path->{$type} ||
+	     $self->install_sets->{$self->installdirs}{$type} )
+	 ) ? 1 : 0;
+}
+
 sub ACTION_manpages {
   my $self = shift;
 
@@ -2151,7 +2164,7 @@ sub ACTION_manpages {
 
     if ( $self->invoked_action eq 'manpages' ) {
       $self->$sub();
-    } elsif ( $self->install_destination("${type}doc") ) {
+    } elsif ( $self->_is_default_installable("${type}doc") ) {
       $self->$sub();
     }
   }
@@ -2241,7 +2254,7 @@ sub ACTION_html {
 
     if ( $self->invoked_action eq 'html' ) {
       $self->htmlify_pods( $type );
-    } elsif ( $self->install_destination("${type}html") ) {
+    } elsif ( $self->_is_default_installable("${type}html") ) {
       $self->htmlify_pods( $type );
     }
   }
