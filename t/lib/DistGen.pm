@@ -217,7 +217,7 @@ sub regen {
       my $real_filename = $self->_real_filename( $file );
       my $fullname = File::Spec->catfile( $dist_dirname, $real_filename );
       if ( -e $fullname ) {
-	unlink( $fullname ) || die "Couldn't unlink '$file'\n";
+	1 while unlink( $fullname );
       }
       print "Unlinking pending file '$file'\n" if $VERBOSE;
       delete( $self->{pending}{remove}{$file} );
@@ -242,7 +242,7 @@ sub regen {
       }
 
       if ( -e $fullname ) {
-        unlink( $fullname ) or die "Can't unlink '$file'\n";
+        1 while unlink( $fullname );
       }
 
       my $fh = IO::File->new(">$fullname") or do {
@@ -259,7 +259,7 @@ sub regen {
   my $manifest = File::Spec->catfile( $dist_dirname, 'MANIFEST' );
   unless ( $self->{skip_manifest} ) {
     if ( -e $manifest ) {
-      unlink( $manifest ) or die "Can't remove '$manifest'\n";
+      1 while unlink( $manifest );
     }
     $self->_gen_manifest( $manifest );
   }
@@ -306,7 +306,7 @@ sub clean {
       #print "Leaving file '$name'\n" if $VERBOSE;
     } else {
       print "Unlinking file '$name'\n" if $VERBOSE;
-      unlink( $_ );
+      1 while unlink( $_ );
     }
   }, File::Spec->curdir );
 
