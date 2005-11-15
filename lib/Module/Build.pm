@@ -536,26 +536,11 @@ specific to an action, see the documentation for the respective action.
 NOTE: There is some preliminary support for options to use the more
 familiar long option style.  Most options can be preceded with the
 C<--> long option prefix, and the underscores changed to dashes
-(e.g. --ignore-prereqs).  Additionally, the argument to boolean options
-is optional (e.g. --verbose), and boolean options can be negated by
-prefixing them with 'no' or 'no-' (e.g. --noverbose or --no-verbose).
+(e.g. --use-rcfile).  Additionally, the argument to boolean options is
+optional, and boolean options can be negated by prefixing them with
+'no' or 'no-' (e.g. --noverbose or --no-verbose).
 
 =over 4
-
-=item ignore_prereq_conflicts
-
-When set to true, the Build will not abort when any conflicting
-prerequisite is found.
-
-=item ignore_prereq_requires
-
-When set to true, the Build will not abort when any required
-prerequisite is missing.
-
-=item ignore_prereqs
-
-When set to true, the Build will not abort for any type of
-prerequisite is not satisfied.
 
 =item quiet
 

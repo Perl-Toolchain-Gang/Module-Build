@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.27_04
 
+ - Removed experimental feature that extended the prerequisite system
+   to apply ('requires', 'recommends', and 'conflicts') prereqs to all
+   actions. Most of the internal extensiblity has been retained so
+   that prereq types can easily be added, more selectively.
+
  - Added a 'prereq_report' action that shows the user a well-formatted
    list of all prerequisites, the versions required, and the versions
    actually installed. [David Wheeler]
@@ -239,13 +244,6 @@ Revision history for Perl extension Module::Build.
 
  - We now use ExtUtils::CBuilder to do all compiling of C code (for
    example, when compiling XS modules).
-
- - Extend prerequisite specifications to apply to all actions. It is
-   now a fatal error if 'requires' or 'conflicts' for a given action
-   are not satisfied, except where necessary for backwards compatability.
-   Also, added '--force' options to ignore the fatal errors. (NOTE:
-   this is a somewhat experimental feature, we may morph this around a
-   bit before final release!)
 
  - The creation of Unix man pages is no longer a strict necessity - it
    has now been turned into an 'auto-feature' contingent on the
