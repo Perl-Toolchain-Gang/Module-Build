@@ -1690,52 +1690,59 @@ sub get_action_docs {
 }
 
 sub ACTION_prereq_report {
-    my $self = shift;
-    $self->log_info( $self->prereq_report );
+  my $self = shift;
+  $self->log_info( $self->prereq_report );
 }
 
 sub prereq_report {
-    my $self = shift;
-    my @types = @{ $self->prereq_action_types };
-    my $info = { map { $_ => $self->$_() } @types };
+  my $self = shift;
+  my @types = @{ $self->prereq_action_types };
+  my $info = { map { $_ => $self->$_() } @types };
 
-    my $output = '';
-    foreach my $type (@types) {
-        my $prereqs = $info->{$type};
-        next unless %$prereqs;
-        $output .= "\n$type:\n";
-        my $mod_len = 2;
-        my $ver_len = 4;
-        my %mods;
-        while ( my ($modname, $spec) = each %$prereqs ) {
-            my $len  = length $modname;
-            $mod_len = $len if $len > $mod_len;
-            $spec    ||= '0';
-            $len     = length $spec;
-            $ver_len = $len if $len > $ver_len;
-            my $data = [ $modname => $spec ];
+  my $output = '';
+  foreach my $type (@types) {
+    my $prereqs = $info->{$type};
+    next unless %$prereqs;
+    $output .= "\n$type:\n";
+    my $mod_len = 2;
+    my $ver_len = 4;
+    my %mods;
+    while ( my ($modname, $spec) = each %$prereqs ) {
+      my $len  = length $modname;
+      $mod_len = $len if $len > $mod_len;
+      $spec    ||= '0';
+      $len     = length $spec;
+      $ver_len = $len if $len > $ver_len;
 
-            push @$data, $self->check_installed_status($modname, $spec)->{have};
-            $mods{lc $modname} = $data;
-        }
+      my $mod = $self->check_installed_status($modname, $spec);
+      $mod->{name} = $modname;
+      $mod->{ok} ||= 0;
+      $mod->{ok} = ! $mod->{ok} if $type =~ /^(\w+_)?conflicts$/;
 
-        my $space  = q{ } x ($mod_len - 3);
-        my $vspace = q{ } x ($ver_len - 3);
-        my $sline  = q{-} x ($mod_len - 3);
-        my $vline  = q{-} x ($ver_len - 3);
-        $output .= 
-            "    Module $space  Need $vspace  Have\n".
-            "    ------$sline+------$vline-+----------\n";
-
-        for my $k (sort keys %mods) {
-            my $data = $mods{$k};
-            my $space  = q{ } x ($mod_len - length $k);
-            my $vspace = q{ } x ($ver_len - length $data->[1]);
-            $output .=
-                "    $data->[0] $space     $data->[1]  $vspace   $data->[2]\n";
-        }
+      $mods{lc $modname} = $mod;
     }
-    return $output;
+
+    my $space  = q{ } x ($mod_len - 3);
+    my $vspace = q{ } x ($ver_len - 3);
+    my $sline  = q{-} x ($mod_len - 3);
+    my $vline  = q{-} x ($ver_len - 3);
+    my $disposition = ($type =~ /^(\w+_)?conflicts$/) ?
+                        'Clash' : 'Need';
+    $output .=
+      "    Module $space  $disposition $vspace  Have\n".
+      "    ------$sline+------$vline-+----------\n";
+
+
+    for my $k (sort keys %mods) {
+      my $mod = $mods{$k};
+      my $space  = q{ } x ($mod_len - length $k);
+      my $vspace = q{ } x ($ver_len - length $mod->{need});
+      my $f = $mod->{ok} ? ' ' : '!';
+      $output .=
+        "  $f $mod->{name} $space     $mod->{need}  $vspace   $mod->{have}\n";
+    }
+  }
+  return $output;
 }
 
 sub ACTION_help {
