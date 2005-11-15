@@ -178,7 +178,7 @@ actually an important distinction - it allows for tighter control over
 the body of installed modules, and facilitates correct dependency
 checking on binary/packaged distributions of the module.
 
-See the documentation for L<PREREQUISITES> for the details of how
+See the documentation for L<"PREREQUISITES"> for the details of how
 requirements can be specified.
 
 =item c_source
@@ -196,7 +196,7 @@ given module.  C<Module::Build> (or some higher-level tool) will
 refuse to install the given module if the given module/version is also
 installed.
 
-See the documentation for L<PREREQUISITES> for the details of how
+See the documentation for L<"PREREQUISITES"> for the details of how
 requirements can be specified.
 
 =item create_makefile_pl
@@ -579,7 +579,7 @@ Automated tools like CPAN.pm should inform the user when recommended
 modules aren't installed, and it should offer to install them if it
 wants to be helpful.
 
-See the documentation for L<PREREQUISITES> for the details of how
+See the documentation for L<"PREREQUISITES"> for the details of how
 requirements can be specified.
 
 =item requires
@@ -602,7 +602,7 @@ transitioning from C<ExtUtils::MakeMaker>.  The C<requires> term is
 preferred, but the C<prereq> term will remain valid in future
 distributions.
 
-See the documentation for L<PREREQUISITES> for the details of how
+See the documentation for L<"PREREQUISITES"> for the details of how
 requirements can be specified.
 
 =item script_files
