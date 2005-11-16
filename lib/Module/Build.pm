@@ -154,6 +154,38 @@ action), 'test', and 'install'.  Other actions defined so far include:
 You can run the 'help' action for a complete list of actions.
 
 
+=head1 GUIDE TO DOCUMENTATION
+
+The documentation for C<Module::Build> is broken up into three sections:
+
+=over
+
+=item General Usage (L<Module::Build>)
+
+This is the document your are currently reading. It describes basic
+usage and background information. Its main purpose is to assist the
+user who wants to learn how to invoke and control C<Module::Build>
+scripts at the command line.
+
+=item Authoring Reference (L<Module::Build::Authoring>)
+
+This document describes the C<Module::Build> API for authors who are
+writting F<Build.PL> scripts for a distribution. It describes the
+methods available as well as providing general information on
+subclassing C<Module::Build> to alter and extend its behavior. Also,
+there is a section on controlling the Build process from other
+scripts, including how to construct an object and how to invoke
+actions through it from an external script.
+
+=item Cookbook (L<Module::Build::Cookbook>)
+
+This document demonstrates how to accomplish many common tasks. It
+covers general command line usage and authoring of F<Build.PL>
+scripts. Includes working examples.
+
+=back
+
+
 =head1 ACTIONS
 
 There are some general principles at work here.  First, each task when
