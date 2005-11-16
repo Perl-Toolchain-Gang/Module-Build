@@ -281,17 +281,20 @@ the files listed in the F<MANIFEST> file to that directory.  This
 directory is what people will see when they download your distribution
 and unpack it.
 
-While performing the 'distdir' action, a file containing various bits
-of "metadata" will be created.  The metadata includes the module's
-name, version, dependencies, license, and the C<dynamic_config>
-flag.  This file is created as F<META.yml> in YAML format, so you
-must have the C<YAML> module installed in order to create it.  You
-should also ensure that the F<META.yml> file is listed in your
-F<MANIFEST> - if it's not, a warning will be issued.
-
 =item distmeta
 
-Creates the F<META.yml> file for your distribution.
+Creates the F<META.yml> file that describes the distribution.
+
+F<META.yml> is a file containing various bits of "metadata" about the
+distribution.  The metadata includes the distribution name, version,
+abstract, prerequisites, license, and various other data about the
+distribution.  This file is created as F<META.yml> in YAML format, so
+the C<YAML> module must be installed in order to create it.  The
+F<META.yml> file must also be listed in F<MANIFEST> - if it's not, a
+warning will be issued.
+
+The current version of the F<META.yml> specification can be found at
+L<http://module-build.sourceforge.net/META-spec-v1.2.html>
 
 =item distsign
 
@@ -973,6 +976,9 @@ modify it under the same terms as Perl itself.
 perl(1), Module::Build::Cookbook(3), Module::Build::Authoring(3),
 ExtUtils::MakeMaker(3), YAML(3)
 
-http://www.dsmit.com/cons/
+F<META.yml> Specification:
+L<http://module-build.sourceforge.net/META-spec-v1.2.html>
+
+L<http://www.dsmit.com/cons/>
 
 =cut

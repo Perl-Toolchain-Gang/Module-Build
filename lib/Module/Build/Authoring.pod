@@ -1466,6 +1466,9 @@ details of how to access it.
 perl(1), Module::Build(3), Module::Build::Cookbook(3),
 ExtUtils::MakeMaker(3), YAML(3)
 
-http://www.dsmit.com/cons/
+F<META.yml> Specification:
+L<http://module-build.sourceforge.net/META-spec-v1.2.html>
+
+L<http://www.dsmit.com/cons/>
 
 =cut
