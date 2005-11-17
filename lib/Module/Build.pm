@@ -162,7 +162,7 @@ The documentation for C<Module::Build> is broken up into three sections:
 
 =item General Usage (L<Module::Build>)
 
-This is the document your are currently reading. It describes basic
+This is the document you are currently reading. It describes basic
 usage and background information. Its main purpose is to assist the
 user who wants to learn how to invoke and control C<Module::Build>
 scripts at the command line.
@@ -170,7 +170,8 @@ scripts at the command line.
 =item Authoring Reference (L<Module::Build::Authoring>)
 
 This document describes the C<Module::Build> API for authors who are
-writting F<Build.PL> scripts for a distribution. It describes the
+writing F<Build.PL> scripts for a distribution or controlling
+C<Module::Build> processes programmatically. It describes the
 methods available as well as providing general information on
 subclassing C<Module::Build> to alter and extend its behavior. Also,
 there is a section on controlling the Build process from other
