@@ -255,16 +255,6 @@ created files.  Use the C<PL_files> parameter to C<new()>:
                'lib/something.PL'  => ['/lib/something', '/lib/else'],
                'lib/funny.PL'      => [] }
 
-Note that in contrast to MakeMaker, the C<build> action only
-(currently) handles C<.pm>, C<.pod>, C<.PL>, and C<.xs> files.  They
-must all be in the C<lib/> directory, in the directory structure that
-they should have when installed.  We also handle C<.c> files that can
-be in the place of your choosing - see the C<c_source> argument to
-C<new()>.
-
-The C<.xs> support is currently in alpha.  Please let me know whether
-it works for you.
-
 =item config_data
 
 ...
