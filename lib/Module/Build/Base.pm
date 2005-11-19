@@ -2429,10 +2429,53 @@ sub ACTION_ppd {
 
 sub ACTION_ppmdist {
   my ($self) = @_;
-  
-  $self->depends_on('build', 'ppd');
-  $self->add_to_cleanup($self->ppm_name);
-  $self->make_tarball($self->blib, $self->ppm_name);
+
+  $self->depends_on( 'build' );
+
+  my $ppm = $self->ppm_name;
+  $self->delete_filetree( $ppm );
+  $self->log_info( "Creating $ppm\n" );
+  $self->add_to_cleanup( $ppm, "$ppm.tar.gz" );
+
+  my %types = ( # translate types/dirs to those expected by ppm
+    lib     => 'lib',
+    arch    => 'arch',
+    bin     => 'bin',
+    script  => 'script',
+    bindoc  => 'man1',
+    libdoc  => 'man3',
+    binhtml => 'html',
+    libhtml => 'html',
+  );
+
+  foreach my $type ($self->install_types) {
+    my $dir = File::Spec->catdir( $self->blib, $type );
+    next unless -e $dir;
+
+    my $files = $self->rscan_dir( $dir );
+    foreach my $file ( @$files ) {
+      next unless -f $file;
+      my $rel_file =
+	File::Spec->abs2rel( File::Spec->rel2abs( $file ),
+			     File::Spec->rel2abs( $dir  ) );
+      my $to_file  =
+	File::Spec->catdir( $ppm, 'blib',
+			    exists( $types{$type} ) ? $types{$type} : $type,
+			    $rel_file );
+      $self->copy_if_modified( from => $file, to => $to_file );
+    }
+  }
+
+  # create a tarball;
+  # the directory tar'ed must be blib so we need to do a chdir first
+  my $start_wd = $self->cwd;
+  chdir( $ppm ) or die "Can't chdir to $ppm";
+  $self->make_tarball( 'blib', File::Spec->catfile( $start_wd, $ppm ) );
+  chdir( $start_wd ) or die "Can't chdir to $start_wd";
+
+  $self->depends_on( 'ppd' );
+
+  $self->delete_filetree( $ppm );
 }
 
 sub ACTION_dist {
