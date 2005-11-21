@@ -806,7 +806,9 @@ idea is fundamentally broken when your machine doesn't jibe with
 C<PREFIX>'s worldview.
 
 
-=head3 Why PREFIX is not recommended
+=over 4
+
+=item Why PREFIX is not recommended
 
 =over 4
 
@@ -856,7 +858,7 @@ have been you or it could have been some guy at Redhat.
 =back
 
 
-=head3 Alternatives to PREFIX
+=item Alternatives to PREFIX
 
 Module::Build offers L</install_base> as a simple, predictable, and
 user-configurable alternative to ExtUtils::MakeMaker's C<PREFIX>.
@@ -889,6 +891,8 @@ In short, using C<install_base> is similar to the following MakeMaker usage:
 
 See L</INSTALL PATHS> for details on other
 installation options available and how to configure them.
+
+=back
 
 
 =head1 MOTIVATIONS
