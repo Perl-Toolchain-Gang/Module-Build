@@ -60,8 +60,6 @@ my $mb = Module::Build->new_from_context(
 );
 isa_ok( $mb, 'Module::Build::Base' );
 
-my $install_sets = $mb->install_sets;
-
 # Get us into a known state.
 $mb->install_base(undef);
 $mb->prefix(undef);
@@ -139,7 +137,7 @@ $mb->prefix(undef);
     $mb->prefix( $prefix );
     is( $mb->{properties}{prefix}, $prefix );
 
-    test_prefix($prefix, $install_sets->{site});
+    test_prefix($prefix, $mb->install_sets('site'));
 }
 
 

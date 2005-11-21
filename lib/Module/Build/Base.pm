@@ -180,7 +180,7 @@ sub log_warn {
 
 sub _set_install_paths {
   my $self = shift;
-  my $c = $self->{config};
+  my $c = $self->config;
   my $p = $self->{properties};
 
   my @libstyle = $c->{installstyle} ?
@@ -323,7 +323,7 @@ sub _perl_is_same {
 sub find_perl_interpreter {
   return $^X if File::Spec->file_name_is_absolute($^X);
   my $proto = shift;
-  my $c = ref($proto) ? $proto->{config} : \%Config::Config;
+  my $c = ref($proto) ? $proto->config : \%Config::Config;
   my $exe = $c->{exe_ext};
 
   my $thisperl = $^X;
@@ -1098,7 +1098,7 @@ sub make_executable {
   }
 }
 
-sub _startperl { shift()->{config}{startperl} }
+sub _startperl { shift()->config('startperl') }
 
 # Return any directories in @INC which are not in the default @INC for
 # this perl.  For example, stuff passed in with -I or loaded with "use lib".
@@ -2045,7 +2045,7 @@ sub localize_dir_path {
 
 sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
   my ($self, @files) = @_;
-  my $c = $self->{config};
+  my $c = $self->config;
   
   my ($does_shbang) = $c->{sharpbang} =~ /^\s*\#\!/;
   for my $file (@files) {
@@ -2125,8 +2125,8 @@ sub _is_default_installable {
   my $self = shift;
   my $type = shift;
   return ( $self->install_destination($type) &&
-           ( $self->install_path->{$type} ||
-	     $self->install_sets->{$self->installdirs}{$type} )
+           ( $self->install_path($type) ||
+	     $self->install_sets($self->installdirs)->{$type} )
 	 ) ? 1 : 0;
 }
 
@@ -2166,8 +2166,9 @@ sub manify_bin_pods {
   File::Path::mkpath( $mandir, 0, 0777 );
 
   foreach my $file (keys %$files) {
-    my $manpage = $self->man1page_name( $file ) . '.' . $self->{config}{man1ext};
-    my $outfile = File::Spec->catfile( $mandir, $manpage);
+    my $manpage = $self->man1page_name( $file ) . '.' .
+	          $self->config( 'man1ext' );
+    my $outfile = File::Spec->catfile($mandir, $manpage);
     next if $self->up_to_date( $file, $outfile );
     $self->log_info("Manifying $file -> $outfile\n");
     $parser->parse_from_file( $file, $outfile );
@@ -2186,7 +2187,8 @@ sub manify_lib_pods {
   File::Path::mkpath( $mandir, 0, 0777 );
 
   while (my ($file, $relfile) = each %$files) {
-    my $manpage = $self->man3page_name( $relfile ) . '.' . $self->{config}{man3ext};
+    my $manpage = $self->man3page_name( $relfile ) . '.' .
+	          $self->config( 'man3ext' );
     my $outfile = File::Spec->catfile( $mandir, $manpage);
     next if $self->up_to_date( $file, $outfile );
     $self->log_info("Manifying $file -> $outfile\n");
@@ -2615,7 +2617,7 @@ sub do_create_readme {
 	       die "Can't load Pod::Readme or Pod::Text to create README";
   if ( my $docfile = $self->_main_docfile ) {
     $self->log_info("Creating README using " . ref($parser) . "\n");
-    $parser->parse_from_file($self->_main_docfile, 'README', @_);
+    $parser->parse_from_file($docfile, 'README', @_);
     $self->_add_to_manifest('MANIFEST', 'README');
   } else {
     $self->log_warn(<<EOF);
@@ -2821,24 +2823,6 @@ BEGIN { *scripts = \&script_files; }
   }
 }
 
-sub meta_add {
-  my ($self, %add) = @_;
-  my $m = $self->{properties}{meta_add};
-  while (my($k, $v) = each %add) {
-    $m->{$k} = $v;
-  }
-  return $m;
-}
-
-sub meta_merge {
-  my ($self, %merge) = @_;
-  my $m = $self->{properties}{meta_merge};
-  while (my($k, $v) = each %merge) {
-    $self->_hash_merge($m, $k, $v);
-  }
-  return $m;
-}
-
 sub _hash_merge {
   my ($self, $h, $k, $v) = @_;
   if (ref $h->{$k} eq 'ARRAY') {
@@ -2977,11 +2961,11 @@ sub prepare_metadata {
   };
 
 
-  while (my($k, $v) = each %{$p->{meta_add}}) {
+  while (my($k, $v) = each %{$self->meta_add}) {
     $node->{$k} = $v;
   }
 
-  while (my($k, $v) = each %{$p->{meta_merge}}) {
+  while (my($k, $v) = each %{$self->meta_merge}) {
     $self->_hash_merge($node, $k, $v);
   }
 
@@ -3190,10 +3174,10 @@ sub prefix_relative {
   my ($self, $type) = @_;
   my $installdirs = $self->installdirs;
 
-  my $relpath = $self->install_sets->{$installdirs}{$type};
+  my $relpath = $self->install_sets($installdirs)->{$type};
 
   return $self->_prefixify($relpath,
-			   $self->original_prefix->{$installdirs},
+			   $self->original_prefix($installdirs),
 			   $type,
 			  );
 }
@@ -3257,7 +3241,7 @@ sub _prefixify_default {
 sub install_destination {
   my ($self, $type) = @_;
 
-  return $self->install_path->{$type} if exists $self->install_path->{$type};
+  return $self->install_path($type) if $self->install_path($type);
 
   if ( $self->install_base ) {
     my $relpath = $self->install_base_relpaths($type);
@@ -3269,12 +3253,12 @@ sub install_destination {
     return $relpath ? File::Spec->catdir($self->prefix, $relpath) : undef;
   }
 
-  return $self->install_sets->{ $self->installdirs }{$type};
+  return $self->install_sets($self->installdirs)->{$type};
 }
 
 sub install_types {
   my $self = shift;
-  my %types = (%{$self->install_path}, %{ $self->install_sets->{$self->installdirs} });
+  my %types = (%{$self->install_path}, %{ $self->install_sets($self->installdirs) });
   return sort keys %types;
 }
 
@@ -3370,7 +3354,7 @@ sub _cbuilder {
     unless $self->_mb_feature('C_support');
   
   require ExtUtils::CBuilder;
-  return $p->{_cbuilder} = ExtUtils::CBuilder->new(config => $self->{config});
+  return $p->{_cbuilder} = ExtUtils::CBuilder->new(config => $self->config);
 }
 
 sub have_c_compiler {
@@ -3406,7 +3390,7 @@ sub compile_c {
 sub link_c {
   my ($self, $to, $file_base) = @_;
   my $b = $self->_cbuilder;
-  my ($cf, $p) = ($self->{config}, $self->{properties}); # For convenience
+  my ($cf, $p) = ($self->config, $self->{properties}); # For convenience
 
   my $obj_file = "$file_base$cf->{obj_ext}";
 
@@ -3452,7 +3436,7 @@ sub compile_xs {
     }
     my $typemaps = join ' ', map qq{-typemap "$_"}, @typemaps;
 
-    my $cf = $self->{config};
+    my $cf = $self->config;
     my $perl = $self->{properties}{perl};
     
     my $command = (qq{$perl "-I$cf->{installarchlib}" "-I$cf->{installprivlib}" "$xsubpp" -noprototypes } .
@@ -3500,7 +3484,7 @@ sub run_perl_command {
 
 sub process_xs {
   my ($self, $file) = @_;
-  my $cf = $self->{config}; # For convenience
+  my $cf = $self->config; # For convenience
 
   # File name, minus the suffix
   (my $file_base = $file) =~ s/\.[^.]+$//;

@@ -150,8 +150,8 @@ my \$build = Module::Build->new(
   is $@, '';
 
   my $mb = Module::Build->resume;
-  is $mb->config->{cc}, $Config{cc};
-  is $mb->config->{foocakes}, 'barcakes';
+  is $mb->config('cc'), $Config{cc};
+  is $mb->config('foocakes'), 'barcakes';
 
   # Test args().
   is $mb->args('foo'), 1;

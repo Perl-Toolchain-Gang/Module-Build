@@ -95,8 +95,8 @@ my %man = (
 	   sep  => $mb->manpage_separator,
 	   dir1 => 'man1',
 	   dir3 => 'man3',
-	   ext1 => $mb->{config}{man1ext},
-	   ext3 => $mb->{config}{man3ext},
+	   ext1 => $mb->config('man1ext'),
+	   ext3 => $mb->config('man3ext'),
 	  );
 
 my %distro = (

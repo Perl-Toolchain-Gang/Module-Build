@@ -187,9 +187,12 @@ is $@, '';
 
 {
   # Make sure 'install_path' overrides 'install_base'
-  my $mb = Module::Build->new( module_name => $dist->name,
-				  install_base => File::Spec->catdir('', 'foo'),
-				  install_path => {lib => File::Spec->catdir('', 'bar')});
+  my $mb = Module::Build->new( module_name  => $dist->name,
+			       install_base => File::Spec->catdir('', 'foo'),
+			       install_path => {
+                                 lib => File::Spec->catdir('', 'bar')
+                               }
+                             );
   ok $mb;
   is $mb->install_destination('lib'), File::Spec->catdir('', 'bar');
 }
