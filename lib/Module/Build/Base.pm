@@ -342,8 +342,6 @@ sub find_perl_interpreter {
   return;
 }
 
-sub base_dir { shift()->{properties}{base_dir} }
-
 sub _is_interactive {
   return -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ;   # Pipe?
 }
@@ -516,17 +514,44 @@ sub ACTION_config_data {
 
       $valid_properties{$class}{$property} = $default;
 
-      if (my $type = ref $default) {
+      my $type = ref $default;
+      if ($type) {
 	push @{$additive_properties{$class}->{$type}}, $property;
       }
 
       unless ($class->can($property)) {
         no strict 'refs';
-        *{"$class\::$property"} = sub {
-	  my $self = shift;
-	  $self->{properties}{$property} = shift if @_;
-	  return $self->{properties}{$property};
-	};
+	if ( $type eq 'HASH' ) {
+          *{"$class\::$property"} = sub {
+	    my $self = shift;
+	    my $x = ( $property eq 'config' ) ? $self : $self->{properties};
+	    return $x->{$property} unless @_;
+
+	    if ( defined($_[0]) && !ref($_[0]) ) {
+	      if ( @_ == 1 ) {
+		return exists( $x->{$property}{$_[0]} ) ?
+		         $x->{$property}{$_[0]} : undef;
+              } elsif ( @_ % 2 == 0 ) {
+	        my %args = @_;
+	        while ( my($k, $v) = each %args ) {
+	          $x->{$property}{$k} = $v;
+	        }
+	      } else {
+		die "Unexpected arguments for property '$property'\n";
+	      }
+	    } else {
+	      $x->{$property} = $_[0];
+	    }
+	  };
+
+        } else {
+          *{"$class\::$property"} = sub {
+	    my $self = shift;
+	    $self->{properties}{$property} = shift if @_;
+	    return $self->{properties}{$property};
+	  }
+        }
+
       }
       return $class;
     }
@@ -833,13 +858,6 @@ sub write_config {
 
   $self->{phash}{$_}->write() foreach qw(notes cleanup features auto_features config_data runtime_params);
 }
-
-sub config         { shift()->{config} }
-
-sub requires       { shift()->{properties}{requires} }
-sub recommends     { shift()->{properties}{recommends} }
-sub build_requires { shift()->{properties}{build_requires} }
-sub conflicts      { shift()->{properties}{conflicts} }
 
 sub check_autofeatures {
   my ($self) = @_;
