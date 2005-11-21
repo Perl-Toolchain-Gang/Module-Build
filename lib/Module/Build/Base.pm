@@ -2450,6 +2450,11 @@ sub ACTION_ppd {
   $self->add_to_cleanup($file);
 }
 
+
+# TODO: This action should ideally generate html & manpages regardless
+# of whether they would normally be generated on this platform so that
+# they can be distributed in the ppm. However, this might throw things
+# off if it is not immediately cleaned up.
 sub ACTION_ppmdist {
   my ($self) = @_;
 

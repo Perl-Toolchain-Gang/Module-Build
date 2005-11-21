@@ -157,7 +157,7 @@ ok  $mb2->get_action_docs('build');
 ok !$mb2->get_action_docs('foo');
 
 # Make sure those docs are the correct ones
-foreach ('ppd', 'disttest') {
+foreach ('testcover', 'disttest') {
   my $docs = $mb2->get_action_docs($_);
   like $docs, qr/=item $_/;
   unlike $docs, qr/\n=/, $docs;

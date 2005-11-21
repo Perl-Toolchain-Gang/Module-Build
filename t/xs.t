@@ -26,7 +26,7 @@ use Module::Build;
   } elsif ( !$have_c_compiler ) {
     plan skip_all => 'C_support enabled, but no compiler found';
   } else {
-    plan tests => 15;
+    plan tests => 14;
   }
 }
 
@@ -90,32 +90,6 @@ is $@, '';
 eval {$mb->dispatch('test')};
 is $@, '';
 
-{
-  $mb->dispatch('ppd', args => {codebase => '/path/to/codebase-xs'});
-
-  (my $dist_filename = $dist->name) =~ s/::/-/g;
-  my $ppd = slurp($dist_filename . '.ppd');
-
-  my $perl_version = Module::Build::PPMMaker->_ppd_version($mb->perl_version);
-  my $varchname = Module::Build::PPMMaker->_varchname($mb->config);
-
-  # This test is quite a hack since with XML you don't really want to
-  # do a strict string comparison, but absent an XML parser it's the
-  # best we can do.
-  is $ppd, <<"EOF";
-<SOFTPKG NAME="$dist_filename" VERSION="0,01,0,0">
-    <TITLE>@{[$dist->name]}</TITLE>
-    <ABSTRACT>Perl extension for blah blah blah</ABSTRACT>
-    <AUTHOR>A. U. Thor, a.u.thor\@a.galaxy.far.far.away</AUTHOR>
-    <IMPLEMENTATION>
-        <PERLCORE VERSION="$perl_version" />
-        <OS NAME="$^O" />
-        <ARCHITECTURE NAME="$varchname" />
-        <CODEBASE HREF="/path/to/codebase-xs" />
-    </IMPLEMENTATION>
-</SOFTPKG>
-EOF
-}
 
 SKIP: {
   skip( "skipping a couple Unixish-only tests", 2 )
