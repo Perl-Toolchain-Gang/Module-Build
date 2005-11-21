@@ -584,22 +584,16 @@ sub ACTION_config_data {
 }
 
 # Add the default properties.
-__PACKAGE__->add_property(module_name => '');
+__PACKAGE__->add_property(blib => 'blib');
+__PACKAGE__->add_property(build_class => 'Module::Build');
+__PACKAGE__->add_property(build_elements => [qw(PL support pm xs pod script)]);
 __PACKAGE__->add_property(build_script => 'Build');
 __PACKAGE__->add_property(config_dir => '_build');
-__PACKAGE__->add_property(blib => 'blib');
-__PACKAGE__->add_property('mb_version');
-__PACKAGE__->add_property(build_elements => [qw(PL support pm xs pod script)]);
-__PACKAGE__->add_property(installdirs => 'site');
-__PACKAGE__->add_property(install_path => {});
-__PACKAGE__->add_property(include_dirs => []);
-__PACKAGE__->add_property(config => {});
-__PACKAGE__->add_property(recurse_into => []);
-__PACKAGE__->add_property(build_class => 'Module::Build');
 __PACKAGE__->add_property(html_css => ($^O =~ /Win32/) ? 'Active.css' : '');
-__PACKAGE__->add_property(meta_add => {});
-__PACKAGE__->add_property(meta_merge => {});
+__PACKAGE__->add_property(include_dirs => []);
+__PACKAGE__->add_property(installdirs => 'site');
 __PACKAGE__->add_property(metafile => 'META.yml');
+__PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(use_rcfile => 1);
 
 {
@@ -610,44 +604,53 @@ __PACKAGE__->add_property(use_rcfile => 1);
   __PACKAGE__->add_property(prereq_action_types => \@prereq_action_types);
 }
 
+__PACKAGE__->add_property($_ => {}) for qw(
+  config
+  get_options
+  install_base_relpaths
+  install_path
+  install_sets
+  meta_add
+  meta_merge
+  original_prefix
+  prefix_relpaths
+);
+
 __PACKAGE__->add_property($_) for qw(
-   base_dir
-   dist_name
-   dist_version
-   dist_version_from
-   dist_author
-   dist_abstract
-   license
-   pm_files
-   xs_files
-   pod_files
-   PL_files
-   scripts
-   script_files
-   test_files
-   recursive_test_files
-   perl
-   has_config_data
-   install_sets
-   install_base_relpaths
-   original_prefix
-   prefix_relpaths
-   install_base
-   destdir
-   debugger
-   verbose
-   c_source
-   autosplit
-   create_makefile_pl
-   create_readme
-   pollute
-   extra_compiler_flags
-   extra_linker_flags
-   bindoc_dirs
-   libdoc_dirs
-   get_options
-   quiet
-   prefix
+  PL_files
+  autosplit
+  base_dir
+  bindoc_dirs
+  c_source
+  create_makefile_pl
+  create_readme
+  debugger
+  destdir
+  dist_abstract
+  dist_author
+  dist_name
+  dist_version
+  dist_version_from
+  extra_compiler_flags
+  extra_linker_flags
+  has_config_data
+  install_base
+  libdoc_dirs
+  license
+  mb_version
+  module_name
+  perl
+  pm_files
+  pod_files
+  pollute
+  prefix
+  quiet
+  recursive_test_files
+  script_files
+  scripts
+  test_files
+  verbose
+  xs_files
 );
 
 
@@ -1316,16 +1319,16 @@ sub _translate_option {
   (my $tr_opt = $opt) =~ tr/-/_/;
 
   return $tr_opt if grep $tr_opt =~ /^(?:no_?)?$_$/, qw(
-    install_path
-    html_css
-    meta_add
-    meta_merge
-    test_files
-    install_base
     create_makefile_pl
     create_readme
     extra_compiler_flags
     extra_linker_flags
+    html_css
+    install_base
+    install_path
+    meta_add
+    meta_merge
+    test_files
     use_rcfile
   ); # normalize only selected option names
 
@@ -1353,12 +1356,12 @@ sub _optional_arg {
   $opt = $self->_translate_option($opt);
 
   my @bool_opts = qw(
-    verbose
     create_readme
     pollute
     quiet
-    use_rcfile
     uninst
+    use_rcfile
+    verbose
   );
 
   # inverted boolean options; eg --noverbose or --no-verbose
