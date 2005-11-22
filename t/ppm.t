@@ -8,7 +8,7 @@ use Test::More;
 unless ( eval {require Archive::Tar} ) {
   plan skip_all => "Archive::Tar not installed; can't test archives.";
 } else {
-  plan tests => 9;
+  plan tests => 12;
 }
 
 
@@ -117,6 +117,42 @@ ok $tar->contains_file('blib/man3/Simple.' . $mb->config('man3ext'));
 ok $tar->contains_file('blib/man1/hello.' . $mb->config('man1ext'));
 ok $tar->contains_file('blib/html/site/lib/Simple.html');
 ok $tar->contains_file('blib/html/bin/hello.html');
+
+$tar->clear;
+undef( $tar );
+
+$mb->dispatch('realclean');
+$dist->clean;
+
+
+# Make sure html documents are generated for the ppm distro even when
+# they would not be built during a normal build.
+$mb = Module::Build->new_from_context(
+  verbose => 0,
+  quiet   => 1,
+
+  installdirs => 'site',
+  config => {
+    html_reset(),
+    installsiteman1dir  => catdir($tmp, 'site', 'man', 'man1'),
+    installsiteman3dir  => catdir($tmp, 'site', 'man', 'man3'),
+  },
+);
+
+$mb->dispatch('ppmdist');
+is $@, '';
+
+$tar = Archive::Tar->new;
+$tar->read( $tarfile, 1 );
+
+ok $tar->contains_file('blib/html/site/lib/Simple.html');
+ok $tar->contains_file('blib/html/bin/hello.html');
+
+$tar->clear;
+
+$mb->dispatch('realclean');
+$dist->clean;
+
 
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
