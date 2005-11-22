@@ -2284,7 +2284,8 @@ sub htmlify_pods {
 
   foreach my $pod ( keys %$pods ) {
 
-    my ($name, $path) = File::Basename::fileparse($pods->{$pod}, qr{\..*});
+    my ($name, $path) = File::Basename::fileparse($pods->{$pod},
+						  qr{\.(?:pm|plx?|pod)});
     my @dirs = File::Spec->splitdir( File::Spec->canonpath( $path ) );
     pop( @dirs ) if $dirs[-1] eq File::Spec->curdir;
 
