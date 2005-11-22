@@ -589,12 +589,16 @@ __PACKAGE__->add_property(build_class => 'Module::Build');
 __PACKAGE__->add_property(build_elements => [qw(PL support pm xs pod script)]);
 __PACKAGE__->add_property(build_script => 'Build');
 __PACKAGE__->add_property(config_dir => '_build');
-__PACKAGE__->add_property(html_css => ($^O =~ /Win32/) ? 'Active.css' : '');
 __PACKAGE__->add_property(include_dirs => []);
 __PACKAGE__->add_property(installdirs => 'site');
 __PACKAGE__->add_property(metafile => 'META.yml');
 __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(use_rcfile => 1);
+
+{
+  my $Is_ActivePerl = eval {require ActivePerl::DocTools};
+  __PACKAGE__->add_property(html_css => $Is_ActivePerl ? 'Active.css' : '');
+}
 
 {
   my @prereq_action_types = qw(requires build_requires conflicts recommends);
@@ -2247,14 +2251,13 @@ sub ACTION_html {
 }
 
 
-# XXX This is wrong, wrong, wrong.
-# 1) It assumes installation into site directories
-# 2) If it's an ActiveState perl install, we need to run
+# 1) If it's an ActiveState perl install, we need to run
 #    ActivePerl::DocTools->UpdateTOC;
-# 3) Links to other modules are not being generated
+# 2) Links to other modules are not being generated
 sub htmlify_pods {
   my $self = shift;
   my $type = shift;
+  my $htmldir = shift || File::Spec->catdir($self->blib, "${type}html");
 
   require Module::Build::PodParser;
   require Pod::Html;
@@ -2265,19 +2268,19 @@ sub htmlify_pods {
                                 exclude => [ qr/\.(?:bat|com|html)$/ ] );
   next unless %$pods;  # nothing to do
 
-  my $podpath = join ':',
-                map  $_->[1],
-                grep -e $_->[0],
-                map  [File::Spec->catdir($self->blib, $_), $_],
-                qw( script lib );
-
-  my $htmldir = File::Spec->catdir($self->blib, "${type}html");
   unless ( -d $htmldir ) {
     File::Path::mkpath($htmldir, 0, 0755)
       or die "Couldn't mkdir $htmldir: $!";
   }
 
-  my @rootdirs = ($type eq 'bin') ? qw(bin) : qw(site lib);
+  my @rootdirs = ($type eq 'bin') ? qw(bin) :
+      $self->installdirs eq 'core' ? qw(lib) : qw(site lib);
+
+  my $podpath = join ':',
+                map  $_->[1],
+                grep -e $_->[0],
+                map  [File::Spec->catdir($self->blib, $_), $_],
+                qw( script lib );
 
   foreach my $pod ( keys %$pods ) {
 
@@ -2297,7 +2300,9 @@ sub htmlify_pods {
     }
 
     my $path2root = join( '/', ('..') x (@rootdirs+@dirs) );
-    my $htmlroot = "$path2root/site";
+    my $htmlroot = join( '/',
+			 ($path2root,
+			  $self->installdirs eq 'core' ? () : qw(site) ) );
 
     my $fh = IO::File->new($infile);
     my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
@@ -2450,11 +2455,6 @@ sub ACTION_ppd {
   $self->add_to_cleanup($file);
 }
 
-
-# TODO: This action should ideally generate html & manpages regardless
-# of whether they would normally be generated on this platform so that
-# they can be distributed in the ppm. However, this might throw things
-# off if it is not immediately cleaned up.
 sub ACTION_ppmdist {
   my ($self) = @_;
 
@@ -2472,11 +2472,13 @@ sub ACTION_ppmdist {
     script  => 'script',
     bindoc  => 'man1',
     libdoc  => 'man3',
-    binhtml => 'html',
-    libhtml => 'html',
+    binhtml => undef,
+    libhtml => undef,
   );
 
   foreach my $type ($self->install_types) {
+    next if exists( $types{$type} ) && !defined( $types{$type} );
+
     my $dir = File::Spec->catdir( $self->blib, $type );
     next unless -e $dir;
 
@@ -2492,6 +2494,11 @@ sub ACTION_ppmdist {
 			    $rel_file );
       $self->copy_if_modified( from => $file, to => $to_file );
     }
+  }
+
+  foreach my $type ( qw(bin lib) ) {
+    local $self->{properties}{html_css} = 'Active.css';
+    $self->htmlify_pods( $type, File::Spec->catdir($ppm, 'blib', 'html') );
   }
 
   # create a tarball;
