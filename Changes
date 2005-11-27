@@ -11,6 +11,10 @@ Revision history for Perl extension Module::Build.
    list of all prerequisites, the versions required, and the versions
    actually installed. [David Wheeler]
 
+ - Added an "Examples on CPAN" section to the cookbook, with an
+   initial entry pointing to John Peacock's SVN-Notify-Mirror
+   distribution.
+
  - Add an invoked_action() method to return the name of the original
    action invoked by the user.
 

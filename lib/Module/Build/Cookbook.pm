@@ -276,6 +276,38 @@ installed.
 See also L<"Adding new file types to the build process"> for how to
 create the stuff in F<blib/conf/> in the first place.
 
+=head1 EXAMPLES ON CPAN
+
+Several distributions on CPAN are making good use of various features
+of Module::Build.  They can serve as real-world examples for others.
+
+=head2 SVN-Notify-Mirror
+
+L<http://search.cpan.org/~jpeacock/SVN-Notify-Mirror/>
+
+John Peacock, author of the C<SVN-Notify-Mirror> distribution, says:
+
+=over 4
+
+=item 1. Using C<auto_features>, I check to see whether two optional
+modules are available - SVN::Notify::Config and Net::SSH;
+
+=item 2. If the S::N::Config module is loaded, I automatically
+generate testfiles for it during Build (using the C<PL_files>
+property).
+
+=item 3. If the C<ssh_feature> is available, I ask if the user wishes
+to perform the ssh tests (since it requires a little preliminary
+setup);
+
+=item 4. Only if the user has C<ssh_feature> and answers yes to the
+testing, do I generate a test file.
+
+I'm sure I could not have handled this complexity with EU::MM, but it
+was very easy to do with M::B.
+
+=back 4
+
 
 =head1 AUTHOR
 
