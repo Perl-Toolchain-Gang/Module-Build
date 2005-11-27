@@ -2285,7 +2285,7 @@ sub htmlify_pods {
   foreach my $pod ( keys %$pods ) {
 
     my ($name, $path) = File::Basename::fileparse($pods->{$pod},
-						  qr{\.(?:pm|plx?|pod)});
+						  qr{\.(?:pm|plx?|pod)$});
     my @dirs = File::Spec->splitdir( File::Spec->canonpath( $path ) );
     pop( @dirs ) if $dirs[-1] eq File::Spec->curdir;
 
@@ -3402,25 +3402,28 @@ sub compile_c {
 
 sub link_c {
   my ($self, $to, $file_base) = @_;
-  my $b = $self->_cbuilder;
-  my ($cf, $p) = ($self->config, $self->{properties}); # For convenience
+  my $p = $self->{properties}; # For convenience
 
-  my $obj_file = "$file_base$cf->{obj_ext}";
+  my $spec = $self->_infer_xs_spec($file_base);
 
-  my $lib_file = $b->lib_file($obj_file);
-  $lib_file = File::Spec->catfile($to, File::Basename::basename($lib_file));
-  $self->add_to_cleanup($lib_file);
+  $self->add_to_cleanup($spec->{lib_file});
 
   my $objects = $p->{objects} || [];
 
-  return $lib_file if $self->up_to_date([$obj_file, @$objects], $lib_file);
+  return $spec->{lib_file}
+    if $self->up_to_date([$spec->{obj_file}, @$objects],
+			 $spec->{lib_file});
 
-  $b->link(module_name => $self->module_name,
-	   objects => [$obj_file, @$objects],
-	   lib_file => $lib_file,
-	   extra_linker_flags => $p->{extra_linker_flags});
-  
-  return $lib_file;
+  my $module_name = $self->module_name;
+  $module_name  ||= $spec->{module_name};
+
+  $self->_cbuilder->link(
+    module_name => $module_name,
+    objects     => [$spec->{obj_file}, @$objects],
+    lib_file    => $spec->{lib_file},
+    extra_linker_flags => $p->{extra_linker_flags} );
+
+  return $spec->{lib_file};
 }
 
 sub compile_xs {
@@ -3495,46 +3498,84 @@ sub run_perl_command {
   return $self->do_system($perl, @$args);
 }
 
+# Infer various data from the path of the input filename
+# that is needed to create output files.
+# The input filename is expected to be of the form:
+#   lib/Module/Name.ext or Module/Name.ext
+sub _infer_xs_spec {
+  my $self = shift;
+  my $file = shift;
+
+  my $cf = $self->{config};
+
+  my %spec;
+
+  my( $v, $d, $f ) = File::Spec->splitpath( $file );
+  my @d = File::Spec->splitdir( $d );
+  (my $file_base = $f) =~ s/\.[^.]+$//i;
+
+  $spec{base_name} = $file_base;
+
+  $spec{src_dir} = File::Spec->catpath( $v, $d, '' );
+
+  # the module name
+  shift( @d ) while @d && ($d[0] eq 'lib' || $d[0] eq '');
+  pop( @d ) while @d && $d[-1] eq '';
+  $spec{module_name} = join( '::', (@d, $file_base) );
+
+  $spec{archdir} = File::Spec->catdir($self->blib, 'arch', 'auto',
+				      @d, $file_base);
+
+  $spec{bs_file} = File::Spec->catfile($spec{archdir}, "${file_base}.bs");
+
+  $spec{lib_file} = File::Spec->catfile($spec{archdir},
+					"${file_base}.$cf->{dlext}");
+
+  $spec{c_file} = File::Spec->catfile( $spec{src_dir},
+				       "${file_base}.c" );
+
+  $spec{obj_file} = File::Spec->catfile( $spec{src_dir},
+					 "${file_base}$cf->{obj_ext}" );
+
+  return \%spec;
+}
+
 sub process_xs {
   my ($self, $file) = @_;
   my $cf = $self->config; # For convenience
 
+  my $spec = $self->_infer_xs_spec($file);
+
   # File name, minus the suffix
   (my $file_base = $file) =~ s/\.[^.]+$//;
-  my $c_file = "$file_base.c";
 
   # .xs -> .c
-  $self->add_to_cleanup($c_file);
-  
-  unless ($self->up_to_date($file, $c_file)) {
-    $self->compile_xs($file, outfile => $c_file);
+  $self->add_to_cleanup($spec->{c_file});
+
+  unless ($self->up_to_date($file, $spec->{c_file})) {
+    $self->compile_xs($file, outfile => $spec->{c_file});
   }
-  
+
   # .c -> .o
   my $v = $self->dist_version;
-  $self->compile_c($c_file, defines => {VERSION => qq{"$v"}, XS_VERSION => qq{"$v"}});
+  $self->compile_c($spec->{c_file},
+		   defines => {VERSION => qq{"$v"}, XS_VERSION => qq{"$v"}});
 
-  # The .bs and .a files don't go in blib/lib/, they go in blib/arch/auto/.
-  # Unfortunately we have to pre-compute the whole path.
-  my $archdir;
-  {
-    my @dirs = File::Spec->splitdir($file_base);
-    $archdir = File::Spec->catdir($self->blib,'arch','auto', @dirs[1..$#dirs]);
-  }
-  
+  # archdir
+  File::Path::mkpath($spec->{archdir}, 0, 0777) unless -d $spec->{archdir};
+
   # .xs -> .bs
-  $self->add_to_cleanup("$file_base.bs");
-  unless ($self->up_to_date($file, "$file_base.bs")) {
+  $self->add_to_cleanup($spec->{bs_file});
+  unless ($self->up_to_date($file, $spec->{bs_file})) {
     require ExtUtils::Mkbootstrap;
-    $self->log_info("ExtUtils::Mkbootstrap::Mkbootstrap('$file_base')\n");
-    ExtUtils::Mkbootstrap::Mkbootstrap($file_base);  # Original had $BSLOADLIBS - what's that?
-    {my $fh = IO::File->new(">> $file_base.bs")}  # create
-    utime((time)x2, "$file_base.bs");  # touch
+    $self->log_info("ExtUtils::Mkbootstrap::Mkbootstrap('$spec->{bs_file}')\n");
+    ExtUtils::Mkbootstrap::Mkbootstrap($spec->{bs_file});  # Original had $BSLOADLIBS - what's that?
+    {my $fh = IO::File->new(">> $spec->{bs_file}")}  # create
+    utime((time)x2, $spec->{bs_file});  # touch
   }
-  $self->copy_if_modified("$file_base.bs", $archdir, 1);
-  
+
   # .o -> .(a|bundle)
-  $self->link_c($archdir, $file_base);
+  $self->link_c($spec->{archdir}, $file_base);
 }
 
 sub do_system {
