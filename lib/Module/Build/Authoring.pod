@@ -1061,6 +1061,13 @@ C<new()> method is run, if the Module::Build Perl API is being used
 instead of called from a shell), and lasts until C<perl Build.PL> is
 run again or the C<clean> action is run.
 
+=item orig_dir()
+
+Returns a string containing the working directory that was in effect
+before the F<Build> script chdir()-ed into the C<base_dir>.  This
+might be useful for writing wrapper tools that might need to chdir()
+back out.
+
 =item runtime_params()
 
 =item runtime_params($key)

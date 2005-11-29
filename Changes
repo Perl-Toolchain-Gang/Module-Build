@@ -15,6 +15,10 @@ Revision history for Perl extension Module::Build.
    YAML.pm - some common strings weren't quoted & escaped properly.
    Now only some uncommon ones are. [Spotted by Joshua ben Jore]
 
+ - Rather than dying when the Build script is run from the wrong
+   directory, it now simply chdir()s into the right directory and
+   keeps going. [Suggested by Dominique Quatravaux]
+
  - Added an "Examples on CPAN" section to the cookbook, with an
    initial entry pointing to John Peacock's SVN-Notify-Mirror
    distribution.

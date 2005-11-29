@@ -562,6 +562,9 @@ sub ACTION_config_data {
       # Set the build class.
       $self->{properties}{build_class} ||= ref $self;
 
+      # If there was no orig_dir, set to the same as base_dir
+      $self->{properties}{orig_dir} ||= $self->{properties}{base_dir};
+
       my $defaults = $self->valid_properties_defaults;
       
       foreach my $prop (keys %$defaults) {
@@ -643,6 +646,7 @@ __PACKAGE__->add_property($_) for qw(
   license
   mb_version
   module_name
+  orig_dir
   perl
   pm_files
   pod_files
@@ -1159,15 +1163,13 @@ use strict;
 use Cwd;
 use File::Spec;
 
+my \$orig_dir;
 BEGIN {
   \$^W = 1;  # Use warnings
-  my \$curdir = File::Spec->canonpath( Cwd::cwd() );
-  \$curdir = uc \$curdir if $case_tolerant;
-  my \$is_same_dir = \$^O eq 'MSWin32' ? (Win32::GetShortPathName(\$curdir) eq '$q{base_dir}')
-                                       : (\$curdir eq '$q{base_dir}');
-  unless (\$is_same_dir) {
-    die ('This script must be run from $q{base_dir}, not '.\$curdir."\\n".
-	 "Please re-run the Build.PL script here.\\n");
+  \$orig_dir = Cwd::cwd();
+  my \$base_dir = '$q{base_dir}';
+  unless (chdir(\$base_dir)) {
+    die ("Couldn't chdir(\$base_dir), aborting\\n");
   }
   unshift \@INC,
     (
@@ -1189,6 +1191,7 @@ if (-e 'Build.PL' and not $build_package->up_to_date("Build.PL", \$0)) {
 my \$build = $build_package->resume (
   properties => {
     config_dir => '$q{config_dir}',
+    orig_dir => \$orig_dir,
   },
 );
 
