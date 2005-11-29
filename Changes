@@ -11,6 +11,10 @@ Revision history for Perl extension Module::Build.
    list of all prerequisites, the versions required, and the versions
    actually installed. [David Wheeler]
 
+ - Fixed a bug when creating the META.yml file without the help of
+   YAML.pm - some common strings weren't quoted & escaped properly.
+   Now only some uncommon ones are. [Spotted by Joshua ben Jore]
+
  - Added an "Examples on CPAN" section to the cookbook, with an
    initial entry pointing to John Peacock's SVN-Notify-Mirror
    distribution.

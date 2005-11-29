@@ -2847,6 +2847,19 @@ sub _hash_merge {
   }
 }
 
+sub _yaml_quote_string {
+  # XXX doesn't handle embedded newlines
+
+  my ($self, $string) = @_;
+  if ($string !~ /\"/) {
+    $string =~ s{\\}{\\\\}g;
+    return qq{"$string"};
+  } else {
+    $string =~ s{([\\'])}{\\$1}g;
+    return qq{'$string'};
+  }
+}
+
 sub _write_minimal_metadata {
   my $self = shift;
   my $p = $self->{properties};
@@ -2855,6 +2868,9 @@ sub _write_minimal_metadata {
   my $fh = IO::File->new("> $file")
     or die "Can't open $file: $!";
 
+  my @author = map $self->_yaml_quote_string($_), @{$self->dist_author};
+  my $abstract = $self->_yaml_quote_string($self->dist_abstract);
+
   # XXX Add the meta_add & meta_merge stuff
 
   print $fh <<"EOF";
@@ -2862,8 +2878,8 @@ sub _write_minimal_metadata {
 name: $p->{dist_name}
 version: $p->{dist_version}
 author:
-@{[ join "\n", map "  - $_", @{$self->dist_author} ]}
-abstract: @{[ $self->dist_abstract ]}
+@{[ join "\n", map "  - $_", @author ]}
+abstract: $abstract
 license: $p->{license}
 generated_by: Module::Build version $Module::Build::VERSION, without YAML.pm
 EOF

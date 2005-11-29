@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More tests => 43;
+use Test::More tests => 46;
 
 
 use File::Spec ();
@@ -561,6 +561,14 @@ $dist->regen( clean => 1 );
 $mb = new_build();
 is_deeply($mb->find_dist_packages, {});
 
+
+{
+  # Put our YAML escaper through a few tests.  This isn't part of the M::B API.
+  my $yq = sub {Module::Build->_yaml_quote_string(@_)};
+  like $yq->(''), qr{^ (['"]) \1 $}x;
+  is $yq->('Foo "bar" baz'), q{'Foo "bar" baz'};
+  is $yq->("Foo 'bar' baz"), q{"Foo 'bar' baz"};
+}
 
 ############################################################
 # cleanup
