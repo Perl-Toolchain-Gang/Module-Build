@@ -30,7 +30,7 @@ sub new {
   my $self = bless( \%data, $package );
 
   if ( -d $self->dirname ) {
-    warn "Warning: Removing existing directory at '@{[$self->dirname]}'\n";
+    warn "Warning: Removing existing directory '@{[$self->dirname]}'\n";
     $self->remove;
   }
 
