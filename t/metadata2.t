@@ -68,7 +68,7 @@ Simple Simon <simon@simple.sim>
 sub _slurp {
     my $filename = shift;
     die "$filename doesn't exist. Aborting" if not -e $filename;
-    open my $fh, "<", $filename
+    open my $fh, "< $filename"
         or die "Couldn't open $filename: $!. Aborting.";
     local $/;
     return scalar <$fh>;

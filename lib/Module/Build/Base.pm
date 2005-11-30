@@ -7,7 +7,7 @@ use File::Copy ();
 use File::Find ();
 use File::Path ();
 use File::Basename ();
-use File::Spec ();
+use File::Spec 0.82 ();
 use File::Compare ();
 use Data::Dumper ();
 use IO::File ();
@@ -943,8 +943,8 @@ sub _enum_prereqs {
   my $self = shift;
   my %prereqs;
   foreach my $type ( @{ $self->prereq_action_types } ) {
-    if ( $self->can( $type ) ) {
-      my $prereq = $self->$type || {};
+    if ( my $sub = $self->can( $type ) ) {
+      my $prereq = $self->$type() || {};
       $prereqs{$type} = $prereq if %$prereq;
     }
   }
@@ -1292,11 +1292,15 @@ sub cull_options {
         $args->{$k} = $v->{default} if exists $v->{default};
     }
 
+    local @ARGV = @_; # No other way to dupe Getopt::Long
+
     # Get the options values and return them.
     # XXX Add option to allow users to set options?
-    Getopt::Long::Configure('pass_through');
-    local @ARGV = @_; # No other way to dupe Getopt::Long
-    Getopt::Long::GetOptions($args, @specs);
+    if ( @specs ) {
+      Getopt::Long::Configure('pass_through');
+      Getopt::Long::GetOptions($args, @specs);
+    }
+
     return $args, @ARGV;
 }
 

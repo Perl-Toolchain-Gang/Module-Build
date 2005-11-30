@@ -2,7 +2,7 @@ use strict;
 
 # On some platforms (*ahem*, MacPerl 5.6.1) "use lib qw(lib);" doesn't
 # find the local "lib" directory, so we use File::Spec to do it properly.
-use File::Spec;
+use File::Spec 0.82;
 use lib File::Spec->catdir('lib');      # use our self to install
 use lib File::Spec->catdir('t', 'lib'); # use bundled Test::More
 
@@ -27,7 +27,7 @@ my $build = new ModuleBuildBuilder
 		'File::Copy'     => 0,
 		'File::Find'     => 0,
 		'File::Path'     => 0,
-		'File::Spec'     => 0,
+		'File::Spec'     => '0.82', # rel2abs()
 		'ExtUtils::Install' => 0,
 		'ExtUtils::Manifest' => 0,
 		'ExtUtils::Mkbootstrap' => 0,
