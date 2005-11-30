@@ -352,7 +352,7 @@ C<args()>.
 
 You can combine references to your own variables or subroutines with
 unreferenced specifications, for which the result will also be stored in the
-has returned by C<args()>.  For example:
+hash returned by C<args()>.  For example:
 
  my $loud = 0;
  my $build = Module::Build->new(
@@ -1170,7 +1170,7 @@ Examples:
 
 Returns a human-readable (table-form) string showing all
 prerequisites, the versions required, and the versions actually
-installed. This can be useful for reviewing the configuration of your
+installed.  This can be useful for reviewing the configuration of your
 system prior to a build, or when compiling data to send for a bug
 report.  The C<prereq_report> action is just a thin wrapper around the
 C<prereq_report()> method.
@@ -1266,9 +1266,9 @@ modules that are recommended to provide enhanced functionality; and 3)
 cause problems with the distribution.
 
 Each of the three types of prerequisites listed above can be applied
-to different aspects of the Build process. For the module distribution
-itself you simply define "requires", "recommends", or "conflicts". The
-types can also apply to other aspects of the Build process. Currently,
+to different aspects of the Build process.  For the module distribution
+itself you simply define "requires", "recommends", or "conflicts".  The
+types can also apply to other aspects of the Build process.  Currently,
 only "build_requires" is defined which is used for modules which are
 required during the Build process.
 

@@ -163,7 +163,7 @@ The documentation for C<Module::Build> is broken up into three sections:
 =item General Usage (L<Module::Build>)
 
 This is the document you are currently reading. It describes basic
-usage and background information. Its main purpose is to assist the
+usage and background information.  Its main purpose is to assist the
 user who wants to learn how to invoke and control C<Module::Build>
 scripts at the command line.
 
@@ -171,18 +171,18 @@ scripts at the command line.
 
 This document describes the C<Module::Build> API for authors who are
 writing F<Build.PL> scripts for a distribution or controlling
-C<Module::Build> processes programmatically. It describes the
+C<Module::Build> processes programmatically.  It describes the
 methods available as well as providing general information on
-subclassing C<Module::Build> to alter and extend its behavior. Also,
+subclassing C<Module::Build> to alter and extend its behavior.  Also,
 there is a section on controlling the Build process from other
 scripts, including how to construct an object and how to invoke
 actions through it from an external script.
 
 =item Cookbook (L<Module::Build::Cookbook>)
 
-This document demonstrates how to accomplish many common tasks. It
+This document demonstrates how to accomplish many common tasks.  It
 covers general command line usage and authoring of F<Build.PL>
-scripts. Includes working examples.
+scripts.  Includes working examples.
 
 =back
 
@@ -196,7 +196,7 @@ packaging, etc., tasks.
 
 Second, arguments are processed in a very systematic way.  Arguments
 are always key=value pairs.  They may be specified at C<perl Build.PL>
-time (i.e.  C<perl Build.PL destdir=/my/secret/place>), in which case
+time (i.e. C<perl Build.PL destdir=/my/secret/place>), in which case
 their values last for the lifetime of the C<Build> script.  They may
 also be specified when executing a particular action (i.e.
 C<Build test verbose=1>), in which case their values last only for the
@@ -444,7 +444,7 @@ the result.
 =item prereq_report
 
 This action prints out a list of all prerequisites, the versions required, and
-the versions actually installed. This can be useful for reviewing the
+the versions actually installed.  This can be useful for reviewing the
 configuration of your system prior to a build, or when compiling data to send
 for a bug report.
 
@@ -556,7 +556,7 @@ version-specific installs.
 =head2 Command Line Options
 
 The following options can be used during any invocation of Build.PL or
-the Build script, during any action. For information on other options
+the Build script, during any action.  For information on other options
 specific to an action, see the documentation for the respective action.
 
 NOTE: There is some preliminary support for options to use the more
