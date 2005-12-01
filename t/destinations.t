@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More 'no_plan';   # tests => 68;
+use Test::More 'no_plan' => 1; #tests => 92;
 
 
 use File::Spec ();
@@ -213,9 +213,13 @@ sub test_prefix {
         my $dest = $mb->install_destination( $type );
 	ok $mb->dir_contains($prefix, $dest), "$type prefixed";
 
-        if( $test_config && $test_config->{$type} ) {
-	    have_same_ending($dest, $test_config->{$type},
-			     "  suffix correctish ($test_config->{$type} + $prefix = $dest)" );
+        SKIP: {
+	    skip( "'$type' not configured", 1 )
+	      unless $test_config && $test_config->{$type};
+
+	    have_same_ending( $dest, $test_config->{$type},
+			      "  suffix correctish " .
+			      "($test_config->{$type} + $prefix = $dest)" );
         }
     }
 }
