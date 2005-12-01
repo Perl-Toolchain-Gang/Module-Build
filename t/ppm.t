@@ -5,17 +5,34 @@ use strict;
 
 use Test::More;
 
-unless ( eval {require Archive::Tar} ) {
-  plan skip_all => "Archive::Tar not installed; can't test archives.";
-} else {
-  plan tests => 12;
-}
-
-
 
 use File::Spec ();
 my $common_pl = File::Spec->catfile( 't', 'common.pl' );
 require $common_pl;
+
+
+use Module::Build;
+
+{ # Copied mostly verbatim from t/xs.t; should probably cache in t/common.pl
+  local $SIG{__WARN__} = sub {};
+
+  my $mb = Module::Build->current;
+  $mb->verbose( 0 );
+
+  my $have_c_compiler;
+  stderr_of( sub {$have_c_compiler = $mb->have_c_compiler} );
+
+  if ( ! $mb->feature('C_support') ) {
+    plan skip_all => 'C_support not enabled';
+  } elsif ( !$have_c_compiler ) {
+    plan skip_all => 'C_support enabled, but no compiler found';
+  } elsif ( eval {require Archive::Tar} ) {
+    plan skip_all => "Archive::Tar not installed; can't test archives.";
+  } else {
+    plan tests => 12;
+  }
+}
+
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -42,7 +59,6 @@ Says "Hello"
 =cut
 ---
 $dist->change_file( 'Build.PL', <<"---" );
-use Module::Build;
 
 my \$build = new Module::Build(
   module_name => @{[$dist->name]},
