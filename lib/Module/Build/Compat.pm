@@ -21,7 +21,7 @@ my %makefile_to_build =
    LIB => sub { ('--install_path', 'lib='.shift()) },
 
    # Some names they have in common
-   map {$_, lc($_)} qw(DESTDIR PREFIX INSTALL_BASE),
+   map {$_, lc($_)} qw(DESTDIR PREFIX INSTALL_BASE UNINST),
   );
 
 
