@@ -943,7 +943,7 @@ sub _enum_prereqs {
   my $self = shift;
   my %prereqs;
   foreach my $type ( @{ $self->prereq_action_types } ) {
-    if ( my $sub = $self->can( $type ) ) {
+    if ( $self->can( $type ) ) {
       my $prereq = $self->$type() || {};
       $prereqs{$type} = $prereq if %$prereq;
     }
@@ -2632,19 +2632,43 @@ sub do_create_makefile_pl {
 sub do_create_readme {
   my $self = shift;
   $self->delete_filetree('README');
-  my $parser = eval {require Pod::Readme; 1} ? Pod::Readme->new :
-               eval {require Pod::Text;   1} ? Pod::Text->new :
-	       die "Can't load Pod::Readme or Pod::Text to create README";
-  if ( my $docfile = $self->_main_docfile ) {
-    $self->log_info("Creating README using " . ref($parser) . "\n");
-    $parser->parse_from_file($docfile, 'README', @_);
-    $self->_add_to_manifest('MANIFEST', 'README');
-  } else {
+
+  my $docfile = $self->_main_docfile;
+  unless ( $docfile ) {
     $self->log_warn(<<EOF);
-Cannot create README; can't determine which file contains documentation;
+Cannot create README: can't determine which file contains documentation;
 Must supply either 'dist_version_from', or 'module_name' parameter.
 EOF
+    return;
   }
+
+  if ( eval {require Pod::Readme; 1} ) {
+    $self->log_info("Creating README using Pod::Readme\n");
+
+    my $parser = Pod::Readme->new;
+    $parser->parse_from_file($docfile, 'README', @_);
+
+  } elsif ( eval {require Pod::Text; 1} ) {
+    $self->log_info("Creating README using Pod::Text\n");
+
+    my $fh = IO::File->new('> README');
+    if ( defined($fh) ) {
+      local $^W = 0;
+      Pod::Text::pod2text( $docfile, $fh );
+      $fh->close;
+    } else {
+      $self->log_warn(
+        "Cannot create 'README' file: Can't open file for writing\n" );
+      return;
+    }
+
+  } else {
+    $self->log_warn("Can't load Pod::Readme or Pod::Text to create README\n");
+    return;
+
+  }
+
+  $self->_add_to_manifest('MANIFEST', 'README');
 }
 
 sub _main_docfile {

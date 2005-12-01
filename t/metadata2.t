@@ -49,6 +49,10 @@ SKIP: {
 
 ############################## Check generation of README file
 
+# TODO: We need to test faking the absence of Pod::Readme when present
+#       so Pod::Text will be used. Also fake the absence of both to
+#       test that we fail gracefully.
+
 my $provides; # Used a bunch of times below
 
 my $pod_text = <<'---'; 
@@ -68,10 +72,14 @@ Simple Simon <simon@simple.sim>
 sub _slurp {
     my $filename = shift;
     die "$filename doesn't exist. Aborting" if not -e $filename;
-    open my $fh, "< $filename"
+
+    use IO::File;
+    my $fh = IO::File->new( "< $filename" )
         or die "Couldn't open $filename: $!. Aborting.";
     local $/;
-    return scalar <$fh>;
+    my $content = <$fh>;
+    $fh->close;
+    return $content;
 }
 
 
