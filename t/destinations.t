@@ -3,7 +3,7 @@
 use lib 't/lib';
 use strict;
 
-use Test::More 'no_plan' => 1; #tests => 92;
+use Test::More tests => 92;
 
 
 use File::Spec ();
