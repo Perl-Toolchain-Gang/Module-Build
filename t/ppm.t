@@ -24,9 +24,9 @@ use Module::Build;
 
   if ( ! $mb->feature('C_support') ) {
     plan skip_all => 'C_support not enabled';
-  } elsif ( !$have_c_compiler ) {
+  } elsif ( ! $have_c_compiler ) {
     plan skip_all => 'C_support enabled, but no compiler found';
-  } elsif ( eval {require Archive::Tar} ) {
+  } elsif ( ! eval {require Archive::Tar} ) {
     plan skip_all => "Archive::Tar not installed; can't test archives.";
   } else {
     plan tests => 12;
