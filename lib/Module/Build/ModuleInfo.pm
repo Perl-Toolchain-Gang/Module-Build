@@ -346,16 +346,19 @@ __END__
 
 ModuleInfo - Gather package and POD information from a perl module files
 
+
 =head1 DESCRIPTION
 
-=head2 new_from_file( $filename [ , collect_pod => 1 ] )
+=over 4
+
+=item new_from_file($filename, collect_pod => 1)
 
 Construct a ModuleInfo object given the path to a file. Takes an optional
 arguement C<collect_pod> which is a boolean that determines whether
 POD data is collected and stored for reference. POD data is not
 collected by default. POD headings are always collected.
 
-=head2 new_from_module( $module [ , collect_pod => 1, inc => \@dirs ] )
+=item new_from_module($module, collect_pod => 1, inc => \@dirs)
 
 Construct a ModuleInfo object given a module or package name. In addition
 to accepting the C<collect_pod> argument as described above, this
@@ -363,41 +366,41 @@ method accepts a C<inc> arguemnt which is a reference to an array of
 of directories to search for the module. If none are given, the
 default is @INC.
 
-=head2 name( )
+=item name()
 
 Returns the name of the package represented by this module. If there
 are more than one packages, it makes a best guess based on the
 filename. If it's a script (i.e. not a *.pm) the package name is
 'main'.
 
-=head2 version( [ $package ] )
+=item version($package)
 
 Returns the version as defined by the $VERSION variable for the
 package as returned by the C<name> method if no arguments are
 given. If given the name of a package it will attempt to return the
 version of that package if it is specified in the file.
 
-=head2 filename( )
+=item filename()
 
 Returns the absolute path to the file.
 
-=head2 packages_inside( )
+=item packages_inside()
 
 Returns a list of packages.
 
-=head2 pod_inside( )
+=item pod_inside()
 
 Returns a list of POD sections.
 
-=head2 contains_pod( )
+=item contains_pod()
 
 Returns true if there is any POD in the file.
 
-=head2 pod( $section )
+=item pod($section)
 
 Returns the POD data in the given section.
 
-=head2 find_module_by_name( $module [ , \@dirs ] )
+=item find_module_by_name($module, \@dirs)
 
 Returns the path to a module given the module or package name. A list
 of directories can be passed in as an optional paramater, otherwise
@@ -405,7 +408,7 @@ of directories can be passed in as an optional paramater, otherwise
 
 Can be called as either an object or a class method.
 
-=head2 find_module_dir_by_name( $module [ , \@dirs ] )
+=item find_module_dir_by_name($module, \@dirs)
 
 Returns the entry in C<@dirs> (or C<@INC> by default) that contains
 the module C<$module>. A list of directories can be passed in as an
@@ -413,4 +416,25 @@ optional paramater, otherwise @INC is searched.
 
 Can be called as either an object or a class method.
 
+=back
+
+
+=head1 AUTHOR
+
+Ken Williams <ken@mathforum.org>, Randy W. Sims <RandyS@ThePierianSpring.org>
+
+
+=head1 COPYRIGHT
+
+Copyright (c) 2001-2005 Ken Williams.  All rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+
+=head1 SEE ALSO
+
+perl(1), Module::Build(3)
+
 =cut
+

@@ -151,14 +151,17 @@ sub _varchname {  # Copied from PPM.pm
 1;
 __END__
 
+
 =head1 NAME
 
 Module::Build::PPMMaker - Perl Package Manager file creation
 
+
 =head1 SYNOPSIS
 
- On the command line, builds a .ppd file:
- % ./Build ppd
+  On the command line, builds a .ppd file:
+  ./Build ppd
+
 
 =head1 DESCRIPTION
 
@@ -167,9 +170,11 @@ Description" files, in support of ActiveState's "Perl Package
 Manager".  Details are here:
 L<http://aspn.activestate.com/ASPN/Downloads/ActivePerl/PPM/>
 
+
 =head1 AUTHOR
 
 Dave Rolsky <autarch@urth.org>, Ken Williams <ken@mathforum.org>
+
 
 =head1 COPYRIGHT
 
@@ -177,6 +182,7 @@ Copyright (c) 2001-2005 Ken Williams.  All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
+
 
 =head1 SEE ALSO
 

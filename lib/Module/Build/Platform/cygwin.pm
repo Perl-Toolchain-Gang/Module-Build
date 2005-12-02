@@ -27,7 +27,7 @@ Please see the L<Module::Build> for the general docs.
 
 =head1 AUTHOR
 
-Initial stub by Yitzchak Scott-Thoennes, sthoenna@efn.org
+Initial stub by Yitzchak Scott-Thoennes <sthoenna@efn.org>
 
 =head1 SEE ALSO
 

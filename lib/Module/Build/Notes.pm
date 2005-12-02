@@ -186,6 +186,7 @@ EOF
 
 $notes_name - Configuration for $module_name
 
+
 =head1 SYNOPSIS
 
   use $notes_name;
@@ -199,6 +200,7 @@ $notes_name - Configuration for $module_name
   $notes_name->set_feature(bar => \$new_value);
   $notes_name->write;  # Save changes
 
+
 =head1 DESCRIPTION
 
 This module holds the configuration data for the C<$module_name>
@@ -207,6 +209,7 @@ setting that configuration data.  Note that in order to actually make
 changes, you'll have to have write access to the C<$notes_name>
 module, and you should attempt to understand the repercussions of your
 actions.
+
 
 =head1 METHODS
 
@@ -258,6 +261,7 @@ Commits any changes from C<set_config()> and C<set_feature()> to disk.
 Requires write access to the C<$notes_name> module.
 
 =back
+
 
 =head1 AUTHOR
 

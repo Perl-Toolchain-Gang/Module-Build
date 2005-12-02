@@ -17,7 +17,7 @@ use ModuleBuildBuilder;
 
 my $build = new ModuleBuildBuilder
   (
-   module_name => 'Module::Build',   
+   module_name => 'Module::Build',
    license => 'perl',
    requires => {
 		'perl'           => '5.005_03',

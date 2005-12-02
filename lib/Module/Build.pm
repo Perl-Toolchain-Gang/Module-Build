@@ -107,18 +107,18 @@ Module::Build - Build and install Perl modules
 
 Standard process for building & installing modules:
 
-   perl Build.PL
-   ./Build
-   ./Build test
-   ./Build install
+  perl Build.PL
+  ./Build
+  ./Build test
+  ./Build install
 
 Or, if you're on a platform (like DOS or Windows) that doesn't like
 the "./" notation, you can do this:
 
-   perl Build.PL
-   perl Build
-   perl Build test
-   perl Build install
+  perl Build.PL
+  perl Build
+  perl Build test
+  perl Build install
 
 
 =head1 DESCRIPTION
@@ -239,21 +239,12 @@ them in C<blib/>.  Of course, you need a working C compiler (probably
 the same one that built perl itself) for the compilation to work
 properly.
 
-The C<build> action also runs any C<.PL> files in your F<lib/>
+The C<code> action also runs any C<.PL> files in your F<lib/>
 directory.  Typically these create other files, named the same but
 without the C<.PL> ending.  For example, a file F<lib/Foo/Bar.pm.PL>
 could create the file F<lib/Foo/Bar.pm>.  The C<.PL> files are
 processed first, so any C<.pm> files (or other kinds that we deal
 with) will get copied correctly.
-
-If your C<.PL> scripts don't create any files, or if they create files
-with unexpected names, or even if they create multiple files, you
-should tell us that so that we can clean up properly after these
-created files.  Use the C<PL_files> parameter to C<new()>:
-
- PL_files => { 'lib/Foo/Bar_pm.PL' => 'lib/Foo/Bar.pm',
-               'lib/something.PL'  => ['/lib/something', '/lib/else'],
-               'lib/funny.PL'      => [] }
 
 =item config_data
 
@@ -271,7 +262,7 @@ A C<flags> parameter may be passed to the action, which will be passed
 to the 'diff' program.  Consult your 'diff' documentation for the
 parameters it will accept - a good one is C<-u>:
 
- ./Build diff flags=-u
+  ./Build diff flags=-u
 
 =item dist
 
@@ -285,7 +276,7 @@ executables on Unix-like platforms, and the C<Archive::Tar> module
 elsewhere.  However, you can force it to use whatever executable you
 want by supplying an explicit C<tar> (and optional C<gzip>) parameter:
 
- perl Build dist --tar C:\path\to\tar.exe --gzip C:\path\to\zip.exe
+  ./Build dist --tar C:\path\to\tar.exe --gzip C:\path\to\zip.exe
 
 =item distcheck
 
@@ -378,7 +369,7 @@ other versions of the stuff you're installing and try to delete it,
 you can use the C<uninst> parameter, which tells C<ExtUtils::Install> to
 do so:
 
- Build install uninst=1
+  ./Build install uninst=1
 
 This can be a good idea, as it helps prevent multiple versions of a
 module from being present on your system, which can be a confusing
@@ -398,13 +389,13 @@ in the F<MANIFEST>.
 The following is a reasonable F<MANIFEST.SKIP> starting point, you can
 add your own stuff to it:
 
-   ^_build
-   ^Build$
-   ^blib
-   ~$
-   \.bak$
-   ^MANIFEST\.SKIP$
-   CVS
+  ^_build
+  ^Build$
+  ^blib
+  ~$
+  \.bak$
+  ^MANIFEST\.SKIP$
+  CVS
 
 See the L<distcheck> and L<skipcheck> actions if you want to find out
 what the C<manifest> action would do, without actually doing anything.
@@ -429,7 +420,7 @@ any path information.
 
 Example:
 
- perl Build ppd codebase="MSWin32-x86-multi-thread/Module-Build-0.21.tar.gz"
+  ./Build ppd --codebase "MSWin32-x86-multi-thread/Module-Build-0.21.tar.gz"
 
 =item ppmdist
 
@@ -490,15 +481,15 @@ argument whose value is a whitespace-separated list of test scripts to
 run.  This is especially useful in development, when you only want to
 run a single test to see whether you've squashed a certain bug yet:
 
- ./Build test --test_files t/something_failing.t
+  ./Build test --test_files t/something_failing.t
 
 You may also pass several C<test_files> arguments separately:
 
- ./Build test --test_files t/one.t --test_files t/two.t
+  ./Build test --test_files t/one.t --test_files t/two.t
 
 or use a C<glob()>-style pattern:
 
- ./Build test --test_files 't/01-*.t'
+  ./Build test --test_files 't/01-*.t'
 
 =item testcover
 
@@ -533,17 +524,17 @@ use this action to install a module into the version-specific library
 trees.  This means that you can have several versions of the same
 module installed and C<use> a specific one like this:
 
- use only MyModule => 0.55;
+  use only MyModule => 0.55;
 
 To override the default installation libraries in C<only::config>,
 specify the C<versionlib> parameter when you run the C<Build.PL> script:
 
- perl Build.PL versionlib=/my/version/place/
+  perl Build.PL --versionlib /my/version/place/
 
 To override which version the module is installed as, specify the
 C<versionlib> parameter when you run the C<Build.PL> script:
 
- perl Build.PL version=0.50
+  perl Build.PL --version 0.50
 
 See the C<only.pm> documentation for more information on
 version-specific installs.
@@ -555,9 +546,10 @@ version-specific installs.
 
 =head2 Command Line Options
 
-The following options can be used during any invocation of Build.PL or
-the Build script, during any action.  For information on other options
-specific to an action, see the documentation for the respective action.
+The following options can be used during any invocation of C<Build.PL>
+or the Build script, during any action.  For information on other
+options specific to an action, see the documentation for the
+respective action.
 
 NOTE: There is some preliminary support for options to use the more
 familiar long option style.  Most options can be preceded with the
@@ -606,10 +598,10 @@ key C<*> (asterisk) denotes any global options that should be applied
 to all actions, and the key 'Build_PL' specifies options to be applied
 when you invoke C<perl Build.PL>.
 
- *        verbose=1   # global options
- diff     flags=-u
- install  install_base=/home/ken
-          --install_path html=/home/ken/docs/html
+  *        verbose=1   # global options
+  diff     flags=-u
+  install  --install_base /home/ken
+           --install_path html=/home/ken/docs/html
 
 If you wish to locate your resource file in a different location, you
 can set the environment variable 'MODULEBUILDRC' to the complete
@@ -689,30 +681,30 @@ parameter as follows:
 
                           'installdirs' set to:
                    core          site                vendor
- 
-              uses the following defaults from Config.pm:
- 
- lib     => installprivlib  installsitelib      installvendorlib
- arch    => installarchlib  installsitearch     installvendorarch
- script  => installscript   installsitebin      installvendorbin
- bin     => installbin      installsitebin      installvendorbin
- bindoc  => installman1dir  installsiteman1dir  installvendorman1dir
- libdoc  => installman3dir  installsiteman3dir  installvendorman3dir
- binhtml => installhtml1dir installsitehtml1dir installvendorhtml1dir [*]
- libhtml => installhtml3dir installsitehtml3dir installvendorhtml3dir [*]
 
- * Under some OS (eg. MSWin32) the destination for html documents is
-   determined by the C<Config.pm> entry C<installhtmldir>.
+              uses the following defaults from Config.pm:
+
+  lib     => installprivlib  installsitelib      installvendorlib
+  arch    => installarchlib  installsitearch     installvendorarch
+  script  => installscript   installsitebin      installvendorbin
+  bin     => installbin      installsitebin      installvendorbin
+  bindoc  => installman1dir  installsiteman1dir  installvendorman1dir
+  libdoc  => installman3dir  installsiteman3dir  installvendorman3dir
+  binhtml => installhtml1dir installsitehtml1dir installvendorhtml1dir [*]
+  libhtml => installhtml3dir installsitehtml3dir installvendorhtml3dir [*]
+
+  * Under some OS (eg. MSWin32) the destination for html documents is
+    determined by the C<Config.pm> entry C<installhtmldir>.
 
 The default value of C<installdirs> is "site".  If you're creating
 vendor distributions of module packages, you may want to do something
 like this:
 
- perl Build.PL installdirs=vendor
+  perl Build.PL --installdirs vendor
 
 or
 
- Build install installdirs=vendor
+  ./Build install --installdirs vendor
 
 If you're installing an updated version of a module that was included
 with perl itself (i.e. a "core module"), then you may set
@@ -728,21 +720,15 @@ appropriate entries, we'll start using those.)
 
 =item install_path
 
-Once the defaults have been set, you can override them.  You can set
-individual entries by using the C<install_path> parameter:
-
- my $m = Module::Build->new
-  (...other options...,
-   install_path => {lib  => '/foo/lib',
-                    arch => '/foo/lib/arch'});
+Once the defaults have been set, you can override them.
 
 On the command line, that would look like this:
 
- perl Build.PL --install_path lib=/foo/lib --install_path arch=/foo/lib/arch
+  perl Build.PL --install_path lib=/foo/lib --install_path arch=/foo/lib/arch
 
 or this:
 
- Build install --install_path lib=/foo/lib --install_path arch=/foo/lib/arch
+  ./Build install --install_path lib=/foo/lib --install_path arch=/foo/lib/arch
 
 =item install_base
 
@@ -751,14 +737,14 @@ C<install_base> parameter to point to a directory on your system.  For
 instance, if you set C<install_base> to "/home/ken" on a Linux
 system, you'll install as follows:
 
- lib     => /home/ken/lib/perl5
- arch    => /home/ken/lib/perl5/i386-linux
- script  => /home/ken/bin
- bin     => /home/ken/bin
- bindoc  => /home/ken/man/man1
- libdoc  => /home/ken/man/man3
- binhtml => /home/ken/html
- libhtml => /home/ken/html
+  lib     => /home/ken/lib/perl5
+  arch    => /home/ken/lib/perl5/i386-linux
+  script  => /home/ken/bin
+  bin     => /home/ken/bin
+  bindoc  => /home/ken/man/man1
+  libdoc  => /home/ken/man/man3
+  binhtml => /home/ken/html
+  libhtml => /home/ken/html
 
 Note that this is I<different> from how MakeMaker's C<PREFIX>
 parameter works.  See L</"Why PREFIX is not recommended"> for more
@@ -776,11 +762,11 @@ If you want to install everything into a temporary directory first
 manager like C<rpm> or C<dpkg> could create a package from), you can
 use the C<destdir> parameter:
 
- perl Build.PL destdir=/tmp/foo
+  perl Build.PL --destdir /tmp/foo
 
 or
 
- Build install destdir=/tmp/foo
+  ./Build install --destdir /tmp/foo
 
 This will effectively install to "/tmp/foo/$sitelib",
 "/tmp/foo/$sitearch", and the like, except that it will use
@@ -978,16 +964,16 @@ signature or the like, if available.  See C<cons> for an example.
 
 =head1 AUTHOR
 
-Ken Williams, kwilliams@cpan.org
+Ken Williams <kwilliams@cpan.org>
 
 Development questions, bug reports, and patches should be sent to the
-Module-Build mailing list at module-build-general@lists.sourceforge.net .
+Module-Build mailing list at <module-build-general@lists.sourceforge.net>.
 
 Bug reports are also welcome at
-http://rt.cpan.org/NoAuth/Bugs.html?Dist=Module-Build .
+<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Module-Build>.
 
 An anonymous CVS repository containing the latest development version
-is available; see http://sourceforge.net/cvs/?group_id=45731 for the
+is available; see <http://sourceforge.net/cvs/?group_id=45731> for the
 details of how to access it.
 
 
@@ -997,6 +983,7 @@ Copyright (c) 2001-2005 Ken Williams.  All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
+
 
 =head1 SEE ALSO
 

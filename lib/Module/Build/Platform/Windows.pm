@@ -141,9 +141,7 @@ L<Module::Build> for the docs.
 
 =head1 AUTHOR
 
-Ken Williams <ken@mathforum.org>
-
-Most of the code here was written by Randy W. Sims <RandyS@ThePierianSpring.org>.
+Ken Williams <ken@mathforum.org>, Randy W. Sims <RandyS@ThePierianSpring.org>
 
 =head1 SEE ALSO
 

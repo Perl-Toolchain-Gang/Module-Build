@@ -449,7 +449,7 @@ sub ACTION_config_data {
   
   my $module_name = $self->module_name
     or die "The config_data feature requires that 'module_name' be set";
-  my $notes_name = $module_name . '::ConfigData';
+  my $notes_name = $module_name . '::ConfigData'; # TODO: Customize name ???
   my $notes_pm = File::Spec->catfile($self->blib, 'lib', split /::/, "$notes_name.pm");
 
   return if $self->up_to_date([$self->config_file('config_data'), $self->config_file('features')], $notes_pm);
@@ -3736,7 +3736,7 @@ Please see the C<Module::Build> documentation for more details.
 
 =head1 AUTHOR
 
-Ken Williams, ken@mathforum.org
+Ken Williams <ken@mathforum.org>
 
 =head1 COPYRIGHT
 

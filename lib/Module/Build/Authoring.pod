@@ -12,11 +12,11 @@ following code will typically be used:
   my $build = Module::Build->new
     (
      module_name => 'Foo::Bar',
-     license => 'perl',
+     license  => 'perl',
      requires => {
-                  'perl'           => '5.6.1',
-                  'Some::Module'   => '1.23',
-                  'Other::Module'  => '>= 1.2, != 1.5, < 2.0',
+                  'perl'          => '5.6.1',
+                  'Some::Module'  => '1.23',
+                  'Other::Module' => '>= 1.2, != 1.5, < 2.0',
                  },
     );
   $build->create_build_script;
@@ -26,8 +26,8 @@ C<Build.PL> script:
 
   use Module::Build;
   Module::Build->new(
-     module_name => 'Foo::Bar',
-     license => 'perl',
+    module_name => 'Foo::Bar',
+    license     => 'perl',
   )->create_build_script;
 
 The model used by C<Module::Build> is a lot like the C<MakeMaker>
@@ -75,15 +75,15 @@ different parts of your build process.  For instance, you can ask
 the user a question during C<perl Build.PL>, then use their answer
 during a regression test:
 
- # In Build.PL:
- my $color = $build->prompt("What is your favorite color?");
- $build->notes(color => $color);
+  # In Build.PL:
+  my $color = $build->prompt("What is your favorite color?");
+  $build->notes(color => $color);
 
- # In t/colortest.t:
- use Module::Build;
- my $build = Module::Build->current;
- my $color = $build->notes('color');
- ...
+  # In t/colortest.t:
+  use Module::Build;
+  my $build = Module::Build->current;
+  my $color = $build->notes('color');
+  ...
 
 The way the C<current()> method is currently implemented, there may be
 slight differences between the C<$build> object in Build.PL and the
@@ -119,24 +119,22 @@ L<feature($name)>) automatically based on a set of prerequisites.  For
 instance, for a module that could optionally use either MySQL or
 PostgreSQL databases, you might use C<auto_features> like this:
 
-  my $b = Module::Build->new
+  my $build = Module::Build->new
     (
-     ... other stuff here...
-     auto_features =>
-       {
-        pg_support =>
-        {
-           description => "Interface with Postgres databases",
-           requires => { 'DBD::Pg' => 23.3, 
-	                 'DateTime::Format::Pg' => 0 },
-        },
-        mysql_support =>
-        {
-           description => "Interface with MySQL databases",
-           requires => { 'DBD::mysql' => 17.9, 
-	                 'DateTime::Format::MySQL' => 0},
-        },
-     );
+     ...other stuff here...
+     auto_features => {
+       pg_support    => {
+                         description => "Interface with Postgres databases",
+                         requires    => { 'DBD::Pg' => 23.3,
+                                          'DateTime::Format::Pg' => 0 },
+                        },
+       mysql_support => {
+                         description => "Interface with MySQL databases",
+                         requires    => { 'DBD::mysql' => 17.9,
+                                          'DateTime::Format::MySQL' => 0 },
+                        },
+     }
+    );
 
 For each feature named, the required prerequisites will be checked, and
 if there are no failures, the feature will be enabled (set to C<1>).
@@ -295,19 +293,21 @@ case they will be split into arrays) to pass through to the compiler
 and linker phases when compiling/linking C code.  For example, to tell
 the compiler that your code is C++, you might do:
 
- my build = Module::Build->new(
-     module_name          => 'Spangly',
+  my $build = Module::Build->new
+    (
+     module_name          => 'Foo::Bar',
      extra_compiler_flags => ['-x', 'c++'],
- );
+    );
 
 To link your XS code against glib you might write something like:
 
- my build = Module::Build->new(
-     module_name          => 'Spangly',
+  my $build = Module::Build->new
+    (
+     module_name          => 'Foo::Bar',
      dynamic_config       => 1,
      extra_compiler_flags => scalar `glib-config --cflags`,
      extra_linker_flags   => scalar `glib-config --libs`,
- );
+    );
 
 =item get_options
 
@@ -354,24 +354,25 @@ You can combine references to your own variables or subroutines with
 unreferenced specifications, for which the result will also be stored in the
 hash returned by C<args()>.  For example:
 
- my $loud = 0;
- my $build = Module::Build->new(
-     module_name => 'Spangly',
+  my $loud = 0;
+  my $build = Module::Build->new
+    (
+     module_name => 'Foo::Bar',
      get_options => {
-                      loud =>     { store => \$loud },
-                      dbd  =>     { type  => '=s'   },
-                      quantity => { type  => '+'    },
+                     loud =>     { store => \$loud },
+                     dbd  =>     { type  => '=s'   },
+                     quantity => { type  => '+'    },
                     }
- );
+    );
 
- print STDERR "HEY, ARE YOU LISTENING??\n" if $loud;
- print "We'll use the ", $build->args('dbd'), " DBI driver\n";
- print "Are you sure you want that many?\n"
-   if $build->args('quantity') > 2;
+  print STDERR "HEY, ARE YOU LISTENING??\n" if $loud;
+  print "We'll use the ", $build->args('dbd'), " DBI driver\n";
+  print "Are you sure you want that many?\n"
+    if $build->args('quantity') > 2;
 
 The arguments for such a specification can be called like so:
 
- % perl Build.PL --loud --dbd=DBD::pg --quantity --quantity --quantity
+  perl Build.PL --loud --dbd=DBD::pg --quantity --quantity --quantity
 
 B<WARNING:> Any option specifications that conflict with Module::Build's own
 options (defined by its properties) will throw an exception.
@@ -383,6 +384,20 @@ Consult the Getopt::Long documentation for details on its usage.
 Specifies any additional directories in which to search for C header
 files.  May be given as a string indicating a single directory, or as
 a list reference indicating multiple directories.
+
+=item install_path
+
+You can set paths for individual installable elements by using the
+C<install_path> parameter:
+
+  my $build = Module::Build->new
+    (
+     ...other stuff here...
+     install_path => {
+                      lib  => '/foo/lib',
+                      arch => '/foo/lib/arch',
+                     }
+    );
 
 =item installdirs
 
@@ -522,16 +537,26 @@ C<lib/Foo/Bar.pm.PL> might create the file C<lib/Foo/Bar.pm>.
 The files are specified with the C<.PL> files as hash keys, and the
 file(s) they generate as hash values, like so:
 
- my $build = Module::Build->new
-   ( module_name => 'Foo::Bar',
+  my $build = Module::Build->new
+    (
+     module_name => 'Foo::Bar',
      ...
-     PL_files => { 'lib/Bar.pm.PL' => 'lib/Bar.pm',
-                   'lib/Foo.PL' => [ 'lib/Foo1.pm', 'lib/Foo2.pm' ],
-                 },
-   );
+     PL_files => { 'lib/Foo/Bar.pm.PL' => 'lib/Foo/Bar.pm' },
+    );
 
 Note that the path specifications are I<always> given in Unix-like
 format, not in the style of the local system.
+
+If your C<.PL> scripts don't create any files, or if they create files
+with unexpected names, or even if they create multiple files, you can
+indicate that so that Module::Build can properly handle these created
+files:
+
+  PL_files => {
+               'lib/Foo/Bar.pm.PL' => 'lib/Foo/Bar.pm',
+               'lib/something.PL'  => ['/lib/something', '/lib/else'],
+               'lib/funny.PL'      => [],
+              }
 
 =item pm_files
 
@@ -547,11 +572,12 @@ module called C<Foo::Bar> and a F<Bar.pm> file at the top level of the
 distribution, you could specify your layout in your C<Build.PL> like
 this:
 
- my $build = Module::Build->new
-   ( module_name => 'Foo::Bar',
+  my $build = Module::Build->new
+    (
+     module_name => 'Foo::Bar',
      ...
      pm_files => { 'Bar.pm' => 'lib/Foo/Bar.pm' },
-   );
+    );
 
 Note that the values should include C<lib/>, because this is where
 they would be found in a "normal" Module::Build-style distribution.
@@ -766,12 +792,12 @@ above.  This allows very fine-grained version checking.
 
 The returned hash reference has the following structure:
 
- {
-  ok => $whether_the_dependency_is_satisfied,
-  have => $version_already_installed,
-  need => $version_requested, # Same as incoming $version argument
-  message => $informative_error_message,
- }
+  {
+   ok => $whether_the_dependency_is_satisfied,
+   have => $version_already_installed,
+   need => $version_requested, # Same as incoming $version argument
+   message => $informative_error_message,
+  }
 
 If no version of C<$module> is currently installed, the C<have> value
 will be the string C<< "<none>" >>.  Otherwise the C<have> value will
@@ -795,12 +821,12 @@ If the check succeeds, the return value is the actual version of
 C<$module> installed on the system.  This allows you to do the
 following:
 
- my $installed = $m->check_installed_version('DBI', '1.15');
- if ($installed) {
-   print "Congratulations, version $installed of DBI is installed.\n";
- } else {
-   die "Sorry, you must install DBI.\n";
- }
+  my $installed = $build->check_installed_version('DBI', '1.15');
+  if ($installed) {
+    print "Congratulations, version $installed of DBI is installed.\n";
+  } else {
+    die "Sorry, you must install DBI.\n";
+  }
 
 If the check fails, we return false and set C<$@> to an informative
 error message.
@@ -941,7 +967,7 @@ action at the command line, passing in a list of options.
 Custom options that have not been registered must be passed in as a
 hash reference in a key named "args":
 
- $mb->dispatch('foo', verbose => 1, args => { my_option => 'value' });
+  $build->dispatch('foo', verbose => 1, args => { my_option => 'value' });
 
 This method is intended to be used to programmatically invoke build
 actions, e.g. by applications controlling Module::Build-based builds
@@ -1131,19 +1157,19 @@ are hash references whose keys are the names of required (or
 conflicting) modules.  The associated values of those are hash
 references indicating some information about the failure.  For example:
 
- {
-  have => '0.42',
-  need => '0.59',
-  message => 'Version 0.42 is installed, but we need version 0.59',
- }
+  {
+   have => '0.42',
+   need => '0.59',
+   message => 'Version 0.42 is installed, but we need version 0.59',
+  }
 
 or
 
- {
-  have => '<none>',
-  need => '0.59',
-  message => 'Prerequisite Foo isn't installed',
- }
+  {
+   have => '<none>',
+   need => '0.59',
+   message => 'Prerequisite Foo isn't installed',
+  }
 
 This hash has the same structure as the hash returned by the
 C<check_installed_status()> method, except that in the case of
@@ -1153,13 +1179,13 @@ construct a proper message.
 Examples:
 
   # Check a required dependency on Foo::Bar
-  if ( $m->prereq_failures->{requires}{Foo::Bar} ) { ...
+  if ( $build->prereq_failures->{requires}{Foo::Bar} ) { ...
 
   # Check whether there were any failures
-  if ( $m->prereq_failures ) { ...
+  if ( $build->prereq_failures ) { ...
 
   # Show messages for all failures
-  my $failures = $m->prereq_failures;
+  my $failures = $build->prereq_failures;
   while (my ($type, $list) = each %$failures) {
     while (my ($name, $hash) = each %$list) {
       print "Failure for $name: $hash->{message}\n";
@@ -1278,10 +1304,12 @@ required during the Build process.
 The prerequisites are given in a hash reference, where the keys are
 the module names and the values are version specifiers:
 
- requires => {Foo::Module => '2.4',
-              Bar::Module => 0,
-              Ken::Module => '>= 1.2, != 1.5, < 2.0',
-              perl => '5.6.0'},
+  requires => {
+               Foo::Module => '2.4',
+               Bar::Module => 0,
+               Ken::Module => '>= 1.2, != 1.5, < 2.0',
+               perl => '5.6.0'
+              },
 
 These four version specifiers have different effects.  The value
 C<'2.4'> means that B<at least> version 2.4 of C<Foo::Module> must be
@@ -1321,20 +1349,20 @@ methods, you can invoke these methods directly if you want to install
 a module non-interactively.  For instance, the following Perl script
 will invoke the entire build/install procedure:
 
- my $m = Module::Build->new(module_name => 'MyModule');
- $m->dispatch('build');
- $m->dispatch('test');
- $m->dispatch('install');
+  my $build = Module::Build->new(module_name => 'MyModule');
+  $build->dispatch('build');
+  $build->dispatch('test');
+  $build->dispatch('install');
 
 If any of these steps encounters an error, it will throw a fatal
 exception.
 
 You can also pass arguments as part of the build process:
 
- my $m = Module::Build->new(module_name => 'MyModule');
- $m->dispatch('build');
- $m->dispatch('test', verbose => 1);
- $m->dispatch('install', sitelib => '/my/secret/place/');
+  my $build = Module::Build->new(module_name => 'MyModule');
+  $build->dispatch('build');
+  $build->dispatch('test', verbose => 1);
+  $build->dispatch('install', sitelib => '/my/secret/place/');
 
 Building and installing modules in this way skips creating the
 C<Build> script.
@@ -1374,16 +1402,18 @@ Module::Build directly:
 
   ------ in Build.PL: ----------
   #!/usr/bin/perl
-  
-  use lib qw(/nonstandard/library/path);
+
+  use lib q(/nonstandard/library/path);
   use My::Builder;  # Or whatever you want to call it
-  
-  my $m = My::Builder->new
-    (module_name=> 'Next::Big::Thing',  # All the regular args...
-     license=> 'perl',
-     dist_author=> 'A N Other <me@here.net.au>',
-     requires=> {Carp => 0});
-  $m->create_build_script;
+
+  my $build = My::Builder->new
+    (
+     module_name => 'Foo::Bar',  # All the regular args...
+     license     => 'perl',
+     dist_author => 'A N Other <me@here.net.au>',
+     requires    => { Carp => 0 }
+    );
+  $build->create_build_script;
 
 This is relatively straightforward, and is the best way to do things
 if your My::Builder class contains lots of code.  The
@@ -1398,24 +1428,26 @@ creating a separate file for your module:
 
   ------ in Build.PL: ----------
   #!/usr/bin/perl
-  
+
   use Module::Build;
   my $class = Module::Build->subclass
     (
      class => 'My::Builder',
      code => q{
-      sub ACTION_foo {
-        print "I'm fooing to death!\n";
-      }
+       sub ACTION_foo {
+         print "I'm fooing to death!\n";
+       }
      },
     );
-  
-  my $m = $class->new
-    (module_name=> 'Next::Big::Thing',  # All the regular args...
-     license=> 'perl',
-     dist_author=> 'A N Other <me@here.net.au>',
-     requires=> {Carp => 0});
-  $m->create_build_script;
+
+  my $build = $class->new
+    (
+     module_name => 'Foo::Bar',  # All the regular args...
+     license     => 'perl',
+     dist_author => 'A N Other <me@here.net.au>',
+     requires    => { Carp => 0 }
+    );
+  $build->create_build_script;
 
 Behind the scenes, this actually does create a C<.pm> file, since the
 code you provide must persist after Build.PL is run if it is to be
@@ -1446,7 +1478,7 @@ F<Build.PL> for your distribution, you probably want to add the
 following to C<WriteMakefile> in your F<Makefile.PL> so that MakeMaker
 doesn't try to run your F<Build.PL> as a normal F<.PL> file:
 
- PL_FILES => {},
+  PL_FILES => {},
 
 You may also be interested in looking at the C<Module::Build::Compat>
 module, which can automatically create various kinds of F<Makefile.PL>

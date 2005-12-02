@@ -85,7 +85,6 @@ sub command {
   }
 }
 
-
 sub textblock {
   my ($self, $text) = @_;
   $text =~ s/^\s+//;

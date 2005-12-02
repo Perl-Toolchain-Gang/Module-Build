@@ -1,8 +1,10 @@
 package Module::Build::Cookbook;
 
+
 =head1 NAME
 
 Module::Build::Cookbook - Examples of Module::Build Usage
+
 
 =head1 DESCRIPTION
 
@@ -15,17 +17,19 @@ Authors" presentation at YAPC 2003, when he said, straightforwardly,
 The definitional of how stuff works is in the main C<Module::Build>
 documentation.  It's best to get familiar with that too.
 
+
 =head1 BASIC RECIPES
+
 
 =head2 The basic installation recipe for modules that use Module::Build
 
 In most cases, you can just issue the following commands from your
 shell:
 
- perl Build.PL
- Build
- Build test
- Build install
+  perl Build.PL
+  Build
+  Build test
+  Build install
 
 There's nothing complicated here - first you're running a script
 called F<Build.PL>, then you're running a (newly-generated) script
@@ -37,10 +41,10 @@ scripts on your system.  For instance, if you have multiple versions
 of perl installed, you can install to one particular perl's library
 directories like so:
 
- /usr/bin/perl5.8.1 Build.PL
- Build
- Build test
- Build install
+  /usr/bin/perl5.8.1 Build.PL
+  Build
+  Build test
+  Build install
 
 The F<Build> script knows what perl was used to run C<Build.PL>, so
 you don't need to re-invoke the F<Build> script with the complete perl
@@ -50,10 +54,11 @@ get a warning.
 If the current directory (usually called '.') isn't in your path, you
 can do C<./Build> or C<perl Build> to run the script:
 
- /usr/bin/perl Build.PL
- ./Build
- ./Build test
- ./Build install
+  /usr/bin/perl Build.PL
+  ./Build
+  ./Build test
+  ./Build install
+
 
 =head2 Making a CPAN.pm-compatible distribution
 
@@ -62,17 +67,18 @@ but old versions don't.  If you want to help users who have old
 versions, do the following:
 
 Create a file in your distribution named F<Makefile.PL>, with the
-following contents:  
+following contents:
 
- use Module::Build::Compat;
- Module::Build::Compat->run_build_pl(args => \@ARGV);
- Module::Build::Compat->write_makefile();
+  use Module::Build::Compat;
+  Module::Build::Compat->run_build_pl(args => \@ARGV);
+  Module::Build::Compat->write_makefile();
 
 Now CPAN will work as usual, i.e.: `perl Makefile.PL`, `make`, `make test`,
 and `make install`.
 
 Alternatively, see the C<create_makefile_pl> parameter to the C<<
 Module::Build->new() >> method.
+
 
 =head2 Installing modules using the programmatic interface
 
@@ -83,20 +89,22 @@ Create a Module::Build object (or an object of a custom Module::Build
 subclass) and then invoke its C<dispatch()> method to run various
 actions.
 
- my $b = Module::Build->new(
-   module_name => 'Foo::Bar',
-   license => 'perl',
-   requires => { 'Some::Module'   => '1.23' },
- );
- $b->dispatch('build');
- $b->dispatch('test', verbose => 1);
- $b->dispatch('install');
+  my $build = Module::Build->new
+    (
+     module_name => 'Foo::Bar',
+     license     => 'perl',
+     requires    => { 'Some::Module'   => '1.23' },
+    );
+  $build->dispatch('build');
+  $build->dispatch('test', verbose => 1);
+  $build->dispatch('install');
 
 The first argument to C<dispatch()> is the name of the action, and any
 following arguments are named parameters.
 
 This is the interface we use to test Module::Build itself in the
 regression tests.
+
 
 =head2 Installing to a temporary directory
 
@@ -105,7 +113,8 @@ Debian's C<deb>, you may need to install to a temporary directory
 first and then create the package from that temporary installation.
 To do this, specify the C<destdir> parameter to the C<install> action:
 
- Build install destdir=/tmp/my-package-1.003
+  ./Build install --destdir /tmp/my-package-1.003
+
 
 =head2 Running a single test file
 
@@ -128,16 +137,17 @@ So then I can just execute C<t t/mytest.t> to run a single test.
 
 =head1 ADVANCED RECIPES
 
+
 =head2 Changing the order of the build process
 
 The C<build_elements> property specifies the steps C<Module::Build>
 will take when building a distribution.  To change the build order,
 change the order of the entries in that property:
 
- # Process pod files first
- my @e = @{$build->build_elements};
- my $i = grep {$e[$_] eq 'pod'} 0..$#e;
- unshift @e, splice @e, $i, 1;
+  # Process pod files first
+  my @e = @{$build->build_elements};
+  my $i = grep {$e[$_] eq 'pod'} 0..$#e;
+  unshift @e, splice @e, $i, 1;
 
 Currently, C<build_elements> has the following default value:
 
@@ -146,6 +156,7 @@ Currently, C<build_elements> has the following default value:
 Do take care when altering this property, since there may be
 non-obvious (and non-documented!) ordering dependencies in the
 C<Module::Build> code.
+
 
 =head2 Dealing with more than one perl installation
 
@@ -175,18 +186,18 @@ so:
 
 Sometimes you might have extra types of files that you want to install
 alongside the standard types like F<.pm> and F<.pod> files.  For
-instance, you might have a F<Foo.dat> file containing some data
-related to the C<Boo::Baz> module.  Assuming the data doesn't need to
+instance, you might have a F<Bar.dat> file containing some data
+related to the C<Foo::Bar> module.  Assuming the data doesn't need to
 be created on the fly, the best place for it to end up is probably as
-F<Boo/Baz/Foo.dat> somewhere in perl's C<@INC> path so C<Boo::Baz> can
+F<Foo/Bar.dat> somewhere in perl's C<@INC> path so C<Foo::Bar> can
 access it easily at runtime.  The following code from a sample
 C<Build.PL> file demonstrates how to accomplish this:
 
   use Module::Build;
-  my $build = new Module::Build
+  my $build = Module::Build->new
     (
-     module_name => 'Boo::Baz',
-     ...
+     module_name => 'Foo::Bar',
+     ...other stuff here...
     );
   $build->add_build_element('dat');
   $build->create_build_script;
@@ -202,9 +213,9 @@ files:
   use Module::Build;
   my $build = new Module::Build
     (
-     module_name => 'Boo::Baz',
-     dat_files => {'some/dir/Foo.dat' => 'lib/Boo/Baz/Foo.dat'},
-     ...
+     module_name => 'Foo::Bar',
+     dat_files => {'some/dir/Bar.dat' => 'lib/Foo/Bar.dat'},
+     ...other stuff here...
     );
   $build->add_build_element('dat');
   $build->create_build_script;
@@ -224,8 +235,8 @@ C<process_${kind}_files()>:
   EOF
   my $build = $class->new
     (
-     module_name => 'Boo::Baz',
-     ...
+     module_name => 'Foo::Bar',
+     ...other stuff here...
     );
   $build->add_build_element('dat');
   $build->create_build_script;
@@ -237,6 +248,7 @@ get them installed.
 Please note that these examples use some capabilities of Module::Build
 that first appeared in version 0.26.  Before that it could certainly
 still be done, but the simple cases took a bit more work.
+
 
 =head2 Adding new elements to the install process
 
@@ -252,14 +264,15 @@ then you need to tell Module::Build where things in F<blib/conf/>
 should be installed.  To do this, use the C<install_path> parameter to
 the C<new()> method:
 
-  my $b = Module::Build->new
-   (...
-    install_path => { conf => $installation_path }
-   );
+  my $build = Module::Build->new
+    (
+     ...other stuff here...
+     install_path => { conf => $installation_path }
+    );
 
 Or you can call the C<install_path()> method later:
 
-  $b->install_path->{conf} || $installation_path;
+  $build->install_path->{conf} || $installation_path;
 
 (Sneakily, or perhaps uglily, C<install_path()> returns a reference to
 a hash of install paths, and you can modify that hash to your heart's
@@ -276,10 +289,12 @@ installed.
 See also L<"Adding new file types to the build process"> for how to
 create the stuff in F<blib/conf/> in the first place.
 
+
 =head1 EXAMPLES ON CPAN
 
 Several distributions on CPAN are making good use of various features
 of Module::Build.  They can serve as real-world examples for others.
+
 
 =head2 SVN-Notify-Mirror
 
@@ -311,7 +326,8 @@ was very easy to do with M::B.
 
 =head1 AUTHOR
 
-Ken Williams, ken@mathforum.org
+Ken Williams <ken@mathforum.org>
+
 
 =head1 COPYRIGHT
 
@@ -319,6 +335,7 @@ Copyright (c) 2001-2005 Ken Williams.  All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
+
 
 =head1 SEE ALSO
 
