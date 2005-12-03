@@ -21,7 +21,7 @@ C<Module::Build::Base>.  Please see the L<Module::Build> for the docs.
 
 =head1 AUTHOR
 
-Ken Williams <ken@mathforum.org>
+Ken Williams <ken@cpan.org>
 
 =head1 SEE ALSO
 

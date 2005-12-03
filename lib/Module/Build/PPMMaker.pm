@@ -173,7 +173,7 @@ L<http://aspn.activestate.com/ASPN/Downloads/ActivePerl/PPM/>
 
 =head1 AUTHOR
 
-Dave Rolsky <autarch@urth.org>, Ken Williams <ken@mathforum.org>
+Dave Rolsky <autarch@urth.org>, Ken Williams <ken@cpan.org>
 
 
 =head1 COPYRIGHT

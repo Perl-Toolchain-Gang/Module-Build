@@ -432,7 +432,7 @@ versions of tools like CPAN and CPANPLUS.
 
 =head1 AUTHOR
 
-Ken Williams <ken@mathforum.org>
+Ken Williams <ken@cpan.org>
 
 
 =head1 COPYRIGHT

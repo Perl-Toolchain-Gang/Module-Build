@@ -123,7 +123,7 @@ sub _prefixify {
 
 =head1 AUTHOR
 
-Michael G Schwern <schwern@pobox.com>, Ken Williams <ken@mathforum.org>
+Michael G Schwern <schwern@pobox.com>, Ken Williams <ken@cpan.org>
 
 =head1 SEE ALSO
 
