@@ -1094,6 +1094,26 @@ before the F<Build> script chdir()-ed into the C<base_dir>.  This
 might be useful for writing wrapper tools that might need to chdir()
 back out.
 
+=item rscan_dir($dir, $pattern)
+
+Uses C<File::Find> to traverse the directory C<$dir>, returning a
+reference to an array of entries matching C<$pattern>.  C<$pattern>
+may either be a regular expression (using C<qr//> or just a plain
+string), or a reference to a subroutine that will return true for
+wanted entries.  If C<$pattern> is not given, all entries will be
+returned.
+
+Examples:
+
+ # All the *.pm files in lib/
+ $m->rscan_dir('lib', qr/\.pm$/)
+ 
+ # All the files in blib/ that aren't *.html files
+ $m->rscan_dir('blib', sub {-f $_ and not /\.html$/});
+
+ # All the files in t/
+ $m->rscan_dir('t');
+
 =item runtime_params()
 
 =item runtime_params($key)
