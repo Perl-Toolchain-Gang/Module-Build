@@ -61,7 +61,7 @@ is $@, '';
 
   like stdout_of( sub {$mb->run_perl_command([
        '-Mblib', '-M'.$dist->name,
-       '-we', "print @{[$dist->name]}::ok()"])}), qr/ok$/;
+       '-we', "print @{[$dist->name]}::okay()"])}), qr/ok$/;
 
   like stdout_of( sub {$mb->run_perl_command([
        '-Mblib', '-M'.$dist->name,
@@ -172,7 +172,7 @@ $dist->add_file('Simple.xs', <<"---");
 MODULE = Simple         PACKAGE = Simple
 
 SV *
-ok()
+okay()
     CODE:
         RETVAL = newSVpv( "ok", 0 );
     OUTPUT:
@@ -182,11 +182,13 @@ ok()
 $dist->add_file( 'Simple.pm', <<"---" );
 package Simple;
 
-use base qw( Exporter DynaLoader );
-
-use vars qw( \$VERSION \@EXPORT_OK );
 \$VERSION = '0.01';
-\@EXPORT_OK = qw( ok );
+
+require Exporter;
+require DynaLoader;
+
+\@ISA = qw( Exporter DynaLoader );
+\@EXPORT_OK = qw( okay );
 
 bootstrap Simple \$VERSION;
 
@@ -215,7 +217,7 @@ use strict;
 use Simple;
 ok( 1 );
 
-ok( Simple::ok() eq 'ok' );
+ok( Simple::okay() eq 'ok' );
 ---
 
 $dist->regen;
