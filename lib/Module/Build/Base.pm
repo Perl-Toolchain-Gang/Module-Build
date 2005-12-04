@@ -2229,7 +2229,7 @@ sub _write_minimal_metadata {
 name: $p->{dist_name}
 version: $p->{dist_version}
 author:
-@{[ join "\n", map "  - $_", @{$self->dist_author} ]}
+@{[ join "\n", map "  - $_", @{$self->dist_author || []} ]}
 abstract: @{[ $self->dist_abstract ]}
 license: $p->{license}
 generated_by: Module::Build version $Module::Build::VERSION, without YAML.pm

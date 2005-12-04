@@ -6,6 +6,10 @@ Revision history for Perl extension Module::Build.
    directory when checking for a C compiler, because sometimes the
    latter doesn't exist (yet). [Jerry D. Hedden]
 
+ - Under certain conditions we could croak when creating the META.yml
+   and no author could be determined for this distribution - this has
+   now been fixed.
+
 0.2611  Mon Jun 13 22:22:53 CDT 2005
 
  - Fix the output of an informational message that we output when
