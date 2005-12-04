@@ -404,19 +404,28 @@ sub features     {
 
   if (@_) {
     my $key = shift;
-    if ($ph->{features}->exists($key)) { return $ph->{features}->access($key, @_) }
+    if ($ph->{features}->exists($key)) {
+      return $ph->{features}->access($key, @_);
+    }
 
     if (my $info = $ph->{auto_features}->access($key)) {
-      return not $self->prereq_failures($info);
+      my $failures = $self->prereq_failures($info);
+      my $disabled = grep( /^(?:\w+_)?(?:requires|conflicts)$/,
+			   keys %$failures ) ? 1 : 0;
+      return !$disabled;
     }
+
     return $ph->{features}->access($key, @_);
   }
-  
+
   # No args - get the auto_features & overlay the regular features
   my %features;
   my %auto_features = $ph->{auto_features}->access();
   while (my ($name, $info) = each %auto_features) {
-    $features{$name} = not $self->prereq_failures($info);
+    my $failures = $self->prereq_failures($info);
+    my $disabled = grep( /^(?:\w+_)?(?:requires|conflicts)$/,
+			 keys %$failures ) ? 1 : 0;
+    $features{$name} = $disabled ? 0 : 1;
   }
   %features = (%features, $ph->{features}->access());
 
@@ -452,7 +461,10 @@ sub ACTION_config_data {
   my $notes_name = $module_name . '::ConfigData'; # TODO: Customize name ???
   my $notes_pm = File::Spec->catfile($self->blib, 'lib', split /::/, "$notes_name.pm");
 
-  return if $self->up_to_date([$self->config_file('config_data'), $self->config_file('features')], $notes_pm);
+  return if $self->up_to_date(['Build.PL',
+			       $self->config_file('config_data'),
+			       $self->config_file('features')
+			      ], $notes_pm);
 
   $self->log_info("Writing config notes to $notes_pm\n");
   File::Path::mkpath(File::Basename::dirname($notes_pm));
@@ -887,11 +899,16 @@ sub check_autofeatures {
     $self->log_info("  $name" . '.' x ($max_name_len - length($name) + 4));
 
     if ( my $failures = $self->prereq_failures($info) ) {
-      $self->log_info("disabled\n");
+      my $disabled = grep( /^(?:\w+_)?(?:requires|conflicts)$/,
+			   keys %$failures ) ? 1 : 0;
+      $self->log_info( $disabled ? "disabled\n" : "enabled\n" );
+
       my $log_text;
-      foreach my $type ( grep $failures->{$_}, @{$self->prereq_action_types} ) {
-	while (my ($module, $status) = each %{$failures->{$type}}) {
-	  my $prefix = ($type =~ /^(?:\w+_)?recommends$/) ? '*' : '-';
+      while (my ($type, $prereqs) = each %$failures) {
+	while (my ($module, $status) = each %$prereqs) {
+	  my $required =
+	    ($type =~ /^(?:\w+_)?(?:requires|conflicts)$/) ? 1 : 0;
+	  my $prefix = ($required) ? '-' : '*';
 	  $log_text .= "    $prefix $status->{message}\n";
 	}
       }
@@ -962,18 +979,18 @@ sub check_prereq {
   }
 
   # Check to see if there are any prereqs to check
-  my $prereqs = $self->_enum_prereqs;
-  return 1 unless $prereqs;
+  my $info = $self->_enum_prereqs;
+  return 1 unless $info;
 
   $self->log_info("Checking prerequisites...\n");
 
-  my $failures = $self->prereq_failures($prereqs);
+  my $failures = $self->prereq_failures($info);
 
   if ( $failures ) {
 
-    foreach my $fail ( sort keys( %$failures ) ) {
-      while (my ($module, $status) = each %{$failures->{$fail}}) {
-	my $prefix = ($fail =~ /^(?:\w+_)?recommends$/) ? '*' : '- ERROR:';
+    while (my ($type, $prereqs) = each %$failures) {
+      while (my ($module, $status) = each %$prereqs) {
+	my $prefix = ($type =~ /^(?:\w+_)?recommends$/) ? '*' : '- ERROR:';
 	$self->log_warn(" $prefix $status->{message}\n");
       }
     }
