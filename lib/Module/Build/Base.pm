@@ -1178,11 +1178,14 @@ $shebang
 
 use strict;
 use Cwd;
+use File::Basename;
 use File::Spec;
 
+my \$progname;
 my \$orig_dir;
 BEGIN {
   \$^W = 1;  # Use warnings
+  \$progname = basename(\$0);
   \$orig_dir = Cwd::cwd();
   my \$base_dir = '$q{base_dir}';
   unless (chdir(\$base_dir)) {
@@ -1200,7 +1203,7 @@ use $build_package;
 \$^X = Module::Build->find_perl_interpreter
   unless File::Spec->file_name_is_absolute(\$^X);
 
-if (-e 'Build.PL' and not $build_package->up_to_date("Build.PL", \$0)) {
+if (-e 'Build.PL' and not $build_package->up_to_date('Build.PL', \$progname)) {
    warn "Warning: Build.PL has been altered.  You may need to run 'perl Build.PL' again.\\n";
 }
 
