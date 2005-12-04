@@ -69,20 +69,6 @@ Simple Simon <simon@simple.sim>
 =cut
 ---
 
-sub _slurp {
-    my $filename = shift;
-    die "$filename doesn't exist. Aborting" if not -e $filename;
-
-    use IO::File;
-    my $fh = IO::File->new( "< $filename" )
-        or die "Couldn't open $filename: $!. Aborting.";
-    local $/;
-    my $content = <$fh>;
-    $fh->close;
-    return $content;
-}
-
-
 my $dist = DistGen->new( dir => $tmp );
 
 $dist->change_file( 'Build.PL', <<"---" );
@@ -112,7 +98,7 @@ $dist->regen( clean => 1 );
 ok( -e "lib/Simple.pm", "Creating Simple.pm" );
 my $mb = Module::Build->new_from_context;
 $mb->do_create_readme;
-like( _slurp("README"), qr/NAME/, 
+like( slurp("README"), qr/NAME/, 
     "Generating README from .pm");
 is( $mb->dist_author->[0], 'Simple Simon <simon@simple.sim>', 
     "Extracting AUTHOR from .pm");
@@ -133,7 +119,7 @@ ok( -e "lib/Simple.pm", "Creating Simple.pm" );
 ok( -e "lib/Simple.pod", "Creating Simple.pod" );
 $mb = Module::Build->new_from_context;
 $mb->do_create_readme;
-like( _slurp("README"), qr/NAME/, "Generating README from .pod");
+like( slurp("README"), qr/NAME/, "Generating README from .pod");
 is( $mb->dist_author->[0], 'Simple Simon <simon@simple.sim>', 
     "Extracting AUTHOR from .pod");
 is( $mb->dist_abstract, "A simple module", 
@@ -158,10 +144,10 @@ ok( -e "lib/Simple.pm", "Creating Simple.pm" );
 ok( -e "lib/Simple.pod", "Creating Simple.pod" );
 $mb = Module::Build->new_from_context;
 $mb->do_create_readme;
-like( _slurp("README"), qr/NAME/, "Generating README from .pod over .pm");
-is( $mb->dist_author->[0], 'Simple Simon <simon@simple.sim>', 
+like( slurp("README"), qr/NAME/, "Generating README from .pod over .pm");
+is( $mb->dist_author->[0], 'Simple Simon <simon@simple.sim>',
     "Extracting AUTHOR from .pod over .pm");
-is( $mb->dist_abstract, "A simple module", 
+is( $mb->dist_abstract, "A simple module",
     "Extracting abstract from .pod over .pm");
 
 
