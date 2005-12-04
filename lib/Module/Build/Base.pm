@@ -2326,11 +2326,12 @@ sub htmlify_pods {
                 "--outfile=$outfile",
                 '--podroot=' . $self->blib,
                 "--htmlroot=$htmlroot",
-                eval {Pod::Html->VERSION(1.03); 1} ?
-		  ('--header', '--backlink=Back to Top') : (),
                );
 
-    push( @opts, "--css=$path2root/". $self->html_css ) if $self->html_css;
+    if ( eval{Pod::Html->VERSION(1.03)} ) {
+      push( @opts, ('--header', '--backlink=Back to Top') );
+      push( @opts, "--css=$path2root/" . $self->html_css) if $self->html_css;
+    }
 
     $self->log_info("HTMLifying $infile -> $outfile\n");
     $self->log_verbose("pod2html @opts\n");
