@@ -13,11 +13,15 @@ require $common_pl;
 
 use Module::Build;
 
-{ # Copied mostly verbatim from t/xs.t; should probably cache in t/common.pl
-  local $SIG{__WARN__} = sub {};
+my( $manpage_support, $HTML_support );
+
+{ local $SIG{__WARN__} = sub {};
 
   my $mb = Module::Build->current;
   $mb->verbose( 0 );
+
+  $manpage_support = $mb->feature('manpage_support');
+  $HTML_support    = $mb->feature('HTML_support');
 
   my $have_c_compiler;
   stderr_of( sub {$have_c_compiler = $mb->have_c_compiler} );
@@ -27,7 +31,9 @@ use Module::Build;
   } elsif ( ! $have_c_compiler ) {
     plan skip_all => 'C_support enabled, but no compiler found';
   } elsif ( ! eval {require Archive::Tar} ) {
-    plan skip_all => "Archive::Tar not installed; can't test archives.";
+    plan skip_all => "Archive::Tar not installed to read archives.";
+  } elsif ( ! eval {IO::Zlib->VERSION(1.01)} ) {
+    plan skip_all => "IO::Zlib 1.01 required to read compressed archives.";
   } else {
     plan tests => 12;
   }
@@ -82,10 +88,13 @@ my $mb = Module::Build->new_from_context(
 
   installdirs => 'site',
   config => {
-    installsiteman1dir  => catdir($tmp, 'site', 'man', 'man1'),
-    installsiteman3dir  => catdir($tmp, 'site', 'man', 'man3'),
-    installsitehtml1dir => catdir($tmp, 'site', 'html'),
-    installsitehtml3dir => catdir($tmp, 'site', 'html'),
+    manpage_reset(), html_reset(),
+    ( $manpage_support ?
+      ( installsiteman1dir  => catdir($tmp, 'site', 'man', 'man1'),
+        installsiteman3dir  => catdir($tmp, 'site', 'man', 'man3') ) : () ),
+    ( $HTML_support ?
+      ( installsitehtml1dir => catdir($tmp, 'site', 'html'),
+        installsitehtml3dir => catdir($tmp, 'site', 'html') ) : () ),
   },
 );
 
@@ -126,13 +135,25 @@ my $tar = Archive::Tar->new;
 my $tarfile = $mb->ppm_name . '.tar.gz';
 $tar->read( $tarfile, 1 );
 
-ok $tar->contains_file('blib/arch/auto/Simple/Simple.' . $mb->config('dlext'));
-ok $tar->contains_file('blib/lib/Simple.pm');
-ok $tar->contains_file('blib/script/hello');
-ok $tar->contains_file('blib/man3/Simple.' . $mb->config('man3ext'));
-ok $tar->contains_file('blib/man1/hello.' . $mb->config('man1ext'));
-ok $tar->contains_file('blib/html/site/lib/Simple.html');
-ok $tar->contains_file('blib/html/bin/hello.html');
+my $files = { map { $_ => 1 } $tar->list_files };
+
+exists_ok($files, 'blib/arch/auto/Simple/Simple.' . $mb->config('dlext'));
+exists_ok($files, 'blib/lib/Simple.pm');
+exists_ok($files, 'blib/script/hello');
+
+SKIP: {
+  skip( "manpage_support not enabled.", 2 ) unless $manpage_support;
+
+  exists_ok($files, 'blib/man3/Simple.' . $mb->config('man3ext'));
+  exists_ok($files, 'blib/man1/hello.' . $mb->config('man1ext'));
+}
+
+SKIP: {
+  skip( "HTML_support not enabled.", 2 ) unless $HTML_support;
+
+  exists_ok($files, 'blib/html/site/lib/Simple.html');
+  exists_ok($files, 'blib/html/bin/hello.html');
+}
 
 $tar->clear;
 undef( $tar );
@@ -141,33 +162,39 @@ $mb->dispatch('realclean');
 $dist->clean;
 
 
-# Make sure html documents are generated for the ppm distro even when
-# they would not be built during a normal build.
-$mb = Module::Build->new_from_context(
-  verbose => 0,
-  quiet   => 1,
+SKIP: {
+  skip( "HTML_support not enabled.", 3 ) unless $HTML_support;
 
-  installdirs => 'site',
-  config => {
-    html_reset(),
-    installsiteman1dir  => catdir($tmp, 'site', 'man', 'man1'),
-    installsiteman3dir  => catdir($tmp, 'site', 'man', 'man3'),
-  },
-);
+  # Make sure html documents are generated for the ppm distro even when
+  # they would not be built during a normal build.
+  $mb = Module::Build->new_from_context(
+    verbose => 0,
+    quiet   => 1,
 
-$mb->dispatch('ppmdist');
-is $@, '';
+    installdirs => 'site',
+    config => {
+      html_reset(),
+      installsiteman1dir  => catdir($tmp, 'site', 'man', 'man1'),
+      installsiteman3dir  => catdir($tmp, 'site', 'man', 'man3'),
+    },
+  );
 
-$tar = Archive::Tar->new;
-$tar->read( $tarfile, 1 );
+  $mb->dispatch('ppmdist');
+  is $@, '';
 
-ok $tar->contains_file('blib/html/site/lib/Simple.html');
-ok $tar->contains_file('blib/html/bin/hello.html');
+  $tar = Archive::Tar->new;
+  $tar->read( $tarfile, 1 );
 
-$tar->clear;
+  $files = {map { $_ => 1 } $tar->list_files};
 
-$mb->dispatch('realclean');
-$dist->clean;
+  exists_ok($files, 'blib/html/site/lib/Simple.html');
+  exists_ok($files, 'blib/html/bin/hello.html');
+
+  $tar->clear;
+
+  $mb->dispatch('realclean');
+  $dist->clean;
+}
 
 
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
@@ -175,3 +202,14 @@ $dist->remove;
 
 use File::Path;
 rmtree( $tmp );
+
+
+########################################
+
+sub exists_ok {
+  my $files = shift;
+  my $file  = shift;
+  local $Test::Builder::Level = $Test::Builder::Level + 1;
+  ok exists( $files->{$file} ) && $files->{$file}, $file;
+}
+
