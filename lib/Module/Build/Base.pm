@@ -2187,16 +2187,19 @@ sub ACTION_manpages {
 
 sub manify_bin_pods {
   my $self    = shift;
-  require Pod::Man;
-  my $parser  = Pod::Man->new( section => 1 ); # binary manpages go in section 1
+
   my $files   = $self->_find_pods( $self->{properties}{bindoc_dirs},
                                    exclude => [ qr/\.bat$/ ] );
   return unless keys %$files;
-  
+
   my $mandir = File::Spec->catdir( $self->blib, 'bindoc' );
   File::Path::mkpath( $mandir, 0, 0777 );
 
+  require Pod::Man;
   foreach my $file (keys %$files) {
+    # Pod::Simple based parsers only support one document per instance.
+    # This is expected to change in a future version (Pod::Simple > 3.03).
+    my $parser  = Pod::Man->new( section => 1 ); # binaries go in section 1
     my $manpage = $self->man1page_name( $file ) . '.' .
 	          $self->config( 'man1ext' );
     my $outfile = File::Spec->catfile($mandir, $manpage);
@@ -2209,15 +2212,18 @@ sub manify_bin_pods {
 
 sub manify_lib_pods {
   my $self    = shift;
-  require Pod::Man;
-  my $parser  = Pod::Man->new( section => 3 ); # library manpages go in section 3
+
   my $files   = $self->_find_pods($self->{properties}{libdoc_dirs});
   return unless keys %$files;
-  
+
   my $mandir = File::Spec->catdir( $self->blib, 'libdoc' );
   File::Path::mkpath( $mandir, 0, 0777 );
 
+  require Pod::Man;
   while (my ($file, $relfile) = each %$files) {
+    # Pod::Simple based parsers only support one document per instance.
+    # This is expected to change in a future version (Pod::Simple > 3.03).
+    my $parser  = Pod::Man->new( section => 3 ); # libraries go in section 3
     my $manpage = $self->man3page_name( $relfile ) . '.' .
 	          $self->config( 'man3ext' );
     my $outfile = File::Spec->catfile( $mandir, $manpage);
