@@ -289,11 +289,10 @@ Performs the 'realclean' action and then the 'distcheck' action.
 
 =item distdir
 
-Creates a directory called C<$(DISTNAME)-$(VERSION)> (if that
-directory already exists, it will be removed first).  Then copies all
-the files listed in the F<MANIFEST> file to that directory.  This
-directory is what people will see when they download your distribution
-and unpack it.
+Creates a "distribution directory" named C<$dist_name-$dist_version>
+(if that directory already exists, it will be removed first), then
+copies all the files listed in the F<MANIFEST> file to that directory.
+This directory is what the distribution tarball is created from.
 
 =item distmeta
 
