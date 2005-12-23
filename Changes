@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.27_04
+0.27_04  Fri Dec 23 10:43:34 CST 2005
 
  - Removed experimental feature that extended the prerequisite system
    to apply ('requires', 'recommends', and 'conflicts') prereqs to all
