@@ -48,6 +48,7 @@ t/moduleinfo.t
 t/notes.t
 t/parents.t
 t/pod_parser.t
+t/ppm.t
 t/runthrough.t
 t/signature.t
 t/tilde.t

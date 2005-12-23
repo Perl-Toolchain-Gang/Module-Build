@@ -32,3 +32,4 @@ save_err$
 /Script$
 ^META-
 Plugin
+^doc_check.pl$
