@@ -1,14 +1,8 @@
 #!/usr/bin/perl -w
 
 use strict;
-use File::Spec ();
-
-BEGIN {
-  my $common_pl = File::Spec->catfile( 't', 'common.pl' );
-  require $common_pl;
-}
-
-use Test::More tests => 28;
+use lib 't/lib';
+use MBTest tests => 28;
 use Module::Build;
 
 my $have_yaml = Module::Build->current->feature('YAML_support');

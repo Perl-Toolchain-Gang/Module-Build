@@ -1,16 +1,8 @@
 #!/usr/bin/perl -w
 
 use strict;
-use File::Spec ();
-
-BEGIN {
-  my $common_pl = File::Spec->catfile( 't', 'common.pl' );
-  require $common_pl;
-}
-
-#########################
-
-use Test::More;
+use lib 't/lib';
+use MBTest;
 
 if ( $ENV{TEST_SIGNATURE} ) {
   if ( have_module( 'Module::Signature' ) ) {

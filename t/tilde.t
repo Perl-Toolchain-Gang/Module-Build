@@ -3,14 +3,8 @@
 # Test ~ expansion from command line arguments.
 
 use strict;
-use File::Spec ();
-
-BEGIN {
-  my $common_pl = File::Spec->catfile( 't', 'common.pl' );
-  require $common_pl;
-}
-
-use Test::More tests => 11;
+use lib 't/lib';
+use MBTest tests => 11;
 
 use Cwd ();
 my $cwd = Cwd::cwd;

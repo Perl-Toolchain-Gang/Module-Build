@@ -1,14 +1,8 @@
 #!/usr/bin/perl -w
 
 use strict;
-use File::Spec ();
-
-BEGIN {
-  my $common_pl = File::Spec->catfile( 't', 'common.pl' );
-  require $common_pl;
-}
-
-use Test::More tests => 6;
+use lib 't/lib';
+use MBTest tests => 6;
 
 use Cwd ();
 my $cwd = Cwd::cwd;

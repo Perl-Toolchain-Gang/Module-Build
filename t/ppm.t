@@ -1,14 +1,8 @@
 #!/usr/bin/perl -w
 
 use strict;
-use File::Spec ();
-
-BEGIN {
-  my $common_pl = File::Spec->catfile( 't', 'common.pl' );
-  require $common_pl;
-}
-
-use Test::More;
+use lib 't/lib';
+use MBTest;
 use Module::Build;
 
 my( $manpage_support, $HTML_support );
@@ -209,5 +203,32 @@ sub exists_ok {
   my $file  = shift;
   local $Test::Builder::Level = $Test::Builder::Level + 1;
   ok exists( $files->{$file} ) && $files->{$file}, $file;
+}
+
+# A hash of all Config.pm settings related to installing
+# manpages with values set to an empty string.
+sub manpage_reset {
+  return (
+    installman1dir => '',
+    installman3dir => '',
+    installsiteman1dir => '',
+    installsiteman3dir => '',
+    installvendorman1dir => '',
+    installvendorman3dir => '',
+  );
+}
+
+# A hash of all Config.pm settings related to installing
+# html documents with values set to an empty string.
+sub html_reset {
+  return (
+    installhtmldir => '',
+    installhtml1dir => '',
+    installhtml3dir => '',
+    installsitehtml1dir => '',
+    installsitehtml3dir => '',
+    installvendorhtml1dir => '',
+    installvendorhtml3dir => '',
+  );
 }
 

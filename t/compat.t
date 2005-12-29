@@ -1,17 +1,10 @@
 #!/usr/bin/perl -w
 
 use strict;
-use File::Spec ();
-
-BEGIN {
-  my $common_pl = File::Spec->catfile( 't', 'common.pl' );
-  require $common_pl;
-}
-
-#########################
-
+use lib 't/lib';
+use MBTest;
+use File::Spec;
 use Config;
-use Test::More;
 
 # Don't let our own verbosity/test_file get mixed up with our subprocess's
 my @makefile_keys = qw(TEST_VERBOSE HARNESS_VERBOSE TEST_FILES MAKEFLAGS);
