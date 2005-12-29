@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 
-use lib 't/lib';
 use strict;
-
 use File::Spec ();
-my $common_pl = File::Spec->catfile( 't', 'common.pl' );
-require $common_pl;
 
+BEGIN {
+  my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+  require $common_pl;
+}
 
 #########################
 

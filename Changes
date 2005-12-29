@@ -1,5 +1,12 @@
 Revision history for Perl extension Module::Build.
 
+0.27_05
+
+ - In t/common.pl, we were attempting to let the user's installed
+   Test::More take precedence over ours, but getting thwarted by all
+   the test scripts' loading Test::More beforehand.  Fixed. [Spotted
+   by Yitzchak Scott-Thoennes]
+
 0.27_04  Fri Dec 23 10:43:34 CST 2005
 
  - Removed experimental feature that extended the prerequisite system

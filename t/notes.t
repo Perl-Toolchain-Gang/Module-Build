@@ -1,13 +1,14 @@
 #!/usr/bin/perl -w
 
-use lib 't/lib';
 use strict;
+use File::Spec ();
+
+BEGIN {
+  my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+  require $common_pl;
+}
 
 use Test::More tests => 8;
-
-use File::Spec ();
-my $common_pl = File::Spec->catfile( 't', 'common.pl' );
-require $common_pl;
 
 use Cwd ();
 my $cwd = Cwd::cwd;

@@ -1,16 +1,14 @@
 #!/usr/bin/perl -w
 
-use lib 't/lib';
 use strict;
+use File::Spec ();
+
+BEGIN {
+  my $common_pl = File::Spec->catfile( 't', 'common.pl' );
+  require $common_pl;
+}
 
 use Test::More;
-
-
-use File::Spec ();
-my $common_pl = File::Spec->catfile( 't', 'common.pl' );
-require $common_pl;
-
-
 use Module::Build;
 
 { local $SIG{__WARN__} = sub {};
