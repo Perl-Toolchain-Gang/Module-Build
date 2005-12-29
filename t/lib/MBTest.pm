@@ -17,6 +17,7 @@ BEGIN {
 
 use Exporter;
 use Test::More;
+use Config;
 
 # We pass everything through to Test::More
 use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS $TODO);
