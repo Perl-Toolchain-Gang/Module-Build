@@ -23,18 +23,16 @@ documentation.  It's best to get familiar with that too.
 
 =head2 The basic installation recipe for modules that use Module::Build
 
-In most cases, you can just issue the following commands from your
-shell:
+In most cases, you can just issue the following commands:
 
   perl Build.PL
-  Build
-  Build test
-  Build install
+  ./Build
+  ./Build test
+  ./Build install
 
 There's nothing complicated here - first you're running a script
 called F<Build.PL>, then you're running a (newly-generated) script
-called F<Build> and passing it various arguments.  If you know how to
-do that on your system, you can get installation working.
+called F<Build> and passing it various arguments.
 
 The exact commands may vary a bit depending on how you invoke perl
 scripts on your system.  For instance, if you have multiple versions
@@ -42,22 +40,26 @@ of perl installed, you can install to one particular perl's library
 directories like so:
 
   /usr/bin/perl5.8.1 Build.PL
-  Build
-  Build test
-  Build install
+  ./Build
+  ./Build test
+  ./Build install
+
+If you're on Windows, you'll probably do something like this:
+
+  perl Build.PL
+  .\Build
+  .\Build test
+  .\Build install
+
+On the old Mac OS (version 9 or lower) using MacPerl, you can
+double-click on the F<Build.PL> script to create the F<Build> script,
+then double-click on the F<Build> script to run its C<build>, C<test>,
+and C<install> actions.
 
 The F<Build> script knows what perl was used to run C<Build.PL>, so
 you don't need to re-invoke the F<Build> script with the complete perl
 path each time.  If you invoke it with the I<wrong> perl path, you'll
-get a warning.
-
-If the current directory (usually called '.') isn't in your path, you
-can do C<./Build> or C<perl Build> to run the script:
-
-  /usr/bin/perl Build.PL
-  ./Build
-  ./Build test
-  ./Build install
+get a warning or a fatal error.
 
 
 =head2 Making a CPAN.pm-compatible distribution
@@ -73,11 +75,16 @@ following contents:
   Module::Build::Compat->run_build_pl(args => \@ARGV);
   Module::Build::Compat->write_makefile();
 
-Now CPAN will work as usual, i.e.: `perl Makefile.PL`, `make`, `make test`,
-and `make install`.
+Now CPAN will work as usual, i.e.: `perl Makefile.PL`, `make`, `make
+test`, and `make install`, provided the end-user already has
+C<Module::Build> installed.
 
-Alternatively, see the C<create_makefile_pl> parameter to the C<<
-Module::Build->new() >> method.
+If the end-user might not have C<Module::Build> installed, it's
+probably best to supply a "traditional" F<Makefile.PL>.  The
+C<Module::Build::Compat> module has some very helpful tools for
+keeping a F<Makefile.PL> in sync with a F<Build.PL>.  See its
+documentation, and also the C<create_makefile_pl> parameter to the 
+C<< Module::Build->new() >> method.
 
 
 =head2 Installing modules using the programmatic interface
@@ -115,6 +122,27 @@ To do this, specify the C<destdir> parameter to the C<install> action:
 
   ./Build install --destdir /tmp/my-package-1.003
 
+This essentially just prepends all the installation paths with the
+F</tmp/my-package-1.003> directory.
+
+=head2 Installing to a non-standard directory
+
+To install to a non-standard directory (for example, if you don't have
+permission to install in the system-wide directories), you can use the
+C<install_base> or C<prefix> parameters:
+
+  ./Build install --install_base /foo/bar
+   or
+  ./Build install --prefix /foo/bar
+
+Note that these have somewhat different effects - C<prefix> is an
+emulation of C<ExtUtils::MakeMaker>'s old C<PREFIX> setting, and
+inherits all its nasty gotchas.  C<install_base> is more predictable,
+and newer versions of C<ExtUtils::MakeMaker> also support it, so it's
+often your best choice.
+
+See L<Module::Build/"INSTALL PATHS"> for a much more complete
+discussion of how installation paths are determined.
 
 =head2 Running a single test file
 
@@ -156,30 +184,6 @@ Currently, C<build_elements> has the following default value:
 Do take care when altering this property, since there may be
 non-obvious (and non-documented!) ordering dependencies in the
 C<Module::Build> code.
-
-
-=head2 Dealing with more than one perl installation
-
-If you have more than one C<perl> interpreter installed on your
-system, you can choose which installation to target whenever you use
-C<Module::Build>.  Usually it's as simple as using the right C<perl>
-in the C<perl Build.PL> step - this perl will be remembered for the
-rest of the life of the generated F<Build> script.
-
-Occasionally, however, we get it wrong.  This is because there often
-is no reliable way in perl to find a path to the currently-running
-perl interpreter.  When C<$^X> doesn't tell us much (e.g. when it's
-something like "perl" instead of an absolute path), we do some very
-effective guessing, but there's still a small chance we can get it
-wrong.  Or not find one at all.
-
-Therefore, if you want to explicitly tell C<Module::Build> which perl
-binary you're targeting, you can override C<$Config{perlpath}>, like
-so:
-
-  /foo/perl Build.PL --config perlpath=/foo/perl
-  ./Build --config perlpath=/foo/perl
-  ./Build test --config perlpath=/foo/perl
 
 
 =head2 Adding new file types to the build process
