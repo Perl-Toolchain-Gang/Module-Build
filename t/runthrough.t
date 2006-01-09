@@ -94,21 +94,25 @@ $mb->add_to_cleanup('save_out');
 ok grep {$_ eq 'before_script'} $mb->cleanup;
 ok grep {$_ eq 'save_out'     } $mb->cleanup;
 
-my $output = eval {
-  stdout_of( sub { $mb->dispatch('test', verbose => 1) } )
-};
-is $@, '';
-like $output, qr/all tests successful/i;
+{
+  # Make sure verbose=>1 works
+  my $all_ok = 1;
+  my $output = eval {
+    stdout_of( sub { $mb->dispatch('test', verbose => 1) } )
+  };
+  $all_ok &&= is($@, '');
+  $all_ok &&= like($output, qr/all tests successful/i);
+  
+  # This is the output of lib/Simple/Script.PL
+  $all_ok &&= ok(-e $mb->localize_file_path('lib/Simple/Script'));
 
-# This is the output of lib/Simple/Script.PL
-ok -e $mb->localize_file_path('lib/Simple/Script');
-
-
-# We prefix all lines with "| " so Test::Harness doesn't get confused.
-print "vvvvvvvvvvvvvvvvvvvvv Simple/test.pl output vvvvvvvvvvvvvvvvvvvvv\n";
-$output =~ s/^/| /mg;
-print $output;
-print "^^^^^^^^^^^^^^^^^^^^^ Simple/test.pl output ^^^^^^^^^^^^^^^^^^^^^\n";
+  unless ($all_ok) {
+    # We use diag() so Test::Harness doesn't get confused.
+    diag("vvvvvvvvvvvvvvvvvvvvv Simple/test.pl output vvvvvvvvvvvvvvvvvvvvv");
+    diag($output);
+    diag("^^^^^^^^^^^^^^^^^^^^^ Simple/test.pl output ^^^^^^^^^^^^^^^^^^^^^");
+  }
+}
 
 SKIP: {
   skip( 'YAML_support feature is not enabled', 7 ) unless $have_yaml;
@@ -160,9 +164,7 @@ SKIP: {
   
   my $fh = IO::File->new($blib_script);
   my $first_line = <$fh>;
-  print "# rewritten shebang?\n$first_line";
-  
-  isnt $first_line, "#!perl -w\n";
+  isnt $first_line, "#!perl -w\n", "should rewrite the shebang line";
 }
 
 {
