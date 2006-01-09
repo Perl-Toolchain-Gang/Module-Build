@@ -3,7 +3,7 @@
 # Test ~ expansion from command line arguments.
 
 use strict;
-use lib 't/lib';
+use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest tests => 11;
 
 use Cwd ();

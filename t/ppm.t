@@ -1,24 +1,18 @@
 #!/usr/bin/perl -w
 
 use strict;
-use lib 't/lib';
+use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest;
 use Module::Build;
+use Module::Build::ConfigData;
 
-my( $manpage_support, $HTML_support );
+my $manpage_support = Module::Build::ConfigData->feature('manpage_support');
+my $HTML_support = Module::Build::ConfigData->feature('HTML_support');
 
-{ local $SIG{__WARN__} = sub {};
 
-  my $mb = Module::Build->current;
-  $mb->verbose( 0 );
-
-  $manpage_support = $mb->feature('manpage_support');
-  $HTML_support    = $mb->feature('HTML_support');
-
-  my $have_c_compiler;
-  stderr_of( sub {$have_c_compiler = $mb->have_c_compiler} );
-
-  if ( ! $mb->feature('C_support') ) {
+{
+  my ($have_c_compiler, $C_support_feature) = check_compiler();
+  if (! $C_support_feature) {
     plan skip_all => 'C_support not enabled';
   } elsif ( ! $have_c_compiler ) {
     plan skip_all => 'C_support enabled, but no compiler found';

@@ -1,11 +1,12 @@
 #!/usr/bin/perl -w
 
 use strict;
-use lib 't/lib';
+use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest tests => 28;
 use Module::Build;
+use Module::Build::ConfigData;
 
-my $have_yaml = Module::Build->current->feature('YAML_support');
+my $have_yaml = Module::Build::ConfigData->feature('YAML_support');
 
 #########################
 
@@ -40,7 +41,9 @@ plan tests => 2;
 ok 1;
 
 require Module::Build;
-ok $INC{'Module/Build.pm'}, qr/blib/, 'Module::Build should be loaded from blib';
+skip $ENV{PERL_CORE} && "no blib in core",
+  $INC{'Module/Build.pm'}, qr/blib/, 'Module::Build should be loaded from blib';
+
 print "# Cwd: ", Module::Build->cwd, "\n";
 print "# \@INC: (@INC)\n";
 print "Done.\n";  # t/compat.t looks for this
@@ -62,7 +65,10 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 use Module::Build;
 ok(1);
 
-like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure version from blib/ is loaded";
+SKIP: {
+  skip "no blib in core", 1 if $ENV{PERL_CORE};
+  like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure version from blib/ is loaded";
+}
 
 #########################
 

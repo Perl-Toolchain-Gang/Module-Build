@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
-use lib 't/lib';
+use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest tests => 55;
 
 use Cwd ();
@@ -19,7 +19,10 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 use_ok 'Module::Build';
 
-like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure Module::Build was loaded from blib/";
+SKIP: {
+  skip "no blib in core", 1 if $ENV{PERL_CORE};
+  like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure Module::Build was loaded from blib/";
+}
 
 
 # Test object creation

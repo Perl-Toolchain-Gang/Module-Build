@@ -13,6 +13,19 @@ BEGIN {
 
   # Make sure none of our tests load the users ~/.modulebuildrc file
   $ENV{MODULEBUILDRC} = 'NONE';
+
+  if ($ENV{PERL_CORE}) {
+    # We change directories, so expand @INC to absolute paths
+    # Also add .
+    @INC = (map(File::Spec->rel2abs($_), @INC), ".");
+
+    # we are in 't', go up a level so we don't create t/t/_tmp
+    chdir '..' or die "Couldn't chdir to ..";
+
+    # make sure children get @INC pointing to uninstalled files
+    require Cwd;
+    $ENV{PERL5LIB} = File::Spec->catdir(Cwd::cwd(), 'lib');
+  }
 }
 
 use Exporter;
@@ -28,7 +41,7 @@ $VERSION = 0.01;
 
 # We have a few extra exports, but Test::More has a special import()
 # that won't take extra additions.
-my @extra_exports = qw(stdout_of stderr_of slurp find_in_path);
+my @extra_exports = qw(stdout_of stderr_of slurp find_in_path check_compiler);
 push @EXPORT, @extra_exports;
 __PACKAGE__->export(scalar caller, @extra_exports);
 
@@ -72,6 +85,21 @@ sub find_in_path {
     }
   }
   return;
+}
+
+# returns ($have_c_compiler, $C_support_feature);
+sub check_compiler {
+  return (1,1) if $ENV{PERL_CORE};
+
+  local $SIG{__WARN__} = sub {};
+
+  my $mb = Module::Build->current;
+  $mb->verbose( 0 );
+
+  my $have_c_compiler;
+  stderr_of( sub {$have_c_compiler = $mb->have_c_compiler} );
+
+  return ($have_c_compiler, $mb->feature('C_support'));
 }
 
 1;
