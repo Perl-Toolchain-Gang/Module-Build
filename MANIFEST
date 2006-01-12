@@ -30,7 +30,9 @@ META.yml
 README
 scripts/config_data
 t/basic.t
-t/common.pl
+t/bundled/Test/Builder.pm
+t/bundled/Test/More.pm
+t/bundled/Test/Simple.pm
 t/compat.t
 t/destinations.t
 t/ext.t
@@ -38,9 +40,7 @@ t/extend.t
 t/files.t
 t/install.t
 t/lib/DistGen.pm
-t/lib/Test/Builder.pm
-t/lib/Test/More.pm
-t/lib/Test/Simple.pm
+t/lib/MBTest.pm
 t/manifypods.t
 t/metadata.t
 t/metadata2.t

@@ -33,3 +33,4 @@ save_err$
 ^META-
 Plugin
 ^doc_check.pl$
+^[^/]+\.patch$
