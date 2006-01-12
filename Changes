@@ -7,6 +7,12 @@ Revision history for Perl extension Module::Build.
    the test scripts' loading Test::More beforehand.  Fixed. [Spotted
    by Yitzchak Scott-Thoennes]
 
+ - In various test scripts, we were outputting some strings that
+   weren't strictly conformant with Test::Harness's expected input,
+   though it didn't actually cause problems.  Now we're more
+   conformant, though not yet strict. [Spotted by Yitzchak
+   Scott-Thoennes]
+
 0.27_04  Fri Dec 23 10:43:34 CST 2005
 
  - Removed experimental feature that extended the prerequisite system
@@ -19,7 +25,7 @@ Revision history for Perl extension Module::Build.
    actually installed. [David Wheeler]
 
  - Clarified the directory name that's created during the 'distdir'
-   action. [Suggested by Typler MacDonald]
+   action. [Suggested by Tyler MacDonald]
 
  - Fixed a bug when creating the META.yml file without the help of
    YAML.pm - some common strings weren't quoted & escaped properly.
