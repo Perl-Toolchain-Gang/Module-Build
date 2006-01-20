@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.27_06
+
+ - Fixed an undefined-variable warning when building the META.yml file
+   and the author hasn't used the 'module_name' mechanism. [Chris Dolan]
+
 0.27_05  Thu Jan 12 17:39:21 CST 2006
 
  - In t/common.pl, we were attempting to let the user's installed
