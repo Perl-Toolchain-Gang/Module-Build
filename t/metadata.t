@@ -43,6 +43,7 @@ SKIP: {
   skip( 'YAML_support feature is not enabled', 8 ) unless $has_YAML;
 
   require YAML;
+  require YAML::Node;
   my $node = YAML::Node->new({});
   $node = $mb->prepare_metadata( $node );
 

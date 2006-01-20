@@ -53,7 +53,7 @@ my $build = new ModuleBuildBuilder
 		     YAML_support =>
 		     {
 		      description => "Can write fully-functional META.yml files",
-		      requires => { YAML => ' >= 0.35, < 0.49 ' },
+		      requires => { YAML => ' >= 0.35, != 0.49_01 ' },
 		     },
 		     C_support =>
 		     {

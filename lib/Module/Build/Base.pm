@@ -2987,6 +2987,7 @@ sub write_metafile {
 
   if ($self->_mb_feature('YAML_support')) {
     require YAML;
+    require YAML::Node;
 
     # We use YAML::Node to get the order nice in the YAML file.
     $self->prepare_metadata( my $node = YAML::Node->new({}) );
