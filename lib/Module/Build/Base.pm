@@ -2973,7 +2973,7 @@ sub do_create_metafile {
   # Since we're building ourself, we have to do some special stuff
   # here: the ConfigData module is found in blib/lib.
   local @INC = @INC;
-  if ($self->module_name eq 'Module::Build') {
+  if (($self->module_name || '') eq 'Module::Build') {
     $self->depends_on('config_data');
     push @INC, File::Spec->catdir($self->blib, 'lib');
   }
