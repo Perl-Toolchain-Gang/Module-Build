@@ -13,14 +13,32 @@ use vars qw(@ISA);
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new(@_);
+
+  $self->_find_pl2bat();
+  return $self;
+}
+
+
+sub _find_pl2bat {
+  my $self = shift;
   my $cf = $self->{config};
 
   # Find 'pl2bat.bat' utility used for installing perl scripts.
   # This search is probably overkill, as I've never met a MSWin32 perl
   # where these locations differed from each other.
-  my @potential_dirs = map { File::Spec->canonpath($_) }
-    @${cf}{qw(installscript installbin installsitebin installvendorbin)},
-    File::Basename::dirname($self->{properties}{perl});
+
+  my @potential_dirs;
+
+  if ( $ENV{PERL_CORE} ) {
+
+    require ExtUtils::CBuilder;
+    @potential_dirs = File::Spec->catdir( ExtUtils::CBuilder->new()->perl_src(),
+                                          qw/win32 bin/ );
+  } else {
+    @potential_dirs = map { File::Spec->canonpath($_) }
+      @${cf}{qw(installscript installbin installsitebin installvendorbin)},
+      File::Basename::dirname($self->{properties}{perl});
+  }
 
   foreach my $dir (@potential_dirs) {
     my $potential_file = File::Spec->catfile($dir, 'pl2bat.bat');
@@ -29,8 +47,6 @@ sub new {
       last;
     }
   }
-
-  return $self;
 }
 
 sub make_executable {
@@ -49,7 +65,7 @@ sub make_executable {
       (my $script_bat = $script) =~ s/\.plx?//i;
       $script_bat .= '.bat' unless $script_bat =~ /\.bat$/i;
 
-      my $status = $self->do_system($pl2bat, '<', $script, '>', $script_bat);
+      my $status = $self->do_system("$self->{properties}{perl} $pl2bat < $script > $script_bat");
       if ( $status && -f $script_bat ) {
         $self->SUPER::make_executable($script_bat);
       } else {
