@@ -358,7 +358,8 @@ sub prompt {
     print "$mess $dispdef";
   }
   my $ans;
-  if ($self->_is_interactive) {
+  if ( ! $ENV{PERL_MM_USE_DEFAULT} &&
+       ( $self->_is_interactive || ! eof STDIN ) ) {
     $ans = <STDIN>;
     if ( defined $ans ) {
       chomp $ans;
@@ -378,6 +379,7 @@ sub prompt {
 sub y_n {
   my $self = shift;
   die "y_n() called without a prompt message" unless @_;
+  die "y_n() called without y or n default" unless ($_[1]||"")=~/^[yn]/i;
 
   my $interactive = $self->_is_interactive;
   my $answer;
@@ -385,7 +387,6 @@ sub y_n {
     $answer = $self->prompt(@_);
     return 1 if $answer =~ /^y/i;
     return 0 if $answer =~ /^n/i;
-    die "No y/n answer given, no default supplied, and no user to ask again" unless $interactive;
     print "Please answer 'y' or 'n'.\n";
   }
 }

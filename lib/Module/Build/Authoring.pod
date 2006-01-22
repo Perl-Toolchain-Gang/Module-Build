@@ -1229,10 +1229,12 @@ example, C<"Where do you keep your money?">).  The second argument,
 which is optional, specifies a default answer (for example,
 C<"wallet">).  The user will be asked the question once.
 
-If the current session doesn't seem to be interactive (i.e. if
-C<STDIN> and C<STDOUT> look like they're attached to files or
-something, not terminals), we'll just use the default without
-letting the user provide an answer.
+If C<prompt()> detects that it is not running interactively and there
+is nothing on STDIN or if the PERL_MM_USE_DEFAULT environment variable
+is set to true, the $default will be used without prompting.  This
+prevents automated processes from blocking on user input.
+
+If no $default is provided an empty string will be used instead.
 
 This method may be called as a class or object method.
 
