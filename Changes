@@ -14,6 +14,11 @@ Revision history for Perl extension Module::Build.
    PERL_MM_USE_DEFAULT environment variable. [Tyler MacDonald and
    Yitzchak Scott-Thoennes]
 
+ - When building a README file using Pod::Text, work around a bug in
+   Pod::Text 3.01, which expects Pod::Simple::parse_file to take input
+   and output filehandles when it actually only takes an input
+   filehandle. [Yitzchak Scott-Thoennes]
+
 0.27_05  Thu Jan 12 17:39:21 CST 2006
 
  - In t/common.pl, we were attempting to let the user's installed

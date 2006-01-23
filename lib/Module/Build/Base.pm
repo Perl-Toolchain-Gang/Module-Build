@@ -2702,7 +2702,24 @@ EOF
     my $fh = IO::File->new('> README');
     if ( defined($fh) ) {
       local $^W = 0;
+      no strict "refs";
+
+      # work around bug in Pod::Text 3.01, which expects
+      # Pod::Simple::parse_file to take input and output filehandles
+      # when it actually only takes an input filehandle
+
+      my $old_parse_file;
+      $old_parse_file = \&{"Pod::Simple::parse_file"}
+	and
+      local *{"Pod::Simple::parse_file"} = sub {
+	my $self = shift;
+	$self->output_fh($_[1]) if $_[1];
+	$self->$old_parse_file($_[0]);
+      }
+        if $Pod::Text::VERSION == 3.01;
+
       Pod::Text::pod2text( $docfile, $fh );
+
       $fh->close;
     } else {
       $self->log_warn(
@@ -2713,7 +2730,6 @@ EOF
   } else {
     $self->log_warn("Can't load Pod::Readme or Pod::Text to create README\n");
     return;
-
   }
 
   $self->_add_to_manifest('MANIFEST', 'README');
