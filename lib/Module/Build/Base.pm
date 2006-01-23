@@ -657,6 +657,7 @@ __PACKAGE__->add_property($_) for qw(
   install_base
   libdoc_dirs
   license
+  magic_number
   mb_version
   module_name
   orig_dir
@@ -861,13 +862,13 @@ sub has_config_data {
   return scalar grep $self->{phash}{$_}->has_data(), qw(config_data features auto_features);
 }
 
-sub _write_dumper {
+sub _write_data {
   my ($self, $filename, $data) = @_;
   
   my $file = $self->config_file($filename);
   my $fh = IO::File->new("> $file") or die "Can't create '$file': $!";
   local $Data::Dumper::Terse = 1;
-  print $fh Data::Dumper::Dumper($data);
+  print $fh ref($data) ? Data::Dumper::Dumper($data) : $data;
 }
 
 sub write_config {
@@ -877,8 +878,11 @@ sub write_config {
   -d $self->{properties}{config_dir} or die "Can't mkdir $self->{properties}{config_dir}: $!";
   
   my @items = @{ $self->prereq_action_types };
-  $self->_write_dumper('prereqs', { map { $_, $self->$_() } @items });
-  $self->_write_dumper('build_params', [$self->{args}, $self->{config}, $self->{properties}]);
+  $self->_write_data('prereqs', { map { $_, $self->$_() } @items });
+  $self->_write_data('build_params', [$self->{args}, $self->{config}, $self->{properties}]);
+
+  # Set a new magic number and write it to a file
+  $self->_write_data('magicnum', $self->magic_number(int rand 1_000_000));
 
   $self->{phash}{$_}->write() foreach qw(notes cleanup features auto_features config_data runtime_params);
 }
@@ -1164,15 +1168,17 @@ sub print_build_script {
   my $case_tolerant = 0+(File::Spec->can('case_tolerant')
 			 && File::Spec->case_tolerant);
   $q{base_dir} = uc $q{base_dir} if $case_tolerant;
+  $q{magic_numfile} = $self->config_file('magicnum');
 
   my @myINC = $self->_added_to_INC;
   for (@myINC, values %q) {
-    $_ = File::Spec->canonpath( File::Spec->rel2abs($_) );
+    $_ = File::Spec->canonpath( $_ );
     s/([\\\'])/\\$1/g;
   }
 
   my $quoted_INC = join ",\n", map "     '$_'", @myINC;
   my $shebang = $self->_startperl;
+  my $magic_number = $self->magic_number;
 
   print $fh <<EOF;
 $shebang
@@ -1182,6 +1188,15 @@ use Cwd;
 use File::Basename;
 use File::Spec;
 
+sub magic_number_matches {
+  return 0 unless -e '$q{magic_numfile}';
+  local *FH;
+  open FH, '$q{magic_numfile}' or return 0;
+  my \$filenum = <FH>;
+  close FH;
+  return \$filenum == $magic_number;
+}
+
 my \$progname;
 my \$orig_dir;
 BEGIN {
@@ -1189,8 +1204,13 @@ BEGIN {
   \$progname = basename(\$0);
   \$orig_dir = Cwd::cwd();
   my \$base_dir = '$q{base_dir}';
-  unless (chdir(\$base_dir)) {
-    die ("Couldn't chdir(\$base_dir), aborting\\n");
+  if (!magic_number_matches()) {
+    unless (chdir(\$base_dir)) {
+      die ("Couldn't chdir(\$base_dir), aborting\\n");
+    }
+    unless (magic_number_matches()) {
+      die ("Configuration seems to be out of date, please re-run 'perl Build.PL' again.\\n");
+    }
   }
   unshift \@INC,
     (
