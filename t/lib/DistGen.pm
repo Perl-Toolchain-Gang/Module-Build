@@ -284,31 +284,22 @@ sub clean {
     my $filename = $self->_real_filename( $file );
     my $dirname = File::Basename::dirname( $filename );
 
-    $names{files}{$filename} = 0;
+    $names{$filename} = 0;
 
     my @dirs = File::Spec->splitdir( $dirname );
     while ( @dirs ) {
       my $dir = File::Spec->catdir( @dirs );
-      $names{dirs}{$dir} = 0;
+      $names{$dir} = 0;
       pop( @dirs );
     }
   }
 
   File::Find::finddepth( sub {
-    my $dir  = File::Spec->canonpath( $File::Find::dir  );
     my $name = File::Spec->canonpath( $File::Find::name );
 
-    if ( -d && not exists $names{dirs}{$name} ) {
-      print "Removing directory '$name'\n" if $VERBOSE;
+    if ( not exists $names{$name} ) {
+      print "Removing '$name'\n" if $VERBOSE;
       File::Path::rmtree( $_ );
-      return;
-    } elsif ( -d ) {
-      return;
-    } elsif ( exists $names{files}{$name} ) {
-      #print "Leaving file '$name'\n" if $VERBOSE;
-    } else {
-      print "Unlinking file '$name'\n" if $VERBOSE;
-      1 while unlink( $_ );
     }
   }, File::Spec->curdir );
 
