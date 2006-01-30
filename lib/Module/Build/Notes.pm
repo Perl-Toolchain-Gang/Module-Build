@@ -36,7 +36,8 @@ sub access {
   return $self->read($key) unless @_;
   
   my $value = shift;
-  return $self->write({ $key => $value });
+  $self->write({ $key => $value });
+  return $self->read($key);
 }
 
 sub has_data {

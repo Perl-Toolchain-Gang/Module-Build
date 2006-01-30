@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+0.27_07
+
+ - The notes() method now returns the new value when called with two
+   arguments, just like when it's called with one argument. [Tyler
+   MacDonald]
+
 0.27_06  Mon Jan 23 21:44:54 CST 2006
 
  - Fixed an undefined-variable warning when building the META.yml file

@@ -1079,7 +1079,7 @@ The C<notes()> method is essentally a glorified hash access.  With no
 arguments, C<notes()> returns the entire hash of notes.  With one argument,
 C<notes($key)> returns the value associated with the given key.  With two
 arguments, C<notes($key, $value)> sets the value associated with the given key
-to C<$value>.
+to C<$value> and returns the new value.
 
 The lifetime of the C<notes> data is for "a build" - that is, the
 C<notes> hash is created when C<perl Build.PL> is run (or when the
