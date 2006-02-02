@@ -747,7 +747,7 @@ $opts{code}
 EOF
   close $fh;
   
-  push @INC, File::Spec->catdir(File::Spec->rel2abs($build_dir), 'lib');
+  unshift @INC, File::Spec->catdir(File::Spec->rel2abs($build_dir), 'lib');
   eval "use $opts{class}";
   die $@ if $@;
 

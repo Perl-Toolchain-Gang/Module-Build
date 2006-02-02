@@ -9,6 +9,10 @@ Revision history for Perl extension Module::Build.
  - The notes() method now distinguishes among the values undef, 0, and
    the empty string, where previously it didn't. [Tyler MacDonald]
 
+ - We now unshift(@INC) rather than push(@INC) for the directory where
+   a build subclass lives, so that we're sure to pick up the right
+   version and not some already-installed version. [perlmonkey]
+
 0.27_06  Mon Jan 23 21:44:54 CST 2006
 
  - Fixed an undefined-variable warning when building the META.yml file
