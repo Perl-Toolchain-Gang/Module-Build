@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.27_07
+0.27_07  Wed Feb  1 20:07:45 CST 2006
 
  - The notes() method now returns the new value when called with two
    arguments, just like when it's called with one argument. [Tyler
