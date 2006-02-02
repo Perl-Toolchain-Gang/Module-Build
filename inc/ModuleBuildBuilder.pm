@@ -30,6 +30,9 @@ sub ACTION_distdir {
   # Module::Build object instead of a ModuleBuildBuilder.
   $self->do_replace(qq[BEGIN{\$/=undef} s{<remove_me>.*</remove_me>}{}gs], $build_pl);
   $self->do_replace(qq[s{ModuleBuildBuilder}{Module::Build}gs], $build_pl);
+
+  # XXX Band-aid the signing here again, since we modified some files.
+  $self->depends_on('distsign');
 }
 
 sub do_replace {

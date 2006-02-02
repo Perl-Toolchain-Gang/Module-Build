@@ -13,6 +13,11 @@ Revision history for Perl extension Module::Build.
    a build subclass lives, so that we're sure to pick up the right
    version and not some already-installed version. [perlmonkey]
 
+ - The SIGNATURE file for version 0.27_06 (and I'm sure for lots of
+   versions before that too!) was messed up, since we were modifying
+   some files after signing.  This has been band-aided for the time
+   being by signing twice. [Reported by Chris Dolan]
+
 0.27_06  Mon Jan 23 21:44:54 CST 2006
 
  - Fixed an undefined-variable warning when building the META.yml file
