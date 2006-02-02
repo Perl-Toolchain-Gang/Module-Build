@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 8;
+use MBTest tests => 11;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -45,6 +45,13 @@ is $mb->notes('foo'), 'foo';
 # Change back so we can run this test again successfully
 $mb->notes(foo => 'bar');
 is $mb->notes('foo'), 'bar';
+
+# Check undef vs. 0 vs ''
+foreach my $val (undef, 0, '') {
+  $mb->notes(null => $val);
+  is $mb->notes('null'), $val;
+}
+
 
 ###################################
 # Make sure notes set before create_build_script() get preserved

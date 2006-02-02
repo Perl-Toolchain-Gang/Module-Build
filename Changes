@@ -6,6 +6,9 @@ Revision history for Perl extension Module::Build.
    arguments, just like when it's called with one argument. [Tyler
    MacDonald]
 
+ - The notes() method now distinguishes among the values undef, 0, and
+   the empty string, where previously it didn't. [Tyler MacDonald]
+
 0.27_06  Mon Jan 23 21:44:54 CST 2006
 
  - Fixed an undefined-variable warning when building the META.yml file

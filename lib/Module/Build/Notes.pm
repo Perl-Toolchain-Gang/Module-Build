@@ -67,6 +67,13 @@ sub read {
   return wantarray ? %$out : $out;
 }
 
+sub _same {
+  my ($self, $x, $y) = @_;
+  return 1 if !defined($x) and !defined($y);
+  return 0 if !defined($x) or  !defined($y);
+  return $x eq $y;
+}
+
 sub write {
   my ($self, $href) = @_;
   $href ||= {};
@@ -77,7 +84,7 @@ sub write {
   foreach my $key (keys %{ $self->{new} }) {
     next if ref $self->{new}{$key};
     next if ref $self->{disk}{$key} or !exists $self->{disk}{$key};
-    delete $self->{new}{$key} if ($self->{new}{$key}||'') eq ($self->{disk}{$key}||'');
+    delete $self->{new}{$key} if $self->_same($self->{new}{$key}, $self->{disk}{$key});
   }
   
   if (my $file = $self->{file}) {
