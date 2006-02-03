@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+0.27_08
+
+ - Our version comparisons should now work correctly with modules that
+   use version.pm to delcare their versions (e.g. "our $VERSION =
+   version->new('1.0.0')"). [John Peacock and Ron Savage]
+
 0.27_07  Wed Feb  1 20:07:45 CST 2006
 
  - The notes() method now returns the new value when called with two

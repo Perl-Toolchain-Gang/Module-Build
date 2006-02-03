@@ -299,7 +299,7 @@ sub _evaluate_version_line {
   warn "Error evaling version line '$eval' in $self->{filename}: $@\n" if $@;
 
   # Unbless it if it's a version.pm object
-  $result = "$result" if UNIVERSAL::isa( $result, 'version' );
+  $result = $result->numify if UNIVERSAL::isa($result, 'version');
 
   return $result;
 }
