@@ -56,17 +56,26 @@ sub make_executable {
   my $pl2bat = $self->{config}{pl2bat};
 
   if ( defined($pl2bat) && length($pl2bat) ) {
+    my $ext= $ENV{PATHEXT}=~/\.CMD(\W|$)/i ? '.cmd' : '.bat';
+				   
     foreach my $script (@_) {
-      # Don't run 'pl2bat.bat' for the 'Build' script;
-      # there is no easy way to get the resulting 'Build.bat'
-      # to delete itself when doing a 'Build realclean'.
-      next if ( $script eq $self->{properties}{build_script} );
-
       (my $script_bat = $script) =~ s/\.plx?//i;
-      $script_bat .= '.bat' unless $script_bat =~ /\.bat$/i;
 
+      if ($script_bat =~ /\.(bat|cmd)$/i) {
+	warn "Won't convert '$script' to a batch file named '$script_bat' nor to '$script_bat$ext'.\n";
+	next;
+      }
+      $script_bat .= $ext;
+      $self->add_to_cleanup($script_bat);
       my $status = $self->do_system("$self->{properties}{perl} $pl2bat < $script > $script_bat");
+
       if ( $status && -f $script_bat ) {
+        if ( $script eq $self->{properties}{build_script} ) {
+	  open my $fh, ">>", $script_bat or
+	    die "Failed to open for append batch file '$script':$!";
+	  print $fh "\nif exist Build_FollowUp$ext Build_FollowUp$ext\n";
+	  close $fh;
+        }
         $self->SUPER::make_executable($script_bat);
       } else {
         warn "Unable to convert '$script' to an executable.\n";

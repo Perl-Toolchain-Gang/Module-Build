@@ -849,7 +849,8 @@ sub config_file {
 sub read_config {
   my ($self) = @_;
   
-  my $file = $self->config_file('build_params');
+  my $file = $self->config_file('build_params')
+    or die "No build_params?";
   my $fh = IO::File->new($file) or die "Can't read '$file': $!";
   my $ref = eval do {local $/; <$fh>};
   die if $@;
@@ -1163,8 +1164,14 @@ sub print_build_script {
   
   my $build_package = $self->build_class;
   
+  my $closedata="";
+
   my %q = map {$_, $self->$_()} qw(config_dir base_dir);
-  $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $^O eq 'MSWin32';
+  if ( $^O eq 'MSWin32' ) {
+    $q{base_dir} = Win32::GetShortPathName($q{base_dir});
+    $closedata="\nclose(*DATA) unless eof(*DATA);"
+               ."# Necessary on Win32 to allow realclean!\n";
+  }
   my $case_tolerant = 0+(File::Spec->can('case_tolerant')
 			 && File::Spec->case_tolerant);
   $q{base_dir} = uc $q{base_dir} if $case_tolerant;
@@ -1197,6 +1204,7 @@ sub magic_number_matches {
   return \$filenum == $magic_number;
 }
 
+$closedata
 my \$progname;
 my \$orig_dir;
 BEGIN {
