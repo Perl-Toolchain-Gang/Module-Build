@@ -139,7 +139,7 @@ SKIP: {
   my $fh = IO::File->new(File::Spec->catfile($dist->dirname, 'META.yml'));
   my $contents = do {local $/; <$fh>};
   $contents =~ /Module::Build version ([0-9_.]+)/m;
-  is $1, $mb->VERSION, "Check version used to create META.yml: $1 == " . $mb->VERSION;
+  cmp_ok $1, '==', $mb->VERSION, "Check version used to create META.yml: $1 == " . $mb->VERSION;
 
   SKIP: {
     skip( "not sure if we can create a tarball on this platform", 1 )
