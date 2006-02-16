@@ -22,8 +22,9 @@ If you really want to, you can use a more traditional Makefile.PL:
   make test
   make install     (this step may need to be done as the superuser)
 
-Substitute "nmake" or "gmake" for "make" if you prefer using some
-other make-alike on your platform.
+Substitute "nmake" or "gmake" for "make" if you use some other
+make-alike on your platform - 'perl -V:make' can tell you what you
+should use.
 
 I recommend using the Build.PL option.  If you use the Makefile.PL
 option, you'll actually be using the Build.PL option under the surface

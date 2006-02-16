@@ -9,6 +9,10 @@ Revision history for Perl extension Module::Build.
  - We now create a Build.bat script on versions of Windows where it
    makes sense. [Yves]
 
+ - Fixed the verbiage around choosing the correct make-alike on
+   different platforms to suggest using 'perl -V:make'. [Suggested by
+   anonymous user]
+
 0.27_07  Wed Feb  1 20:07:45 CST 2006
 
  - The notes() method now returns the new value when called with two
