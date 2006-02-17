@@ -56,7 +56,7 @@ sub make_executable {
   my $pl2bat = $self->{config}{pl2bat};
 
   if ( defined($pl2bat) && length($pl2bat) ) {
-    my $ext= $ENV{PATHEXT}=~/\.CMD(\W|$)/i ? '.cmd' : '.bat';
+    my $ext= '.bat';
 				   
     foreach my $script (@_) {
       (my $script_bat = $script) =~ s/\.plx?//i;
