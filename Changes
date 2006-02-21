@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_08
 
+ - Fix detection of $VERSION expressions that are not
+   assignments. [Spotted by Chris Dolan]
+
  - On Windows, remove the pl2bat generated 'Build.bat' script without
    the annoying "The batch file cannot be found." error.  [Solution
    provided by RazTK and foxidrive on newsgroup alt.msdos.batch]

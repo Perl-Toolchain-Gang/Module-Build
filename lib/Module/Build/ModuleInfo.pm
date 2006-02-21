@@ -37,7 +37,7 @@ my $VERS_REGEXP = qr/ # match a VERSION definition
     $VARNAME_REGEXP           # without parens
   )
   \s*
-  =[^=]  # = but not ==
+  =[^=~]  # = but not ==, nor =~
 /x;
 
 
