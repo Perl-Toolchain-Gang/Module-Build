@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.27_08
 
+ - On Windows, remove the pl2bat generated 'Build.bat' script without
+   the annoying "The batch file cannot be found." error.  [Solution
+   provided by RazTK and foxidrive on newsgroup alt.msdos.batch]
+
  - Our version comparisons should now work correctly with modules that
    use version.pm to delcare their versions (e.g. "our $VERSION =
    version->new('1.0.0')"). [John Peacock and Ron Savage]

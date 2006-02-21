@@ -1167,14 +1167,12 @@ sub print_build_script {
   my $closedata="";
 
   my %q = map {$_, $self->$_()} qw(config_dir base_dir);
-  if ( $^O eq 'MSWin32' ) {
-    $q{base_dir} = Win32::GetShortPathName($q{base_dir});
-    $closedata="\nclose(*DATA) unless eof(*DATA);"
-               ."# Necessary on Win32 to allow realclean!\n";
-  }
+
   my $case_tolerant = 0+(File::Spec->can('case_tolerant')
 			 && File::Spec->case_tolerant);
   $q{base_dir} = uc $q{base_dir} if $case_tolerant;
+  $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $^O eq 'MSWin32';
+
   $q{magic_numfile} = $self->config_file('magicnum');
 
   my @myINC = $self->_added_to_INC;
@@ -1204,7 +1202,6 @@ sub magic_number_matches {
   return \$filenum == $magic_number;
 }
 
-$closedata
 my \$progname;
 my \$orig_dir;
 BEGIN {
@@ -1225,6 +1222,8 @@ BEGIN {
 $quoted_INC
     );
 }
+
+close(*DATA) unless eof(*DATA); # ensure no open handles to this script
 
 use $build_package;
 

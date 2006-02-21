@@ -4,6 +4,7 @@ use strict;
 
 use File::Basename;
 use File::Spec;
+use IO::File;
 
 use Module::Build::Base;
 
@@ -56,30 +57,16 @@ sub make_executable {
   my $pl2bat = $self->{config}{pl2bat};
 
   if ( defined($pl2bat) && length($pl2bat) ) {
-    my $ext= '.bat';
-				   
     foreach my $script (@_) {
-      (my $script_bat = $script) =~ s/\.plx?//i;
+      next if $script =~ /\.(bat|cmd)$/i; # already a script; nothing to do
 
-      if ($script_bat =~ /\.(bat|cmd)$/i) {
-	warn "Won't convert '$script' to a batch file named '$script_bat' nor to '$script_bat$ext'.\n";
-	next;
-      }
-      $script_bat .= $ext;
-      $self->add_to_cleanup($script_bat);
+      (my $script_bat = $script) =~ s/\.plx?$//i;
+      $script_bat .= '.bat'; # MSWin32 executable batch script file extension
+
+#     $self->add_to_cleanup($script_bat); # don't do this for $script_bat since it unlinks itself
+      local $self->{properties}{quiet} = 1 if $self->build_script; # Psst, keep this quiet
       my $status = $self->do_system("$self->{properties}{perl} $pl2bat < $script > $script_bat");
-
-      if ( $status && -f $script_bat ) {
-        if ( $script eq $self->{properties}{build_script} ) {
-	  open my $fh, ">>", $script_bat or
-	    die "Failed to open for append batch file '$script':$!";
-	  print $fh "\nif exist Build_FollowUp$ext Build_FollowUp$ext\n";
-	  close $fh;
-        }
-        $self->SUPER::make_executable($script_bat);
-      } else {
-        warn "Unable to convert '$script' to an executable.\n";
-      }
+      $self->SUPER::make_executable($script_bat);
     }
   } else {
     warn "Could not find 'pl2bat.bat' utility needed to make scripts executable.\n"
@@ -87,6 +74,25 @@ sub make_executable {
   }
 }
 
+sub ACTION_realclean {
+  my ($self) = @_;
+  $self->depends_on('clean');
+
+  my $basename = basename($0);
+  $basename =~ s/(?:\.bat)?$//i;
+
+  if ( $basename eq $self->build_script ) {
+    my $full_progname = $0;
+    $full_progname =~ s/(?:\.bat)?$/.bat/i;
+
+    my $fh = IO::File->new(">> $basename.bat") or die "Can't create $basename.bat: $!";
+    print $fh qq(start "" /min "\%comspec\%" /c del "$full_progname"); # should work for NT variants, possibly 9x
+    close $fh ;
+
+  }
+
+  $self->delete_filetree($self->config_dir, $self->build_script);
+}
 
 sub manpage_separator {
     return '.';
