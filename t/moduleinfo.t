@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 64;
+use MBTest tests => 66;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -101,6 +101,13 @@ package Simple;
 $VERSION = '1.23';
 package Simple2;
 if ( $Simple::VERSION ) {
+    # whatever
+}
+---
+  <<'---', # $VERSION checked only in assignments, not regexp ops
+package Simple;
+$VERSION = '1.23';
+if ( $VERSION =~ /1\.23/ ) {
     # whatever
 }
 ---
