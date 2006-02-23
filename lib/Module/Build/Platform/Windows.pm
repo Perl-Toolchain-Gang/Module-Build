@@ -38,7 +38,7 @@ sub _find_pl2bat {
   } else {
     @potential_dirs = map { File::Spec->canonpath($_) }
       @${cf}{qw(installscript installbin installsitebin installvendorbin)},
-      File::Basename::dirname($self->{properties}{perl});
+      File::Basename::dirname($self->perl);
   }
 
   foreach my $dir (@potential_dirs) {
@@ -54,44 +54,68 @@ sub make_executable {
   my $self = shift;
   $self->SUPER::make_executable(@_);
 
+  my $perl = $self->perl;
+
   my $pl2bat = $self->{config}{pl2bat};
+  my $pl2bat_args = '';
 
   if ( defined($pl2bat) && length($pl2bat) ) {
+
     foreach my $script (@_) {
       next if $script =~ /\.(bat|cmd)$/i; # already a script; nothing to do
 
       (my $script_bat = $script) =~ s/\.plx?$//i;
       $script_bat .= '.bat'; # MSWin32 executable batch script file extension
 
-#     $self->add_to_cleanup($script_bat); # don't do this for $script_bat since it unlinks itself
-      local $self->{properties}{quiet} = 1 if $self->build_script; # Psst, keep this quiet
-      my $status = $self->do_system("$self->{properties}{perl} $pl2bat < $script > $script_bat");
+      my $quiet_state = $self->{properties}{quiet}; # keep quiet
+      if ( $script eq $self->build_script ) {
+        $self->{properties}{quiet} = 1;
+        $pl2bat_args =
+          q(-n "-x -S """%0""" "--build_bat" %*" ) .
+          q(-o "-x -S """%0""" "--build_bat" %1 %2 %3 %4 %5 %6 %7 %8 %9");
+      }
+
+      my $status = $self->do_system("$perl $pl2bat $pl2bat_args " .
+                                    "< $script > $script_bat");
       $self->SUPER::make_executable($script_bat);
+
+      $self->{properties}{quiet} = $quiet_state; # restore quiet
     }
+
   } else {
-    warn "Could not find 'pl2bat.bat' utility needed to make scripts executable.\n"
-       . "Unable to convert scripts ( " . join(', ', @_) . " ) to executables.\n";
+    warn <<"EOF";
+Could not find 'pl2bat.bat' utility needed to make scripts executable.
+Unable to convert scripts ( @{[join(', ', @_)]} ) to executables.
+EOF
   }
 }
 
 sub ACTION_realclean {
   my ($self) = @_;
-  $self->depends_on('clean');
+
+  $self->SUPER::ACTION_realclean();
 
   my $basename = basename($0);
   $basename =~ s/(?:\.bat)?$//i;
 
   if ( $basename eq $self->build_script ) {
-    my $full_progname = $0;
-    $full_progname =~ s/(?:\.bat)?$/.bat/i;
+    if ( $self->build_bat ) {
+      my $full_progname = $0;
+      $full_progname =~ s/(?:\.bat)?$/.bat/i;
 
-    my $fh = IO::File->new(">> $basename.bat") or die "Can't create $basename.bat: $!";
-    print $fh qq(start "" /min "\%comspec\%" /c del "$full_progname"); # should work for NT variants, possibly 9x
-    close $fh ;
+      # Syntax differs between 9x & NT: the later requires a null arg (???)
+      require Win32;
+      my $null_arg = (Win32::GetOSVersion == 2) ? '""' : '';
+      my $cmd = qq(start $null_arg /min "\%comspec\%" /c del "$full_progname");
 
+      my $fh = IO::File->new(">> $basename.bat")
+        or die "Can't create $basename.bat: $!";
+      print $fh $cmd;
+      close $fh ;
+    } else {
+      $self->delete_filetree($self->build_script . '.bat');
+    }
   }
-
-  $self->delete_filetree($self->config_dir, $self->build_script);
 }
 
 sub manpage_separator {

@@ -604,6 +604,7 @@ __PACKAGE__->add_property(blib => 'blib');
 __PACKAGE__->add_property(build_class => 'Module::Build');
 __PACKAGE__->add_property(build_elements => [qw(PL support pm xs pod script)]);
 __PACKAGE__->add_property(build_script => 'Build');
+__PACKAGE__->add_property(build_bat => 0);
 __PACKAGE__->add_property(config_dir => '_build');
 __PACKAGE__->add_property(include_dirs => []);
 __PACKAGE__->add_property(installdirs => 'site');
@@ -1415,6 +1416,7 @@ sub _optional_arg {
   $opt = $self->_translate_option($opt);
 
   my @bool_opts = qw(
+    build_bat
     create_readme
     pollute
     quiet
