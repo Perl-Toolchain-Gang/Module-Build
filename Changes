@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_08
 
+ - Modify add_build_element() so that it only adds elements if they
+   don't already exist. [David Wheeler]
+
  - Fix detection of $VERSION expressions that are not
    assignments. [Spotted by Chris Dolan]
 

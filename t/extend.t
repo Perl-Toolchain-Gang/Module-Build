@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 52;
+use MBTest tests => 53;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -78,6 +78,10 @@ print "Hello, World!\n";
   ok $mb;
 
   $mb->add_build_element('foo');
+  $mb->add_build_element('foo');
+  is_deeply $mb->build_elements, [qw(PL support pm xs pod script foo)],
+      'The foo element should be in build_elements only once';
+
   $mb->dispatch('build');
   ok -e File::Spec->catfile($mb->blib, 'lib', 'test.foo');
 

@@ -449,8 +449,9 @@ sub _mb_feature {
 
 
 sub add_build_element {
-  my $self = shift;
-  push @{$self->build_elements}, shift;
+    my ($self, $elem) = @_;
+    my $elems = $self->build_elements;
+    push @$elems, $elem unless grep { $_ eq $elem } @$elems;
 }
 
 sub ACTION_config_data {
