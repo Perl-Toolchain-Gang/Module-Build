@@ -5,6 +5,11 @@ Revision history for Perl extension Module::Build.
  - Modify add_build_element() so that it only adds elements if they
    don't already exist. [David Wheeler]
 
+ - Fixed testing problems on VMS related to non-case-preserving
+   filesystems.  We now bundle Tie::CPHash in the distribution (just
+   for testing purposes, it doesn't get installed) to help with
+   this. [Craig Berry and Yitzchak Scott-Thoennes]
+
  - Fix detection of $VERSION expressions that are not
    assignments. [Spotted by Chris Dolan]
 

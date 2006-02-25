@@ -33,6 +33,7 @@ t/basic.t
 t/bundled/Test/Builder.pm
 t/bundled/Test/More.pm
 t/bundled/Test/Simple.pm
+t/bundled/Tie/CPHash.pm
 t/compat.t
 t/destinations.t
 t/ext.t

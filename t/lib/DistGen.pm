@@ -14,6 +14,7 @@ use File::Find ();
 use File::Path ();
 use File::Spec ();
 use IO::File ();
+use Tie::CPHash;
 
 sub new {
   my $package = shift;
@@ -28,6 +29,10 @@ sub new {
     %options,
   );
   my $self = bless( \%data, $package );
+
+  tie %{$self->{filedata}}, 'Tie::CPHash';
+
+  tie %{$self->{pending}{change}}, 'Tie::CPHash';
 
   if ( -d $self->dirname ) {
     warn "Warning: Removing existing directory '@{[$self->dirname]}'\n";
@@ -280,16 +285,23 @@ sub clean {
   }
 
   my %names;
+  tie %names, 'Tie::CPHash';
   foreach my $file ( keys %{$self->{filedata}} ) {
     my $filename = $self->_real_filename( $file );
     my $dirname = File::Basename::dirname( $filename );
 
     $names{$filename} = 0;
 
+    print "Splitting '$dirname'\n" if $VERBOSE;
     my @dirs = File::Spec->splitdir( $dirname );
     while ( @dirs ) {
-      my $dir = File::Spec->catdir( @dirs );
-      $names{$dir} = 0;
+      my $dir = ( scalar(@dirs) == 1
+                  ? $dirname
+                  : File::Spec->catdir( @dirs ) );
+      if (length $dir) {
+        print "Setting directory name '$dir' in \%names\n" if $VERBOSE;
+        $names{$dir} = 0;
+      }
       pop( @dirs );
     }
   }
@@ -297,11 +309,13 @@ sub clean {
   File::Find::finddepth( sub {
     my $name = File::Spec->canonpath( $File::Find::name );
 
+    $name =~ s/\.\z// if $^O eq 'VMS';
+
     if ( not exists $names{$name} ) {
       print "Removing '$name'\n" if $VERBOSE;
       File::Path::rmtree( $_ );
     }
-  }, File::Spec->curdir );
+  }, ($^O eq "VMS" ? './' : File::Spec->curdir) );
 
   chdir( $here );
 }
