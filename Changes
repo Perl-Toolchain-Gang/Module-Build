@@ -10,6 +10,11 @@ Revision history for Perl extension Module::Build.
    for testing purposes, it doesn't get installed) to help with
    this. [Craig Berry and Yitzchak Scott-Thoennes]
 
+ - We incorrectly documented the 'dynamic_config' flag in the META.yml
+   file as having a default value of false, but according to the
+   META.yml spec (which, for heaven's sake, we wrote) its default
+   value is true.  Fixed. [Spotted by Adam Kennedy]
+
  - Fix detection of $VERSION expressions that are not
    assignments. [Spotted by Chris Dolan]
 

@@ -273,14 +273,14 @@ better.
 
 A boolean flag indicating whether the F<Build.PL> file must be
 executed, or whether this module can be built, tested and installed
-solely from consulting its metadata file.  The default value is 0,
-reflecting the fact that "most" of the modules on CPAN just need to be
-copied from one place to another.  The main reason to set this to a
-true value is that your module performs some dynamic configuration as
-part of its build/install process.
+solely from consulting its metadata file.  The main reason to set this
+to a true value is that your module performs some dynamic
+configuration as part of its build/install process.  If the flag is
+omitted, the F<META.yml> spec says that installation tools should
+treat it as 1 (true), because this is a safer way to behave.
 
 Currently C<Module::Build> doesn't actually do anything with this flag
-- it's probably going to be up to tools like C<CPAN.pm> to do
+- it's up to higher-level tools like C<CPAN.pm> to do
 something useful with it.  It can potentially bring lots of security,
 packaging, and convenience improvements.
 
