@@ -15,6 +15,10 @@ Revision history for Perl extension Module::Build.
    META.yml spec (which, for heaven's sake, we wrote) its default
    value is true.  Fixed. [Spotted by Adam Kennedy]
 
+ - The have_c_compiler() method was dying if the ExtUtils::CBuilder
+   module wasn't around, which is obviously an unhelpful thing to do.
+   Now it just returns false. [Spotted by John Peacock]
+
  - Fix detection of $VERSION expressions that are not
    assignments. [Spotted by Chris Dolan]
 
