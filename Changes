@@ -5,6 +5,11 @@ Revision history for Perl extension Module::Build.
  - Modify add_build_element() so that it only adds elements if they
    don't already exist. [David Wheeler]
 
+ - Fixed a bug in the 'pass-through' Makefile.PL in which we would die
+   if CPAN::Shell->install returned false, but apparently this return
+   value is unreliable.  Now we only die if the module is actually
+   unavailable after installation.
+
  - Fixed testing problems on VMS related to non-case-preserving
    filesystems.  We now bundle Tie::CPHash in the distribution (just
    for testing purposes, it doesn't get installed) to help with
