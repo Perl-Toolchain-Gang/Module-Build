@@ -83,6 +83,7 @@ if (exists $opts{feature}) {
     }
     $cf->set_config($k, $v);
   }
+  $cf->write;
   print "Config value" . 's'x(keys(%to_set)>1) . " saved\n";
 }
 

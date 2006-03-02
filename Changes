@@ -27,6 +27,11 @@ Revision history for Perl extension Module::Build.
  - Fix detection of $VERSION expressions that are not
    assignments. [Spotted by Chris Dolan]
 
+ - The config_data script for querying and/or setting a module's
+   config data was forgetting to call write() after setting config
+   values (though setting feature values was working fine).
+   Fixed. [Brian Duggan]
+
  - On Windows, remove the pl2bat generated 'Build.bat' script without
    the annoying "The batch file cannot be found." error.  [Solution
    provided by RazTK and foxidrive on newsgroup alt.msdos.batch]
