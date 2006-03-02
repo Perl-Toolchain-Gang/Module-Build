@@ -27,6 +27,10 @@ Revision history for Perl extension Module::Build.
  - Fix detection of $VERSION expressions that are not
    assignments. [Spotted by Chris Dolan]
 
+ - Obfuscate one of our constructs that uses a $VERSION variable,
+   because it was getting picked up by ExtUtils::MakeMaker's
+   version-finder. [Spotted by Randal Schwartz]
+
  - The config_data script for querying and/or setting a module's
    config data was forgetting to call write() after setting config
    values (though setting feature values was working fine).

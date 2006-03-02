@@ -2726,7 +2726,8 @@ EOF
 	$self->output_fh($_[1]) if $_[1];
 	$self->$old_parse_file($_[0]);
       }
-        if $Pod::Text::VERSION == 3.01;
+        if $Pod::Text::VERSION
+	  == 3.01; # Split line to avoid evil version-finder
 
       Pod::Text::pod2text( $docfile, $fh );
 
