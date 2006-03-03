@@ -10,6 +10,10 @@ Revision history for Perl extension Module::Build.
    and no author could be determined for this distribution - this has
    now been fixed.
 
+ - Merged in a YAML-related change from the 0.27_xx (beta) line that
+   should allow us to work with recent (greater than version 0.49)
+   versions of YAML. [Re-spotted by Adam Kennedy]
+
 0.2611  Mon Jun 13 22:22:53 CDT 2005
 
  - Fix the output of an informational message that we output when

@@ -2274,6 +2274,7 @@ EOM
   }
 
   require YAML;
+  require YAML::Node;
 
   # We use YAML::Node to get the order nice in the YAML file.
   my $node = YAML::Node->new({});
