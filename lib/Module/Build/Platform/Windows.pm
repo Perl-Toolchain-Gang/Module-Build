@@ -105,7 +105,7 @@ sub ACTION_realclean {
 
       # Syntax differs between 9x & NT: the later requires a null arg (???)
       require Win32;
-      my $null_arg = (Win32::GetOSVersion == 2) ? '""' : '';
+      my $null_arg = (Win32::GetOSVersion() == 2) ? '""' : '';
       my $cmd = qq(start $null_arg /min "\%comspec\%" /c del "$full_progname");
 
       my $fh = IO::File->new(">> $basename.bat")
