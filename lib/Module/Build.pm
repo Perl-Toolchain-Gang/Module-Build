@@ -222,6 +222,12 @@ C<build> action, which in turn runs the C<code> and C<docs> actions.
 
 This is analogous to the MakeMaker 'make all' target.
 
+=item testpodcoverage
+
+This checks the pod coverage of the distribution and 
+produces C<Test::Harness>-style output. If you are a module author,
+this is useful to run before creating a new release.
+
 =item clean
 
 This action will clean up any files that the build process may have

@@ -2172,6 +2172,18 @@ sub ACTION_testpod {
   }
 }
 
+sub ACTION_testpodcoverage {
+  my $self = shift;
+
+  $self->depends_on('docs');
+  
+  eval q{use Test::Pod::Coverage 1.00; 1}
+    or die "The 'testpodcoverage' action requires ",
+           "Test::Pod::Coverage version 1.00";
+
+  all_pod_coverage_ok();
+}
+
 sub ACTION_docs {
   my $self = shift;
 
