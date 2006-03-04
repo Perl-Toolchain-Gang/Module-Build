@@ -112,13 +112,13 @@ Standard process for building & installing modules:
   ./Build test
   ./Build install
 
-Or, if you're on a platform (like DOS or Windows) that doesn't like
+Or, if you're on a platform (like DOS or Windows) that doesn't require
 the "./" notation, you can do this:
 
   perl Build.PL
-  perl Build
-  perl Build test
-  perl Build install
+  Build
+  Build test
+  Build install
 
 
 =head1 DESCRIPTION

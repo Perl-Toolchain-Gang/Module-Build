@@ -44,12 +44,13 @@ directories like so:
   ./Build test
   ./Build install
 
-If you're on Windows, you'll probably do something like this:
+If you're on Windows where the current directory is always searched
+first for scripts, you'll probably do something like this:
 
   perl Build.PL
-  .\Build
-  .\Build test
-  .\Build install
+  Build
+  Build test
+  Build install
 
 On the old Mac OS (version 9 or lower) using MacPerl, you can
 double-click on the F<Build.PL> script to create the F<Build> script,
@@ -83,7 +84,7 @@ If the end-user might not have C<Module::Build> installed, it's
 probably best to supply a "traditional" F<Makefile.PL>.  The
 C<Module::Build::Compat> module has some very helpful tools for
 keeping a F<Makefile.PL> in sync with a F<Build.PL>.  See its
-documentation, and also the C<create_makefile_pl> parameter to the 
+documentation, and also the C<create_makefile_pl> parameter to the
 C<< Module::Build->new() >> method.
 
 

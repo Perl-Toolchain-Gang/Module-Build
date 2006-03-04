@@ -2,6 +2,7 @@ package Module::Build::Platform::Windows;
 
 use strict;
 
+use Config;
 use File::Basename;
 use File::Spec;
 use IO::File;
@@ -11,83 +12,9 @@ use Module::Build::Base;
 use vars qw(@ISA);
 @ISA = qw(Module::Build::Base);
 
-sub new {
-  my $class = shift;
-  my $self = $class->SUPER::new(@_);
 
-  $self->_find_pl2bat();
-  return $self;
-}
-
-
-sub _find_pl2bat {
-  my $self = shift;
-  my $cf = $self->{config};
-
-  # Find 'pl2bat.bat' utility used for installing perl scripts.
-  # This search is probably overkill, as I've never met a MSWin32 perl
-  # where these locations differed from each other.
-
-  my @potential_dirs;
-
-  if ( $ENV{PERL_CORE} ) {
-
-    require ExtUtils::CBuilder;
-    @potential_dirs = File::Spec->catdir( ExtUtils::CBuilder->new()->perl_src(),
-                                          qw/win32 bin/ );
-  } else {
-    @potential_dirs = map { File::Spec->canonpath($_) }
-      @${cf}{qw(installscript installbin installsitebin installvendorbin)},
-      File::Basename::dirname($self->perl);
-  }
-
-  foreach my $dir (@potential_dirs) {
-    my $potential_file = File::Spec->catfile($dir, 'pl2bat.bat');
-    if ( -f $potential_file && !-d _ ) {
-      $cf->{pl2bat} = $potential_file;
-      last;
-    }
-  }
-}
-
-sub make_executable {
-  my $self = shift;
-  $self->SUPER::make_executable(@_);
-
-  my $perl = $self->perl;
-
-  my $pl2bat = $self->{config}{pl2bat};
-  my $pl2bat_args = '';
-
-  if ( defined($pl2bat) && length($pl2bat) ) {
-
-    foreach my $script (@_) {
-      next if $script =~ /\.(bat|cmd)$/i; # already a script; nothing to do
-
-      (my $script_bat = $script) =~ s/\.plx?$//i;
-      $script_bat .= '.bat'; # MSWin32 executable batch script file extension
-
-      my $quiet_state = $self->{properties}{quiet}; # keep quiet
-      if ( $script eq $self->build_script ) {
-        $self->{properties}{quiet} = 1;
-        $pl2bat_args =
-          q(-n "-x -S """%0""" "--build_bat" %*" ) .
-          q(-o "-x -S """%0""" "--build_bat" %1 %2 %3 %4 %5 %6 %7 %8 %9");
-      }
-
-      my $status = $self->do_system("$perl $pl2bat $pl2bat_args " .
-                                    "< $script > $script_bat");
-      $self->SUPER::make_executable($script_bat);
-
-      $self->{properties}{quiet} = $quiet_state; # restore quiet
-    }
-
-  } else {
-    warn <<"EOF";
-Could not find 'pl2bat.bat' utility needed to make scripts executable.
-Unable to convert scripts ( @{[join(', ', @_)]} ) to executables.
-EOF
-  }
+sub manpage_separator {
+    return '.';
 }
 
 sub ACTION_realclean {
@@ -103,9 +30,10 @@ sub ACTION_realclean {
       my $full_progname = $0;
       $full_progname =~ s/(?:\.bat)?$/.bat/i;
 
+      # Vodoo required to have a batch file delete itself without error;
       # Syntax differs between 9x & NT: the later requires a null arg (???)
       require Win32;
-      my $null_arg = (Win32::GetOSVersion() == 2) ? '""' : '';
+      my $null_arg = (Win32::IsWinNT()) ? '""' : '';
       my $cmd = qq(start $null_arg /min "\%comspec\%" /c del "$full_progname");
 
       my $fh = IO::File->new(">> $basename.bat")
@@ -118,9 +46,113 @@ sub ACTION_realclean {
   }
 }
 
-sub manpage_separator {
-    return '.';
+sub make_executable {
+  my $self = shift;
+
+  $self->SUPER::make_executable(@_);
+
+  foreach my $script (@_) {
+    my %opts = ();
+    if ( $script eq $self->build_script ) {
+      $opts{ntargs}    = q(-x -S %0 --build_bat %*);
+      $opts{otherargs} = q(-x -S "%0" --build_bat %1 %2 %3 %4 %5 %6 %7 %8 %9);
+    }
+
+    my $out = eval {$self->pl2bat(in => $script, update => 1, %opts)};
+    if ( $@ ) {
+      $self->log_warn("WARNING: Unable to convert file '$script' to an executable script:\n$@");
+    } else {
+      $self->SUPER::make_executable($out);
+    }
+  }
 }
+
+# This routine was copied almost verbatim from the 'pl2bat' utility
+# distributed with perl. It requires too much vodoo with shell quoting
+# differences and shortcomings between the various flavors of Windows
+# to reliably shell out
+sub pl2bat {
+  my $self = shift;
+  my %opts = @_;
+
+  # NOTE: %0 is already enclosed in doublequotes by cmd.exe, as appropriate
+  $opts{ntargs}    = '-x -S %0 %*' unless exists $opts{ntargs};
+  $opts{otherargs} = '-x -S "%0" %1 %2 %3 %4 %5 %6 %7 %8 %9' unless exists $opts{otherargs};
+
+  $opts{stripsuffix} = '/\\.plx?/' unless exists $opts{stripsuffix};
+  $opts{stripsuffix} = ($opts{stripsuffix} =~ m{^/([^/]*[^/\$]|)\$?/?$} ? $1 : "\Q$opts{stripsuffix}\E");
+
+  unless (exists $opts{out}) {
+    $opts{out} = $opts{in};
+    $opts{out} =~ s/$opts{stripsuffix}$//oi;
+    $opts{out} .= '.bat' unless $opts{in} =~ /\.bat$/i or $opts{in} =~ /^-$/;
+  }
+
+  my $head = <<EOT;
+    \@rem = '--*-Perl-*--
+    \@echo off
+    if "%OS%" == "Windows_NT" goto WinNT
+    perl $opts{otherargs}
+    goto endofperl
+    :WinNT
+    perl $opts{ntargs}
+    if NOT "%COMSPEC%" == "%SystemRoot%\\system32\\cmd.exe" goto endofperl
+    if %errorlevel% == 9009 echo You do not have Perl in your PATH.
+    if errorlevel 1 goto script_failed_so_exit_with_non_zero_val 2>nul
+    goto endofperl
+    \@rem ';
+EOT
+
+  $head =~ s/^\s+//gm;
+  my $headlines = 2 + ($head =~ tr/\n/\n/);
+  my $tail = "\n__END__\n:endofperl\n";
+
+  my $linedone  = 0;
+  my $taildone  = 0;
+  my $linenum   = 0;
+  my $skiplines = 0;
+
+  my $start = $Config{startperl};
+  $start = "#!perl" unless $start =~ /^#!.*perl/;
+
+  my $in = IO::File->new("< $opts{in}") or die "Can't open $opts{in}: $!";
+  my @file = <$in>;
+  $in->close;
+
+  foreach my $line ( @file ) {
+    $linenum++;
+    if ( $line =~ /^:endofperl\b/ ) {
+      if (!exists $opts{update}) {
+        warn "$opts{in} has already been converted to a batch file!\n";
+        return;
+      }
+      $taildone++;
+    }
+    if ( not $linedone and $line =~ /^#!.*perl/ ) {
+      if (exists $opts{update}) {
+        $skiplines = $linenum - 1;
+        $line .= "#line ".(1+$headlines)."\n";
+      } else {
+	$line .= "#line ".($linenum+$headlines)."\n";
+      }
+	$linedone++;
+    }
+    if ( $line =~ /^#\s*line\b/ and $linenum == 2 + $skiplines ) {
+      $line = "";
+    }
+  }
+
+  my $out = IO::File->new("> $opts{out}") or die "Can't open $opts{out}: $!";
+  print $out $head;
+  print $out $start, ( $opts{usewarnings} ? " -w" : "" ),
+             "\n#line ", ($headlines+1), "\n" unless $linedone;
+  print $out @file[$skiplines..$#file];
+  print $out $tail unless $taildone;
+  $out->close;
+
+  return $opts{out};
+}
+
 
 sub split_like_shell {
   # As it turns out, Windows command-parsing is very different from

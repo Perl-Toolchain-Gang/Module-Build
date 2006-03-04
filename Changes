@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.27_08
 
+ - Due to shell quoting issues and differences in syntax between
+   various flavors of Windows, the code for the 'pl2bat' utility
+   distributed with Perl has been incorporated into M::B::P::Windows.
+   [Thanks to Dr Bean and Ron Savage for help testing and isolating
+   the problem.]
+
  - Modify add_build_element() so that it only adds elements if they
    don't already exist. [David Wheeler]
 
