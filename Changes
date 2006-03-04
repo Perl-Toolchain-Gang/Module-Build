@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.27_08
+0.27_08  Fri Mar  3 21:22:41 CST 2006
 
  - Due to shell quoting issues and differences in syntax between
    various flavors of Windows, the code for the 'pl2bat' utility
