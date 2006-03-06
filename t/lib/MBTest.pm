@@ -5,22 +5,25 @@ use strict;
 use File::Spec;
 
 BEGIN {
+  # Make sure none of our tests load the users ~/.modulebuildrc file
+  $ENV{MODULEBUILDRC} = 'NONE';
+
   # In case the test wants to use Test::More or our other bundled
   # modules, make sure they can be loaded.  They'll still do "use
   # Test::More" in the test script.
   my $t_lib = File::Spec->catdir('t', 'bundled');
-  push @INC, $t_lib; # Let user's installed version override
 
-  # Make sure none of our tests load the users ~/.modulebuildrc file
-  $ENV{MODULEBUILDRC} = 'NONE';
-
-  if ($ENV{PERL_CORE}) {
+  if (!$ENV{PERL_CORE}) {
+    push @INC, $t_lib; # Let user's installed version override
+  } else {
     # We change directories, so expand @INC to absolute paths
     # Also add .
     @INC = (map(File::Spec->rel2abs($_), @INC), ".");
 
     # we are in 't', go up a level so we don't create t/t/_tmp
     chdir '..' or die "Couldn't chdir to ..";
+
+    push @INC, File::Spec->catdir(qw/lib Module Build/, $t_lib);
 
     # make sure children get @INC pointing to uninstalled files
     require Cwd;
