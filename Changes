@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_09
 
+ - Fixed warning message where we were printing the wrong field names.
+   [Chris Dolan]
+
  - Added a 'testpodcoverage' action that runs a POD coverage check for
    all modules in the distribution. [Yanick Champoux]
 
