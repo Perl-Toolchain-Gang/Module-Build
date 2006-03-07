@@ -333,8 +333,15 @@ sub find_perl_interpreter {
   } elsif (defined $exe) {
     $thisperl .= $exe unless $thisperl =~ m/$exe$/i;
   }
-  
-  foreach my $perl ( $c->{perlpath},
+
+  my $uninstperl;
+  if ($ENV{PERL_CORE}) {
+    require ExtUtils::CBuilder;
+    $uninstperl = File::Spec->catfile(ExtUtils::CBuilder::->perl_src, $thisperl);
+  }
+
+  foreach my $perl ( $uninstperl || (),
+                     $c->{perlpath},
 		     map File::Spec->catfile($_, $thisperl), File::Spec->path()
 		   ) {
     return $perl if -f $perl and $proto->_perl_is_same($perl);

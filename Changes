@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_09
 
+ - Fixed find_perl_interpreter() so we can find the perl executable
+   when running from uninstalled perl. [Yitzchak Scott-Thoennes]
+
  - Fixed warning message where we were printing the wrong field names.
    [Chris Dolan]
 
