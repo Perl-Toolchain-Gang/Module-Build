@@ -8,6 +8,9 @@ Revision history for Perl extension Module::Build.
  - Added a 'testpodcoverage' action that runs a POD coverage check for
    all modules in the distribution. [Yanick Champoux]
 
+ - Added a Cookbook example of subclassing to modify an action. [Dylan
+   Martin and David Golden]
+
 0.27_08  Fri Mar  3 21:22:41 CST 2006
 
  - Due to shell quoting issues and differences in syntax between
