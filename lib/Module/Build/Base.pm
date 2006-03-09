@@ -769,9 +769,9 @@ sub dist_name {
   return $p->{dist_name} if defined $p->{dist_name};
   
   die "Can't determine distribution name, must supply either 'dist_name' or 'module_name' parameter"
-    unless $p->{module_name};
+    unless $self->module_name;
   
-  ($p->{dist_name} = $p->{module_name}) =~ s/::/-/g;
+  ($p->{dist_name} = $self->module_name) =~ s/::/-/g;
   
   return $p->{dist_name};
 }
@@ -3433,12 +3433,14 @@ sub install_map {
     "WARNING: Can't figure out install path for types: @skipping\n" .
     "Files will not be installed.\n"
   ) if @skipping;
-  
+
   # Write the packlist into the same place as ExtUtils::MakeMaker.
-  my $archdir = $self->install_destination('arch');
-  my @ext = split /::/, $self->module_name;
-  $map{write} = File::Spec->catdir($archdir, 'auto', @ext, '.packlist');
-  
+  if (my $module_name = $self->module_name) {
+    my $archdir = $self->install_destination('arch');
+    my @ext = split /::/, $module_name;
+    $map{write} = File::Spec->catdir($archdir, 'auto', @ext, '.packlist');
+  }
+
   # Handle destdir
   if (length(my $destdir = $self->destdir || '')) {
     foreach (keys %map) {
