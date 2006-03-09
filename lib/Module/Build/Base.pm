@@ -776,15 +776,14 @@ sub dist_name {
   return $p->{dist_name};
 }
 
-sub _find_dist_version_from {
+sub dist_version_from {
   my ($self) = @_;
   my $p = $self->{properties};
   if ($self->module_name) {
-    return $p->{dist_version_from} ||=
+    $p->{dist_version_from} ||=
 	join( '/', 'lib', split(/::/, $self->module_name) ) . '.pm';
-  } else {
-    return undef;
   }
+  return $p->{dist_version_from} || undef;
 }
 
 sub dist_version {
@@ -792,11 +791,9 @@ sub dist_version {
   my $p = $self->{properties};
 
   return $p->{dist_version} if defined $p->{dist_version};
-  
-  $self->_find_dist_version_from;
 
-  if ( $p->{dist_version_from} ) {
-    my $version_from = File::Spec->catfile( split( qr{/}, $p->{dist_version_from} ) );
+  if ( my $dist_version_from = $self->dist_version_from ) {
+    my $version_from = File::Spec->catfile( split( qr{/}, $dist_version_from ) );
     my $pm_info = Module::Build::ModuleInfo->new_from_file( $version_from )
       or die "Can't find file $version_from to determine version";
     $p->{dist_version} = $pm_info->version();
@@ -2767,7 +2764,6 @@ EOF
 
 sub _main_docfile {
   my $self = shift;
-  $self->_find_dist_version_from;
   if ( my $pm_file = $self->dist_version_from ) {
     (my $pod_file = $pm_file) =~ s/.pm$/.pod/;
     return (-e $pod_file ? $pod_file : $pm_file);
