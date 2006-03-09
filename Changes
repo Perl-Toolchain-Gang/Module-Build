@@ -14,6 +14,11 @@ Revision history for Perl extension Module::Build.
  - Added a Cookbook example of subclassing to modify an action. [Dylan
    Martin and David Golden]
 
+ - When building HTML documentation, we were opening the POD file and
+   not checking whether the open succeeded, which of course caused
+   problems down the line if it failed.  Now we do "or die(...)" like
+   everywhere else. [Spotted by Joerg Braun]
+
 0.27_08  Fri Mar  3 21:22:41 CST 2006
 
  - Due to shell quoting issues and differences in syntax between

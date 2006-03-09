@@ -2385,7 +2385,7 @@ sub htmlify_pods {
 			 ($path2root,
 			  $self->installdirs eq 'core' ? () : qw(site) ) );
 
-    my $fh = IO::File->new($infile);
+    my $fh = IO::File->new($infile) or die "Can't read $infile: $!";
     my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
 
     my $title = join( '::', (@dirs, $name) );
