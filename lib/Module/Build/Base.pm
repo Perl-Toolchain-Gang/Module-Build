@@ -336,6 +336,7 @@ sub find_perl_interpreter {
 
   my $uninstperl;
   if ($ENV{PERL_CORE}) {
+    # CBuilder is also in the core, so it should be available here
     require ExtUtils::CBuilder;
     $uninstperl = File::Spec->catfile(ExtUtils::CBuilder::->perl_src, $thisperl);
   }
