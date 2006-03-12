@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.27_09
+0.27_09  Sat Mar 11 22:48:54 EST 2006
 
  - Fixed find_perl_interpreter() so we can find the perl executable
    when running from uninstalled perl even when $^X contains a
