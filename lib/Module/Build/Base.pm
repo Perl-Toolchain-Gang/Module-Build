@@ -339,7 +339,10 @@ sub _perl_is_same {
 # interpreter, on other it may contain a relative path, or simply
 # 'perl'. This can also vary depending on whether a path was supplied
 # when perl was invoked. Additionally, the value in $^X may omit the
-# executable extension on platforms that use one. It's a
+# executable extension on platforms that use one. It's a fatal error
+# if the interpreter can't be found because it can result in undefined
+# behavior by routines that depend on it (generating errors or
+# invoking the wrong perl.
 sub find_perl_interpreter {
   my $proto = shift;
   my $c     = ref($proto) ? $proto->config : \%Config::Config;
@@ -406,7 +409,7 @@ sub find_perl_interpreter {
   }
 
   # We've tried all alternatives, and didn't find a perl that matches
-  # our configuration. Throw an exception, and list alternative we tried.
+  # our configuration. Throw an exception, and list alternatives we tried.
   my @paths = map File::Basename::dirname($_), @potential_perls;
   die "Can't locate the perl binary used to run this script " .
       "in (@paths)\n";
