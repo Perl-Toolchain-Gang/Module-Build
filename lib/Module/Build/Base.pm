@@ -12,7 +12,6 @@ use File::Compare ();
 use Data::Dumper ();
 use IO::File ();
 use Text::ParseWords ();
-use Carp ();
 
 use Module::Build::ModuleInfo;
 use Module::Build::Notes;
@@ -315,39 +314,102 @@ sub cwd {
   return Cwd::cwd();
 }
 
+# Determine whether a given binary is the same as the perl
+# (configuration) that started this process.
 sub _perl_is_same {
   my ($self, $perl) = @_;
-  return `$perl -MConfig=myconfig -e print -e myconfig` eq Config->myconfig;
+
+  # When run from the perl core, @INC will include the directories
+  # where perl is yet to be installed. We need to reference the
+  # absolute path within the source distribution where it can find
+  # it's Config.pm This also prevents us from picking up a Config.pm
+  # from a different configuration that happens to be already
+  # installed in @INC.
+  my $INC = '';
+  if ($ENV{PERL_CORE}) {
+    $INC = '-I' . File::Spec->catdir(File::Basename::dirname($perl), 'lib');
+  }
+
+  return `$perl $INC -MConfig=myconfig -e print -e myconfig` eq Config->myconfig;
 }
 
+# Returns the absolute path of the perl interperter used to invoke
+# this process. The path is derived from $^X or $Config{perlpath}. On
+# some platforms $^X contains the complete absolute path of the
+# interpreter, on other it may contain a relative path, or simply
+# 'perl'. This can also vary depending on whether a path was supplied
+# when perl was invoked. Additionally, the value in $^X may omit the
+# executable extension on platforms that use one. It's a
 sub find_perl_interpreter {
-  return $^X if File::Spec->file_name_is_absolute($^X);
   my $proto = shift;
-  my $c = ref($proto) ? $proto->config : \%Config::Config;
-  my $exe = $c->{exe_ext};
+  my $c     = ref($proto) ? $proto->config : \%Config::Config;
 
-  my $thisperl = $^X;
-  if ($proto->os_type eq 'VMS') {
-    # VMS might have a file version at the end
-    $thisperl .= $exe unless $thisperl =~ m/$exe(;\d+)?$/i;
-  } elsif (defined $exe) {
-    $thisperl .= $exe unless $thisperl =~ m/$exe$/i;
-  }
+  my $perl  = $^X;
+  my $perl_basename = File::Basename::basename($perl);
 
-  my $uninstperl;
+  my @potential_perls;
+
+  # Try 1, Check $^X for absolute path
+  push( @potential_perls, $perl )
+      if File::Spec->file_name_is_absolute($perl);
+
+  # Try 2, Check $^X for a valid relative path
+  my $abs_perl = File::Spec->rel2abs($perl);
+  push( @potential_perls, $abs_perl );
+
+  # Try 3, Last ditch effort: These two option use hackery to try to locate
+  # a suitable perl. The hack varies depending on whether we are running
+  # from an installed perl or an uninstalled perl in the perl source dist.
   if ($ENV{PERL_CORE}) {
+
+    # Try 3.A, If we are in a perl source tree, running an uninstalled
+    # perl, we can keep moving up the directory tree until we find our
+    # binary. We wouldn't do this under any other circumstances.
+
     # CBuilder is also in the core, so it should be available here
     require ExtUtils::CBuilder;
-    $uninstperl = File::Spec->catfile(ExtUtils::CBuilder::->perl_src, $thisperl);
+    my $perl_src = ExtUtils::CBuilder->perl_src;
+    if ( defined($perl_src) && length($perl_src) ) {
+      my $uninstperl =
+        File::Spec->rel2abs(File::Spec->catfile( $perl_src, $perl_basename ));
+      push( @potential_perls, $uninstperl );
+    }
+
+  } else {
+
+    # Try 3.B, First look in $Config{perlpath}, then search the users
+    # PATH. We do not want to do either if we are running from an
+    # uninstalled perl in a perl source tree.
+
+    push( @potential_perls, $c->{perlpath} );
+
+    push( @potential_perls,
+          map File::Spec->catfile($_, $perl_basename), File::Spec->path() );
   }
 
-  foreach my $perl ( $uninstperl || (),
-                     $c->{perlpath},
-		     map File::Spec->catfile($_, $thisperl), File::Spec->path()
-		   ) {
-    return $perl if -f $perl and $proto->_perl_is_same($perl);
+  # Now that we've enumerated the potential perls, it's time to test
+  # them to see if any of them match our configuration, returning the
+  # absolute path of the first successful match.
+  my $exe = $c->{exe_ext};
+  foreach my $thisperl ( @potential_perls ) {
+
+    if ($proto->os_type eq 'VMS') {
+      # VMS might have a file version at the end
+      $thisperl .= $exe unless $thisperl =~ m/$exe(;\d+)?$/i;
+    } elsif (defined $exe) {
+      $thisperl .= $exe unless $thisperl =~ m/$exe$/i;
+    }
+
+    if ( -f $thisperl && $proto->_perl_is_same($thisperl) ) {
+      return $thisperl;
+    }
   }
-  return;
+
+  # We've tried all alternatives, and didn't find a perl that matches
+  # our configuration. Throw an exception, and list alternative we tried.
+  my @paths = map File::Basename::dirname($_), @potential_perls;
+  die "Can't locate the perl binary used to run this script " .
+      "in (@paths)\n";
 }
 
 sub _is_interactive {
@@ -1235,8 +1297,7 @@ close(*DATA) unless eof(*DATA); # ensure no open handles to this script
 use $build_package;
 
 # Some platforms have problems setting \$^X in shebang contexts, fix it up here
-\$^X = Module::Build->find_perl_interpreter
-  unless File::Spec->file_name_is_absolute(\$^X);
+\$^X = Module::Build->find_perl_interpreter;
 
 if (-e 'Build.PL' and not $build_package->up_to_date('Build.PL', \$progname)) {
    warn "Warning: Build.PL has been altered.  You may need to run 'perl Build.PL' again.\\n";
