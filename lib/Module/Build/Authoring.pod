@@ -1045,6 +1045,30 @@ method) will be installed during the C<install> action.  Any settings
 for C<install_path>, C<install_base>, and C<prefix> are taken into
 account when determining the return value.
 
+=item install_path()
+
+=item install_path($type)
+
+=item install_path($type => $path)
+
+[version 0.28]
+
+Set or retrieve paths for specific installable elements. This is
+useful when you want to examine any explicit install paths specified
+by the user on the command line, or if you want to set the install
+path for a specific installable element based on another attribute
+like C<install_base()>.
+
+With no argument, it returns a reference to a hash containing all
+elements and their respective values. This hash should not be modified
+directly; use the multi-argument below form to change values.
+
+The single argument form returns the value associated with the
+element C<$type>.
+
+The multi-argument form allows you to set the paths for one or more
+element types. The return value is undefined.
+
 =item install_types()
 
 Returns a list of installable types that this build knows about.
