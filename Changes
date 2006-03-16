@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+0.27_10
+
+  - More fixes for find_perl_interpreter() to work with BSD flavored
+    UNIX: Ensure we always return absolute paths; throw an exception
+    upon failure to find correct interperter; document everything.
+
 0.27_09  Sat Mar 11 22:48:54 EST 2006
 
  - Fixed find_perl_interpreter() so we can find the perl executable
