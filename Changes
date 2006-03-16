@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_10
 
+  - Document the versions of Module::Build where each feature, action,
+    constructor argument, and method was first publicly documented.
+
   - More fixes for find_perl_interpreter() to work with BSD flavored
     UNIX: Ensure we always return absolute paths; throw an exception
     upon failure to find correct interperter; document everything.
