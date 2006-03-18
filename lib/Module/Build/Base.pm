@@ -685,6 +685,7 @@ __PACKAGE__->add_property(installdirs => 'site');
 __PACKAGE__->add_property(metafile => 'META.yml');
 __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(use_rcfile => 1);
+__PACKAGE__->add_property(create_packlist => 1);
 
 {
   my $Is_ActivePerl = eval {require ActivePerl::DocTools};
@@ -3500,7 +3501,7 @@ sub install_map {
   ) if @skipping;
 
   # Write the packlist into the same place as ExtUtils::MakeMaker.
-  if (my $module_name = $self->module_name) {
+  if ($self->create_packlist and my $module_name = $self->module_name) {
     my $archdir = $self->install_destination('arch');
     my @ext = split /::/, $module_name;
     $map{write} = File::Spec->catdir($archdir, 'auto', @ext, '.packlist');

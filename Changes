@@ -1,6 +1,11 @@
 Revision history for Perl extension Module::Build.
 
-0.27_10
+0.27_11
+
+ - Added the create_packlist property, default true, which controls
+   whether packlist files will be written during installation.  This
+   was already part of Module::Build 0.2609, but for some reason we've
+   forgotten it in the 0.27_xx series.  [Spotted by Steve Kirkup]
 
   - Document the versions of Module::Build where each feature, action,
     constructor argument, and method was first publicly documented.
