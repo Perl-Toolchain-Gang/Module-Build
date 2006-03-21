@@ -3103,13 +3103,16 @@ sub prepare_metadata {
   my ($self, $node, $keys) = @_;
   my $p = $self->{properties};
 
-  # If we aren't being asked for key order, just fake it
-  $keys ||= [];
+  # A little helper sub
+  my $add_node = sub {
+    my ($name, $val) = @_;
+    $node->{$name} = $val;
+    push @$keys, $name if $keys;
+  };
 
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
     (my $name = $_) =~ s/^dist_//;
-    $node->{$name} = $self->$_();
-    push(@$keys, $name);
+    $add_node->($name, $self->$_());
     die "ERROR: Missing required field '$_' for META.yml\n"
       unless defined($node->{$name}) && length($node->{$name});
   }
@@ -3121,14 +3124,12 @@ sub prepare_metadata {
 
   foreach ( @{$self->prereq_action_types} ) {
     if (exists $p->{$_} and keys %{ $p->{$_} }) {
-      $node->{$_} = $p->{$_};
-      push(@$keys, $_);
+      $add_node->($_, $p->{$_});
     }
   }
 
   if (exists $p->{dynamic_config}) {
-    $node->{dynamic_config} = $p->{dynamic_config};
-    push(@$keys, "dynamic_config");
+    $add_node->('dynamic_config', $p->{dynamic_config});
   }
   my $pkgs = eval { $self->find_dist_packages };
   if ($@) {
@@ -3139,23 +3140,18 @@ sub prepare_metadata {
   }
 ;
   if (exists $p->{no_index}) {
-    $node->{no_index} = $p->{no_index};
-    push(@$keys, "no_index");
+    $add_node->('no_index', $p->{no_index});
   }
 
-  $node->{generated_by} = "Module::Build version $Module::Build::VERSION";
-  push(@$keys, "generated_by") if ($keys);
+  $add_node->('generated_by', "Module::Build version $Module::Build::VERSION");
 
-  $node->{'meta-spec'} = {
-    version => '1.2',
-    url     => 'http://module-build.sourceforge.net/META-spec-v1.2.html',
-  };
-  push(@$keys, "meta-spec");
-
+  $add_node->('meta-spec', 
+	      {version => '1.2',
+	       url     => 'http://module-build.sourceforge.net/META-spec-v1.2.html',
+	      });
 
   while (my($k, $v) = each %{$self->meta_add}) {
-    $node->{$k} = $v;
-    push(@$keys, $k);
+    $add_node->($k, $v);
   }
 
   while (my($k, $v) = each %{$self->meta_merge}) {
