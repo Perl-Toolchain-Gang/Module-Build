@@ -3034,44 +3034,6 @@ sub _hash_merge {
   }
 }
 
-sub _yaml_quote_string {
-  # XXX doesn't handle embedded newlines
-
-  my ($self, $string) = @_;
-  if ($string !~ /\"/) {
-    $string =~ s{\\}{\\\\}g;
-    return qq{"$string"};
-  } else {
-    $string =~ s{([\\'])}{\\$1}g;
-    return qq{'$string'};
-  }
-}
-
-sub _write_minimal_metadata {
-  my $self = shift;
-  my $p = $self->{properties};
-
-  my $file = $self->metafile;
-  my $fh = IO::File->new("> $file")
-    or die "Can't open $file: $!";
-
-  my @author = map $self->_yaml_quote_string($_), @{$self->dist_author};
-  my $abstract = $self->_yaml_quote_string($self->dist_abstract);
-
-  # XXX Add the meta_add & meta_merge stuff
-
-  print $fh <<"EOF";
---- #YAML:1.0
-name: $p->{dist_name}
-version: $p->{dist_version}
-author:
-@{[ join "\n", map "  - $_", @author ]}
-abstract: $abstract
-license: $p->{license}
-generated_by: Module::Build version $Module::Build::VERSION, without YAML.pm
-EOF
-}
-
 sub ACTION_distmeta {
   my ($self) = @_;
 
@@ -3126,26 +3088,25 @@ sub write_metafile {
     $self->{wrote_metadata} = $yaml_sub->($metafile, $node );
 
   } else {
-    $self->log_warn(<<EOF);
-
-Couldn't load YAML.pm, generating a minimal META.yml without it.
-Please check and edit the generated metadata, or consider installing YAML.pm.
-
-EOF
-
-    $self->_write_minimal_metadata;
+    require Module::Build::YAML;
+    my (%node, @order_keys);
+    $self->prepare_metadata(\%node, \@order_keys);
+    $node{_order} = \@order_keys;
+    &Module::Build::YAML::DumpFile($metafile, \%node);
+    $self->{wrote_metadata} = 1;
   }
 
   $self->_add_to_manifest('MANIFEST', $metafile);
 }
 
 sub prepare_metadata {
-  my ($self, $node) = @_;
+  my ($self, $node, $keys) = @_;
   my $p = $self->{properties};
 
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
     (my $name = $_) =~ s/^dist_//;
     $node->{$name} = $self->$_();
+    push(@$keys, $name) if ($keys);
     die "ERROR: Missing required field '$_' for META.yml\n"
       unless defined($node->{$name}) && length($node->{$name});
   }
@@ -3156,10 +3117,16 @@ sub prepare_metadata {
   }
 
   foreach ( @{$self->prereq_action_types} ) {
-    $node->{$_} = $p->{$_} if exists $p->{$_} and keys %{ $p->{$_} };
+    if (exists $p->{$_} and keys %{ $p->{$_} }) {
+      $node->{$_} = $p->{$_};
+      push(@$keys, $_) if ($keys);
+    }
   }
 
-  $node->{dynamic_config} = $p->{dynamic_config} if exists $p->{dynamic_config};
+  if (exists $p->{dynamic_config}) {
+    $node->{dynamic_config} = $p->{dynamic_config};
+    push(@$keys, "dynamic_config") if ($keys);
+  }
   my $pkgs = eval { $self->find_dist_packages };
   if ($@) {
     $self->log_warn("WARNING: Possible missing or corrupt 'MANIFEST' file.\n" .
@@ -3168,18 +3135,24 @@ sub prepare_metadata {
     $node->{provides} = $pkgs if %$pkgs;
   }
 ;
-  $node->{no_index} = $p->{no_index} if exists $p->{no_index};
+  if (exists $p->{no_index}) {
+    $node->{no_index} = $p->{no_index};
+    push(@$keys, "no_index") if ($keys);
+  }
 
   $node->{generated_by} = "Module::Build version $Module::Build::VERSION";
+  push(@$keys, "generated_by") if ($keys);
 
   $node->{'meta-spec'} = {
     version => '1.2',
     url     => 'http://module-build.sourceforge.net/META-spec-v1.2.html',
   };
+  push(@$keys, "meta-spec") if ($keys);
 
 
   while (my($k, $v) = each %{$self->meta_add}) {
     $node->{$k} = $v;
+    push(@$keys, $k) if ($keys);
   }
 
   while (my($k, $v) = each %{$self->meta_merge}) {

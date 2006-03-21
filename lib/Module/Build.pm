@@ -321,8 +321,12 @@ Creates the F<META.yml> file that describes the distribution.
 F<META.yml> is a file containing various bits of "metadata" about the
 distribution.  The metadata includes the distribution name, version,
 abstract, prerequisites, license, and various other data about the
-distribution.  This file is created as F<META.yml> in YAML format, so
-the C<YAML> module must be installed in order to create it.  The
+distribution.  This file is created as F<META.yml> in YAML format.
+It is recommended that the C<YAML> module be installed to create it.
+If the C<YAML> module is not installed, an internal module supplied
+with Module::Build will be used to write the META.yml file, and this
+will most likely be fine.
+
 F<META.yml> file must also be listed in F<MANIFEST> - if it's not, a
 warning will be issued.
 

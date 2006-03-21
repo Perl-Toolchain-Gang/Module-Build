@@ -8,6 +8,7 @@ lib/Module/Build/Compat.pm
 lib/Module/Build/Cookbook.pm
 lib/Module/Build/ModuleInfo.pm
 lib/Module/Build/Notes.pm
+lib/Module/Build/YAML.pm
 lib/Module/Build/Platform/aix.pm
 lib/Module/Build/Platform/Amiga.pm
 lib/Module/Build/Platform/cygwin.pm
@@ -43,6 +44,7 @@ t/install.t
 t/lib/DistGen.pm
 t/lib/MBTest.pm
 t/manifypods.t
+t/mbyaml.t
 t/metadata.t
 t/metadata2.t
 t/moduleinfo.t
