@@ -3103,10 +3103,13 @@ sub prepare_metadata {
   my ($self, $node, $keys) = @_;
   my $p = $self->{properties};
 
+  # If we aren't being asked for key order, just fake it
+  $keys ||= [];
+
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
     (my $name = $_) =~ s/^dist_//;
     $node->{$name} = $self->$_();
-    push(@$keys, $name) if ($keys);
+    push(@$keys, $name);
     die "ERROR: Missing required field '$_' for META.yml\n"
       unless defined($node->{$name}) && length($node->{$name});
   }
@@ -3119,13 +3122,13 @@ sub prepare_metadata {
   foreach ( @{$self->prereq_action_types} ) {
     if (exists $p->{$_} and keys %{ $p->{$_} }) {
       $node->{$_} = $p->{$_};
-      push(@$keys, $_) if ($keys);
+      push(@$keys, $_);
     }
   }
 
   if (exists $p->{dynamic_config}) {
     $node->{dynamic_config} = $p->{dynamic_config};
-    push(@$keys, "dynamic_config") if ($keys);
+    push(@$keys, "dynamic_config");
   }
   my $pkgs = eval { $self->find_dist_packages };
   if ($@) {
@@ -3137,7 +3140,7 @@ sub prepare_metadata {
 ;
   if (exists $p->{no_index}) {
     $node->{no_index} = $p->{no_index};
-    push(@$keys, "no_index") if ($keys);
+    push(@$keys, "no_index");
   }
 
   $node->{generated_by} = "Module::Build version $Module::Build::VERSION";
@@ -3147,12 +3150,12 @@ sub prepare_metadata {
     version => '1.2',
     url     => 'http://module-build.sourceforge.net/META-spec-v1.2.html',
   };
-  push(@$keys, "meta-spec") if ($keys);
+  push(@$keys, "meta-spec");
 
 
   while (my($k, $v) = each %{$self->meta_add}) {
     $node->{$k} = $v;
-    push(@$keys, $k) if ($keys);
+    push(@$keys, $k);
   }
 
   while (my($k, $v) = each %{$self->meta_merge}) {
