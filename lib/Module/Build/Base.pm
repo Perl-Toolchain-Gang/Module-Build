@@ -314,10 +314,51 @@ sub cwd {
   return Cwd::cwd();
 }
 
+sub _quote_args {
+  # Returns a string that can become [part of] a command line with
+  # proper quoting so that the subprocess sees this same list of args.
+  my ($self, @args) = @_;
+
+  my $return_args = '';
+  my @quoted;
+
+  for (@args) {
+    if ( /^[^\s*?!$<>;\\|'"\[\]\{\}]+$/ ) {
+      # Looks pretty safe
+      push @quoted, $_;
+    } else {
+      # XXX this will obviously have to improve - is there already a
+      # core module lying around that does proper quoting?
+      s/"/"'"'"/g;
+      push @quoted, qq("$_");
+    }
+  }
+
+  return join " ", @quoted;
+}
+
+sub _backticks {
+  # Tries to avoid using true backticks, when possible, so that we
+  # don't have to worry about shell args.
+
+  my ($self, @cmd) = @_;
+  if ($] >= 5.008) {
+    local *FH;
+    open FH, "-|", @cmd or die "Can't run @cmd: $!";
+    return wantarray ? <FH> : join '', <FH>;
+  } else {
+    my $cmd = $self->_quote_args(@cmd);
+    return `$cmd`;
+  }
+}
+
+
 # Determine whether a given binary is the same as the perl
 # (configuration) that started this process.
 sub _perl_is_same {
   my ($self, $perl) = @_;
+
+  my @cmd = ($perl);
 
   # When run from the perl core, @INC will include the directories
   # where perl is yet to be installed. We need to reference the
@@ -325,12 +366,12 @@ sub _perl_is_same {
   # it's Config.pm This also prevents us from picking up a Config.pm
   # from a different configuration that happens to be already
   # installed in @INC.
-  my $INC = '';
   if ($ENV{PERL_CORE}) {
-    $INC = '-I' . File::Spec->catdir(File::Basename::dirname($perl), 'lib');
+    push @cmd, '-I' . File::Spec->catdir(File::Basename::dirname($perl), 'lib');
   }
 
-  return `$perl $INC -MConfig=myconfig -e print -e myconfig` eq Config->myconfig;
+  push @cmd, qw(-MConfig=myconfig -e print -e myconfig);
+  return $self->_backticks(@cmd) eq Config->myconfig;
 }
 
 # Returns the absolute path of the perl interperter used to invoke
@@ -2080,7 +2121,7 @@ sub process_script_files {
   
   foreach my $file (keys %$files) {
     my $result = $self->copy_if_modified($file, $script_dir, 'flatten') or next;
-    $self->fix_shebang_line($result);
+    $self->fix_shebang_line($result) unless $self->os_type eq 'VMS';
     $self->make_executable($result);
   }
 }
@@ -2167,6 +2208,7 @@ sub _find_file_by_type {
 
 sub localize_file_path {
   my ($self, $path) = @_;
+  $path =~ s/\.\z// if $self->os_type eq 'VMS';
   return File::Spec->catfile( split m{/}, $path );
 }
 
@@ -3669,6 +3711,7 @@ sub run_perl_command {
   # this before documenting.
   my ($self, $args) = @_;
   $args = [ $self->split_like_shell($args) ] unless ref($args);
+  $args = [ split(/\s+/, $self->_quote_args($args)) ] if $self->os_type eq 'VMS';
   my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
 
   # Make sure our local additions to @INC are propagated to the subprocess

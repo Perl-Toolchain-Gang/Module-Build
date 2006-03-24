@@ -19,6 +19,11 @@ Revision history for Perl extension Module::Build.
    YAML is installed, because the YAML API and dependency chain have
    been changing in unfavorable ways lately. [Stephen Adkins]
 
+ - Fixed some shell-argument-quoting issues on VMS.  In the process,
+   we have added some support for avoiding tripping over
+   shell-argument-quoting issues on other platforms too. [Initial
+   patch by Craig A. Berry]
+
 0.27_09  Sat Mar 11 22:48:54 EST 2006
 
  - Fixed find_perl_interpreter() so we can find the perl executable
