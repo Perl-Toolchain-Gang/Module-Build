@@ -131,6 +131,8 @@ sub _quote_args {
   return $return_args;
 }
 
+sub have_multiarg_pipeopen { 0 }
+
 =back
 
 =head1 AUTHOR

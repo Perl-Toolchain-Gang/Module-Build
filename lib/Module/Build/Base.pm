@@ -342,7 +342,7 @@ sub _backticks {
   # don't have to worry about shell args.
 
   my ($self, @cmd) = @_;
-  if ($] >= 5.008) {
+  if ($self->have_multiarg_pipeopen) {
     local *FH;
     open FH, "-|", @cmd or die "Can't run @cmd: $!";
     return wantarray ? <FH> : join '', <FH>;
@@ -352,6 +352,7 @@ sub _backticks {
   }
 }
 
+sub have_multiarg_pipeopen { $] >= 5.008 }
 
 # Determine whether a given binary is the same as the perl
 # (configuration) that started this process.
