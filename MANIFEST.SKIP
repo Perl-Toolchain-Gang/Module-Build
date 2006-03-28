@@ -4,6 +4,7 @@
 (^|/)blib
 CVS
 ^Build$
+^Build.bat$
 ~$
 ^configs
 ^testbed

@@ -2717,12 +2717,19 @@ sub ACTION_dist {
 
 sub ACTION_distcheck {
   my ($self) = @_;
-  
+
   require ExtUtils::Manifest;
   local $^W; # ExtUtils::Manifest is not warnings clean.
   my ($missing, $extra) = ExtUtils::Manifest::fullcheck();
-  die "MANIFEST appears to be out of sync with the distribution\n"
-    if @$missing || @$extra;
+
+  return unless @$missing || @$extra;
+
+  my $msg = "MANIFEST appears to be out of sync with the distribution\n";
+  if ( $self->invoked_action eq 'distcheck' ) {
+    die $msg;
+  } else {
+    warn $msg;
+  }
 }
 
 sub _add_to_manifest {
@@ -2955,6 +2962,7 @@ sub _write_default_maniskip {
 
 # Avoid Module::Build generated and utility files.
 \bBuild$
+\bBuild.bat$
 \b_build
 
 # Avoid Devel::Cover generated files
