@@ -1267,7 +1267,7 @@ sub _added_to_INC {
     
     my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
     
-    my @inc = `$perl -le "print for \@INC"`;
+    my @inc = $self->_backticks($perl, '-le', 'print for @INC');
     chomp @inc;
     
     return @default_inc = @inc;
@@ -3673,17 +3673,17 @@ sub compile_xs {
     if (defined $lib_typemap and -e $lib_typemap) {
       push @typemaps, 'typemap';
     }
-    my $typemaps = join ' ', map qq{-typemap "$_"}, @typemaps;
+    @typemaps = map {+'-typemap', $_} @typemaps;
 
     my $cf = $self->config;
     my $perl = $self->{properties}{perl};
     
-    my $command = (qq{$perl "-I$cf->{installarchlib}" "-I$cf->{installprivlib}" "$xsubpp" -noprototypes } .
-		   qq{$typemaps "$file"});
+    my @command = ($perl, "-I$cf->{installarchlib}", "-I$cf->{installprivlib}", $xsubpp, '-noprototypes',
+		   @typemaps, $file);
     
-    $self->log_info("$command\n");
+    $self->log_info("@command\n");
     my $fh = IO::File->new("> $args{outfile}") or die "Couldn't write $args{outfile}: $!";
-    print $fh `$command`;
+    print {$fh} $self->_backticks(@command);
     close $fh;
   }
 }
