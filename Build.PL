@@ -39,13 +39,12 @@ my $build = new ModuleBuildBuilder
 	       },
    recommends => {
 		  'Archive::Tar' => '1.08',
+		  'ExtUtils::CBuilder' => 0.15,
 		  'ExtUtils::Install' => 0.30,
+		  'ExtUtils::ParseXS' => 1.02,
 		  'Pod::Readme' => 0.04,
 		  'Module::Signature' => 0.21,
 		 },
-   build_requires => {
-		      'Test::More' => 0,
-		     },
    sign => 1,
    create_readme => 1,
 
