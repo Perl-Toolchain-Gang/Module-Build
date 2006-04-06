@@ -1183,6 +1183,32 @@ Returns true if the current system seems to have a working C compiler.
 We currently determine this by attempting to compile a simple C source
 file and reporting whether the attempt was successful.
 
+=item install_base_relpaths()
+
+=item install_base_relpaths($type)
+
+=item install_base_relpaths($type => $path)
+
+[version 0.28]
+
+Set or retrieve the relative paths that are appended to
+C<install_base> for any installable element. This is useful if you
+want to set the relative install path for custom build elements.
+
+With no argument, it returns a reference to a hash containing all
+elements and their respective values. This hash should not be modified
+directly; use the multi-argument below form to change values.
+
+The single argument form returns the value associated with the
+element C<$type>.
+
+The multi-argument form allows you to set the paths for element types.
+C<$value> must be a relative path using unix-like paths.  (A series of
+directories seperated by slashes.  Eg 'foo/bar'.)  The return value is a
+localized path based on C<$value>.
+
+Assigning the value C<undef> to an element causes it to be removed.
+
 =item install_destination($type)
 
 [version 0.28]
@@ -1214,8 +1240,11 @@ directly; use the multi-argument below form to change values.
 The single argument form returns the value associated with the
 element C<$type>.
 
-The multi-argument form allows you to set the paths for one or more
-element types. The return value is undefined.
+The multi-argument form allows you to set the paths for element types.
+The supplied C<$path> should be an absolute path to install elements
+of C<$type>.  The return value is C<$path>.
+
+Assigning the value C<undef> to an element causes it to be removed.
 
 =item install_types()
 
@@ -1286,6 +1315,41 @@ will return a string like C<Windows>, C<Unix>, C<MacOS>, C<VMS>, or
 whatever is appropriate.  If you're running on an unknown platform, it
 will return C<undef> - there shouldn't be many unknown platforms
 though.
+
+=item prefix_relpaths()
+
+=item prefix_relpaths($installdirs)
+
+=item prefix_relpaths($installdirs, $type)
+
+=item prefix_relpaths($installdirs, $type => $path)
+
+[version 0.28]
+
+Set or retrieve the relative paths that are appended to C<prefix> for
+any installable element.  This is useful if you want to set the
+relative install path for custom build elements.
+
+With no argument, it returns a reference to a hash containing all
+elements and their respective values as defined by the current
+C<installdirs> setting.
+
+With a single argument, it returns a reference to a hash containing
+all elements and their respective values as defined by
+C<$installdirs>.
+
+The hash returned by the above calls should not be modified directly;
+use the three-argument below form to change values.
+
+The two argument form returns the value associated with the
+element C<$type>.
+
+The multi-argument form allows you to set the paths for element types.
+C<$value> must be a relative path using unix-like paths.  (A series of
+directories seperated by slashes.  Eg 'foo/bar'.)  The return value is a
+localized path based on C<$value>.
+
+Assigning the value C<undef> to an element causes it to be removed.
 
 =item prepare_metadata()
 
@@ -1721,8 +1785,9 @@ Module-Build mailing list at module-build-general@lists.sourceforge.net .
 Bug reports are also welcome at
 http://rt.cpan.org/NoAuth/Bugs.html?Dist=Module-Build .
 
-The latest development version is available from the Subversion
-repository at <https://svn.perl.org/modules/Module-Build/trunk/>
+An anonymous CVS repository containing the latest development version
+is available; see http://sourceforge.net/cvs/?group_id=45731 for the
+details of how to access it.
 
 
 =head1 SEE ALSO

@@ -2,6 +2,8 @@ package Module::Build::Base;
 
 use strict;
 BEGIN { require 5.00503 }
+
+use Carp;
 use Config;
 use File::Copy ();
 use File::Find ();
@@ -3397,15 +3399,39 @@ sub make_tarball {
   }
 }
 
+sub install_path {
+  my $self = shift;
+  my( $type, $value ) = ( @_, '<empty>' );
+
+  Carp::croak( 'Type argument missing' )
+    unless defined( $type );
+
+  my $map = $self->{properties}{install_path};
+  return $map unless @_;
+
+  # delete existing value if $value is literal undef()
+  unless ( defined( $value ) ) {
+    delete( $map->{$type} );
+    return undef;
+  }
+
+  # return existing value if no new $value is given
+  if ( $value eq '<empty>' ) {
+    return undef unless exists $map->{$type};
+    return $map->{$type};
+  }
+
+  # set value if $value is a valid relative path
+  return $map->{$type} = $value;
+}
+
 sub install_base_relpaths {
-  # Usage: install_base_relpaths('lib')  or install_base_relpaths();
+  # Usage: install_base_relpaths(), install_base_relpaths('lib'),
+  #   or install_base_relpaths('lib' => $value);
   my $self = shift;
   my $map = $self->{properties}{install_base_relpaths};
   return $map unless @_;
-  
-  my $type = shift;
-  return unless exists $map->{$type};
-  return File::Spec->catdir(@{$map->{$type}});
+  return $self->_relpaths($map, @_);
 }
 
 
@@ -3422,18 +3448,48 @@ sub prefix_relative {
 			  );
 }
 
+sub _relpaths {
+  my $self = shift;
+  my( $map, $type, $value ) = ( @_, '<empty>' );
+
+  Carp::croak( 'Type argument missing' )
+    unless defined( $type );
+
+  my @value = ();
+
+  # delete existing value if $value is literal undef()
+  unless ( defined( $value ) ) {
+    delete( $map->{$type} );
+    return undef;
+  }
+
+  # return existing value if no new $value is given
+  elsif ( $value eq '<empty>' ) {
+    return undef unless exists $map->{$type};
+    @value = @{ $map->{$type} };
+  }
+
+  # set value if $value is a valid relative path
+  else {
+    Carp::croak( "Value must be a relative path" )
+      if File::Spec::Unix->file_name_is_absolute($value);
+
+    @value = split( /\//, $value );
+    $map->{$type} = \@value;
+  }
+
+  return File::Spec->catdir( @value );
+}
 
 # Defaults to use in case the config install paths cannot be prefixified.
 sub prefix_relpaths {
-  # Usage: prefix_relpaths('site', 'lib')  or prefix_relpaths('site');
+  # Usage: prefix_relpaths('site'), prefix_relpaths('site', 'lib'),
+  #   or prefix_relpaths('site', 'lib' => $value);
   my $self = shift;
   my $installdirs = shift || $self->installdirs;
   my $map = $self->{properties}{prefix_relpaths}{$installdirs};
   return $map unless @_;
-  
-  my $type = shift;
-  return unless exists $map->{$type};
-  return File::Spec->catdir(@{$map->{$type}});
+  return $self->_relpaths($map, @_);
 }
 
 

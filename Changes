@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+0.27_11
+
+ - Add documentation for the install_base_relpaths() and
+   prefix_relpaths() methods. Improved their usage for a public API,
+   and added tests.
+
 0.27_10  Tue Mar 28 22:50:50 CST 2006
 
  - Added the create_packlist property, default true, which controls
