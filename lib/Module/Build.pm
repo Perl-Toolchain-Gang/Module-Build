@@ -1049,9 +1049,8 @@ Module-Build mailing list at <module-build-general@lists.sourceforge.net>.
 Bug reports are also welcome at
 <http://rt.cpan.org/NoAuth/Bugs.html?Dist=Module-Build>.
 
-An anonymous CVS repository containing the latest development version
-is available; see <http://sourceforge.net/cvs/?group_id=45731> for the
-details of how to access it.
+The latest development version is available from the Subversion
+repository at <https://svn.perl.org/modules/Module-Build/trunk/>
 
 
 =head1 COPYRIGHT
