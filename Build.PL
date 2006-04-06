@@ -15,7 +15,7 @@ use lib File::Spec->catdir('inc');
 use ModuleBuildBuilder;
 # </remove_me>
 
-my $build = new ModuleBuildBuilder
+my $build = ModuleBuildBuilder->new
   (
    module_name => 'Module::Build',
    license => 'perl',
@@ -51,23 +51,23 @@ my $build = new ModuleBuildBuilder
    auto_features => {
 		     YAML_support =>
 		     {
-		      description => "Can write fully-functional META.yml files",
+		      description => "Use YAML.pm to write META.yml files",
 		      requires => { YAML => ' >= 0.35, != 0.49_01 ' },
 		     },
 		     C_support =>
 		     {
-		      description => "Can compile/link C & XS code",
+		      description => "Compile/link C & XS code",
 		      requires   => { 'ExtUtils::CBuilder' => 0.15, },
 		      recommends => { 'ExtUtils::ParseXS'  => 1.02, },
 		     },
 		     manpage_support =>
 		     {
-		      description => "Can create Unix man pages",
+		      description => "Create Unix man pages",
 		      requires => { 'Pod::Man' => 0 },
 		     },
 		     HTML_support =>
 		     {
-		      description => "Can create HTML documentation",
+		      description => "Create HTML documentation",
 		      requires => { 'Pod::Html' => 0 },
 		     },
 		    },
@@ -80,6 +80,7 @@ my $build = new ModuleBuildBuilder
 		   homepage => 'http://sourceforge.net/projects/module-build',
 		   bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Module-Build',
 		   MailingList => 'http://lists.sourceforge.net/lists/listinfo/module-build-general',
+		   repository => 'http://svn.perl.org/modules/Module-Build/'
 		  }
 		 },
   );
