@@ -3554,7 +3554,18 @@ sub install_destination {
 
 sub install_types {
   my $self = shift;
-  my %types = (%{$self->install_path}, %{ $self->install_sets($self->installdirs) });
+
+  my %types;
+  if ( $self->install_base ) {
+    %types = %{$self->install_base_relpaths};
+  } elsif ( $self->prefix ) {
+    %types = %{$self->prefix_relpaths};
+  } else {
+    %types = %{$self->install_sets($self->installdirs)};
+  }
+
+  %types = (%types, %{$self->install_path});
+
   return sort keys %types;
 }
 

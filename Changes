@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.27_11
 
+ - Make install_types() method smarter with respect to custom install
+   types.
+
  - Add documentation for the install_base_relpaths() and
    prefix_relpaths() methods. Improved their usage for a public API,
    and added tests.
