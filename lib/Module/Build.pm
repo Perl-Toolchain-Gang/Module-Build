@@ -1071,4 +1071,6 @@ L<http://module-build.sourceforge.net/META-spec-v1.2.html>
 
 L<http://www.dsmit.com/cons/>
 
+L<http://search.cpan.org/dist/PerlBuildSystem/>
+
 =cut
