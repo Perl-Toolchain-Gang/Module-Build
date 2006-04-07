@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.27_11
 
+ - Backing out a requirement added in 0.27_06 on the method y_n()
+   to always include a default. This behavior would cause existing
+   build scripts to start failing. We now fail with a missing default
+   only when $ENV{PERL_MM_USE_DEFAULT} is set because there is no
+   reasonable default.
+
  - Make install_types() method smarter with respect to custom install
    types.
 

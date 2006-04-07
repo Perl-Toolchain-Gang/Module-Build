@@ -463,17 +463,9 @@ sub _is_interactive {
   return -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ;   # Pipe?
 }
 
-sub prompt {
+sub _readline {
   my $self = shift;
-  my ($mess, $def) = @_;
-  die "prompt() called without a prompt message" unless @_;
-  
-  ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
 
-  {
-    local $|=1;
-    print "$mess $dispdef";
-  }
   my $ans;
   if ( ! $ENV{PERL_MM_USE_DEFAULT} &&
        ( $self->_is_interactive || ! eof STDIN ) ) {
@@ -484,21 +476,42 @@ sub prompt {
       print "\n";
     }
   }
-  
+
+  return $ans;
+}
+
+sub prompt {
+  my $self = shift;
+  my ($mess, $def) = @_;
+  die "prompt() called without a prompt message" unless @_;
+
+  ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
+
+  {
+    local $|=1;
+    print "$mess $dispdef";
+  }
+  my $ans = $self->_readline();
+
   unless (defined($ans) and length($ans)) {
     print "$def\n";
     $ans = $def;
   }
-  
+
   return $ans;
 }
 
 sub y_n {
   my $self = shift;
   die "y_n() called without a prompt message" unless @_;
-  die "y_n() called without y or n default" unless ($_[1]||"")=~/^[yn]/i;
 
-  my $interactive = $self->_is_interactive;
+  unless ( $ENV{PERL_MM_USE_DEFAULT} && ($_[1]||"")=~/^[yn]/i ) {
+    die <<EOF;
+ERROR: The y_n() prompt requires a default arguemnt to run safely
+for unattended or automated installs. Please inform the author.
+EOF
+  }
+
   my $answer;
   while (1) {
     $answer = $self->prompt(@_);

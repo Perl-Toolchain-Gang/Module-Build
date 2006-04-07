@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 53;
+use MBTest tests => 57;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -204,6 +204,24 @@ print "Hello, World!\n";
   is_deeply $data{conflicts}, {'Foo::Bazxx' => 0, 'Foo::Fooxx' => 0};
 }
 
+{
+  # Test interactive prompting
+  local $ENV{PERL_MM_USE_DEFAULT} = 1;
+
+  ok my $mb = Module::Build->new(
+				  module_name => $dist->name,
+				  license => 'perl',
+			        );
+
+  eval{ $mb->prompt() };
+  like $@, qr/called without a prompt/, 'prompt() requires a prompt';
+
+  eval{ $mb->y_n() };
+  like $@, qr/called without a prompt/, 'y_n() requires a prompt';
+
+  eval{ $mb->y_n("Is this a question?") };
+  like $@, qr/ERROR:/, 'Do not allow y_n() prompts for unattended builds';
+}
 
 # cleanup
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
