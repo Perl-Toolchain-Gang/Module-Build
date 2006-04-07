@@ -92,10 +92,10 @@ $mb->prefix(undef);
     like( $@, qr/Value must be a relative path/, '  emits error if path not relative' );
 
     $path = $mb->install_base_relpaths('elem' => 'foo/bar');
-    is( $path, 'foo/bar', '  returns assigned path' );
+    is( $path, catdir(qw(foo bar)), '  returns assigned path' );
 
     $path = $mb->install_base_relpaths('elem');
-    is( $path, 'foo/bar', '  can read stored path' );
+    is( $path, catdir(qw(foo/bar)), '  can read stored path' );
 
     $map = $mb->install_base_relpaths();
     is_deeply( $map->{elem}, [qw(foo bar)], '  can access map' );
@@ -121,10 +121,10 @@ $mb->prefix(undef);
     like( $@, qr/Value must be a relative path/, '  emits error if path not relative' );
 
     $path = $mb->prefix_relpaths('site', 'elem' => 'foo/bar');
-    is( $path, 'foo/bar', '  returns assigned path' );
+    is( $path, catdir(qw(foo bar)), '  returns assigned path' );
 
     $path = $mb->prefix_relpaths('site', 'elem');
-    is( $path, 'foo/bar', '  can read stored path' );
+    is( $path, catdir(qw(foo bar)), '  can read stored path' );
 
     $map = $mb->prefix_relpaths();
     is_deeply( $map->{elem}, [qw(foo bar)], '  can access map' );
