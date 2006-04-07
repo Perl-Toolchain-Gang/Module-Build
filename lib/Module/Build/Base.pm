@@ -470,11 +470,7 @@ sub _readline {
   if ( ! $ENV{PERL_MM_USE_DEFAULT} &&
        ( $self->_is_interactive || ! eof STDIN ) ) {
     $ans = <STDIN>;
-    if ( defined $ans ) {
-      chomp $ans;
-    } else { # user hit ctrl-D
-      print "\n";
-    }
+    chomp $ans if defined $ans;
   }
 
   return $ans;
@@ -483,17 +479,19 @@ sub _readline {
 sub prompt {
   my $self = shift;
   my ($mess, $def) = @_;
-  die "prompt() called without a prompt message" unless @_;
+
+  die "prompt() called without a prompt message" unless $mess;
 
   ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
 
-  {
-    local $|=1;
-    print "$mess $dispdef";
-  }
+  local $|=1;
+  print "$mess $dispdef";
+
   my $ans = $self->_readline();
 
-  unless (defined($ans) and length($ans)) {
+  if ( !defined($ans) ) {     # Ctrl-D
+    print "\n";
+  } elsif ( !length($ans) ) { # Default
     print "$def\n";
     $ans = $def;
   }
@@ -503,9 +501,13 @@ sub prompt {
 
 sub y_n {
   my $self = shift;
-  die "y_n() called without a prompt message" unless @_;
+  my ($mess, $def)  = @_;
 
-  unless ( $ENV{PERL_MM_USE_DEFAULT} && ($_[1]||"")=~/^[yn]/i ) {
+  die "y_n() called without a prompt message" unless $mess;
+  die "Invalid default value: y_n() default must be 'y' or 'n'"
+    if $def && $def !~ /^[yn]/i;
+
+  if ( $ENV{PERL_MM_USE_DEFAULT} && !$def ) {
     die <<EOF;
 ERROR: The y_n() prompt requires a default arguemnt to run safely
 for unattended or automated installs. Please inform the author.
@@ -513,10 +515,11 @@ EOF
   }
 
   my $answer;
-  while (1) {
+  while (1) { # XXX Infinite or a large number followed by an exception ?
     $answer = $self->prompt(@_);
     return 1 if $answer =~ /^y/i;
     return 0 if $answer =~ /^n/i;
+    local $|=1;
     print "Please answer 'y' or 'n'.\n";
   }
 }
