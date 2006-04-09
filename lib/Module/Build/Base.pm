@@ -2927,8 +2927,6 @@ sub ACTION_distdir {
   
   foreach my $file (keys %$dist_files) {
     my $new = $self->copy_if_modified(from => $file, to_dir => $dist_dir, verbose => 0);
-    chmod +(stat $file)[2], $new
-      or $self->log_warn("Couldn't set permissions on $new: $!");
   }
   
   $self->_sign_dir($dist_dir) if $self->{properties}{sign};
@@ -3931,6 +3929,13 @@ sub copy_if_modified {
   
   $self->log_info("$file -> $to_path\n") if $args{verbose};
   File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
+  # preserve mode & timestamps; copied from ExtUtils::Install::pm_to_blib
+  my($mode, $atime, $mtime) = (stat $file)[2,8,9];
+  my $mtime_adj = ($self->os_type eq 'VMS') ? 1 : 0;
+  utime($atime, $mtime + $mtime_adj, $to_path);
+  $mode = 0444 | ( $mode & 0111 ? 0111 : 0 );
+  chmod($mode, $to_path);
+
   return $to_path;
 }
 

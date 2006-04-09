@@ -1034,6 +1034,8 @@ needed to be copied.
 Any directories that need to be created in order to perform the
 copying will be automatically created.
 
+File mode and timestamps are preserved.
+
 =item create_build_script()
 
 [version 0.05]
