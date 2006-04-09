@@ -346,7 +346,8 @@ sub _backticks {
   my ($self, @cmd) = @_;
   if ($self->have_multiarg_pipeopen) {
     local *FH;
-    open FH, "-|", @cmd or die "Can't run @cmd: $!";
+    unshift @cmd, "-|";
+    open FH, @cmd or die "Can't run @cmd: $!";
     return wantarray ? <FH> : join '', <FH>;
   } else {
     my $cmd = $self->_quote_args(@cmd);
