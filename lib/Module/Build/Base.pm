@@ -3923,7 +3923,9 @@ sub copy_if_modified {
   }
   
   return if $self->up_to_date($file, $to_path); # Already fresh
-  
+
+  $self->delete_filetree($to_path); # delete destination if exists
+
   # Create parent directories
   File::Path::mkpath(File::Basename::dirname($to_path), 0, 0777);
   
