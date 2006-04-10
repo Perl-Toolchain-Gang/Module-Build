@@ -339,20 +339,27 @@ sub _quote_args {
   return join " ", @quoted;
 }
 
-sub _backticks {
-  # Tries to avoid using true backticks, when possible, so that we
-  # don't have to worry about shell args.
-
+# We have to create the _backticks sub dynamically, because the code
+# we want to use under 5.6+ is a compile-time error under 5.005.
+BEGIN {
+  my $code = $] >= 5.008
+? <<'---'
   my ($self, @cmd) = @_;
   if ($self->have_multiarg_pipeopen) {
     local *FH;
-    unshift @cmd, "-|";
-    open FH, @cmd or die "Can't run @cmd: $!";
+    open FH, "-|", @cmd or die "Can't run @cmd: $!";
     return wantarray ? <FH> : join '', <FH>;
   } else {
     my $cmd = $self->_quote_args(@cmd);
     return `$cmd`;
   }
+---
+: <<'===';
+  my ($self, @cmd) = @_;
+  my $cmd = $self->_quote_args(@cmd);
+  return `$cmd`;
+===
+  *_backticks = eval "sub { $code }";
 }
 
 sub have_multiarg_pipeopen { $] >= 5.008 }
