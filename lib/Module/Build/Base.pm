@@ -339,30 +339,24 @@ sub _quote_args {
   return join " ", @quoted;
 }
 
-# We have to create the _backticks sub dynamically, because the code
-# we want to use under 5.6+ is a compile-time error under 5.005.
-BEGIN {
-  my $code = $] >= 5.008
-? <<'---'
+sub _backticks {
   my ($self, @cmd) = @_;
-  if ($self->have_multiarg_pipeopen) {
+  if ($self->have_forkpipe) {
     local *FH;
-    open FH, "-|", @cmd or die "Can't run @cmd: $!";
-    return wantarray ? <FH> : join '', <FH>;
+    my $pid = open FH, "-|";
+    if ($pid) {
+      return wantarray ? <FH> : join '', <FH>;
+    } else {
+      die "Can't execute @cmd: $!\n" unless defined $pid;
+      exec { $cmd[0] } @cmd;
+    }
   } else {
     my $cmd = $self->_quote_args(@cmd);
     return `$cmd`;
   }
----
-: <<'===';
-  my ($self, @cmd) = @_;
-  my $cmd = $self->_quote_args(@cmd);
-  return `$cmd`;
-===
-  *_backticks = eval "sub { $code }";
 }
 
-sub have_multiarg_pipeopen { $] >= 5.008 }
+sub have_forkpipe { 1 }
 
 # Determine whether a given binary is the same as the perl
 # (configuration) that started this process.
