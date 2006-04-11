@@ -2,8 +2,8 @@ Revision history for Perl extension Module::Build.
 
 0.27_11
 
- - copy_if_modified() now preserves the file mode and timestamps for
-   files that are copied.
+ - copy_if_modified() now preserves the executable bit of the source
+   file. [Spotted by Julian Mehnle]
 
  - Backing out a requirement added in 0.27_06 on the method y_n()
    to always include a default. This behavior would cause existing
