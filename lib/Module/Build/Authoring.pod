@@ -1034,7 +1034,8 @@ needed to be copied.
 Any directories that need to be created in order to perform the
 copying will be automatically created.
 
-File mode and timestamps are preserved.
+The destination file is set to read-only. If the source file has the
+executable bit set, then the destination file will be made executable.
 
 =item create_build_script()
 
