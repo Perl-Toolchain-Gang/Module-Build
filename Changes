@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.27_11
 
+ - We should not emit a warning if a Module::Build subclass is
+   required in a Makefile.PL that is not bundled in the current
+   distribution; it may be installed on the user's system. [Spotted by
+   Tyler MacDonald]
+
  - copy_if_modified() now preserves the executable bit of the source
    file. [Spotted by Julian Mehnle]
 
