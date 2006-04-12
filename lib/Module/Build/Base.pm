@@ -3934,8 +3934,7 @@ sub copy_if_modified {
   $self->log_info("$file -> $to_path\n") if $args{verbose};
   File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
   # mode is read-only + (executable if source is executable)
-  my $mode = (stat $file)[2];
-  $mode = 0444 | ( $mode & 0111 ? 0111 : 0 );
+  my $mode = 0444 | ( -x $file ? 0111 : 0 );
   chmod( $mode, $to_path );
 
   return $to_path;
