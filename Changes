@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.27_11
 
+ - When searching for '.modulebuildrc', return the first HOME-like
+   directory that actually contains the file instead of the first
+   existing directory. Document the search locations and the order
+   searched. [Spotted by David Golden]
+
  - We should not emit a warning if a Module::Build subclass is
    required in a Makefile.PL that is not bundled in the current
    distribution; it may be installed on the user's system. [Spotted by

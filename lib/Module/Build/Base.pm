@@ -1676,15 +1676,30 @@ sub _merge_arglist {
   return %new_opts;
 }
 
-# Look for a home directory on various systems.  CPANPLUS does something like this.
+# Look for a home directory on various systems.
 sub _home_dir {
-  my @os_home_envs = qw( APPDATA HOME USERPROFILE WINDIR SYS$LOGIN );
-  
-  foreach ( @os_home_envs ) {
-    return $ENV{$_} if exists $ENV{$_} && defined $ENV{$_} && length $ENV{$_} && -d $ENV{$_};
+  my @home_dirs;
+  push( @home_dirs, $ENV{HOME} ) if $ENV{HOME};
+
+  push( @home_dirs, File::Spec->catpath($ENV{HOMEDRIVE}, $ENV{HOMEPATH}, '') )
+      if $ENV{HOMEDRIVE} && $ENV{HOMEPATH};
+
+  my @other_home_envs = qw( USERPROFILE APPDATA WINDIR SYS$LOGIN );
+  push( @home_dirs, map $ENV{$_}, grep $ENV{$_}, @other_home_envs );
+
+  my @real_home_dirs = grep -d, @home_dirs;
+
+  return wantarray ? @real_home_dirs : shift( @real_home_dirs );
+}
+
+sub _find_user_config {
+  my $self = shift;
+  my $file = shift;
+  foreach my $dir ( $self->_home_dir ) {
+    my $path = File::Spec->catfile( $dir, $file );
+    return $path if -e $path;
   }
-  
-  return;
+  return undef;
 }
 
 # read ~/.modulebuildrc returning global options '*' and
@@ -1705,10 +1720,8 @@ sub read_modulebuildrc {
 		    "No options loaded\n");
     return ();
   } else {
-    my $home = $self->_home_dir;
-    return () unless defined $home;
-    $modulebuildrc = File::Spec->catfile( $home, '.modulebuildrc' );
-    return () unless -e $modulebuildrc;
+    $modulebuildrc = $self->_find_user_config( '.modulebuildrc' );
+    return () unless $modulebuildrc;
   }
 
   my $fh = IO::File->new( $modulebuildrc )

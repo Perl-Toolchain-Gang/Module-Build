@@ -651,8 +651,11 @@ Display extra information about the Build on output.
 
 [version 0.28]
 
-When Module::Build starts up, it will look for a file,
-F<$ENV{HOME}/.modulebuildrc>.  If the file exists, the options
+When Module::Build starts up, it will look first for a file,
+F<$ENV{HOME}/.modulebuildrc>.  If it's not found there, it will look
+in the the F<.modulebuildrc> file in the directories referred to by
+the environment variables C<HOMEDRIVE> + C<HOMEDIR>, C<USERPROFILE>,
+C<APPDATA>, C<WINDIR>, C<SYS$LOGIN>.  If the file exists, the options
 specified there will be used as defaults, as if they were typed on the
 command line.  The defaults can be overridden by specifying new values
 on the command line.
