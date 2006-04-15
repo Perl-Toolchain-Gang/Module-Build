@@ -447,7 +447,7 @@ modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-Module::Build(3), ExtUtils::MakeMaker(3)
+L<Module::Build>(3), L<ExtUtils::MakeMaker>(3)
 
 
 =cut

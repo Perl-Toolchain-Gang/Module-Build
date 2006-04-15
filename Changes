@@ -7,6 +7,9 @@ Revision history for Perl extension Module::Build.
    existing directory. Document the search locations and the order
    searched. [Spotted by David Golden]
 
+ - Split the API documentation out of Module::Build::Authoring into
+   its own document: Module::Build::API.
+
  - We should not emit a warning if a Module::Build subclass is
    required in a Makefile.PL that is not bundled in the current
    distribution; it may be installed on the user's system. [Spotted by
