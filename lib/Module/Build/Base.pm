@@ -465,12 +465,16 @@ sub _is_interactive {
   return -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ;   # Pipe?
 }
 
+sub _is_unattended {
+  my $self = shift;
+  return $ENV{PERL_MM_USE_DEFAULT} || ( !$self->_is_interactive && eof STDIN );
+}
+
 sub _readline {
   my $self = shift;
 
   my $ans;
-  if ( ! $ENV{PERL_MM_USE_DEFAULT} &&
-       ( $self->_is_interactive || ! eof STDIN ) ) {
+  if ( !$self->_is_unattended ) {
     $ans = <STDIN>;
     chomp $ans if defined $ans;
   }
@@ -509,10 +513,10 @@ sub y_n {
   die "Invalid default value: y_n() default must be 'y' or 'n'"
     if $def && $def !~ /^[yn]/i;
 
-  if ( $ENV{PERL_MM_USE_DEFAULT} && !$def ) {
+  if ( $self->_is_unattended && !$def ) {
     die <<EOF;
-ERROR: The y_n() prompt requires a default arguemnt to run safely
-for unattended or automated installs. Please inform the author.
+ERROR: This build seems to be unattended, but there is no default value
+for this question.  Aborting.
 EOF
   }
 
