@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.27_11
 
+ - Add new method ask(), that's intended to provide a better tool for
+   authors to query users when performing a build. It provides better
+   support for unattended builds as well as providing better
+   validation of input. This new method is preferred over prompt() and
+   y_n().
+
  - When searching for '.modulebuildrc', return the first HOME-like
    directory that actually contains the file instead of the first
    existing directory. Document the search locations and the order

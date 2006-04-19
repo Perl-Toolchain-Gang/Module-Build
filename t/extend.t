@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 64;
+use MBTest tests => 82;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -211,7 +211,7 @@ print "Hello, World!\n";
   local $ENV{PERL_MM_USE_DEFAULT};
 
   local $^W = 0;
-  *{Module::Build::_readline} = sub { 'y' };
+  local *{Module::Build::_readline} = sub { 'y' };
 
   ok my $mb = Module::Build->new(
 				  module_name => $dist->name,
@@ -260,6 +260,104 @@ print "Hello, World!\n";
 
   $ans = $mb->y_n("Is this a question", 'y');
   ok $ans, "  y_n() with a default";
+}
+
+{
+  # Test interactive prompting
+
+  my $ans;
+  local $ENV{PERL_MM_USE_DEFAULT};
+
+  local $^W = 0;
+  local *{Module::Build::_readline} = sub { 'y' };
+
+  ok my $mb = Module::Build->new(
+				  module_name => $dist->name,
+				  license => 'perl',
+                                  args => {login => 'randys',
+                                           boolean => 'yes'},
+			        );
+
+  eval{ $mb->ask() };
+  like $@, qr/called without a prompt/, 'ask() requires a prompt';
+
+  eval{ $mb->ask(prompt => 'prompt?') };
+  like $@, qr/called without a default/, 'ask() requires a default';
+
+  eval{ $mb->ask(prompt => 'prompt?', default => 'y') };
+  print "\n";
+  is $@, '', 'default not required in options when options is undefined';
+
+  eval{ $mb->ask(prompt => 'prompt?', default => 'y',
+                 options => [qw(a b c)]) };
+  like $@, qr/'default' argument must exist in 'options' array/,
+      'default must exist in options when options is non-empty';
+
+  eval{ $mb->ask(prompt  => 'prompt?',
+                 default => 'y',
+                 allow_nonoption_default => 1) };
+  print "\n";
+  is $@, '', 'open ended query';
+
+  eval{ $mb->ask(prompt  => 'prompt?',
+                 default => 'y',
+                 options => [qw(a b c)],
+                 allow_nonoption_default => 1) };
+  print "\n";
+  is $@, '', 'multi-choice with nonoption default';
+
+  eval{ $mb->ask(prompt  => 'prompt?',
+                 default => 'y',
+                 options => [qw(a b c y)] ) };
+  print "\n";
+  is $@, '', 'multi-choice with option default';
+
+  undef( $ans );
+  eval{ $ans = $mb->ask(prompt  => 'login?',
+                        default => 'guest',
+                        getopts_name => 'login',
+                        allow_nonoption_default => 1) };
+  print "\n";
+  is $@, '';
+  is $ans, 'randys', 'get answer from command line option';
+
+  undef( $ans );
+  eval{ $ans = $mb->ask(prompt  => 'prompt?',
+                        default => 'yes',
+                        options => [qw(yes no)],
+                        getopts_name => 'boolean' ) };
+  print "\n";
+  is $@, '';
+  is $ans, 'yes', 'get answer from command line option';
+
+  undef( $ans );
+  eval{ $ans = $mb->ask(prompt  => 'prompt?',
+                        default => 'yes',
+                        options => [qw(yes no)],
+                        on_validate => sub { s/yes/true/; 1 } ) };
+  print "\n";
+  is $@, '';
+  is $ans, 'true', 'change/validate answer';
+
+
+
+  *{Module::Build::_readline} = sub { undef };
+  undef( $ans );
+  eval{ $ans = $mb->ask(prompt  => 'prompt?',
+                        default => 'y',
+                        options => [qw(y n)] ) };
+  print "\n";
+  is $@, '';
+  is $ans, 'y', '<ctrl-d> - default answer';
+
+  *{Module::Build::_readline} = sub { '' };
+  undef( $ans );
+  eval{ $ans = $mb->ask(prompt  => 'prompt?',
+                        default => 'y',
+                        options => [qw(y n)] ) };
+  print "\n";
+  is $@, '';
+  is $ans, 'y', '<enter> - default answer';
 }
 
 # cleanup

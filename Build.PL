@@ -33,6 +33,7 @@ my $build = ModuleBuildBuilder->new
 		'ExtUtils::Mkbootstrap' => 0,
 		'IO::File'       => 0,
 		'Cwd'            => 0,
+		'Text::Abbrev'   => 0,
 		'Text::ParseWords' => 0,
 		'Getopt::Long'   => 0,
 		'Test::Harness'  => 0,
