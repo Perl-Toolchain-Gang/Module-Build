@@ -844,21 +844,24 @@ Default is false.
 This is the default value that will be used if the user presses
 E<lt>enterE<gt> or if running an unattended build.
 
-The value assigned to C<default> may be different from the options
-listed in the C<options> argument.
+The value assigned to C<default> must exist in the C<options> argument
+if it is present unless the C<allow_nonoption_default> flag is set to
+true.  If there are no C<options> then C<default> may be set to any
+value.
 
 =item getopts_name
 
 The name of a command line option.  If an option with this name is
 given on the command line, the value of the option will be used as the
-answer to the prompt.
+answer to the prompt.  The value will still be subject to the normal
+checks for validity.
 
 =item on_validate
 
 This is a code reference that can be used to validate or modify the
 answer entered by the user.  The value the user enters will be passed
-in as the first argument, and it will also be stored in C<$_>
-variable.  Any modification to the variable C<$_> will be retained as
+in as the first argument, and it will also be stored in the C<$_>
+variable.  Any modification to the C<$_> variable will be retained as
 the new answer.
 
 The subroutine passed to C<on_validate> must return a value to
@@ -866,11 +869,11 @@ indicate how to proceed.
 
 If the return value is true, then the answer will be accepted as is,
 without further testing.  In particular, there will be no test to
-ensure that the answer is in the C<options> array if any where given.
+ensure that the answer is in the C<options> array if any were given.
 
 If the return value is false, then the answer will be rejected and a
-new answer will be requested, regardless of whether the answer exists
-in the C<options> array.
+new answer will be requested, regardless of whether the answer would
+normally be accepted by the usual checks.
 
 If the return value is C<undef>, then the answer will be subject to
 the normal checks: if there is an C<options> array and the answer is
