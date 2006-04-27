@@ -2,11 +2,16 @@ Revision history for Perl extension Module::Build.
 
 0.27_11
 
- - Add new method ask(), that's intended to provide a better tool for
+ - Add new method ask(), intended to provide a more complete tool for
    authors to query users when performing a build. It provides better
    support for unattended builds as well as providing better
    validation of input. This new method is preferred over prompt() and
    y_n().
+
+ - When y_n() or prompt() are called without a default value and the
+   build seems to be unattended (e.g. in automatic CPAN testing), we
+   now die() with an error message rather than silently returning
+   undef for prompt(), or looping indefinitely for y_n().
 
  - When searching for '.modulebuildrc', return the first HOME-like
    directory that actually contains the file instead of the first
@@ -23,6 +28,10 @@ Revision history for Perl extension Module::Build.
 
  - copy_if_modified() now preserves the executable bit of the source
    file. [Spotted by Julian Mehnle]
+
+ - Fixed compatibility of our screen-scraping the Test::Harness output
+   so we can recognize the most recent Test::Harness version. [Steve
+   Hay]
 
  - Backing out a requirement added in 0.27_06 on the method y_n()
    to always include a default. This behavior would cause existing
