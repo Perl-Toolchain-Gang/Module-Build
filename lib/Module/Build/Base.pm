@@ -472,22 +472,26 @@ sub _is_unattended {
 
 sub _readline {
   my $self = shift;
+  return undef if $self->_is_unattended;
 
-  my $answer;
-  if ( !$self->_is_unattended ) {
-    $answer = <STDIN>;
-    chomp $answer if defined $answer;
-  }
-
+  my $answer = <STDIN>;
+  chomp $answer if defined $answer;
   return $answer;
 }
 
 sub prompt {
   my $self = shift;
-  my ($mess, $def) = @_;
+  my $mess = shift
+    or die "prompt() called without a prompt message";
 
-  die "prompt() called without a prompt message" unless $mess;
-
+  my $def;
+  if ( $self->_is_unattended && !@_ ) {
+    die <<EOF;
+ERROR: This build seems to be unattended, but there is no default value
+for this question.  Aborting.
+EOF
+  }
+  $def = shift if @_;
   ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
 
   local $|=1;
