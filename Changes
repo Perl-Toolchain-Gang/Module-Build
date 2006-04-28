@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.27_11
+0.28  Thu Apr 27 22:25:00 CDT 2006
 
  - When y_n() or prompt() are called without a default value and the
    build seems to be unattended (e.g. in automatic CPAN testing), we
