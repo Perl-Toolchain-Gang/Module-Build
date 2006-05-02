@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+0.2801
+
+ - Tweaked the way we determine whether a file is executable on Unix.
+   We use this determination to decide whether to make it executable
+   during installation. [Julian Mehnle]
+
 0.28  Thu Apr 27 22:25:00 CDT 2006
 
  - When y_n() or prompt() are called without a default value and the
