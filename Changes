@@ -6,6 +6,9 @@ Revision history for Perl extension Module::Build.
    We use this determination to decide whether to make it executable
    during installation. [Julian Mehnle]
 
+ - Replaced a vestigial 'next' with 'return' now that the code is in a
+   subroutine (htmlify_pods()), not a loop. [Ron Savage]
+
 0.28  Thu Apr 27 22:25:00 CDT 2006
 
  - When y_n() or prompt() are called without a default value and the
