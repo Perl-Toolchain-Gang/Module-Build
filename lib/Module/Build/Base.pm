@@ -2503,7 +2503,7 @@ sub htmlify_pods {
 
   my $pods = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
                                 exclude => [ qr/\.(?:bat|com|html)$/ ] );
-  next unless %$pods;  # nothing to do
+  return unless %$pods;  # nothing to do
 
   unless ( -d $htmldir ) {
     File::Path::mkpath($htmldir, 0, 0755)
