@@ -230,35 +230,44 @@ print "Hello, World!\n";
 
   $ENV{PERL_MM_USE_DEFAULT} = 1;
 
-  eval{ $mb->y_n("Is this a question?") };
-  like $@, qr/ERROR:/, 'Do not allow default-less y_n() for unattended builds';
+  eval{ $mb->y_n('Is this a question?') };
+  like $@, qr/ERROR:/,
+       'Do not allow default-less y_n() for unattended builds';
 
   eval{ $ans = $mb->prompt('Is this a question?') };
-  like $@, qr/ERROR:/, 'Do not allow default-less prompt() for unattended builds';
+  like $@, qr/ERROR:/,
+       'Do not allow default-less prompt() for unattended builds';
 
 
-  $ENV{PERL_MM_USE_DEFAULT} = 0;
+  # When running Test::Smoke under a cron job, STDIN will be closed which
+  # will fool our _is_interactive() method causing various failures.
+  {
+    local *{Module::Build::_is_interactive} = sub { 1 };
 
-  $ans = $mb->prompt('Is this a question?');
-  print "\n"; # fake <enter> after input
-  is $ans, 'y', "prompt() doesn't require default for interactive builds";
+    $ENV{PERL_MM_USE_DEFAULT} = 0;
 
-  $ans = $mb->y_n('Say yes');
-  print "\n"; # fake <enter> after input
-  ok $ans, "y_n() doesn't require default for interactive build";
+    $ans = $mb->prompt('Is this a question?');
+    print "\n"; # fake <enter> after input
+    is $ans, 'y', "prompt() doesn't require default for interactive builds";
+
+    $ans = $mb->y_n('Say yes');
+    print "\n"; # fake <enter> after input
+    ok $ans, "y_n() doesn't require default for interactive build";
 
 
-  # Test Defaults
-  *{Module::Build::_readline} = sub { '' };
+    # Test Defaults
+    *{Module::Build::_readline} = sub { '' };
 
-  $ans = $mb->prompt("Is this a question");
-  is $ans, '', "default for prompt() without a default is ''";
+    $ans = $mb->prompt("Is this a question");
+    is $ans, '', "default for prompt() without a default is ''";
 
-  $ans = $mb->prompt("Is this a question", 'y');
-  is $ans, 'y', "  prompt() with a default";
+    $ans = $mb->prompt("Is this a question", 'y');
+    is $ans, 'y', "  prompt() with a default";
 
-  $ans = $mb->y_n("Is this a question", 'y');
-  ok $ans, "  y_n() with a default";
+    $ans = $mb->y_n("Is this a question", 'y');
+    ok $ans, "  y_n() with a default";
+  }
+
 }
 
 # cleanup
