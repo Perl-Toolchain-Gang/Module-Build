@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.2801
 
+ - Native batch scripts under Windows should not be converted by
+   pl2bat. [Spotted by Ron Savage]
+
  - Tweaked the way we determine whether a file is executable on Unix.
    We use this determination to decide whether to make it executable
    during installation. [Julian Mehnle]
