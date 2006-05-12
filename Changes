@@ -15,6 +15,11 @@ Revision history for Perl extension Module::Build.
  - Fixed a guaranteed failure in t/signature.t when TEST_SIGNATURE was
    set. [Eric R. Meyers]
 
+ - Fixed a test failure that occurred when testing or installing in
+   unattended mode - the code to test whether unattended mode and
+   attended mode are working properly was assuming that we started out
+   in attended mode. [Steve Peters]
+
 0.28  Thu Apr 27 22:25:00 CDT 2006
 
  - When y_n() or prompt() are called without a default value and the
