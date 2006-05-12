@@ -20,6 +20,12 @@ Revision history for Perl extension Module::Build.
    attended mode are working properly was assuming that we started out
    in attended mode. [Steve Peters]
 
+ - Improved our stand-in YAML generator that we use to generate
+   META.yaml when authors don't have a copy of YAML.pm installed on
+   their machine.  It was unable to handle things like embedded
+   newlines in the data, now it has a much more extensive escaping
+   mechanism. [Stephen Adkins]
+
 0.28  Thu Apr 27 22:25:00 CDT 2006
 
  - When y_n() or prompt() are called without a default value and the
