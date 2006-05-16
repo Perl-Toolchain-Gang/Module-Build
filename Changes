@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.2801
 
+ - Module::Build::Compat's emulation of INC is incorrectly prepending
+   a -I to the value of INC. This is incorrect because there should
+   already be a -I on the value. I.E. it's "perl Makefile.PL INC=-Ifoo"
+   not "perl Makefile.PL INC=foo" so Compat should not prefix a -I.
+   [Patch by Michael Schwern]
+
  - Native batch scripts under Windows should not be converted by
    pl2bat. [Spotted by Ron Savage]
 
