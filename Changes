@@ -6,7 +6,7 @@ Revision history for Perl extension Module::Build.
    a -I to the value of INC. This is incorrect because there should
    already be a -I on the value. I.E. it's "perl Makefile.PL INC=-Ifoo"
    not "perl Makefile.PL INC=foo" so Compat should not prefix a -I.
-   [Patch by Michael Schwern]
+   [Michael Schwern]
 
  - Native batch scripts under Windows should not be converted by
    pl2bat. [Spotted by Ron Savage]
@@ -31,6 +31,8 @@ Revision history for Perl extension Module::Build.
    their machine.  It was unable to handle things like embedded
    newlines in the data, now it has a much more extensive escaping
    mechanism. [Stephen Adkins]
+
+ - Revised the docs for --prefix and PREFIX. [Michael Schwern]
 
 0.28  Thu Apr 27 22:25:00 CDT 2006
 
