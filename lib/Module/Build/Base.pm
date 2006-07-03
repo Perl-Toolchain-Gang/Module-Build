@@ -499,9 +499,8 @@ EOF
 
   my $ans = $self->_readline();
 
-  if ( !defined($ans) ) {     # Ctrl-D
-    print "\n";
-  } elsif ( !length($ans) ) { # Default
+  if ( !defined($ans)        # Ctrl-D or unattended
+       or !length($ans) ) {  # User hit return
     print "$def\n";
     $ans = $def;
   }
