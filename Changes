@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.2802
 
+ - Added reliance on version.pm, which means we should deal much
+   better with the wide range of version specifications one finds on
+   CPAN.  This is made possible by recent releases of version.pm that
+   give the user a pure-perl option, so installing version.pm
+   shouldn't be too onerous for most users.  [John Peacock]
+
  - Sped up execution of find_pods by catering to File::Spec's and
    Cwd's peculiarities.  This produces about a factor of 3 speedup in
    building M::B itself (from about 3.5 seconds down to 1.2 seconds on
@@ -11,7 +17,6 @@ Revision history for Perl extension Module::Build.
  - We should be accepting the default when we're in unattended mode,
    not acting dumb and ignoring both the default and the [empty]
    answer from the user.  Fixed.  [Spotted by Nik Clayton]
-
 
 0.2801  Sun May 21 00:07:40 CDT 2006
 

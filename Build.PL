@@ -37,6 +37,7 @@ my $build = ModuleBuildBuilder->new
 		'Text::ParseWords' => 0,
 		'Getopt::Long'   => 0,
 		'Test::Harness'  => 0,
+		'version'        => 0.64,
 	       },
    recommends => {
 		  'Archive::Tar' => '1.08',
