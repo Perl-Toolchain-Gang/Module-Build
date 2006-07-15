@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2802
+0.2802  Fri Jul 14 22:40:34 CDT 2006
 
  - Added reliance on version.pm, which means we should deal much
    better with the wide range of version specifications one finds on
