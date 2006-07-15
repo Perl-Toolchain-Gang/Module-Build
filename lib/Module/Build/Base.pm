@@ -2439,9 +2439,7 @@ sub _find_pods {
   my ($self, $dirs, %args) = @_;
   my %files;
   foreach my $spec (@$dirs) {
-    # Run through rel2abs() because abs2rel() will do the same thing
-    # anyway - faster to just do it up front.
-    my $dir = File::Spec->rel2abs( $self->localize_dir_path($spec) );
+    my $dir = $self->localize_dir_path($spec);
     next unless -e $dir;
 
     FILE: foreach my $file ( @{ $self->rscan_dir( $dir ) } ) {
