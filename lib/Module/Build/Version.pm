@@ -1,4 +1,5 @@
 package Module::Build::Version;
+use version;
 use base qw/version/;
 
 use overload (
