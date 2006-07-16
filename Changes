@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2804
+0.2804  Sun Jul 16 16:41:25 CDT 2006
 
  - Added 'use version;' in Module::Build::Version, because some
    versions of base.pm won't automatically load version.pm when we do
