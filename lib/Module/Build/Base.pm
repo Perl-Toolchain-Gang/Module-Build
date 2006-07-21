@@ -3211,8 +3211,7 @@ sub prepare_metadata {
     die "ERROR: Missing required field '$_' for META.yml\n"
       unless defined($node->{$name}) && length($node->{$name});
   }
-  # Really don't understand why I need the "... if exists" here
-  $node->{version} = $node->{version}->stringify if exists $node->{version};
+  $node->{version} = '' . $node->{version}; # Stringify version objects
 
   if (defined( $self->license ) &&
       defined( my $url = $self->valid_licenses->{ $self->license } )) {
