@@ -187,7 +187,8 @@ foreach my $module ( @modules ) {
     local $SIG{__WARN__} = sub { $warnings .= $_ for @_ };
     my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
 
-    cmp_ok( $pm_info->version, '==', '1.23',
+    # Test::Builder will prematurely numify objects, so use this form
+    ok( $pm_info->version eq '1.23',
 	"correct module version ($i of $n)" );
     is( $warnings, '', 'no warnings from parsing' );
     $i++;

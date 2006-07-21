@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.2805
+
+ - Fix some test warnings (or failures?) related to version.pm
+   numification. [John Peacock]
+
 0.2804  Sun Jul 16 16:41:25 CDT 2006
 
  - Added 'use version;' in Module::Build::Version, because some
