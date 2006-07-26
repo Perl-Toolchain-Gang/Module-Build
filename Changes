@@ -5,6 +5,10 @@ Revision history for Perl extension Module::Build.
  - Fix some test warnings (or failures?) related to version.pm
    numification. [John Peacock]
 
+ - Don't 'use base qw(version)' anymore in our M::B::Version wrapper,
+   just set @ISA directly, because some people have reported that the
+   'use base' line is croaking.
+
 0.2804  Sun Jul 16 16:41:25 CDT 2006
 
  - Added 'use version;' in Module::Build::Version, because some

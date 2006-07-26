@@ -1,6 +1,8 @@
 package Module::Build::Version;
+use strict;
 use version;
-use base qw/version/;
+use vars qw(@ISA);
+@ISA = qw(version);
 
 use overload (
     '""' => \&stringify,
