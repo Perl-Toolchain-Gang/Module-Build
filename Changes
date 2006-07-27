@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2805
+0.2805  Wed Jul 26 21:18:55 CDT 2006
 
  - Fix some test warnings (or failures?) related to version.pm
    numification. [John Peacock]
