@@ -14,6 +14,11 @@ Revision history for Perl extension Module::Build.
    just set @ISA directly, because some people have reported that the
    'use base' line is croaking.
 
+ - Added an 'allow_mb_mismatch' parameter to suppress the startup
+   check that ensures the version of M::B currently running is the
+   same as the one initially used to run the Build.PL.  Use with
+   caution.
+
 0.2804  Sun Jul 16 16:41:25 CDT 2006
 
  - Added 'use version;' in Module::Build::Version, because some

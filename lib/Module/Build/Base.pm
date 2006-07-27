@@ -68,12 +68,15 @@ sub resume {
 		    "   but we are now using '$perl'.\n");
   }
   
-  my $mb_version = $Module::Build::VERSION;
-  die(" * ERROR: Configuration was initially created with Module::Build version '$self->{properties}{mb_version}',\n".
-      "   but we are now using version '$mb_version'.  Please re-run the Build.PL or Makefile.PL script.\n")
-    unless $mb_version eq $self->{properties}{mb_version};
-  
   $self->cull_args(@ARGV);
+
+  unless ($self->allow_mb_mismatch) {
+    my $mb_version = $Module::Build::VERSION;
+    die(" * ERROR: Configuration was initially created with Module::Build version '$self->{properties}{mb_version}',\n".
+	"   but we are now using version '$mb_version'.  Please re-run the Build.PL or Makefile.PL script.\n")
+    if $mb_version ne $self->{properties}{mb_version};
+  }
+  
   $self->{invoked_action} = $self->{action} ||= 'build';
   
   return $self;
@@ -755,6 +758,7 @@ __PACKAGE__->add_property(metafile => 'META.yml');
 __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(use_rcfile => 1);
 __PACKAGE__->add_property(create_packlist => 1);
+__PACKAGE__->add_property(allow_mb_mismatch => 0);
 
 {
   my $Is_ActivePerl = eval {require ActivePerl::DocTools};

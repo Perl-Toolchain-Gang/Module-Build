@@ -644,6 +644,13 @@ false to prevent the custom resource file from being loaded.
 
 Display extra information about the Build on output.
 
+=item allow_mb_mismatch
+
+Suppresses the check upon startup that the version of Module::Build
+we're now running under is the same version that was initially invoked
+when building the distribution (i.e. when the C<Build.PL> script was
+first run).  Use with caution.
+
 =back
 
 
