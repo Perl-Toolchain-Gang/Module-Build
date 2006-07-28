@@ -81,7 +81,7 @@ my $build = ModuleBuildBuilder->new
 		  {
 		   homepage => 'http://sourceforge.net/projects/module-build',
 		   bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Module-Build',
-		   MailingList => 'http://lists.sourceforge.net/lists/listinfo/module-build-general',
+		   MailingList => 'mailto:module-build@perl.org',
 		   repository => 'http://svn.perl.org/modules/Module-Build/'
 		  }
 		 },
