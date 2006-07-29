@@ -1,6 +1,15 @@
 Revision history for Perl extension Module::Build.
 
-0.2805  Wed Jul 26 21:18:55 CDT 2006
+0.2805
+
+ - We now embed a copy of version.pm right in the
+   Module::Build::Version source code, with John Peacock's blessing,
+   in case the user has a rough time installing version.pm.  This
+   helps alleviate troubles people were still having with working out
+   a seemingly circular dependency (even though version.pm now ships
+   with a standard Makefile.PL too).  A version.pm >= 0.661 installed
+   on the system will take precedence over our bundled one. [John
+   Peacock]
 
  - Fix some test warnings (or failures?) related to version.pm
    numification. [John Peacock]

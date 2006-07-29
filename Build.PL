@@ -37,7 +37,6 @@ my $build = ModuleBuildBuilder->new
 		'Text::ParseWords' => 0,
 		'Getopt::Long'   => 0,
 		'Test::Harness'  => 0,
-		'version'        => 0.64,
 	       },
    recommends => {
 		  'Archive::Tar' => '1.08',
@@ -46,6 +45,7 @@ my $build = ModuleBuildBuilder->new
 		  'ExtUtils::ParseXS' => 1.02,
 		  'Pod::Readme' => 0.04,
 		  'Module::Signature' => 0.21,
+		  'version' => 0.661,
 		 },
    sign => 1,
    create_readme => 1,
