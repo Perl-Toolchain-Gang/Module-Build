@@ -3932,7 +3932,13 @@ sub process_xs {
 sub do_system {
   my ($self, @cmd) = @_;
   $self->log_info("@cmd\n");
-  return !system(@cmd);
+  my $status = system(@cmd);
+  if ($status and $! =~ /Argument list too long/i) {
+    my $env_entries = '';
+    foreach (sort keys %ENV) { $env_entries .= "$_=>".length($ENV{$_})."; " }
+    warn "'Argument list' was 'too long', env lengths are $env_entries";
+  }
+  return !$status;
 }
 
 sub copy_if_modified {
