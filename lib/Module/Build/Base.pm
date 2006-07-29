@@ -1093,7 +1093,7 @@ sub prereq_failures {
 
       } elsif ($type =~ /^(?:\w+_)?recommends$/) {
 	next if $status->{ok};
-	$status->{message} = ($status->{have} eq '<none>'
+	$status->{message} = (!ref($status->{have}) && $status->{have} eq '<none>'
 			      ? "Optional prerequisite $modname is not installed"
 			      : "$modname ($status->{have}) is installed, but we prefer to have $spec");
       } else {
