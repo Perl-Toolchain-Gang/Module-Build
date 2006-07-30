@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2805
+0.2805  Sat Jul 29 21:01:37 CDT 2006
 
  - We now embed a copy of version.pm right in the
    Module::Build::Version source code, with John Peacock's blessing,
