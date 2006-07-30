@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 72;
+use MBTest tests => 75;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -346,7 +346,6 @@ $pm_info = Module::Build::ModuleInfo->new_from_module(
              $dist->name, inc => [ 'lib', @INC ] );
 
 is( $pm_info->name, 'Simple', 'found default package' );
-
 is( $pm_info->version, '0.01', 'version for default package' );
 
 # got correct version for secondary package
@@ -386,8 +385,28 @@ if ( $name ) {
 is( $name, q|Simple - It's easy.|, 'collected pod section' );
 
 
+{
+  # examine properties of a module: name, pod, etc
+  $dist->change_file( 'lib/Simple.pm', <<'---' );
+package Simple;
+$VERSION = '0.01';
+__DATA__
+*UNIVERSAL::VERSION = sub {
+  foo();
+};
+---
+  $dist->regen;
+
+  $pm_info = Module::Build::ModuleInfo->new_from_file('lib/Simple.pm');
+  is( $pm_info->name, 'Simple', 'found default package' );
+  is( $pm_info->version, '0.01', 'version for default package' );
+  my @packages = $pm_info->packages_inside;
+  is_deeply(\@packages, ['Simple']);
+}
+
+
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+chdir( $cwd ) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
 
 use File::Path;

@@ -28,6 +28,9 @@ Revision history for Perl extension Module::Build.
    same as the one initially used to run the Build.PL.  Use with
    caution.
 
+ - Module::Build::ModuleInfo will no longer detect things that look
+   like $VERSION assignments after an __END__ or __DATA__ token.
+
 0.2804  Sun Jul 16 16:41:25 CDT 2006
 
  - Added 'use version;' in Module::Build::Version, because some
