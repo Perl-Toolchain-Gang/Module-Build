@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2805  Sat Jul 29 21:01:37 CDT 2006
+0.2805  Sat Jul 29 22:01:24 CDT 2006
 
  - We now embed a copy of version.pm right in the
    Module::Build::Version source code, with John Peacock's blessing,
@@ -30,6 +30,9 @@ Revision history for Perl extension Module::Build.
 
  - Module::Build::ModuleInfo will no longer detect things that look
    like $VERSION assignments after an __END__ or __DATA__ token.
+
+ - Updated documentation to mention the new mailing list on perl.org
+   rather than the old one on sourceforge.
 
 0.2804  Sun Jul 16 16:41:25 CDT 2006
 

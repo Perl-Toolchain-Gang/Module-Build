@@ -971,7 +971,7 @@ signature or the like, if available.  See C<cons> for an example.
 Ken Williams <kwilliams@cpan.org>
 
 Development questions, bug reports, and patches should be sent to the
-Module-Build mailing list at <module-build-general@lists.sourceforge.net>.
+Module-Build mailing list at <module-build@perl.org>.
 
 Bug reports are also welcome at
 <http://rt.cpan.org/NoAuth/Bugs.html?Dist=Module-Build>.
