@@ -3384,9 +3384,9 @@ sub find_dist_packages {
     }
   }
 
-  # Stringify versions
-  for (grep exists $_->{version}, values %prime) {
-    $_->{version} = $_->{version}->stringify;
+  # Stringify versions.  Can't use exists() here because of bug in YAML::Node.
+  for (grep defined $_->{version}, values %prime) {
+    $_->{version} = '' . $_->{version};
   }
 
   return \%prime;

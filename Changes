@@ -1,5 +1,13 @@
 Revision history for Perl extension Module::Build.
 
+0.2806
+
+ - Because of a weird behavior of YAML::Node, any distribution that
+   used version.pm objects to define their versions was generating the
+   wrong syntax for the versions in their META.yml file.  They will
+   now appear as strings like v3.42.1 or similar, including the
+   leading v.
+
 0.2805  Sat Jul 29 22:01:24 CDT 2006
 
  - We now embed a copy of version.pm right in the

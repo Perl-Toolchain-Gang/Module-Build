@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 75;
+use MBTest tests => 79;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -386,7 +386,7 @@ is( $name, q|Simple - It's easy.|, 'collected pod section' );
 
 
 {
-  # examine properties of a module: name, pod, etc
+  # Make sure processing stops after __DATA__
   $dist->change_file( 'lib/Simple.pm', <<'---' );
 package Simple;
 $VERSION = '0.01';
@@ -402,6 +402,24 @@ __DATA__
   is( $pm_info->version, '0.01', 'version for default package' );
   my @packages = $pm_info->packages_inside;
   is_deeply(\@packages, ['Simple']);
+}
+
+{
+  # Make sure we handle version.pm $VERSIONs well
+  $dist->change_file( 'lib/Simple.pm', <<'---' );
+package Simple;
+$VERSION = version->new('0.60.' . qw$Revision$[1]);
+package Simple::Simon;
+$VERSION = version->new('0.61.' . qw$Revision$[1]);
+---
+  $dist->regen;
+
+  $pm_info = Module::Build::ModuleInfo->new_from_file('lib/Simple.pm');
+  is( $pm_info->name, 'Simple', 'found default package' );
+  is( $pm_info->version, 'v0.60.128', 'version for default package' );
+  my @packages = $pm_info->packages_inside;
+  is_deeply([sort @packages], ['Simple', 'Simple::Simon']);
+  is( $pm_info->version('Simple::Simon'), 'v0.61.129', 'version for embedded package' );
 }
 
 
