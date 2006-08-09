@@ -8,6 +8,8 @@ Revision history for Perl extension Module::Build.
    now appear as strings like v3.42.1 or similar, including the
    leading v.
 
+ - Upgraded to version 0.67 of version.pm. [John Peacock]
+
 0.2805  Sat Jul 29 22:01:24 CDT 2006
 
  - We now embed a copy of version.pm right in the
