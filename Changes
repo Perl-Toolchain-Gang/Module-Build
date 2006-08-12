@@ -10,6 +10,9 @@ Revision history for Perl extension Module::Build.
 
  - Upgraded to version 0.67 of version.pm. [John Peacock]
 
+ - Added a contrib/ directory with a bash completion function for M::B
+   actions and switches. [Julian Mehnle]
+
 0.2805  Sat Jul 29 22:01:24 CDT 2006
 
  - We now embed a copy of version.pm right in the
