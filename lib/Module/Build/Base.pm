@@ -759,6 +759,7 @@ __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(use_rcfile => 1);
 __PACKAGE__->add_property(create_packlist => 1);
 __PACKAGE__->add_property(allow_mb_mismatch => 0);
+__PACKAGE__->add_property(test_with_blib => 1);
 
 {
   my $Is_ActivePerl = eval {require ActivePerl::DocTools};
@@ -2005,10 +2006,14 @@ sub ACTION_test {
 	 $ENV{TEST_VERBOSE},
          $ENV{HARNESS_VERBOSE}) = ($p->{verbose} || 0) x 4;
 
-  # Make sure we test the module in blib/
-  local @INC = (File::Spec->catdir($p->{base_dir}, $self->blib, 'lib'),
-		File::Spec->catdir($p->{base_dir}, $self->blib, 'arch'),
-		@INC);
+  # Protect others against our @INC changes
+  local @INC = @INC;
+
+  if ($p->{test_with_blib}) {
+    # Make sure we test the module in blib/
+    unshift @INC, (File::Spec->catdir($p->{base_dir}, $self->blib, 'lib'),
+		   File::Spec->catdir($p->{base_dir}, $self->blib, 'arch'));
+  }
 
   # Filter out nonsensical @INC entries - some versions of
   # Test::Harness will really explode the number of entries here
@@ -3932,6 +3937,14 @@ sub process_xs {
 sub do_system {
   my ($self, @cmd) = @_;
   $self->log_info("@cmd\n");
+
+#  my %seen;
+#  my $sep = ref($self) ? $self->config('path_sep') : $Config{path_sep};
+#  local $ENV{PERL5LIB} = join $sep, grep {
+#    ! $seen{$_}++ and -d $_
+#  } split($sep, $ENV{PERL5LIB});
+
+
   my $status = system(@cmd);
   if ($status and $! =~ /Argument list too long/i) {
     my $env_entries = '';

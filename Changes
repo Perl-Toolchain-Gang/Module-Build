@@ -17,6 +17,11 @@ Revision history for Perl extension Module::Build.
    the eval() was unsuccessful, rather than continuing blindly on and
    dying mysteriously later.
 
+ - Added a 'test_with_blib' parameter, default true, that lets users
+   avoid adding the blib/ directories to @INC when testing, and
+   therefore lets people run the current regression tests on
+   previously-installed versions of a distribution.
+
 0.2805  Sat Jul 29 22:01:24 CDT 2006
 
  - We now embed a copy of version.pm right in the
