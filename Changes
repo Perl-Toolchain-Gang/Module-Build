@@ -13,6 +13,10 @@ Revision history for Perl extension Module::Build.
  - Added a contrib/ directory with a bash completion function for M::B
    actions and switches. [Julian Mehnle]
 
+ - When we eval() the embedded version.pm code we will now die() if
+   the eval() was unsuccessful, rather than continuing blindly on and
+   dying mysteriously later.
+
 0.2805  Sat Jul 29 22:01:24 CDT 2006
 
  - We now embed a copy of version.pm right in the

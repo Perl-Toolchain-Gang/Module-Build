@@ -25,9 +25,9 @@ if ($@) { # can't locate version files, use our own
 
     # but we eval them in reverse order since version depends on
     # version::vpp to already exist
-    eval $vpp;
+    eval $vpp; die $@ if $@;
     $INC{'version/vpp.pm'} = 'inside Module::Build::Version';
-    eval $version;
+    eval $version; die $@ if $@;
     $INC{'version.pm'} = 'inside Module::Build::Version';
 }
 
