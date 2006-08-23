@@ -17,6 +17,7 @@ use Text::ParseWords ();
 
 use Module::Build::ModuleInfo;
 use Module::Build::Notes;
+use Module::Build::Config;
 
 
 #################### Constructors ###########################
@@ -759,7 +760,6 @@ __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(use_rcfile => 1);
 __PACKAGE__->add_property(create_packlist => 1);
 __PACKAGE__->add_property(allow_mb_mismatch => 0);
-__PACKAGE__->add_property(test_with_blib => 1);
 
 {
   my $Is_ActivePerl = eval {require ActivePerl::DocTools};
@@ -1984,13 +1984,45 @@ sub _action_listing {
   return $out;
 }
 
+sub ACTION_retest {
+  my ($self) = @_;
+  
+  # Protect others against our @INC changes
+  local @INC = @INC;
+
+  # Filter out nonsensical @INC entries - some versions of
+  # Test::Harness will really explode the number of entries here
+  @INC = grep {ref() || -d} @INC if @INC > 100;
+
+  $self->do_tests;
+}
+
+
 sub ACTION_test {
   my ($self) = @_;
   my $p = $self->{properties};
-  require Test::Harness;
   
   $self->depends_on('code');
   
+  # Protect others against our @INC changes
+  local @INC = @INC;
+
+  # Make sure we test the module in blib/
+  unshift @INC, (File::Spec->catdir($p->{base_dir}, $self->blib, 'lib'),
+		 File::Spec->catdir($p->{base_dir}, $self->blib, 'arch'));
+
+  # Filter out nonsensical @INC entries - some versions of
+  # Test::Harness will really explode the number of entries here
+  @INC = grep {ref() || -d} @INC if @INC > 100;
+
+  $self->do_tests;
+}
+
+sub do_tests {
+  my $self = shift;
+  my $p = $self->{properties};
+  require Test::Harness;
+
   # Do everything in our power to work with all versions of Test::Harness
   my @harness_switches = $p->{debugger} ? qw(-w -d) : ();
   local $Test::Harness::switches    = join ' ', grep defined, $Test::Harness::switches, @harness_switches;
@@ -2006,19 +2038,6 @@ sub ACTION_test {
 	 $ENV{TEST_VERBOSE},
          $ENV{HARNESS_VERBOSE}) = ($p->{verbose} || 0) x 4;
 
-  # Protect others against our @INC changes
-  local @INC = @INC;
-
-  if ($p->{test_with_blib}) {
-    # Make sure we test the module in blib/
-    unshift @INC, (File::Spec->catdir($p->{base_dir}, $self->blib, 'lib'),
-		   File::Spec->catdir($p->{base_dir}, $self->blib, 'arch'));
-  }
-
-  # Filter out nonsensical @INC entries - some versions of
-  # Test::Harness will really explode the number of entries here
-  @INC = grep {ref() || -d} @INC if @INC > 100;
-  
   my $tests = $self->find_test_files;
 
   if (@$tests) {

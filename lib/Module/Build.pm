@@ -504,6 +504,17 @@ C<_build> directory and the C<Build> script.  If you run the
 C<realclean> action, you are essentially starting over, so you will
 have to re-create the C<Build> script again.
 
+=item retest
+
+[version 0.2806]
+
+This is just like the C<test> action, but doesn't actually build the
+distribution first, and doesn't add F<blib/> to the load path, and
+therefore will test against a I<previously> installed version of the
+distribution.  This can be used to verify that a certain installed
+distribution still works, or to see whether newer versions of a
+distribution still pass the old regression tests, and so on.
+
 =item skipcheck
 
 [version 0.05]

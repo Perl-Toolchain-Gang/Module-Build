@@ -716,21 +716,6 @@ property is true, then the C<t/> directory will be scanned recursively
 for C<*.t> files.
 
 
-=item test_with_blib
-
-[version 0.2806]
-
-A boolean parameter, default true, that indicates whether the F<blib/>
-directories will be added to C<@INC> when testing.  When set to false,
-this lets users run the current regression tests on
-previously-installed versions of a distribution.
-
-This isn't always guaranteed to work, of course -- some distributions
-might do some fancy stuff during testing, or might explicitly check
-whether the code is being loaded from F<blib/>, or some other thing to
-foil your attempts, but sometimes it can be helpful.
-
-
 =item xs_files
 
 [version 0.19]
