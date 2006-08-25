@@ -17,7 +17,6 @@ use Text::ParseWords ();
 
 use Module::Build::ModuleInfo;
 use Module::Build::Notes;
-use Module::Build::Config;
 
 
 #################### Constructors ###########################
