@@ -20,6 +20,10 @@ Revision history for Perl extension Module::Build.
  - Added a 'retest' action that lets users run the current regression
    tests on a previously-installed version of a distribution.
 
+ - Instead of storing an entire dump of the Config.pm hash in the
+   _build/ directory upon startup, we now just store any overrides the
+   user or author has specified. [Idea originally by Randy Sims]
+
 0.2805  Sat Jul 29 22:01:24 CDT 2006
 
  - We now embed a copy of version.pm right in the

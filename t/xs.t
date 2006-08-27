@@ -85,9 +85,10 @@ SKIP: {
   skip( "skipping a Unixish-only tests", 1 )
       unless $mb->os_type eq 'Unix';
 
-  local $mb->{config}{ld} = "FOO=BAR $mb->{config}{ld}";
+  $mb->{config}->push(ld => "FOO=BAR ".$mb->config('ld'));
   eval {$mb->dispatch('build')};
   is $@, '';
+  $mb->{config}->pop('ld');
 }
 
 eval {$mb->dispatch('realclean')};

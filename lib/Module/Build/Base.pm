@@ -17,6 +17,7 @@ use Text::ParseWords ();
 
 use Module::Build::ModuleInfo;
 use Module::Build::Notes;
+use Module::Build::Config;
 
 
 #################### Constructors ###########################
@@ -113,7 +114,7 @@ sub _construct {
 
   my $self = bless {
 		    args => {%$args},
-		    config => {%Config, %$config},
+		    config => Module::Build::Config->new(values => $config),
 		    properties => {
 				   base_dir        => $package->cwd,
 				   mb_version      => $Module::Build::VERSION,
@@ -123,7 +124,7 @@ sub _construct {
 		   }, $package;
 
   $self->_set_defaults;
-  my ($p, $c, $ph) = ($self->{properties}, $self->{config}, $self->{phash});
+  my ($p, $ph) = ($self->{properties}, $self->{phash});
 
   foreach (qw(notes config_data features runtime_params cleanup auto_features)) {
     my $file = File::Spec->catfile($self->config_dir, $_);
@@ -184,62 +185,62 @@ sub log_warn {
 
 sub _set_install_paths {
   my $self = shift;
-  my $c = $self->config;
+  my $c = $self->{config};
   my $p = $self->{properties};
 
-  my @libstyle = $c->{installstyle} ?
-      File::Spec->splitdir($c->{installstyle}) : qw(lib perl5);
-  my $arch     = $c->{archname};
-  my $version  = $c->{version};
+  my @libstyle = $c->get('installstyle') ?
+      File::Spec->splitdir($c->get('installstyle')) : qw(lib perl5);
+  my $arch     = $c->get('archname');
+  my $version  = $c->get('version');
 
-  my $bindoc  = $c->{installman1dir} || undef;
-  my $libdoc  = $c->{installman3dir} || undef;
+  my $bindoc  = $c->get('installman1dir') || undef;
+  my $libdoc  = $c->get('installman3dir') || undef;
 
-  my $binhtml = $c->{installhtml1dir} || $c->{installhtmldir} || undef;
-  my $libhtml = $c->{installhtml3dir} || $c->{installhtmldir} || undef;
+  my $binhtml = $c->get('installhtml1dir') || $c->get('installhtmldir') || undef;
+  my $libhtml = $c->get('installhtml3dir') || $c->get('installhtmldir') || undef;
 
   $p->{install_sets} =
     {
      core   => {
-		lib     => $c->{installprivlib},
-		arch    => $c->{installarchlib},
-		bin     => $c->{installbin},
-		script  => $c->{installscript},
+		lib     => $c->get('installprivlib'),
+		arch    => $c->get('installarchlib'),
+		bin     => $c->get('installbin'),
+		script  => $c->get('installscript'),
 		bindoc  => $bindoc,
 		libdoc  => $libdoc,
 		binhtml => $binhtml,
 		libhtml => $libhtml,
 	       },
      site   => {
-		lib     => $c->{installsitelib},
-		arch    => $c->{installsitearch},
-		bin     => $c->{installsitebin} || $c->{installbin},
-		script  => $c->{installsitescript} ||
-		           $c->{installsitebin} || $c->{installscript},
-		bindoc  => $c->{installsiteman1dir} || $bindoc,
-		libdoc  => $c->{installsiteman3dir} || $libdoc,
-		binhtml => $c->{installsitehtml1dir} || $binhtml,
-		libhtml => $c->{installsitehtml3dir} || $libhtml,
+		lib     => $c->get('installsitelib'),
+		arch    => $c->get('installsitearch'),
+		bin     => $c->get('installsitebin') || $c->get('installbin'),
+		script  => $c->get('installsitescript') ||
+		           $c->get('installsitebin') || $c->get('installscript'),
+		bindoc  => $c->get('installsiteman1dir') || $bindoc,
+		libdoc  => $c->get('installsiteman3dir') || $libdoc,
+		binhtml => $c->get('installsitehtml1dir') || $binhtml,
+		libhtml => $c->get('installsitehtml3dir') || $libhtml,
 	       },
      vendor => {
-		lib     => $c->{installvendorlib},
-		arch    => $c->{installvendorarch},
-		bin     => $c->{installvendorbin} || $c->{installbin},
-		script  => $c->{installvendorscript} ||
-		           $c->{installvendorbin} || $c->{installscript},
-		bindoc  => $c->{installvendorman1dir} || $bindoc,
-		libdoc  => $c->{installvendorman3dir} || $libdoc,
-		binhtml => $c->{installvendorhtml1dir} || $binhtml,
-		libhtml => $c->{installvendorhtml3dir} || $libhtml,
+		lib     => $c->get('installvendorlib'),
+		arch    => $c->get('installvendorarch'),
+		bin     => $c->get('installvendorbin') || $c->get('installbin'),
+		script  => $c->get('installvendorscript') ||
+		           $c->get('installvendorbin') || $c->get('installscript'),
+		bindoc  => $c->get('installvendorman1dir') || $bindoc,
+		libdoc  => $c->get('installvendorman3dir') || $libdoc,
+		binhtml => $c->get('installvendorhtml1dir') || $binhtml,
+		libhtml => $c->get('installvendorhtml3dir') || $libhtml,
 	       },
     };
 
   $p->{original_prefix} =
     {
-     core   => $c->{installprefixexp} || $c->{installprefix} ||
-               $c->{prefixexp}        || $c->{prefix} || '',
-     site   => $c->{siteprefixexp},
-     vendor => $c->{usevendorprefix} ? $c->{vendorprefixexp} : '',
+     core   => $c->get('installprefixexp') || $c->get('installprefix') ||
+               $c->get('prefixexp')        || $c->get('prefix') || '',
+     site   => $c->get('siteprefixexp'),
+     vendor => $c->get('usevendorprefix') ? $c->get('vendorprefixexp') : '',
     };
   $p->{original_prefix}{site} ||= $p->{original_prefix}{core};
 
@@ -394,7 +395,7 @@ sub _perl_is_same {
 # invoking the wrong perl.
 sub find_perl_interpreter {
   my $proto = shift;
-  my $c     = ref($proto) ? $proto->config : \%Config::Config;
+  my $c     = ref($proto) ? $proto->{config} : 'Module::Build::Config';
 
   my $perl  = $^X;
   my $perl_basename = File::Basename::basename($perl);
@@ -433,7 +434,7 @@ sub find_perl_interpreter {
     # PATH. We do not want to do either if we are running from an
     # uninstalled perl in a perl source tree.
 
-    push( @potential_perls, $c->{perlpath} );
+    push( @potential_perls, $c->get('perlpath') );
 
     push( @potential_perls,
           map File::Spec->catfile($_, $perl_basename), File::Spec->path() );
@@ -442,7 +443,7 @@ sub find_perl_interpreter {
   # Now that we've enumerated the potential perls, it's time to test
   # them to see if any of them match our configuration, returning the
   # absolute path of the first successful match.
-  my $exe = $c->{exe_ext};
+  my $exe = $c->get('exe_ext');
   foreach my $thisperl ( @potential_perls ) {
 
     if ($proto->os_type eq 'VMS') {
@@ -683,7 +684,7 @@ sub ACTION_config_data {
 	if ( $type eq 'HASH' ) {
           *{"$class\::$property"} = sub {
 	    my $self = shift;
-	    my $x = ( $property eq 'config' ) ? $self : $self->{properties};
+	    my $x = $self->{properties};
 	    return $x->{$property} unless @_;
 
 	    if ( defined($_[0]) && !ref($_[0]) ) {
@@ -759,6 +760,7 @@ __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(use_rcfile => 1);
 __PACKAGE__->add_property(create_packlist => 1);
 __PACKAGE__->add_property(allow_mb_mismatch => 0);
+__PACKAGE__->add_property(config => undef);
 
 {
   my $Is_ActivePerl = eval {require ActivePerl::DocTools};
@@ -774,7 +776,6 @@ __PACKAGE__->add_property(allow_mb_mismatch => 0);
 }
 
 __PACKAGE__->add_property($_ => {}) for qw(
-  config
   get_options
   install_base_relpaths
   install_path
@@ -824,6 +825,17 @@ __PACKAGE__->add_property($_) for qw(
   xs_files
 );
 
+sub config {
+  my $self = shift;
+  my $c = ref($self) ? $self->{config} : 'Module::Build::Config';
+  return $c->all_config unless @_;
+
+  my $key = shift;
+  return $c->get($key) unless @_;
+
+  my $val = shift;
+  return $c->set($key => $val);
+}
 
 sub mb_parents {
     # Code borrowed from Class::ISA.
@@ -1000,7 +1012,9 @@ sub read_config {
   my $fh = IO::File->new($file) or die "Can't read '$file': $!";
   my $ref = eval do {local $/; <$fh>};
   die if $@;
-  ($self->{args}, $self->{config}, $self->{properties}) = @$ref;
+  my $c;
+  ($self->{args}, $c, $self->{properties}) = @$ref;
+  $self->{config} = Module::Build::Config->new(values => $c);
   close $fh;
 }
 
@@ -1026,7 +1040,7 @@ sub write_config {
   
   my @items = @{ $self->prereq_action_types };
   $self->_write_data('prereqs', { map { $_, $self->$_() } @items });
-  $self->_write_data('build_params', [$self->{args}, $self->{config}, $self->{properties}]);
+  $self->_write_data('build_params', [$self->{args}, $self->{config}->values_set, $self->{properties}]);
 
   # Set a new magic number and write it to a file
   $self->_write_data('magicnum', $self->magic_number(int rand 1_000_000));
@@ -1618,7 +1632,7 @@ sub read_args {
   $args{ARGV} = \@argv;
 
   # Hashify these parameters
-  for ($self->hash_properties) {
+  for ($self->hash_properties, 'config') {
     next unless exists $args{$_};
     my %hash;
     $args{$_} ||= [];
@@ -1794,15 +1808,19 @@ sub merge_args {
   while (my ($key, $val) = each %args) {
     $self->{phash}{runtime_params}->access( $key => $val )
       if $self->valid_property($key);
-    my $add_to = ( $key eq 'config' ? $self->{config}
-                  : $additive{$key} ? $self->{properties}{$key}
-		  : $self->valid_property($key) ? $self->{properties}
-		  : $self->{args});
 
-    if ($additive{$key}) {
-      $add_to->{$_} = $val->{$_} foreach keys %$val;
+    if ($key eq 'config') {
+      $self->config($_ => $val->{$_}) foreach keys %$val;
     } else {
-      $add_to->{$key} = $val;
+      my $add_to = ( $additive{$key} ? $self->{properties}{$key}
+		     : $self->valid_property($key) ? $self->{properties}
+		     : $self->{args});
+
+      if ($additive{$key}) {
+	$add_to->{$_} = $val->{$_} foreach keys %$val;
+      } else {
+	$add_to->{$key} = $val;
+      }
     }
   }
 }
@@ -2292,9 +2310,9 @@ sub localize_dir_path {
 
 sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
   my ($self, @files) = @_;
-  my $c = $self->config;
+  my $c = ref($self) ? $self->{config} : 'Module::Build::Config';
   
-  my ($does_shbang) = $c->{sharpbang} =~ /^\s*\#\!/;
+  my ($does_shbang) = $c->get('sharpbang') =~ /^\s*\#\!/;
   for my $file (@files) {
     my $FIXIN = IO::File->new($file) or die "Can't process '$file': $!";
     local $/ = "\n";
@@ -2307,7 +2325,7 @@ sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
     
     $self->log_verbose("Changing sharpbang in $file to $interpreter");
     my $shb = '';
-    $shb .= "$c->{sharpbang}$interpreter $arg\n" if $does_shbang;
+    $shb .= $c->get('sharpbang')."$interpreter $arg\n" if $does_shbang;
     
     # I'm not smart enough to know the ramifications of changing the
     # embedded newlines here to \n, so I leave 'em in.
@@ -2335,7 +2353,7 @@ eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
     unlink "$file.bak"
       or $self->log_warn("Couldn't clean up $file.bak, leaving it there");
     
-    $self->do_system($c->{eunicefix}, $file) if $c->{eunicefix} ne ':';
+    $self->do_system($c->get('eunicefix'), $file) if $c->get('eunicefix') ne ':';
   }
 }
 
@@ -3825,10 +3843,10 @@ sub compile_xs {
     }
     @typemaps = map {+'-typemap', $_} @typemaps;
 
-    my $cf = $self->config;
+    my $cf = $self->{config};
     my $perl = $self->{properties}{perl};
     
-    my @command = ($perl, "-I$cf->{installarchlib}", "-I$cf->{installprivlib}", $xsubpp, '-noprototypes',
+    my @command = ($perl, "-I".$cf->get('installarchlib'), "-I".$cf->get('installprivlib'), $xsubpp, '-noprototypes',
 		   @typemaps, $file);
     
     $self->log_info("@command\n");
@@ -3866,8 +3884,7 @@ sub run_perl_command {
   my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
 
   # Make sure our local additions to @INC are propagated to the subprocess
-  my $c = ref $self ? $self->config : \%Config::Config;
-  local $ENV{PERL5LIB} = join $c->{path_sep}, $self->_added_to_INC;
+  local $ENV{PERL5LIB} = join $self->config('path_sep'), $self->_added_to_INC;
 
   return $self->do_system($perl, @$args);
 }
@@ -3903,20 +3920,19 @@ sub _infer_xs_spec {
   $spec{bs_file} = File::Spec->catfile($spec{archdir}, "${file_base}.bs");
 
   $spec{lib_file} = File::Spec->catfile($spec{archdir},
-					"${file_base}.$cf->{dlext}");
+					"${file_base}.".$cf->get('dlext'));
 
   $spec{c_file} = File::Spec->catfile( $spec{src_dir},
 				       "${file_base}.c" );
 
   $spec{obj_file} = File::Spec->catfile( $spec{src_dir},
-					 "${file_base}$cf->{obj_ext}" );
+					 "${file_base}".$cf->get('obj_ext') );
 
   return \%spec;
 }
 
 sub process_xs {
   my ($self, $file) = @_;
-  my $cf = $self->config; # For convenience
 
   my $spec = $self->_infer_xs_spec($file);
 
