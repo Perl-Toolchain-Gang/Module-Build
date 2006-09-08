@@ -28,7 +28,7 @@ Revision history for Perl extension Module::Build.
    the asterisk of incompatibility on this one just to cover my
    tuchus.  [Idea originally by Randy Sims]
 
- - Made copying files via the copy_if_modified() a little less chatty.
+ - Made copying files via copy_if_modified() a little less chatty.
 
 0.2805  Sat Jul 29 22:01:24 CDT 2006
 
