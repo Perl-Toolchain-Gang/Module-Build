@@ -4015,12 +4015,15 @@ sub copy_if_modified {
   
   return if $self->up_to_date($file, $to_path); # Already fresh
 
-  $self->delete_filetree($to_path); # delete destination if exists
+  {
+    local $self->{properties}{quiet} = 1;
+    $self->delete_filetree($to_path); # delete destination if exists
+  }
 
   # Create parent directories
   File::Path::mkpath(File::Basename::dirname($to_path), 0, 0777);
   
-  $self->log_info("$file -> $to_path\n") if $args{verbose};
+  $self->log_info("Copying $file -> $to_path\n") if $args{verbose};
   File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
   # mode is read-only + (executable if source is executable)
   my $mode = 0444 | ( $self->is_executable($file) ? 0111 : 0 );
