@@ -7,6 +7,7 @@ lib/Module/Build/API.pod
 lib/Module/Build/Authoring.pod
 lib/Module/Build/Base.pm
 lib/Module/Build/Compat.pm
+lib/Module/Build/Config.pm
 lib/Module/Build/Cookbook.pm
 lib/Module/Build/ModuleInfo.pm
 lib/Module/Build/Notes.pm
