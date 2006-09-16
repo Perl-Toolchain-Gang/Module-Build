@@ -22,19 +22,17 @@ the general docs.
 
 =over 4
 
-=item new
+=item _set_defaults
 
 Change $self->{build_script} to 'Build.com' so @Build works.
 
 =cut
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
+sub _set_defaults {
+    my $self = shift;
+    $self->SUPER::_set_defaults(@_);
 
     $self->{properties}{build_script} = 'Build.com';
-
-    return $self;
 }
 
 

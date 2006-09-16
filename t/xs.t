@@ -65,10 +65,12 @@ is $@, '';
   eval {$mb->dispatch('clean')};
   is $@, '';
 
-  $mb->create_build_script;
-  ok -e 'Build';
 
-  eval {$mb->run_perl_script('Build')};
+  $mb->create_build_script;
+  my $script = $mb->{properties}{build_script};
+  ok -e $script;
+
+  eval {$mb->run_perl_script($script)};
   is $@, '';
 }
 
