@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 79;
+use MBTest tests => 81;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -171,7 +171,10 @@ our $VERSION = "1.23";
   package Simple;
   use version; our $VERSION = qv('1.230');
 ---
-
+  <<'---', # Two version assignments, should ignore second one
+  $Simple::VERSION = '1.230';
+  $Simple::VERSION = eval $Simple::VERSION;
+---
 );
 
 my( $i, $n ) = ( 1, scalar( @modules ) );
