@@ -451,6 +451,15 @@ also supply or override install paths by specifying there values on
 the command line with the C<bindoc> and C<libdoc> installation
 targets.
 
+=item pardist
+
+[version 0.2806]
+
+Generates a PAR binary distribution for use with L<PAR> or L<PAR::Dist>.
+
+It requires that the PAR::Dist module (version 0.17 and up) is
+installed on your system.
+
 =item ppd
 
 [version 0.20]

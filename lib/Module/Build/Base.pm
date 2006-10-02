@@ -2795,6 +2795,26 @@ sub ACTION_ppmdist {
   $self->delete_filetree( $ppm );
 }
 
+sub ACTION_pardist {
+  my ($self) = @_;
+
+  # Need PAR::Dist
+  if ( not eval { require PAR::Dist; PAR::Dist->VERSION(0.17) } ) {
+    $self->log_warn(
+      "In order to create .par distributions, you need to\n"
+      . "install PAR::Dist first."
+    );
+    return();
+  }
+  
+  $self->depends_on( 'build' );
+
+  return PAR::Dist::blib_to_par(
+    name => $self->dist_name,
+    version => $self->dist_version,
+  );
+}
+
 sub ACTION_dist {
   my ($self) = @_;
   

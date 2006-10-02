@@ -5,6 +5,9 @@ Revision history for Perl extension Module::Build.
  - Changes to do_system() & friends on VMS to get system calls working
    much better there. [Craig Berry]
 
+ - Added the "pardist" target which creates a PAR binary distribution
+   akin to a PPM distribution. [Steffen Mueller]
+
  - Added the Interix platform as a Unix variant. [Stephen Hartland]
 
 0.2805_01  Thu Sep  7 21:57:29 CDT 2006
