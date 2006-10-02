@@ -3971,12 +3971,14 @@ sub do_system {
   my ($self, @cmd) = @_;
   $self->log_info("@cmd\n");
 
-#  my %seen;
-#  my $sep = ref($self) ? $self->config('path_sep') : $Config{path_sep};
-#  local $ENV{PERL5LIB} = join $sep, grep {
-#    ! $seen{$_}++ and -d $_
-#  } split($sep, $ENV{PERL5LIB});
-
+  # Some systems proliferate huge PERL5LIBs, try to ameliorate:
+  my %seen;
+  my $sep = ref($self) ? $self->config('path_sep') : $Config{path_sep};
+  local $ENV{PERL5LIB} = 
+    ( length($ENV{PERL5LIB}) < 200
+      ? $ENV{PERL5LIB}
+      : join $sep, grep { ! $seen{$_}++ and -d $_ } split($sep, $ENV{PERL5LIB})
+    );
 
   my $status = system(@cmd);
   if ($status and $! =~ /Argument list too long/i) {
