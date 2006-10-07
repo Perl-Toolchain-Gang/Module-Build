@@ -3971,7 +3971,7 @@ sub process_xs {
 		   defines => {VERSION => qq{"$v"}, XS_VERSION => qq{"$v"}});
 
   # archdir
-  File::Path::mkpath($spec->{archdir}, 0, 0777) unless -d $spec->{archdir};
+  File::Path::mkpath($spec->{archdir}, 0, oct(777)) unless -d $spec->{archdir};
 
   # .xs -> .bs
   $self->add_to_cleanup($spec->{bs_file});
@@ -4042,12 +4042,12 @@ sub copy_if_modified {
   }
 
   # Create parent directories
-  File::Path::mkpath(File::Basename::dirname($to_path), 0, 0777);
+  File::Path::mkpath(File::Basename::dirname($to_path), 0, oct(777));
   
   $self->log_info("Copying $file -> $to_path\n") if $args{verbose};
   File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
   # mode is read-only + (executable if source is executable)
-  my $mode = 0444 | ( $self->is_executable($file) ? 0111 : 0 );
+  my $mode = oct(444) | ( $self->is_executable($file) ? oct(111) : 0 );
   chmod( $mode, $to_path );
 
   return $to_path;
