@@ -10,6 +10,9 @@ Revision history for Perl extension Module::Build.
 
  - Added the Interix platform as a Unix variant. [Stephen Hartland]
 
+ - Improved the error message we emit when a distribution contains XS
+   files but the user has no C compiler. [Suggested by Andreas Koenig]
+
 0.2805_01  Thu Sep  7 21:57:29 CDT 2006
 
  - Because of a weird behavior of YAML::Node, any distribution that

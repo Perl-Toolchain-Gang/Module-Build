@@ -1141,7 +1141,8 @@ sub check_prereq {
   my $xs_files = $self->find_xs_files;
   if (keys %$xs_files && !$self->_mb_feature('C_support')) {
     $self->log_warn("Warning: this distribution contains XS files, ".
-		    "but Module::Build is not configured with C_support");
+		    "but Module::Build is not configured with C_support.  ".
+		    "Please install ExtUtils::CBuilder to enable C_support.\n");
   }
 
   # Check to see if there are any prereqs to check
