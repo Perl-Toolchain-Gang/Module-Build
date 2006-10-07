@@ -1283,7 +1283,7 @@ sub make_executable {
   my $self = shift;
   foreach (@_) {
     my $current_mode = (stat $_)[2];
-    chmod $current_mode | 0111, $_;
+    chmod $current_mode | oct(111), $_;
   }
 }
 
@@ -1678,9 +1678,7 @@ sub read_args {
 sub _detildefy {
     my $arg = shift;
 
-    my($new_arg) = glob($arg) if $arg =~ /^~/;
-
-    return defined($new_arg) ? $new_arg : $arg;
+    return $arg =~ /^~/ ? (glob $arg)[0] : $arg;
 }
 
 
@@ -2439,7 +2437,7 @@ sub manify_bin_pods {
   return unless keys %$files;
 
   my $mandir = File::Spec->catdir( $self->blib, 'bindoc' );
-  File::Path::mkpath( $mandir, 0, 0777 );
+  File::Path::mkpath( $mandir, 0, oct(777) );
 
   require Pod::Man;
   foreach my $file (keys %$files) {
@@ -2463,7 +2461,7 @@ sub manify_lib_pods {
   return unless keys %$files;
 
   my $mandir = File::Spec->catdir( $self->blib, 'libdoc' );
-  File::Path::mkpath( $mandir, 0, 0777 );
+  File::Path::mkpath( $mandir, 0, oct(777) );
 
   require Pod::Man;
   while (my ($file, $relfile) = each %$files) {
@@ -2549,7 +2547,7 @@ sub htmlify_pods {
   return unless %$pods;  # nothing to do
 
   unless ( -d $htmldir ) {
-    File::Path::mkpath($htmldir, 0, 0755)
+    File::Path::mkpath($htmldir, 0, oct(755))
       or die "Couldn't mkdir $htmldir: $!";
   }
 
@@ -2576,7 +2574,7 @@ sub htmlify_pods {
     next if $self->up_to_date($infile, $outfile);
 
     unless ( -d $fulldir ){
-      File::Path::mkpath($fulldir, 0, 0755)
+      File::Path::mkpath($fulldir, 0, oct(755))
         or die "Couldn't mkdir $fulldir: $!";
     }
 
@@ -2854,7 +2852,7 @@ sub _add_to_manifest {
     or return;
 
   my $mode = (stat $manifest)[2];
-  chmod($mode | 0222, $manifest) or die "Can't make $manifest writable: $!";
+  chmod($mode | oct(222), $manifest) or die "Can't make $manifest writable: $!";
   
   my $fh = IO::File->new("< $manifest") or die "Can't read $manifest: $!";
   my $last_line = (<$fh>)[-1] || "\n";
