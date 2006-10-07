@@ -347,7 +347,7 @@ sub _backticks {
   my ($self, @cmd) = @_;
   if ($self->have_forkpipe) {
     local *FH;
-    my $pid = open FH, "-|";
+    my $pid = open *FH, "-|";
     if ($pid) {
       return wantarray ? <FH> : join '', <FH>;
     } else {
