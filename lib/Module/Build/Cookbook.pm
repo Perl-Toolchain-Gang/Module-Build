@@ -415,7 +415,7 @@ complete documentation on this.
 
 =head1 AUTHOR
 
-Ken Williams <ken@cpan.org>
+Ken Williams <kwilliams@cpan.org>
 
 
 =head1 COPYRIGHT

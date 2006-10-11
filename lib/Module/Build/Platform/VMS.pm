@@ -207,7 +207,7 @@ sub _infer_xs_spec {
 
 =head1 AUTHOR
 
-Michael G Schwern <schwern@pobox.com>, Ken Williams <ken@cpan.org>
+Michael G Schwern <schwern@pobox.com>, Ken Williams <kwilliams@cpan.org>
 
 =head1 SEE ALSO
 

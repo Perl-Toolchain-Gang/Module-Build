@@ -416,7 +416,7 @@ Can be called as either an object or a class method.
 
 =head1 AUTHOR
 
-Ken Williams <ken@cpan.org>, Randy W. Sims <RandyS@ThePierianSpring.org>
+Ken Williams <kwilliams@cpan.org>, Randy W. Sims <RandyS@ThePierianSpring.org>
 
 
 =head1 COPYRIGHT

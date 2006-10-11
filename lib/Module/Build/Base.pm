@@ -4122,7 +4122,7 @@ Please see the C<Module::Build> documentation for more details.
 
 =head1 AUTHOR
 
-Ken Williams <ken@cpan.org>
+Ken Williams <kwilliams@cpan.org>
 
 =head1 COPYRIGHT
 

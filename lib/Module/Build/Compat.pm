@@ -434,7 +434,7 @@ versions of tools like CPAN and CPANPLUS.
 
 =head1 AUTHOR
 
-Ken Williams <ken@cpan.org>
+Ken Williams <kwilliams@cpan.org>
 
 
 =head1 COPYRIGHT
