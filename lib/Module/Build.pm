@@ -332,7 +332,7 @@ F<META.yml> file must also be listed in F<MANIFEST> - if it's not, a
 warning will be issued.
 
 The current version of the F<META.yml> specification can be found at
-L<http://module-build.sourceforge.net/META-spec-v1.2.html>
+L<http://module-build.sourceforge.net/META-spec-current.html>
 
 =item distsign
 
