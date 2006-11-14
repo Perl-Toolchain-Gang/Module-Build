@@ -1003,7 +1003,7 @@ repository at <https://svn.perl.org/modules/Module-Build/trunk/>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2001-2005 Ken Williams.  All rights reserved.
+Copyright (c) 2001-2006 Ken Williams.  All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -1011,11 +1011,11 @@ modify it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 
-perl(1), L<Module::Build::Cookbook>(3), L<Module::Build::Authoring>(3),
-L<Module::Build::API>(3), L<ExtUtils::MakeMaker>(3), L<YAML>(3)
+perl(1), L<Module::Build::Cookbook>, L<Module::Build::Authoring>,
+L<Module::Build::API>, L<ExtUtils::MakeMaker>, L<YAML>
 
 F<META.yml> Specification:
-L<http://module-build.sourceforge.net/META-spec-v1.2.html>
+L<http://module-build.sourceforge.net/META-spec-current.html>
 
 L<http://www.dsmit.com/cons/>
 
