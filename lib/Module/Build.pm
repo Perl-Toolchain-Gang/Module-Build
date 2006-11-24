@@ -853,8 +853,7 @@ system, you'll install as follows:
   libhtml => /home/ken/html
 
 Note that this is I<different> from how MakeMaker's C<PREFIX>
-parameter works.  See L</"Why PREFIX is not recommended"> for more
-details.  C<install_base> just gives you a default layout under the
+parameter works.  C<install_base> just gives you a default layout under the
 directory you specify, which may have little to do with the
 C<installdirs=site> layout.
 

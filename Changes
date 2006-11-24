@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.2806
 
+ - Fixed a broken link in the documentation about PREFIX. [Spotted by
+   David Steinbrunner]
+
  - Changes to do_system() & friends on VMS to get system calls working
    much better there. [Craig Berry]
 
