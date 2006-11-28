@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.2806
 
+ - Silence a warning in M::B::ModuleInfo that happens when the author
+   is using the "$VERSION = eval $VERSION" idiom.
+
  - When running the 'testcover' action, do "cover --delete" if any of
    the test files have changed (we already did so if any of the code
    under test has changed). [Suggested by Chris Dolan, RT #23584]
