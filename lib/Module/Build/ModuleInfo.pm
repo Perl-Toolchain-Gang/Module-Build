@@ -163,6 +163,12 @@ sub _parse_file {
   my $fh = IO::File->new( $filename )
     or die( "Can't open '$filename': $!" );
 
+  $self->_parse_fh($fh);
+}
+
+sub _parse_fh {
+  my ($self, $fh) = @_;
+
   my( $in_pod, $seen_end, $need_vers ) = ( 0, 0, 0 );
   my( @pkgs, %vers, %pod, @pod );
   my $pkg = 'main';
@@ -215,14 +221,13 @@ sub _parse_file {
 	push( @pkgs, $vers_pkg ) unless grep( $vers_pkg eq $_, @pkgs );
 	$need_vers = 0 if $vers_pkg eq $pkg;
 
-	my $v =
-	  $self->_evaluate_version_line( $vers_sig, $vers_fullname, $line );
 	unless ( defined $vers{$vers_pkg} && length $vers{$vers_pkg} ) {
-	  $vers{$vers_pkg} = $v;
+	  $vers{$vers_pkg} = 
+	    $self->_evaluate_version_line( $vers_sig, $vers_fullname, $line );
 	} else {
 	  warn <<"EOM";
-Package '$vers_pkg' already declared with version '$vers{$vers_pkg}'
-ignoring new version '$v'.
+Package '$vers_pkg' already declared with version '$vers{$vers_pkg}',
+ignoring subsequent declaration.
 EOM
 	}
 
