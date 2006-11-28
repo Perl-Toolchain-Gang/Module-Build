@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.2806
 
+ - When running the 'testcover' action, do "cover --delete" if any of
+   the test files have changed (we already did so if any of the code
+   under test has changed). [Suggested by Chris Dolan, RT #23584]
+
  - Fixed a broken link in the documentation about PREFIX. [Spotted by
    David Steinbrunner]
 

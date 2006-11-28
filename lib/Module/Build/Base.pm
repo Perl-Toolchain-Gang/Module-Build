@@ -2111,7 +2111,8 @@ sub ACTION_testcover {
     my $cover_files = $self->rscan_dir('cover_db', sub {-f $_ and not /\.html$/});
     
     $self->do_system(qw(cover -delete))
-      unless $self->up_to_date($pm_files, $cover_files);
+      unless $self->up_to_date($pm_files,         $cover_files)
+	  && $self->up_to_date($self->test_files, $cover_files);
   }
 
   local $Test::Harness::switches    = 
