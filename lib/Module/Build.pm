@@ -15,7 +15,7 @@ use Module::Build::Base;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Module::Build::Base);
-$VERSION = '0.2805_01';
+$VERSION = '0.2806';
 $VERSION = eval $VERSION;
 
 # Okay, this is the brute-force method of finding out what kind of
