@@ -53,6 +53,7 @@ t/metadata.t
 t/metadata2.t
 t/moduleinfo.t
 t/notes.t
+t/par.t
 t/parents.t
 t/pod_parser.t
 t/ppm.t
