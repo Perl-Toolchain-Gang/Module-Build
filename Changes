@@ -5,8 +5,10 @@ Revision history for Perl extension Module::Build.
  - On some systems (haven't identified the actual problem yet)
    $ENV{PERL5LIB} can grow to enormous enough sizes that we can't
    launch any more subprocesses because the environment table is full.
-   Now we detect such situations and trim the directory list to only
-   include directories that actually exist, listed only once each.
+   This is the now-infamous "Couldn't run Build.PL: Argument list too
+   long" error.  Now we detect such situations and trim the directory
+   list to only include directories that actually exist, listed only
+   once each.  Not the ideal solution, but it should work.
 
  - Silence a warning in M::B::ModuleInfo that happens when the author
    is using the "$VERSION = eval $VERSION" idiom.

@@ -3993,9 +3993,9 @@ sub do_system {
 
   # Some systems proliferate huge PERL5LIBs, try to ameliorate:
   my %seen;
-  my $sep = ref($self) ? $self->config('path_sep') : $Config{path_sep};
+  my $sep = $self->config('path_sep');
   local $ENV{PERL5LIB} = 
-    ( length($ENV{PERL5LIB}) < 200
+    ( length($ENV{PERL5LIB}) < 500
       ? $ENV{PERL5LIB}
       : join $sep, grep { ! $seen{$_}++ and -d $_ } split($sep, $ENV{PERL5LIB})
     );
