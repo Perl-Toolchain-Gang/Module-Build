@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - In t/ppm.t, use DynaLoader::mod2fname() (if available) to determine
+   the correct translation of our test module's name into a DLL
+   name. [Ilya Zakharevich]
+
  - Avoid an unlink() error on OS/2 when fixing shebang lines. [Ilya
    Zakharevich]
 
