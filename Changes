@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Avoid an unlink() error on OS/2 when fixing shebang lines. [Ilya
+   Zakharevich]
+
  - When we're protecting the world from the evils of long RedHat
    $ENV{PERL5LIB} variables, don't assume $ENV{PERL5LIB} is already
    defined. [Dave Rolsky]

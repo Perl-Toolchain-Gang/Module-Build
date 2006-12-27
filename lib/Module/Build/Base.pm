@@ -2350,7 +2350,7 @@ eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
     rename("$file.new", $file)
       or die "Can't rename $file.new to $file: $!";
     
-    unlink "$file.bak"
+    $self->delete_filetree("$file.bak")
       or $self->log_warn("Couldn't clean up $file.bak, leaving it there");
     
     $self->do_system($c->get('eunicefix'), $file) if $c->get('eunicefix') ne ':';
