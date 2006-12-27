@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - In our test-time utility library t/lib/MBTest.pm, we need to know
+   about a few .exe-like extensions on OS/2. [Ilya Zakharevich]
+
  - In t/ppm.t, use DynaLoader::mod2fname() (if available) to determine
    the correct translation of our test module's name into a DLL
    name. [Ilya Zakharevich]
