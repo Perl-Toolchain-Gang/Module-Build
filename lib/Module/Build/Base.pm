@@ -3995,7 +3995,8 @@ sub do_system {
   my %seen;
   my $sep = $self->config('path_sep');
   local $ENV{PERL5LIB} = 
-    ( length($ENV{PERL5LIB}) < 500
+    ( !exists($ENV{PERL5LIB}) ? '' :
+      length($ENV{PERL5LIB}) < 500
       ? $ENV{PERL5LIB}
       : join $sep, grep { ! $seen{$_}++ and -d $_ } split($sep, $ENV{PERL5LIB})
     );

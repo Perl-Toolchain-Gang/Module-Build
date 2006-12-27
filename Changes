@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - When we're protecting the world from the evils of long RedHat
+   $ENV{PERL5LIB} variables, don't assume $ENV{PERL5LIB} is already
+   defined. [Dave Rolsky]
+
 0.2806 - Fri Dec 15 22:20:14 2006
 
  - On some systems (haven't identified the actual problem yet)
