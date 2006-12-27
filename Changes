@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+ - Removed seemingly silly '~~' test in t/tilde.t.
+
  - In our test-time utility library t/lib/MBTest.pm, we need to know
    about a few .exe-like extensions on OS/2. [Ilya Zakharevich]
 
