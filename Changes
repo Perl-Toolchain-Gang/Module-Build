@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+0.2806 - Fri Dec 15 22:20:14 2006
+
  - On some systems (haven't identified the actual problem yet)
    $ENV{PERL5LIB} can grow to enormous enough sizes that we can't
    launch any more subprocesses because the environment table is full.
