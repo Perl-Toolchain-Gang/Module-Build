@@ -124,7 +124,7 @@ $tar->read( $tarfile, 1 );
 my $files = { map { $_ => 1 } $tar->list_files };
 
 my $fname = 'Simple';
-$fname = DynaLoader::mod2fname [$fname] if defined &DynaLoader::mod2fname;
+$fname = DynaLoader::mod2fname([$fname]) if defined &DynaLoader::mod2fname;
 exists_ok($files, "blib/arch/auto/Simple/$fname." . $mb->config('dlext'));
 exists_ok($files, 'blib/lib/Simple.pm');
 exists_ok($files, 'blib/script/hello');
