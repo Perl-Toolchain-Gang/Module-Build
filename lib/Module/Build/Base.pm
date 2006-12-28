@@ -4046,7 +4046,14 @@ sub copy_if_modified {
   File::Path::mkpath(File::Basename::dirname($to_path), 0, oct(777));
   
   $self->log_info("Copying $file -> $to_path\n") if $args{verbose};
-  File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
+  
+  if ($^O eq 'os2') {# copy will not overwrite; 0x1 = overwrite
+    chmod 0666, $to_path;
+    File::Copy::syscopy($file, $to_path, 0x1) or die "Can't copy('$file', '$to_path'): $!";
+  } else {
+    File::Copy::copy($file, $to_path) or die "Can't copy('$file', '$to_path'): $!";
+  }
+
   # mode is read-only + (executable if source is executable)
   my $mode = oct(444) | ( $self->is_executable($file) ? oct(111) : 0 );
   chmod( $mode, $to_path );

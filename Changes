@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Use syscopy() on OS/2 in copy_if_modified() so we make sure to
+   overwrite any existing target file. [Ilya Zakharevich]
+
  - Removed seemingly silly '~~' test in t/tilde.t.
 
  - In our test-time utility library t/lib/MBTest.pm, we need to know
