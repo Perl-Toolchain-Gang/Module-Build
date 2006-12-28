@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Added test profiles support via the test_types property and "testall"
+   target. [Eric Wilhelm, Jeff Lavallee]
+
  - Use syscopy() on OS/2 in copy_if_modified() so we make sure to
    overwrite any existing target file. [Ilya Zakharevich]
 

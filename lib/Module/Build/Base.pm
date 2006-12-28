@@ -2013,13 +2013,54 @@ sub ACTION_retest {
   $self->do_tests;
 }
 
+sub ACTION_testall {
+  my ($self) = @_;
+
+  for my $action ('', grep { $_ ne 'all' } $self->get_test_types) {
+    $self->_call_action( "test$action" );
+  }
+}
+
+sub get_test_types {
+  my ($self) = @_;
+
+  my $t = $self->{properties}->{test_types};
+  return ( defined $t ? ( keys %$t ) : () );
+}
+
 
 sub ACTION_test {
   my ($self) = @_;
+  $self->generic_test(type => 'default');
+}
+
+sub generic_test {
+  my $self = shift;
+  (@_ % 2) and croak('Odd number of elements in argument hash');
+  my %args = @_;
+
   my $p = $self->{properties};
-  
+
+  my @types = (
+    (exists($args{type})  ? $args{type} : ()), 
+    (exists($args{types}) ? @{$args{types}} : ()),
+  );
+  @types or croak "need some types of tests to check";
+
+  my %test_types = (
+    default => '.t',
+    (defined($p->{test_types}) ? %{$p->{test_types}} : ()),
+  );
+
+  for my $type (@types) {
+    croak "$type not defined in test_types!"
+      unless defined $test_types{ $type };
+  }
+
+  # we use local here because it ends up two method calls deep
+  local $p->{test_file_exts} = [ @test_types{@types} ];
   $self->depends_on('code');
-  
+
   # Protect others against our @INC changes
   local @INC = @INC;
 
@@ -2083,8 +2124,12 @@ sub test_files {
 
 sub expand_test_dir {
   my ($self, $dir) = @_;
-  return sort @{$self->rscan_dir($dir, qr{^[^.].*\.t$})} if $self->recursive_test_files;
-  return sort glob File::Spec->catfile($dir, "*.t");
+  my $exts = $self->{properties}{test_file_exts} || ['.t'];
+
+  return sort map { @{$self->rscan_dir($dir, qr{^[^.].*$_$})} } @$exts
+    if $self->recursive_test_files;
+
+  return sort map { glob File::Spec->catfile($dir, "*$_") } @$exts;
 }
 
 sub ACTION_testdb {
@@ -2263,7 +2308,7 @@ sub find_script_files {
 sub find_test_files {
   my $self = shift;
   my $p = $self->{properties};
-  
+
   if (my $files = $p->{test_files}) {
     $files = [keys %$files] if UNIVERSAL::isa($files, 'HASH');
     $files = [map { -d $_ ? $self->expand_test_dir($_) : $_ }

@@ -567,6 +567,29 @@ or use a C<glob()>-style pattern:
 
   ./Build test --test_files 't/01-*.t'
 
+=item testall
+
+[verion 0.2807]
+
+Runs the C<test> action plus each of the C<test$type> actions defined by
+the keys of the C<test_types> parameter.
+
+Currently, you need to define the ACTION_test$type method yourself and
+enumerate them in the test_types parameter.
+
+  my $mb = Module::Build->subclass(
+    code => q(
+      sub ACTION_testspecial { shift->generic_test(type => 'special'); }
+      sub ACTION_testauthor  { shift->generic_test(type => 'author'); }
+    )
+  )->new(
+    ...
+    test_types  => {
+      special => '.st',
+      author  => '.at',
+    },
+    ...
+
 =item testcover
 
 [version 0.26]
