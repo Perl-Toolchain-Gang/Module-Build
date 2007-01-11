@@ -1008,7 +1008,7 @@ sub read_config {
   my ($self) = @_;
   
   my $file = $self->config_file('build_params')
-    or die "No build_params?";
+    or die "Can't find 'build_params' in " . $self->config_dir;
   my $fh = IO::File->new($file) or die "Can't read '$file': $!";
   my $ref = eval do {local $/; <$fh>};
   die if $@;
