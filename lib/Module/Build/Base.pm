@@ -1862,29 +1862,29 @@ sub get_action_docs {
   $@ = '';
   ($@ = "No known action '$action'\n"), return
     unless $actions->{$action};
-  
+
   my ($files_found, @docs) = (0);
   foreach my $class ($self->super_classes) {
     (my $file = $class) =~ s{::}{/}g;
     $file = $INC{$file . '.pm'} or next;
     my $fh = IO::File->new("< $file") or next;
     $files_found++;
-    
+
     # Code below modified from /usr/bin/perldoc
-    
+
     # Skip to ACTIONS section
     local $_;
     while (<$fh>) {
       last if /^=head1 ACTIONS\s/;
     }
-    
+
     # Look for our action
     my ($found, $inlist) = (0, 0);
     while (<$fh>) {
       if (/^=item\s+\Q$action\E\b/)  {
-	$found = 1;
+        $found = 1;
       } elsif (/^=(item|back)/) {
-	last if $found > 1 and not $inlist;
+        last if $found > 1 and not $inlist;
       }
       next unless $found;
       push @docs, $_;
@@ -4190,3 +4190,5 @@ modify it under the same terms as Perl itself.
 perl(1), Module::Build(3)
 
 =cut
+
+# vim:ts=8:sw=2:et:sta:sts=2
