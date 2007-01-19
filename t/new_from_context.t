@@ -3,7 +3,7 @@
 use warnings;
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 4;
+use MBTest tests => 2;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -11,25 +11,15 @@ my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
 use DistGen;
 my $dist = DistGen->new( dir => $tmp );
+
+my $libdir = 'badlib';
+$dist->add_file("$libdir/Build.PL", 'die');
 $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 use IO::File;
 use Module::Build;
-
-# echo 'die' > badlib/Build.PL
-my $libdir = 'badlib';
-unless (-d $libdir) {
-  mkdir($libdir, 0777) or die "Can't create $libdir: $!";
-}
-ok -d $libdir;
-my $filename = 'Build.PL';
-my $file = File::Spec->catfile($libdir, $filename);
-my $fh = IO::File->new($file, '>') or die "Can't create $file: $!";
-print $fh "die\n";
-$fh->close;
-ok -e $file;
 
 unshift(@INC, $libdir);
 my $mb = eval { Module::Build->new_from_context};
