@@ -94,7 +94,7 @@ sub new_from_context {
   # as it is during resume() (and thereafter).
   {
     local @ARGV = $package->unparse_args(\%args);
-    do 'Build.PL';
+    do './Build.PL';
     die $@ if $@;
   }
   return $package->resume;
