@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Added some verbiage in Module::Build::API that officially blesses
+   the _build/prereqs file for external consumption. [Suggested by Andreas Koenig]
+
  - Added test profiles support via the test_types property and "testall"
    target. [Eric Wilhelm, Jeff Lavallee]
 

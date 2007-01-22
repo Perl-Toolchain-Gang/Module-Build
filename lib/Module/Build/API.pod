@@ -1013,6 +1013,15 @@ by C<ExtUtils::MakeMaker>.  This method also creates some temporary
 data in a directory called C<_build/>.  Both of these will be removed
 when the C<realclean> action is performed.
 
+Among the files created in C<_build/> is a F<_build/prereqs> file
+containing the set of prerequisites for this distribution, as a hash
+of hashes.  This file may be C<eval()>-ed to obtain the authoritative
+set of prereqs, which might be different from the contents of META.yml
+(because F<Build.PL> might have set them dynamically).  But fancy
+developers take heed: do not put any fancy custom code in the
+F<_build/prereqs> file, leave it as a static declaration containing
+only strings and numbers.  Please.
+
 =item current_action()
 
 [version 0.28]
