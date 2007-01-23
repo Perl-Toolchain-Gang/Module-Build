@@ -1857,11 +1857,9 @@ sub known_actions {
 }
 
 sub get_action_docs {
-  my ($self, $action, $actions) = @_;
-  $actions ||= $self->known_actions;
-  $@ = '';
-  ($@ = "No known action '$action'\n"), return
-    unless $actions->{$action};
+  my ($self, $action) = @_;
+  my $actions = $self->known_actions;
+  die "No known action '$action'" unless $actions->{$action};
 
   my ($files_found, @docs) = (0);
   foreach my $class ($self->super_classes) {
@@ -1967,8 +1965,8 @@ sub ACTION_help {
   my $actions = $self->known_actions;
   
   if (@{$self->{args}{ARGV}}) {
-    my $msg = $self->get_action_docs($self->{args}{ARGV}[0], $actions) || "$@\n";
-    print $msg;
+    my $msg = eval {$self->get_action_docs($self->{args}{ARGV}[0], $actions)};
+    print $@ ? "$@\n" : $msg;
     return;
   }
 
