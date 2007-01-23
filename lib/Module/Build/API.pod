@@ -1018,9 +1018,11 @@ containing the set of prerequisites for this distribution, as a hash
 of hashes.  This file may be C<eval()>-ed to obtain the authoritative
 set of prereqs, which might be different from the contents of META.yml
 (because F<Build.PL> might have set them dynamically).  But fancy
-developers take heed: do not put any fancy custom code in the
+developers take heed: do not put any fancy custom runtime code in the
 F<_build/prereqs> file, leave it as a static declaration containing
-only strings and numbers.  Please.
+only strings and numbers.  Similarly, do not alter the structure of
+the internal C<< $self->{properties}{requires} >> (etc.) data members,
+because that's where this data comes from.
 
 =item current_action()
 
