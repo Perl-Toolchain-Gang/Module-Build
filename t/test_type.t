@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 9;
+use MBTest tests => 8;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -28,43 +28,45 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 use_ok 'Module::Build';
 
-SKIP: {
-  skip "no blib in core", 1 if $ENV{PERL_CORE};
-  like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure Module::Build was loaded from blib/";
-}
-
-
 # Here we make sure we can define an action that will test a particular type
 $::x = 0;
-my $mb = Module::Build->subclass
-  (
-   code => q#sub ACTION_testspecial { 
-    $::x++;
-    shift->generic_test(type => 'special');
-}#
-  )->new( module_name => $dist->name,
-          test_types  => { special => '.st' }
-  );
+my $mb = Module::Build->subclass(
+    code => q#
+        sub ACTION_testspecial { 
+            $::x++;
+            shift->generic_test(type => 'special');
+        }
+    #
+)->new(
+    module_name => $dist->name,
+    test_types  => { special => '.st' }
+);
 
 ok $mb;
 
 $mb->dispatch('testspecial');
-is( $::x, 1, "called once");
+is($::x, 1, "called once");
 
 
 $mb->add_to_cleanup('save_out');
 # Use uc() so we don't confuse the current test output
-my $verbose_output = uc(stdout_of( sub {$mb->dispatch('testspecial', verbose => 1)} ));
+my $verbose_output = uc(stdout_of(
+    sub {$mb->dispatch('testspecial', verbose => 1)}
+));
 
-like $verbose_output, qr/^OK 1 - FIRST TEST IN SPECIAL_EXT/m;
-like $verbose_output, qr/^OK 2 - SECOND TEST IN SPECIAL_EXT/m;
+like($verbose_output, qr/^OK 1 - FIRST TEST IN SPECIAL_EXT/m);
+like($verbose_output, qr/^OK 2 - SECOND TEST IN SPECIAL_EXT/m);
 
 is( $::x, 2, "called again");
 
-my $output =  uc(stdout_of( sub {$mb->dispatch('testspecial', verbose => 0)} ));
-like $output, qr/\.\.OK/;
+my $output = uc(stdout_of(
+    sub {$mb->dispatch('testspecial', verbose => 0)}
+));
+like($output, qr/\.\.OK/);
 
-is( $::x, 3, "called a third time");
+is($::x, 3, "called a third time");
 
 chdir( $cwd ) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
+
+# vim:ts=4:sw=4:et:sta
