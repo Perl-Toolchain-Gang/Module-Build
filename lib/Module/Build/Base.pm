@@ -2124,7 +2124,7 @@ sub expand_test_dir {
   my ($self, $dir) = @_;
   my $exts = $self->{properties}{test_file_exts} || ['.t'];
 
-  return sort map { @{$self->rscan_dir($dir, qr{^[^.].*$_$})} } @$exts
+  return sort map { @{$self->rscan_dir($dir, qr{^[^.].*\Q$_\E$})} } @$exts
     if $self->recursive_test_files;
 
   return sort map { glob File::Spec->catfile($dir, "*$_") } @$exts;
