@@ -2014,9 +2014,17 @@ sub ACTION_retest {
 sub ACTION_testall {
   my ($self) = @_;
 
-  for my $action ('', grep { $_ ne 'all' } $self->get_test_types) {
-    $self->_call_action( "test$action" );
+  my @types;
+  for my $action (grep { $_ ne 'all' } $self->get_test_types) {
+    # XXX We can't just dispatch because we get multiple summaries but
+    # we'll need to dispatch to support custom setup/teardown in the
+    # action.  To support that, we'll need to call something besides
+    # Harness::runtests() because we'll need to collect the results in
+    # parts, then run the summary.
+    push(@types, $action);
+    #$self->_call_action( "test$action" );
   }
+  $self->generic_test(types => ['default', @types]);
 }
 
 sub get_test_types {

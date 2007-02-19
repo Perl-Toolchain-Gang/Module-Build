@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 13 + 12;
+use MBTest tests => 14 + 12;
 
 use Cwd ();
 my $cwd = Cwd::cwd();
@@ -86,6 +86,8 @@ my $all_output = uc(stdout_of(
     sub {$mb->dispatch('testall', verbose => 1)}
 ));
 
+0 and warn "\ntestall said >>>\n$all_output\n<<<\n";
+
 like($all_output, qr/^OK 1 - FIRST TEST IN SPECIAL_EXT/m,
     'expected output from basic.t');
 like($all_output, qr/^OK 2 - SECOND TEST IN SPECIAL_EXT/m,
@@ -95,8 +97,9 @@ like($all_output, qr/^OK 1 - FIRST TEST IN ANOTHER_EXT/m);
 like($all_output, qr/^OK 2 - SECOND TEST IN ANOTHER_EXT/m);
 
 # we get a third one from basic.t
-is(scalar(@{[$all_output =~ m/(OK 1)/mg]}), 3 );
-is(scalar(@{[$all_output =~ m/(OK)/mg]}),   8 );
+is(scalar(@{[$all_output =~ m/OK 1/mg]}), 3 );
+is(scalar(@{[$all_output =~ m/OK/mg]}),   8 );
+is(scalar(@{[$all_output =~ m/ALL TESTS SUCCESSFUL\./mg]}),   1);
 
 chdir($cwd) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
