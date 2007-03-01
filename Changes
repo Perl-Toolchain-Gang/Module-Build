@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Improved our prompt() method, which could sometimes hang before the
+   user got a chance to see a prompt. [Andreas Koenig]
+
  - Added DragonflyBSD to the list of known Unix OSes.
 
  - get_action_docs() dies on error rather than twiddling $@
