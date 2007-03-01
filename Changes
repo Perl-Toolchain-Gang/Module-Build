@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+ - Added DragonflyBSD to the list of known Unix OSes.
+
  - get_action_docs() dies on error rather than twiddling $@
 
  - Made ModuleInfo's _evaluate_version_line() compatible with 'use

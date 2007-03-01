@@ -26,6 +26,7 @@ my %OSTYPES = qw(
 		 aix       Unix
 		 bsdos     Unix
 		 dgux      Unix
+		 dragonfly Unix
 		 dynixptx  Unix
 		 freebsd   Unix
 		 linux     Unix
