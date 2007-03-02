@@ -471,8 +471,8 @@ sub _is_interactive {
 
 sub _is_unattended {
   my $self = shift;
-  return $ENV{PERL_MM_USE_DEFAULT}
-         || ( !$self->_is_interactive && !defined fileno STDIN );
+  return $ENV{PERL_MM_USE_DEFAULT} ||
+    ( !$self->_is_interactive && (-t STDIN || eof(STDIN)));
 }
 
 sub _readline {
