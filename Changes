@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Added support for an explicit default value of undef in prompt().
+   [Eric Wilhelm]
+
  - Improved our prompt() method, which could sometimes hang before the
    user got a chance to see a prompt. [Andreas Koenig]
 

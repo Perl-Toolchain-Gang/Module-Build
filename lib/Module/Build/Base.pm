@@ -469,10 +469,11 @@ sub _is_interactive {
   return -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ;   # Pipe?
 }
 
+# NOTE this is a blocking operation if(-t STDIN)
 sub _is_unattended {
   my $self = shift;
   return $ENV{PERL_MM_USE_DEFAULT} ||
-    ( !$self->_is_interactive && (-t STDIN || eof(STDIN)));
+    ( !$self->_is_interactive && eof STDIN );
 }
 
 sub _readline {
@@ -489,25 +490,30 @@ sub prompt {
   my $mess = shift
     or die "prompt() called without a prompt message";
 
-  my $def;
-  if ( $self->_is_unattended && !@_ ) {
+  # use a list to distinguish a default of undef() from no default
+  my @def;
+  @def = (shift) if @_;
+  # use dispdef for output
+  my @dispdef = scalar(@def) ?
+    ('[', (defined($def[0]) ? $def[0] . ' ' : ''), ']') :
+    (' ', '');
+
+  local $|=1;
+  print "$mess ", @dispdef;
+
+  if ( $self->_is_unattended && !@def ) {
     die <<EOF;
 ERROR: This build seems to be unattended, but there is no default value
 for this question.  Aborting.
 EOF
   }
-  $def = shift if @_;
-  ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
-
-  local $|=1;
-  print "$mess $dispdef";
 
   my $ans = $self->_readline();
 
   if ( !defined($ans)        # Ctrl-D or unattended
        or !length($ans) ) {  # User hit return
-    print "$def\n";
-    $ans = $def;
+    print "$dispdef[1]\n";
+    $ans = scalar(@def) ? $def[0] : '';
   }
 
   return $ans;
@@ -520,13 +526,6 @@ sub y_n {
   die "y_n() called without a prompt message" unless $mess;
   die "Invalid default value: y_n() default must be 'y' or 'n'"
     if $def && $def !~ /^[yn]/i;
-
-  if ( $self->_is_unattended && !$def ) {
-    die <<EOF;
-ERROR: This build seems to be unattended, but there is no default value
-for this question.  Aborting.
-EOF
-  }
 
   my $answer;
   while (1) { # XXX Infinite or a large number followed by an exception ?
