@@ -1,6 +1,5 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
-use warnings;
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest tests => 2;
