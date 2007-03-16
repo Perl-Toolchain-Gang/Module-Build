@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+ - Upgraded to version.pm 0.70. [John Peacock]
+
  - Added support for an explicit default value of undef in prompt().
    [Eric Wilhelm]
 
