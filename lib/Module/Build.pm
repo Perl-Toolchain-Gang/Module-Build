@@ -572,6 +572,10 @@ or use a C<glob()>-style pattern:
 
 [verion 0.2807]
 
+[Note: the 'testall' action and the code snippets below are currently
+in alpha stage, see
+L<"http://www.nntp.perl.org/group/perl.module.build/2007/03/msg584.html"> ]
+
 Runs the C<test> action plus each of the C<test$type> actions defined by
 the keys of the C<test_types> parameter.
 
