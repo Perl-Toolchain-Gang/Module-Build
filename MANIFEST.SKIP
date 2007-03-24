@@ -19,6 +19,7 @@ CVS
 (^|/)\.
 Makefile$
 /cover_db/
+^bleadcheck\.pl$
 
 ^TODO$
 ^CPANTEST

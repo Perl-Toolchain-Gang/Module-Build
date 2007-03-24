@@ -52,6 +52,7 @@ t/mbyaml.t
 t/metadata.t
 t/metadata2.t
 t/moduleinfo.t
+t/new_from_context.t
 t/notes.t
 t/par.t
 t/parents.t
