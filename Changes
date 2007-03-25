@@ -11,6 +11,9 @@ Revision history for Perl extension Module::Build.
  - Improved our prompt() method, which could sometimes hang before the
    user got a chance to see a prompt. [Andreas Koenig]
 
+ - Added a note about --allow_mb_mismatch to the error message that
+   happens right before someone might want to use that parameter.
+
  - Added DragonflyBSD to the list of known Unix OSes.
 
  - get_action_docs() dies on error rather than twiddling $@

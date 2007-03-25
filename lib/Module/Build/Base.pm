@@ -74,7 +74,8 @@ sub resume {
   unless ($self->allow_mb_mismatch) {
     my $mb_version = $Module::Build::VERSION;
     die(" * ERROR: Configuration was initially created with Module::Build version '$self->{properties}{mb_version}',\n".
-	"   but we are now using version '$mb_version'.  Please re-run the Build.PL or Makefile.PL script.\n")
+	"   but we are now using version '$mb_version'.  Please re-run the Build.PL or Makefile.PL script,\n".
+	"   or use --allow_mb_mismatch 1 to skip this version check.\n")
     if $mb_version ne $self->{properties}{mb_version};
   }
   
