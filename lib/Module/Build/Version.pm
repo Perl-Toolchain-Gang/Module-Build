@@ -94,7 +94,7 @@ use strict;
 
 use locale;
 use vars qw ($VERSION @ISA @REGEXS);
-$VERSION = "0.70";
+$VERSION = 0.71;
 
 push @REGEXS, qr/
 	^v?	# optional leading 'v'
@@ -499,6 +499,12 @@ sub qv {
     return version->new($value); # always use base class
 }
 
+sub is_qv {
+    my ($self) = @_;
+    return (exists $self->{qv});
+}
+
+
 sub _verify {
     my ($self) = @_;
     if ( ref($self)
@@ -568,12 +574,20 @@ sub _un_vstring {
 
 	    if ( $req > $version ) {
 		require Carp;
-		Carp::croak( 
-		    sprintf ("%s version %s (%s) required--".
-		    "this is only version %s (%s)", $class, 
-		    $req->numify, $req->normal,
-		    $version->numify, $version->normal)
-		);
+		if ( $req->is_qv ) {
+		    Carp::croak( 
+			sprintf ("%s version %s required--".
+			    "this is only version %s", $class,
+			    $req->normal, $version->normal)
+		    );
+		}
+		else {
+		    Carp::croak( 
+			sprintf ("%s version %s required--".
+			    "this is only version %s", $class,
+			    $req->numify, $version->numify)
+		    );
+		}
 	    }
 	}
 
