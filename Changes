@@ -2,10 +2,6 @@ Revision history for Perl extension Module::Build.
 
  - Upgraded to version.pm 0.71. [John Peacock]
 
-0.2806 - Sat Mar 24 15:57:17 2007
-
- - Upgraded to version.pm 0.70. [John Peacock]
-
  - Removed a couple small constructs in the tests ("use warnings;" and
    "qw$foo bar$[1]") that caused test failures under perl 5.005.
 
