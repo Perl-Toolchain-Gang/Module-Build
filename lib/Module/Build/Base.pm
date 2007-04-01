@@ -2436,6 +2436,18 @@ sub ACTION_testpodcoverage {
     or die "The 'testpodcoverage' action requires ",
            "Test::Pod::Coverage version 1.00";
 
+  # TODO this needs test coverage!
+
+  # XXX work-around a bug in Test::Pod::Coverage previous to v1.09
+  # Make sure we test the module in blib/
+  local @INC = @INC;
+  my $p = $self->{properties};
+  unshift(@INC,
+    # XXX any reason to include arch?
+    File::Spec->catdir($p->{base_dir}, $self->blib, 'lib'),
+    #File::Spec->catdir($p->{base_dir}, $self->blib, 'arch')
+  );
+
   all_pod_coverage_ok();
 }
 
