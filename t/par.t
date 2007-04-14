@@ -88,6 +88,7 @@ ok(
 
 $dist->clean();
 
+chdir( $cwd );
 use File::Path;
 rmtree( $tmp );
 
