@@ -1677,10 +1677,13 @@ sub read_args {
 }
 
 
+# replace ~ with $ENV{HOME}
+# (bash shell won't expand tildes mid-word: "--foo=~/thing")
 sub _detildefy {
     my $arg = shift;
 
-    return $arg =~ /^~/ ? (glob $arg)[0] : $arg;
+    $arg =~ s#^~(/|$)#$ENV{HOME}$1#;
+    return $arg;
 }
 
 
