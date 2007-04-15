@@ -1868,6 +1868,7 @@ sub get_action_docs {
   my ($files_found, @docs) = (0);
   foreach my $class ($self->super_classes) {
     (my $file = $class) =~ s{::}{/}g;
+    # NOTE: silently skipping relative paths if any chdir() happened
     $file = $INC{$file . '.pm'} or next;
     my $fh = IO::File->new("< $file") or next;
     $files_found++;
@@ -1894,6 +1895,8 @@ sub get_action_docs {
       --$inlist if /^=back/;
       ++$found  if /^\w/; # Found descriptive text
     }
+    # TODO maybe disallow overriding just pod for an action
+    # TODO and possibly: @docs and last;
   }
 
   unless ($files_found) {
