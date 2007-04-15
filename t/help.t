@@ -5,6 +5,8 @@ use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest 'no_plan';#tests => 0;
 
 use Cwd ();
+use File::Path ();
+
 my $cwd = Cwd::cwd();
 my $tmp = File::Spec->catdir($cwd, 't', '_tmp');
 
@@ -15,8 +17,19 @@ my $dist = DistGen->new(dir => $tmp);
 
 $dist->regen;
 
+my $restart = sub {
+  $dist->clean();
+  chdir( $cwd );
+  File::Path::rmtree( $tmp );
+  # we're redefining the same package as we go, so...
+  delete($::{'MyModuleBuilder::'});
+  delete($INC{'MyModuleBuilder.pm'});
+  $dist->regen;
+  chdir($dist->dirname) or
+    die "Can't chdir to '@{[$dist->dirname]}': $!";
+};
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+chdir($dist->dirname) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 use_ok 'Module::Build';
 
@@ -42,7 +55,7 @@ my $mb = Module::Build->subclass(
 
     You should probably not be seeing this.  That is, we haven't
     overridden the help action, but we're able to override just the
-    docs?  That seems reasonable, but might be wrong.
+    docs?  That almost seems reasonable, but is probably wrong.
 
     =back
 
@@ -96,7 +109,7 @@ foreach my $action (qw(foo bar baz)) { # typical usage
   }
 }
 } # end =item style
-$dist->clean();
+$restart->();
 ########################################################################
 if(0) { # the =item style without spanning =head1 sections
 my $mb = Module::Build->subclass(
@@ -148,7 +161,7 @@ foreach my $action (qw(foo bar)) { # typical usage
 is($mb->get_action_docs('baz'), undef, 'no jumping =head1 sections');
 
 } # end =item style without spanning =head1's
-$dist->clean();
+$restart->();
 ########################################################################
 TODO: { # the =item style with 'Actions' not 'ACTIONS'
 local $TODO = 'Support capitalized Actions section';
@@ -186,10 +199,9 @@ foreach my $action (qw(foo bar)) { # typical usage
 }
 
 } # end =item style with Actions
-$dist->clean();
+$restart->();
 ########################################################################
-TODO: { # check the =head2 style
-local $TODO = 'Support =head[234] sections';
+{ # check the =head2 style
 my $mb = Module::Build->subclass(
   code => join "\n", map {s/^ {4}//; $_} split /\n/, <<'  ---',
     =head1 ACTIONS
@@ -202,6 +214,10 @@ my $mb = Module::Build->subclass(
 
     Does the bar thing.
 
+    =head3 bears
+
+    Be careful with bears.
+
     =cut
 
     sub ACTION_foo { die "fooey" }
@@ -210,10 +226,18 @@ my $mb = Module::Build->subclass(
     sub ACTION_batz { die "batzey" }
 
     # guess we can have extra pod later 
+    # Though, I do wonder whether we should allow them to mix...
+    # maybe everything should have to be head2?
 
-    =head2 baz
+    =head3 baz
 
     Does the baz thing.
+
+    =head4 What's a baz?
+
+    =head3 not this part
+
+    This is level 3, so the stuff about baz is done.
 
     =head1 Thing
 
@@ -228,20 +252,28 @@ my $mb = Module::Build->subclass(
       module_name => $dist->name,
   );
 
-foreach my $action (qw(foo bar baz)) { # typical usage
+my %also = (
+  foo => '',
+  bar => "\n=head3 bears\n\nBe careful with bears.\n",
+  baz => "\n=head4 What's a baz\\?\n",
+);
+  
+foreach my $action (qw(foo bar baz)) {
   my $doc = $mb->get_action_docs($action);
   ok($doc, "got doc for '$action'");
-  like($doc || 'undef', qr/^=\w+ $action\n\nDoes the $action thing\./s,
+  my $and = $also{$action};
+  like($doc || 'undef',
+    qr/^=\w+ $action\n\nDoes the $action thing\.\n$and\n$/s,
     'got the right doc');
 }
+is($mb->get_action_docs('batz'), undef, 'nothing after uplevel');
 
 } # end =head2 style
-$dist->clean();
 ########################################################################
 
 # cleanup
+$dist->clean();
 chdir( $cwd );
-use File::Path;
-rmtree( $tmp );
+File::Path::rmtree( $tmp );
 
 # vim:ts=2:sw=2:et:sta

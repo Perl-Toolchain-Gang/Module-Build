@@ -1881,19 +1881,39 @@ sub get_action_docs {
       last if /^=head1 ACTIONS\s/;
     }
 
-    # Look for our action
-    my ($found, $inlist) = (0, 0);
+    # Look for our action and determine the style
+    my $style;
     while (<$fh>) {
-      if (/^=item\s+\Q$action\E\b/)  {
-        $found = 1;
-      } elsif (/^=(item|back)/) {
-        last if $found > 1 and not $inlist;
+      last if /^=head1 /;
+
+      # hmm, head2 is good, but do we need to allow 3,4?
+      if(/^=(item|head[2-4])\s+\Q$action\E\b/) {
+        $style = $1;
+        push @docs, $_;
+        last;
       }
-      next unless $found;
-      push @docs, $_;
-      ++$inlist if /^=over/;
-      --$inlist if /^=back/;
-      ++$found  if /^\w/; # Found descriptive text
+    }
+    $style or next; # not here
+
+    # and the content
+    if($style eq 'item') {
+      my ($found, $inlist) = (0, 0);
+      while (<$fh>) {
+        if (/^=(item|back)/) {
+          last unless $inlist;
+        }
+        push @docs, $_;
+        ++$inlist if /^=over/;
+        --$inlist if /^=back/;
+      }
+    }
+    else { # head style
+      # stop at anything equal or greater than the found level
+      my $heads = 'head[1-'. ($style =~ m/(\d)$/)[0] . ']';
+      while (<$fh>) {
+        last if(/^=(?:$heads|back|cut)/);
+        push @docs, $_;
+      }
     }
     # TODO maybe disallow overriding just pod for an action
     # TODO and possibly: @docs and last;
