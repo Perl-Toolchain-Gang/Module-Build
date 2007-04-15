@@ -1886,8 +1886,8 @@ sub get_action_docs {
     while (<$fh>) {
       last if /^=head1 /;
 
-      # hmm, head2 is good, but do we need to allow 3,4?
-      if(/^=(item|head[2-4])\s+\Q$action\E\b/) {
+      # only item and head2 are allowed (3&4 are not in 5.005)
+      if(/^=(item|head2)\s+\Q$action\E\b/) {
         $style = $1;
         push @docs, $_;
         last;
@@ -1907,11 +1907,10 @@ sub get_action_docs {
         --$inlist if /^=back/;
       }
     }
-    else { # head style
+    else { # head2 style
       # stop at anything equal or greater than the found level
-      my $heads = 'head[1-'. ($style =~ m/(\d)$/)[0] . ']';
       while (<$fh>) {
-        last if(/^=(?:$heads|back|cut)/);
+        last if(/^=(?:head[12]|cut)/);
         push @docs, $_;
       }
     }

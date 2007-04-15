@@ -229,15 +229,15 @@ my $mb = Module::Build->subclass(
     # Though, I do wonder whether we should allow them to mix...
     # maybe everything should have to be head2?
 
-    =head3 baz
+    =head2 baz
 
     Does the baz thing.
 
     =head4 What's a baz?
 
-    =head3 not this part
+    =head1 not this part
 
-    This is level 3, so the stuff about baz is done.
+    This is level 1, so the stuff about baz is done.
 
     =head1 Thing
 
