@@ -2,9 +2,9 @@ package Module::Build::Version;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = 0.7201;
+$VERSION = 0.7203;
 
-eval "use version 0.7201";
+eval "use version $VERSION";
 if ($@) { # can't locate version files, use our own
 
     # Avoid redefined warnings if an old version.pm was available
@@ -75,7 +75,7 @@ use strict;
 
 use locale;
 use vars qw ($VERSION @ISA @REGEXS);
-$VERSION = 0.7201;
+$VERSION = 0.7203;
 
 push @REGEXS, qr/
 	^v?	# optional leading 'v'
@@ -97,6 +97,16 @@ sub new
 {
 	my ($class, $value) = @_;
 	my $self = bless ({}, ref ($class) || $class);
+	
+	if ( ref($value) && eval("$value->isa('version')") ) {
+	    # Can copy the elements directly
+	    $self->{version} = [ @{$value->{version} } ];
+	    $self->{qv} = 1 if $value->{qv};
+	    $self->{alpha} = 1 if $value->{alpha};
+	    $self->{original} = ''.$value->{original};
+	    return $self;
+	}
+
 	require POSIX;
 	my $currlocale = POSIX::setlocale(&POSIX::LC_ALL);
 	my $radix_comma = ( POSIX::localeconv()->{decimal_point} eq ',' );
@@ -503,8 +513,8 @@ sub _un_vstring {
     my $value = shift;
     # may be a v-string
     if ( $] >= 5.006_000 && length($value) >= 3 && $value !~ /[._]/ ) {
-	my $tvalue = sprintf("%vd",$value);
-	if ( $tvalue =~ /^\d+\.\d+\.\d+$/ ) {
+	my $tvalue = sprintf("v%vd",$value);
+	if ( $tvalue =~ /^v\d+\.\d+\.\d+$/ ) {
 	    # must be a v-string
 	    $value = $tvalue;
 	}
