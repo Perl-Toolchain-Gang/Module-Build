@@ -44,6 +44,7 @@ t/destinations.t
 t/ext.t
 t/extend.t
 t/files.t
+t/help.t
 t/install.t
 t/lib/DistGen.pm
 t/lib/MBTest.pm
