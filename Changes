@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+0.2808 - Sat Apr 28 12:59:43 2007
+
  - Added is_vmsish(), is_windowsish(), and is_unixish() boolean
    convenience functions.  Fixes some test failures on platforms where
    $^O is set to a value we don't know about (like 'gnu').
