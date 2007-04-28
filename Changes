@@ -8,8 +8,6 @@ Revision history for Perl extension Module::Build.
 
  - Support get_action_docs() =head2 style. [ewilhelm]
 
- - Reworked _detildefy with regexp instead of glob(). [ewilhelm]
-
  - Workaround Test::Pod::Coverage @INC bug. [Eric Wilhelm]
 
  - Fixed the command-line args --extra_compiler_flags and
