@@ -1633,6 +1633,10 @@ sub read_args {
   }
   $args{ARGV} = \@argv;
 
+  for ('extra_compiler_flags', 'extra_linker_flags') {
+    $args{$_} = [ $self->split_like_shell($args{$_}) ] if exists $args{$_};
+  }
+
   # Hashify these parameters
   for ($self->hash_properties, 'config') {
     next unless exists $args{$_};
