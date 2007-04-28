@@ -447,7 +447,7 @@ sub find_perl_interpreter {
   my $exe = $c->get('exe_ext');
   foreach my $thisperl ( @potential_perls ) {
 
-    if ($proto->os_type eq 'VMS') {
+    if ($proto->is_vmsish) {
       # VMS might have a file version at the end
       $thisperl .= $exe unless $thisperl =~ m/$exe(;\d+)?$/i;
     } elsif (defined $exe) {
@@ -2289,7 +2289,7 @@ sub process_script_files {
   
   foreach my $file (keys %$files) {
     my $result = $self->copy_if_modified($file, $script_dir, 'flatten') or next;
-    $self->fix_shebang_line($result) unless $self->os_type eq 'VMS';
+    $self->fix_shebang_line($result) unless $self->is_vmsish;
     $self->make_executable($result);
   }
 }
@@ -2376,7 +2376,7 @@ sub _find_file_by_type {
 
 sub localize_file_path {
   my ($self, $path) = @_;
-  $path =~ s/\.\z// if $self->os_type eq 'VMS';
+  $path =~ s/\.\z// if $self->is_vmsish;
   return File::Spec->catfile( split m{/}, $path );
 }
 
@@ -2409,7 +2409,7 @@ sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
     $shb .= qq{
 eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
     if 0; # not running under some shell
-} unless $self->os_type eq 'Windows'; # this won't work on win32, so don't
+} unless $self->is_windowsish; # this won't work on win32, so don't
     
     my $FIXOUT = IO::File->new(">$file.new")
       or die "Can't create new $file: $!\n";
