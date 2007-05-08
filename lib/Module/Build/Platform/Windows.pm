@@ -19,6 +19,13 @@ sub manpage_separator {
 
 sub have_forkpipe { 0 }
 
+sub _detildefy {
+  my ($self, $value) = @_;
+  $value =~ s,^~(?= [/\\] | $ ),$ENV{HOME},x
+    if $ENV{HOME};
+  return $value;
+}
+
 sub ACTION_realclean {
   my ($self) = @_;
 

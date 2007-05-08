@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+ - Reworked the _detildefy() method so it doesn't depend on glob()
+   anymore.  This gets rid of a problem with spaces or other special
+   shell characters in things like 'prefix' or 'install_path'
+   entries. [Prodding by Eric Wilhelm]
+
 0.2808 - Sat Apr 28 12:59:43 2007
 
  - Added is_vmsish(), is_windowsish(), and is_unixish() boolean
