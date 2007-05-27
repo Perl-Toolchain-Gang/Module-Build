@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Patch 31156 from bleadperl: some filename dot and extension help
+   for Module::Build on VMS. [Craig Berry]
+
  - Reworked the _detildefy() method so it doesn't depend on glob()
    anymore.  This gets rid of a problem with spaces or other special
    shell characters in things like 'prefix' or 'install_path'
