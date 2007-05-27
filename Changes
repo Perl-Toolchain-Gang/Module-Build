@@ -5,6 +5,9 @@ Revision history for Perl extension Module::Build.
    shell characters in things like 'prefix' or 'install_path'
    entries. [Prodding by Eric Wilhelm]
 
+ - Added midnightbsd to the list of Unix-like OSes we know about
+   [Rafael Garcia-Suarez]
+
 0.2808 - Sat Apr 28 12:59:43 2007
 
  - Added is_vmsish(), is_windowsish(), and is_unixish() boolean
