@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Added config_requires as a new type of prereq.  [Suggested by Adam
+   Kennedy]
+
  - Patch 31156 from bleadperl: some filename dot and extension help
    for Module::Build on VMS. [Craig Berry]
 

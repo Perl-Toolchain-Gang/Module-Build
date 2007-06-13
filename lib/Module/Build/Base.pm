@@ -785,6 +785,7 @@ __PACKAGE__->add_property($_ => {}) for qw(
   meta_merge
   original_prefix
   prefix_relpaths
+  config_requires
 );
 
 __PACKAGE__->add_property($_) for qw(
@@ -3369,7 +3370,16 @@ sub prepare_metadata {
     $node->{resources}{license} = $url;
   }
 
-  foreach ( @{$self->prereq_action_types} ) {
+  if (exists $p->{config_requires}) {
+    foreach my $spec (keys %{$p->{config_requires}}) {
+      warn ("Warning: $spec is listed in 'config_requires', but ".
+	    "it is not found in any of the other prereq fields.\n")
+	unless grep exists $p->{$_}{$spec}, 
+	       grep !/conflicts$/, @{$self->prereq_action_types};
+    }
+  }
+
+  foreach ( 'config_requires', @{$self->prereq_action_types} ) {
     if (exists $p->{$_} and keys %{ $p->{$_} }) {
       $add_node->($_, $p->{$_});
     }
