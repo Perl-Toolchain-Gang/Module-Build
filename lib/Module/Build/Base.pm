@@ -579,7 +579,7 @@ sub features     {
 
   return wantarray ? %features : \%features;
 }
-BEGIN { *feature = \&features }
+BEGIN { *feature = \&features } # Alias
 
 sub _mb_feature {
   my $self = shift;
