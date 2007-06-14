@@ -149,13 +149,13 @@ following parameters:
 
 =over 3
 
-=item config_requires
+=item configure_requires
 
 Items that must be installed I<before> configuring this distribution
 (i.e. before running the F<Build.PL> script).  This might be a
 specific minimum version of C<Module::Build> or any other module the
 F<Build.PL> needs in order to do its stuff.  Clients like C<CPAN.pm>
-or C<CPANPLUS> will be expected to pick C<config_requires> out of the
+or C<CPANPLUS> will be expected to pick C<configure_requires> out of the
 F<META.yml> file and install these items before running the
 C<Build.PL>.
 
