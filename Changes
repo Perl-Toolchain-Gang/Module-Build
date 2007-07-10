@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Lots of POD link/readability improvements to the Module::Build::API
+   documentation [Salve J. Nilsen]
+
  - Added configure_requires as a new type of prereq.  [Suggested by Adam
    Kennedy]
 
