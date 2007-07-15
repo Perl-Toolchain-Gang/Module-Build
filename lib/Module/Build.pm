@@ -507,7 +507,7 @@ for a bug report.
 [version 0.28]
 
 This action is identical to the C<install> action.  In the future,
-though, if C<install> starts writing to the file file
+though, when C<install> starts writing to the file 
 F<$(INSTALLARCHLIB)/perllocal.pod>, C<pure_install> won't, and that
 will be the only difference between them.
 

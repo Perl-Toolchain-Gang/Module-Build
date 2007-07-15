@@ -1,5 +1,11 @@
 -------------------------- TO DO: --------------------------------
 
+* Finish configure_requires implementation. (add self)
+
+* Dump better diagnostics if we die() while building ourself
+
+* perllocal.pod? http://rt.cpan.org/Ticket/Display.html?id=14316
+
 * Look at Time::HiRes as a way to get C modules compiled & linked on
   various weird platforms, and abstract them into a new utility module
   for this purpose.
