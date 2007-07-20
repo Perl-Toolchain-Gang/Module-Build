@@ -2871,9 +2871,8 @@ sub ACTION_ppmdist {
 
   # create a tarball;
   # the directory tar'ed must be blib so we need to do a chdir first
-  $self->_do_in_dir( $ppm, sub {
-		       $self->make_tarball( 'blib', File::Spec->catfile( $start_wd, $ppm ) ) 
-		     } );
+  my $target = File::Spec->catfile( File::Spec->updir, $ppm );
+  $self->_do_in_dir( $ppm, sub { $self->make_tarball( 'blib', $target ) } );
 
   $self->depends_on( 'ppd' );
 
