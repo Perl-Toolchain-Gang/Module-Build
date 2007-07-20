@@ -210,10 +210,8 @@ C<Build test verbose=1>), in which case their values last only for the
 lifetime of that command.  Per-action command line parameters take
 precedence over parameters specified at C<perl Build.PL> time.
 
-The build process also relies heavily on the C<Config.pm> module, and
-all the key=value pairs in C<Config.pm> are available in
-
-C<< $self->{config} >>.  If the user wishes to override any of the
+The build process also relies heavily on the C<Config.pm> module.
+If the user wishes to override any of the
 values in C<Config.pm>, she may specify them like so:
 
   perl Build.PL --config cc=gcc --config ld=gcc
