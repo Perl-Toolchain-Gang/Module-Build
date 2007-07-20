@@ -15,6 +15,7 @@ use File::Path ();
 use File::Spec ();
 use IO::File ();
 use Tie::CPHash;
+use Data::Dumper;
 
 BEGIN {
     if( $^O eq 'VMS' ) {
@@ -355,6 +356,22 @@ sub remove_file {
   }
   delete( $self->{filedata}{$file} );
   $self->{pending}{remove}{$file} = 1;
+}
+
+sub change_build_pl {
+  my ($self, $opts) = @_;
+
+  local $Data::Dumper::Terse = 1;
+  (my $args = Dumper($opts)) =~ s/^\s*\{|\}\s*$//g;
+
+  $self->change_file( 'Build.PL', <<"---" );
+use strict;
+use Module::Build;
+my \$b = Module::Build->new(
+$args
+);
+\$b->create_build_script();
+---
 }
 
 sub change_file {

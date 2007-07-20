@@ -12,20 +12,19 @@ my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 use Module::Build;
 use Module::Build::ConfigData;
 
+my %metadata = 
+  (
+   module_name   => 'Simple',
+   dist_version  => '3.14159265',
+   dist_author   => [ 'Simple Simon <ss\@somewhere.priv>' ],
+   dist_abstract => 'Something interesting',
+   license       => 'perl',
+  );
+
+
 use DistGen;
 my $dist = DistGen->new( dir => $tmp );
-$dist->change_file( 'Build.PL', <<"---" );
-
-my \$builder = Module::Build->new(
-    module_name   => '@{[$dist->name]}',
-    dist_version  => '3.14159265',
-    dist_author   => [ 'Simple Simon <ss\@somewhere.priv>' ],
-    dist_abstract => 'Something interesting',
-    license       => 'perl',
-);
-
-\$builder->create_build_script();
----
+$dist->change_build_pl( \%metadata );
 $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
