@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 47;
+use MBTest tests => 48;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -19,6 +19,9 @@ my %metadata =
    dist_author   => [ 'Simple Simon <ss\@somewhere.priv>' ],
    dist_abstract => 'Something interesting',
    license       => 'perl',
+   meta_add => {
+		'keywords' => [qw(super duper something)],
+	       },
   );
 
 
@@ -50,6 +53,7 @@ my $mb = Module::Build->new_from_context;
       "'meta-spec' -> 'version' field present in META.yml";
   ok defined( $node->{'meta-spec'}{url} ),
       "'meta-spec' -> 'url' field present in META.yml";
+  is_deeply $node->{keywords}, $metadata{meta_add}{keywords};
 }
 
 $dist->clean;
