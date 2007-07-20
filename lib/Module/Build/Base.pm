@@ -2871,10 +2871,9 @@ sub ACTION_ppmdist {
 
   # create a tarball;
   # the directory tar'ed must be blib so we need to do a chdir first
-  my $start_wd = $self->cwd;
-  chdir( $ppm ) or die "Can't chdir to $ppm";
-  $self->make_tarball( 'blib', File::Spec->catfile( $start_wd, $ppm ) );
-  chdir( $start_wd ) or die "Can't chdir to $start_wd";
+  $self->_do_in_dir( $ppm, sub {
+		       $self->make_tarball( 'blib', File::Spec->catfile( $start_wd, $ppm ) ) 
+		     } );
 
   $self->depends_on( 'ppd' );
 
@@ -2971,13 +2970,17 @@ sub _sign_dir {
     $self->_add_to_manifest($manifest, "SIGNATURE    Added here by Module::Build");
   }
   
-  # We protect the signing with an eval{} to make sure we get back to
-  # the right directory after a signature failure.  Would be nice if
-  # Module::Signature took a directory argument.
+  # Would be nice if Module::Signature took a directory argument.
   
+  $self->_do_in_dir($dir, sub {local $Module::Signature::Quiet = 1; Module::Signature::sign()});
+}
+
+sub _do_in_dir {
+  my ($self, $dir, $do) = @_;
+
   my $start_dir = $self->cwd;
   chdir $dir or die "Can't chdir() to $dir: $!";
-  eval {local $Module::Signature::Quiet = 1; Module::Signature::sign()};
+  eval {$do->()};
   my @err = $@ ? ($@) : ();
   chdir $start_dir or push @err, "Can't chdir() back to $start_dir: $!";
   die join "\n", @err if @err;
@@ -3116,18 +3119,18 @@ sub ACTION_disttest {
 
   $self->depends_on('distdir');
 
-  my $start_dir = $self->cwd;
-  my $dist_dir = $self->dist_dir;
-  chdir $dist_dir or die "Cannot chdir to $dist_dir: $!";
-  # XXX could be different names for scripts
+  $self->_do_in_dir
+    ( $self->dist_dir,
+      sub {
+	# XXX could be different names for scripts
 
-  $self->run_perl_script('Build.PL') # XXX Should this be run w/ --nouse-rcfile
-      or die "Error executing 'Build.PL' in dist directory: $!";
-  $self->run_perl_script('Build')
-      or die "Error executing 'Build' in dist directory: $!";
-  $self->run_perl_script('Build', [], ['test'])
-      or die "Error executing 'Build test' in dist directory";
-  chdir $start_dir;
+	$self->run_perl_script('Build.PL') # XXX Should this be run w/ --nouse-rcfile
+	  or die "Error executing 'Build.PL' in dist directory: $!";
+	$self->run_perl_script('Build')
+	  or die "Error executing 'Build' in dist directory: $!";
+	$self->run_perl_script('Build', [], ['test'])
+	  or die "Error executing 'Build test' in dist directory";
+      });
 }
 
 sub _write_default_maniskip {
