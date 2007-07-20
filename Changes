@@ -1,5 +1,13 @@
 Revision history for Perl extension Module::Build.
 
+ - Removed a mention of $build->{config} from the documentation, the
+   official interface to Config.pm settings is now via the
+   $build->config() and has been for some time. [Suggested by Michael
+   Schwern]
+
+ - Tweaked some text in the Cookbook to bring it into the modern age,
+   and added a recipe for accessing Config.pm settings. [Ibid]
+
  - Lots of POD link/readability improvements to the Module::Build::API
    documentation [Salve J. Nilsen]
 
