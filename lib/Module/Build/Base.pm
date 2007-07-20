@@ -4,7 +4,6 @@ use strict;
 BEGIN { require 5.00503 }
 
 use Carp;
-use Config;
 use File::Copy ();
 use File::Find ();
 use File::Path ();
