@@ -17,17 +17,14 @@ my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 use DistGen;
 my $dist = DistGen->new( dir => $tmp );
 $dist->remove_file( 't/basic.t' );
-$dist->change_file( 'Build.PL', <<'---' );
-use Module::Build;
-
-my $build = new Module::Build(
+$dist->change_build_pl
+({
   module_name => 'Simple',
   scripts     => [ 'script' ],
   license     => 'perl',
   requires    => { 'File::Spec' => 0 },
-);
-$build->create_build_script;
----
+});
+
 $dist->add_file( 'script', <<'---' );
 #!perl -w
 print "Hello, World!\n";
@@ -209,15 +206,12 @@ echo Hello, World!
 ---
 
   $dist = DistGen->new( dir => $tmp );
-  $dist->change_file( 'Build.PL', <<'---' );
-use Module::Build;
-my $build = new Module::Build(
-  module_name => 'Simple',
-  scripts     => [ 'bin/script.bat' ],
-  license     => 'perl',
-);
-$build->create_build_script;
----
+  $dist->change_build_pl({
+			  module_name => 'Simple',
+			  scripts     => [ 'bin/script.bat' ],
+			  license     => 'perl',
+			 });
+
   $dist->add_file( 'bin/script.bat', $script_data );
 
   $dist->regen;

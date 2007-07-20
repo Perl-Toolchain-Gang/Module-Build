@@ -50,16 +50,12 @@ Says "Hello"
 
 =cut
 ---
-$dist->change_file( 'Build.PL', <<"---" );
-
-my \$build = new Module::Build(
-  module_name => @{[$dist->name]},
+$dist->change_build_pl
+({
+  module_name => $dist->name,
   license     => 'perl',
   scripts     => [ 'hello' ],
-);
-
-\$build->create_build_script;
----
+});
 $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";

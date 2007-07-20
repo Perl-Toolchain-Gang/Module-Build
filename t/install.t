@@ -24,17 +24,13 @@ $dist->add_file( 'script', <<'---' );
 #!perl -w
 print "Hello, World!\n";
 ---
-$dist->change_file( 'Build.PL', <<"---" );
-use Module::Build;
-
-my \$build = new Module::Build(
-  module_name => @{[$dist->name]},
+$dist->change_build_pl
+({
+  module_name => $dist->name,
   scripts     => [ 'script' ],
   license     => 'perl',
   requires    => { 'File::Spec' => 0 },
-);
-\$build->create_build_script;
----
+});
 $dist->regen;
 
 
