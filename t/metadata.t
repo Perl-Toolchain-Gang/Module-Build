@@ -11,8 +11,6 @@ my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 
 use Module::Build;
 use Module::Build::ConfigData;
-my $has_YAML = Module::Build::ConfigData->feature('YAML_support');
-
 
 use DistGen;
 my $dist = DistGen->new( dir => $tmp );
@@ -39,13 +37,8 @@ my $mb = Module::Build->new_from_context;
 #
 # Test for valid META.yml
 
-SKIP: {
-  skip( 'YAML_support feature is not enabled', 8 ) unless $has_YAML;
-
-  require YAML;
-  require YAML::Node;
-  my $node = YAML::Node->new({});
-  $node = $mb->prepare_metadata( $node );
+{
+  my $node = $mb->prepare_metadata( {} );
 
   # exists() doesn't seem to work here
   ok defined( $node->{name} ),     "'name' field present in META.yml";
