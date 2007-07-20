@@ -58,6 +58,38 @@ you don't need to re-invoke the F<Build> script with the complete perl
 path each time.  If you invoke it with the I<wrong> perl path, you'll
 get a warning or a fatal error.
 
+=head2 Modifying Config.pm values
+
+C<Module::Build> relies heavily on various values from perl's
+C<Config.pm> to do its work.  For example, default installation paths
+are given by C<installsitelib> and C<installvendorman3dir> and
+friends, C linker & compiler settings are given by C<ld>,
+C<lddlflags>, C<cc>, C<ccflags>, and so on.  I<If you're pretty sure
+you know what you're doing>, you can tell C<Module::Build> to pretend
+there are different values in F<Config.pm> than what's really there,
+by passing arguments for the C<--config> parameter on the command
+line:
+
+  perl Build.PL --config cc=gcc --config ld=gcc
+
+Inside the C<Build.PL> script the same thing can be accomplished by
+passing values for the C<config> parameter to C<new()>:
+
+ my $build = Module::Build->new
+   (
+    ...
+    config => { cc => 'gcc', ld => 'gcc' },
+    ...
+   );
+
+In custom build code, the same thing can be accomplished by calling
+the L<Module::Build/config> method:
+
+ $build->config( cc => 'gcc' );     # Set
+ $build->config( ld => 'gcc' );     # Set
+ ...
+ my $linker = $build->config('ld'); # Get
+
 
 =head2 Installing modules using the programmatic interface
 
