@@ -40,19 +40,16 @@ my $mb = Module::Build->new_from_context;
   my $node = $mb->prepare_metadata( {} );
 
   # exists() doesn't seem to work here
-  ok defined( $node->{name} ),     "'name' field present in META.yml";
-  ok defined( $node->{version} ),  "'version' field present in META.yml";
-  ok defined( $node->{abstract} ), "'abstract' field present in META.yml";
-  ok defined( $node->{author} ),   "'author' field present in META.yml";
-  ok defined( $node->{license} ),  "'license' field present in META.yml";
-  ok defined( $node->{generated_by} ),
-      "'generated_by' field present in META.yml";
+  is $node->{name}, $metadata{module_name};
+  is $node->{version}, $metadata{dist_version};
+  is $node->{abstract}, $metadata{dist_abstract};
+  is_deeply $node->{author}, $metadata{dist_author};
+  is $node->{license}, $metadata{license};
+  like $node->{generated_by}, qr{Module::Build};
   ok defined( $node->{'meta-spec'}{version} ),
       "'meta-spec' -> 'version' field present in META.yml";
   ok defined( $node->{'meta-spec'}{url} ),
       "'meta-spec' -> 'url' field present in META.yml";
-
-  # TODO : find a way to test for failure when above fields are not present
 }
 
 $dist->clean;
