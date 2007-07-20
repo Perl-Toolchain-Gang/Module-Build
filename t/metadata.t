@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 48;
+use MBTest tests => 49;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -20,7 +20,8 @@ my %metadata =
    dist_abstract => 'Something interesting',
    license       => 'perl',
    meta_add => {
-		'keywords' => [qw(super duper something)],
+		keywords  => [qw(super duper something)],
+		resources => {homepage => 'http://foo.example.com'},
 	       },
   );
 
@@ -54,6 +55,7 @@ my $mb = Module::Build->new_from_context;
   ok defined( $node->{'meta-spec'}{url} ),
       "'meta-spec' -> 'url' field present in META.yml";
   is_deeply $node->{keywords}, $metadata{meta_add}{keywords};
+  is_deeply $node->{resources}, $metadata{meta_add}{resources};
 }
 
 $dist->clean;
