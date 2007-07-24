@@ -6,7 +6,7 @@ use MBTest tests => 18;
 
 use Cwd ();
 my $cwd = Cwd::cwd;
-my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
+my $tmp = MBTest->tmpdir;
 
 use Module::Build;
 use Module::Build::ConfigData;

@@ -54,6 +54,9 @@ my $cwd = Cwd::cwd;
 my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
 mkdir $tmp unless -d $tmp;
 
+sub tmpdir { $tmp }
+
+
 # backwards compatible temp filename recipe adapted from perlfaq
 my $tmp_count = 0;
 my $tmp_base_name = sprintf("%d-%d", $$, time());

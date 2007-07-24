@@ -26,7 +26,7 @@ ok 1, "Loaded";
 
 use Cwd ();
 my $cwd = Cwd::cwd;
-my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
+my $tmp = MBTest->tmpdir;
 
 # Create test distribution; set requires and build_requires
 use DistGen;
