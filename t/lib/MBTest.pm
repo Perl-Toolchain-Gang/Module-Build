@@ -44,14 +44,24 @@ $VERSION = 0.01;
 
 # We have a few extra exports, but Test::More has a special import()
 # that won't take extra additions.
-my @extra_exports = qw(stdout_of stderr_of slurp find_in_path check_compiler have_module);
+my @extra_exports = qw(stdout_of stderr_of stdout_stderr_of slurp find_in_path check_compiler have_module);
 push @EXPORT, @extra_exports;
 __PACKAGE__->export(scalar caller, @extra_exports);
 
+# Setup a temp directory if it doesn't exist
+use Cwd ();
+my $cwd = Cwd::cwd;
+my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
+mkdir $tmp unless -d $tmp;
+
+# backwards compatible temp filename recipe adapted from perlfaq
+my $tmp_count = 0;
+my $tmp_base_name = sprintf("%d-%d", $$, time());
+sub temp_file_name { sprintf("%s-%04d", $tmp_base_name, ++$tmp_count) }
 
 sub save_handle {
   my ($handle, $subr) = @_;
-  my $outfile = 'save_out';
+  my $outfile = temp_file_name();
 
   local *SAVEOUT;
   open SAVEOUT, ">&" . fileno($handle) or die "Can't save output handle: $!";
@@ -67,6 +77,14 @@ sub save_handle {
 
 sub stdout_of { save_handle(\*STDOUT, @_) }
 sub stderr_of { save_handle(\*STDERR, @_) }
+sub stdout_stderr_of {
+  my $subr = shift;
+  my ($stdout, $stderr);
+  $stdout = stdout_of ( sub {
+      $stderr = stderr_of( $subr )
+  });
+  return ($stdout, $stderr);
+}
 
 sub slurp {
   my $fh = IO::File->new($_[0]) or die "Can't open $_[0]: $!";

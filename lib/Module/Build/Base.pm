@@ -1189,6 +1189,7 @@ sub perl_version {
 
 sub perl_version_to_float {
   my ($self, $version) = @_;
+  return $version if grep( /\./, $version ) < 2;
   $version =~ s/\./../;
   $version =~ s/\.(\d+)/sprintf '%03d', $1/eg;
   return $version;

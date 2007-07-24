@@ -1,5 +1,15 @@
 Revision history for Perl extension Module::Build.
 
+ - Module::Build::Compat adds "require 5.XXXXX" to Makefile.PL when 
+   'perl' is specified as a 'requires' prerequisite [David Golden]
+
+ - Refactored t/compat.t for modularity and transparency; added 
+   labels for all tests; supressed subprocess output to 
+   STDOUT and STDERR [David Golden]
+
+ - Fixed bug in perl_version_to_float when version is already a float
+   [David Golden]
+
  - Removed a mention of $build->{config} from the documentation, the
    official interface to Config.pm settings is now via the
    $build->config() and has been for some time. [Suggested by Michael
