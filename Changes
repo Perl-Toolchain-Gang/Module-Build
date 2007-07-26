@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - If a *.PL file ended abnormally during the build, processing should
+   have stopped, but it didn't.  Fixed. [Matthew Cast and David
+   Golden]
+
  - Module::Build::Compat adds "require 5.XXXXX" to Makefile.PL when 
    'perl' is specified as a 'requires' prerequisite [David Golden]
 

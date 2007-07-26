@@ -2256,7 +2256,7 @@ sub process_PL_files {
   
   while (my ($file, $to) = each %$files) {
     unless ($self->up_to_date( $file, $to )) {
-      $self->run_perl_script($file, [], [@$to]);
+      $self->run_perl_script($file, [], [@$to]) or die "$file failed";
       $self->add_to_cleanup(@$to);
     }
   }
