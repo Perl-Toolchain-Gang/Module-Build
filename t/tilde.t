@@ -45,19 +45,19 @@ SKIP: {
       $home = $info[7];
     }
 
-    is( run_sample( $p => '~'     )->$p,  $home );
+    is( run_sample( $p => '~'     )->$p(),  $home );
 
-    is( run_sample( $p => '~/foo' )->$p,  "$home/foo" );
+    is( run_sample( $p => '~/foo' )->$p(),  "$home/foo" );
 
-    is( run_sample( $p => '~~'    )->$p,  '~~' );
+    is( run_sample( $p => '~~'    )->$p(),  '~~' );
 
-    is( run_sample( $p => '~ foo' )->$p,  '~ foo' );
+    is( run_sample( $p => '~ foo' )->$p(),  '~ foo' );
 
-    is( run_sample( $p => '~/ foo')->$p,  "$home/ foo" );
+    is( run_sample( $p => '~/ foo')->$p(),  "$home/ foo" );
       
-    is( run_sample( $p => '~/fo o')->$p,  "$home/fo o" );
+    is( run_sample( $p => '~/fo o')->$p(),  "$home/fo o" );
 
-    is( run_sample( $p => 'foo~'  )->$p,  'foo~' );
+    is( run_sample( $p => 'foo~'  )->$p(),  'foo~' );
 
     is( run_sample( prefix => '~' )->prefix,
 	$home );
@@ -77,7 +77,7 @@ SKIP: {
     is( $mb->destdir,           $home );
 
     $mb->$p('~');
-    is( $mb->$p,      '~', 'API does not expand tildes' );
+    is( $mb->$p(),      '~', 'API does not expand tildes' );
 }
 
 # Again, with named users
@@ -86,7 +86,7 @@ SKIP: {
     skip "No home directory for tilde-expansion tests", 1 if $@;
     my ($me, $home) = @info[0,7];
     
-    is( run_sample( $p => "~$me/foo")->$p,  "$home/foo" );
+    is( run_sample( $p => "~$me/foo")->$p(),  "$home/foo" );
 }
 
 
