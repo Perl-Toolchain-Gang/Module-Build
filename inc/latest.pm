@@ -42,7 +42,7 @@ sub _version {
   my ($file) = @_;
   my $fh = IO::File->new($file) or die "Can't read $file: $!";
   while (<$fh>) {
-    return (eval $2) if /^\s*\$VERSION\s*=\s*(['"]?)([\d._])+\1/;
+    return (eval $2) if /^\s*\$VERSION\s*=\s*(['"]?)([\d._]+)\1/;
   }
   return;
 }
