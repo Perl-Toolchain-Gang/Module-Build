@@ -52,7 +52,7 @@ __PACKAGE__->export(scalar caller, @extra_exports);
 use Cwd ();
 my $cwd = Cwd::cwd;
 my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
-mkdir $tmp unless -d $tmp;
+mkdir $tmp, 0777 unless -d $tmp;
 
 sub tmpdir { $tmp }
 
