@@ -391,13 +391,22 @@ __END__
 
 DistGen - Creates simple distributions for testing.
 
+=head1 SYNOPSIS
 
-=head1 DESCRIPTION
+  use DistGen;
 
+  my $dist = DistGen->new(dir => $tmp);
+  ...
+  $dist->add_file('t/some_test.t', $contents);
+  ...
+  $dist->regen;
 
+  chdir($dist->dirname) or die "Cannot chdir to '@{[$dist->dirname]}': $!";
+  ...
+  chdir($cwd) or die "cannot return to $cwd";
+  $dist->remove;
 
 =head1 API
-
 
 =head2 Constructor
 
@@ -423,7 +432,6 @@ default is File::Spec->curdir.
 Generates an XS based module.
 
 =back
-
 
 =head2 Manipulating the Distribution
 
@@ -456,7 +464,6 @@ the built-in files.
 
 Removes the complete distribution.
 
-
 =head2 Editing Files
 
 Note that all ${filename}s should be specified with unix-style paths,
@@ -477,7 +484,6 @@ the distribution is regenerated.
 Changes the contents of $filename to $content. No action is performed
 until the distribution is regenerated.
 
-
 =head2 Properties
 
 =head3 name()
@@ -489,3 +495,5 @@ Returns the name of the distribution.
 Returns the directory name where the distribution is created.
 
 =cut
+
+# vim:ts=2:sw=2:et:sta
