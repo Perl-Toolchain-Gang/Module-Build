@@ -514,7 +514,7 @@ No filesystem action is performed until the distribution is regenerated.
 
 =head3 add_file()
 
-Add a $filename containg $content to the distribution.
+Add a $filename containing $content to the distribution.
 
   $dist->add_file( $filename, $content );
 
