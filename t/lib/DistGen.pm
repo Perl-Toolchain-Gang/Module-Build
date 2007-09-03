@@ -53,6 +53,15 @@ sub new {
   return $self;
 }
 
+# not a method
+sub undent {
+  my ($string) = @_;
+
+  my ($space) = $string =~ m/^(\s+)/;
+  $string =~ s/^$space//gm;
+
+  return($string);
+}
 
 sub _gen_default_filedata {
   my $self = shift;
@@ -64,130 +73,130 @@ sub _gen_default_filedata {
     $self->add_file($member, $data) unless($self->{filedata}{$member});
   };
 
-  $self->$add_unless( 'Build.PL', <<"---" );
-use strict;
-use Module::Build;
+  $self->$add_unless('Build.PL', undent(<<"    ---"));
+    use strict;
+    use Module::Build;
 
-my \$builder = Module::Build->new(
-    module_name         => '$self->{name}',
-    license             => 'perl',
-);
+    my \$builder = Module::Build->new(
+        module_name         => '$self->{name}',
+        license             => 'perl',
+    );
 
-\$builder->create_build_script();
----
+    \$builder->create_build_script();
+    ---
 
   my $module_filename =
     join( '/', ('lib', split(/::/, $self->{name})) ) . '.pm';
 
   unless ( $self->{xs} ) {
-    $self->$add_unless($module_filename, <<"---");
-package $self->{name};
+    $self->$add_unless($module_filename, undent(<<"      ---"));
+      package $self->{name};
 
-use vars qw( \$VERSION );
-\$VERSION = '0.01';
+      use vars qw( \$VERSION );
+      \$VERSION = '0.01';
 
-use strict;
+      use strict;
 
-1;
+      1;
 
-__END__
+      __END__
 
-=head1 NAME
+      =head1 NAME
 
-$self->{name} - Perl extension for blah blah blah
+      $self->{name} - Perl extension for blah blah blah
 
-=head1 DESCRIPTION
+      =head1 DESCRIPTION
 
-Stub documentation for $self->{name}.
+      Stub documentation for $self->{name}.
 
-=head1 AUTHOR
+      =head1 AUTHOR
 
-A. U. Thor, a.u.thor\@a.galaxy.far.far.away
+      A. U. Thor, a.u.thor\@a.galaxy.far.far.away
 
-=cut
----
+      =cut
+      ---
 
-  $self->$add_unless('t/basic.t', <<"---");
-use Test::More tests => 1;
-use strict;
+  $self->$add_unless('t/basic.t', undent(<<"    ---"));
+    use Test::More tests => 1;
+    use strict;
 
-use $self->{name};
-ok 1;
----
+    use $self->{name};
+    ok 1;
+    ---
 
   } else {
-    $self->$add_unless($module_filename, <<"---");
-package $self->{name};
+    $self->$add_unless($module_filename, undent(<<"      ---"));
+      package $self->{name};
 
-\$VERSION = '0.01';
+      \$VERSION = '0.01';
 
-require Exporter;
-require DynaLoader;
+      require Exporter;
+      require DynaLoader;
 
-\@ISA = qw(Exporter DynaLoader);
-\@EXPORT_OK = qw( okay );
+      \@ISA = qw(Exporter DynaLoader);
+      \@EXPORT_OK = qw( okay );
 
-bootstrap $self->{name} \$VERSION;
+      bootstrap $self->{name} \$VERSION;
 
-1;
+      1;
 
-__END__
+      __END__
 
-=head1 NAME
+      =head1 NAME
 
-$self->{name} - Perl extension for blah blah blah
+      $self->{name} - Perl extension for blah blah blah
 
-=head1 DESCRIPTION
+      =head1 DESCRIPTION
 
-Stub documentation for $self->{name}.
+      Stub documentation for $self->{name}.
 
-=head1 AUTHOR
+      =head1 AUTHOR
 
-A. U. Thor, a.u.thor\@a.galaxy.far.far.away
+      A. U. Thor, a.u.thor\@a.galaxy.far.far.away
 
-=cut
----
+      =cut
+      ---
 
     my $xs_filename =
       join( '/', ('lib', split(/::/, $self->{name})) ) . '.xs';
-    $self->$add_unless($xs_filename, <<"---");
-#include "EXTERN.h"
-#include "perl.h"
-#include "XSUB.h"
+    $self->$add_unless($xs_filename, undent(<<"      ---"));
+      #include "EXTERN.h"
+      #include "perl.h"
+      #include "XSUB.h"
 
-MODULE = $self->{name}         PACKAGE = $self->{name}
+      MODULE = $self->{name}         PACKAGE = $self->{name}
 
-SV *
-okay()
-    CODE:
-        RETVAL = newSVpv( "ok", 0 );
-    OUTPUT:
+      SV *
+      okay()
+          CODE:
+              RETVAL = newSVpv( "ok", 0 );
+          OUTPUT:
+              RETVAL
+
+      char *
+      xs_version()
+          CODE:
+        RETVAL = XS_VERSION;
+          OUTPUT:
         RETVAL
 
-char *
-xs_version()
-    CODE:
-	RETVAL = XS_VERSION;
-    OUTPUT:
-	RETVAL
+      char *
+      version()
+          CODE:
+        RETVAL = VERSION;
+          OUTPUT:
+        RETVAL
+      ---
 
-char *
-version()
-    CODE:
-	RETVAL = VERSION;
-    OUTPUT:
-	RETVAL
----
+  $self->$add_unless('t/basic.t', undent(<<"    ---"));
+    use Test::More tests => 2;
+    use strict;
 
-  $self->$add_unless('t/basic.t', <<"---");
-use Test::More tests => 2;
-use strict;
+    use $self->{name};
+    ok 1;
 
-use $self->{name};
-ok 1;
-
-ok( $self->{name}::okay() eq 'ok' );
----
+    ok( $self->{name}::okay() eq 'ok' );
+    ---
   }
 }
 
@@ -371,14 +380,14 @@ sub change_build_pl {
   local $Data::Dumper::Terse = 1;
   (my $args = Dumper($opts)) =~ s/^\s*\{|\}\s*$//g;
 
-  $self->change_file( 'Build.PL', <<"---" );
-use strict;
-use Module::Build;
-my \$b = Module::Build->new(
-$args
-);
-\$b->create_build_script();
----
+  $self->change_file( 'Build.PL', undent(<<"    ---") );
+    use strict;
+    use Module::Build;
+    my \$b = Module::Build->new(
+    $args
+    );
+    \$b->create_build_script();
+    ---
 }
 
 sub change_file {
