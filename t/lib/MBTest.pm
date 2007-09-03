@@ -13,7 +13,7 @@ BEGIN {
   # Test::More" in the test script.
   my $t_lib = File::Spec->catdir('t', 'bundled');
 
-  if (!$ENV{PERL_CORE}) {
+  unless ($ENV{PERL_CORE}) {
     push @INC, $t_lib; # Let user's installed version override
   } else {
     # We change directories, so expand @INC to absolute paths
@@ -34,6 +34,7 @@ BEGIN {
 use Exporter;
 use Test::More;
 use Config;
+use Cwd ();
 
 # We pass everything through to Test::More
 use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS $TODO);
@@ -44,30 +45,45 @@ $VERSION = 0.01;
 
 # We have a few extra exports, but Test::More has a special import()
 # that won't take extra additions.
-my @extra_exports = qw(stdout_of stderr_of stdout_stderr_of slurp find_in_path check_compiler have_module);
+my @extra_exports = qw(
+  stdout_of
+  stderr_of
+  stdout_stderr_of
+  slurp
+  find_in_path
+  check_compiler
+  have_module
+);
 push @EXPORT, @extra_exports;
 __PACKAGE__->export(scalar caller, @extra_exports);
+# XXX ^-- that should really happen in import()
+########################################################################
 
-# Setup a temp directory if it doesn't exist
-use Cwd ();
-my $cwd = Cwd::cwd;
-my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
-mkdir $tmp, 0777 unless -d $tmp;
+{ # Setup a temp directory if it doesn't exist
+  my $cwd = Cwd::cwd;
+  my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
+  mkdir $tmp, 0777 unless -d $tmp;
 
-sub tmpdir { $tmp }
+  sub tmpdir { $tmp }
+}
+########################################################################
 
-
-# backwards compatible temp filename recipe adapted from perlfaq
-my $tmp_count = 0;
-my $tmp_base_name = sprintf("%d-%d", $$, time());
-sub temp_file_name { sprintf("%s-%04d", $tmp_base_name, ++$tmp_count) }
+{ # backwards compatible temp filename recipe adapted from perlfaq
+  my $tmp_count = 0;
+  my $tmp_base_name = sprintf("%d-%d", $$, time());
+  sub temp_file_name {
+    sprintf("%s-%04d", $tmp_base_name, ++$tmp_count)
+  }
+}
+########################################################################
 
 sub save_handle {
   my ($handle, $subr) = @_;
   my $outfile = temp_file_name();
 
   local *SAVEOUT;
-  open SAVEOUT, ">&" . fileno($handle) or die "Can't save output handle: $!";
+  open SAVEOUT, ">&" . fileno($handle)
+    or die "Can't save output handle: $!";
   open $handle, "> $outfile" or die "Can't create $outfile: $!";
 
   eval {$subr->()};
@@ -95,8 +111,8 @@ sub slurp {
   return scalar <$fh>;
 }
 
+# Some extensions we should know about if we're looking for executables
 sub exe_exts {
-  # Some extensions we should know about if we're looking for executables
 
   if ($^O eq 'MSWin32') {
     return split($Config{path_sep}, $ENV{PATHEXT} || '.com;.exe;.bat');
@@ -142,3 +158,4 @@ sub have_module {
 }
 
 1;
+# vim:ts=2:sw=2:et:sta
