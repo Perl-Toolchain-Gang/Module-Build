@@ -57,7 +57,14 @@ sub new {
 sub _gen_default_filedata {
   my $self = shift;
 
-  $self->add_file( 'Build.PL', <<"---" ) unless $self->{filedata}{'Build.PL'};
+  # TODO maybe a public method like this (but with a better name?)
+  my $add_unless = sub {
+    my $self = shift;
+    my ($member, $data) = @_;
+    $self->add_file($member, $data) unless($self->{filedata}{$member});
+  };
+
+  $self->$add_unless( 'Build.PL', <<"---" );
 use strict;
 use Module::Build;
 
@@ -73,7 +80,7 @@ my \$builder = Module::Build->new(
     join( '/', ('lib', split(/::/, $self->{name})) ) . '.pm';
 
   unless ( $self->{xs} ) {
-    $self->add_file( $module_filename, <<"---" ) unless $self->{filedata}{$module_filename};
+    $self->$add_unless($module_filename, <<"---");
 package $self->{name};
 
 use vars qw( \$VERSION );
@@ -100,7 +107,7 @@ A. U. Thor, a.u.thor\@a.galaxy.far.far.away
 =cut
 ---
 
-  $self->add_file( 't/basic.t', <<"---" ) unless $self->{filedata}{'t/basic.t'};
+  $self->$add_unless('t/basic.t', <<"---");
 use Test::More tests => 1;
 use strict;
 
@@ -109,7 +116,7 @@ ok 1;
 ---
 
   } else {
-    $self->add_file( $module_filename, <<"---" ) unless $self->{filedata}{$module_filename};
+    $self->$add_unless($module_filename, <<"---");
 package $self->{name};
 
 \$VERSION = '0.01';
@@ -143,7 +150,7 @@ A. U. Thor, a.u.thor\@a.galaxy.far.far.away
 
     my $xs_filename =
       join( '/', ('lib', split(/::/, $self->{name})) ) . '.xs';
-    $self->add_file( $xs_filename, <<"---" ) unless $self->{filedata}{$xs_filename};
+    $self->$add_unless($xs_filename, <<"---");
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -172,7 +179,7 @@ version()
 	RETVAL
 ---
 
-  $self->add_file( 't/basic.t', <<"---" ) unless $self->{filedata}{'t/basic.t'};
+  $self->$add_unless('t/basic.t', <<"---");
 use Test::More tests => 2;
 use strict;
 
