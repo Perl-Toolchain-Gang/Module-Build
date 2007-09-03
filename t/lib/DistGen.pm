@@ -2,7 +2,7 @@ package DistGen;
 
 use strict;
 
-use vars qw( $VERSION $VERBOSE );
+use vars qw( $VERSION $VERBOSE @EXPORT_OK);
 
 $VERSION = '0.01';
 $VERBOSE = 0;
@@ -23,6 +23,13 @@ BEGIN {
         require VMS::Filespec;
         VMS::Filespec->import;
     }
+}
+BEGIN {
+  require Exporter;
+  *{import} = \&Exporter::import;
+  @EXPORT_OK = qw(
+    undent
+  );
 }
 
 sub new {
@@ -417,7 +424,10 @@ DistGen - Creates simple distributions for testing.
   ...
   $dist->regen;
 
-  chdir($dist->dirname) or die "Cannot chdir to '@{[$dist->dirname]}': $!";
+  chdir($dist->dirname) or
+    die "Cannot chdir to '@{[$dist->dirname]}': $!";
+  ...
+  $dist->clean;
   ...
   chdir($cwd) or die "cannot return to $cwd";
   $dist->remove;
@@ -428,77 +438,98 @@ DistGen - Creates simple distributions for testing.
 
 =head3 new()
 
-Create a new distribution generator. Does not actually write the
-contents.
+Create a new object.  Does not write its contents (see L</regen()>.)
+
+  my $tmp = MBTest->tmpdir;
+  my $dist = DistGen->new(
+    name => 'Foo::Bar',
+    dir  => $tmp,
+    xs   => 1,
+  );
+
+The parameters are as follows.
 
 =over
 
 =item name
 
 The name of the module this distribution represents. The default is
-'Simple'.
+'Simple'.  This should be a "Foo::Bar" (module) name, not a "Foo-Bar"
+dist name.
 
 =item dir
 
-The directory in which to create the distribution directory. The
-default is File::Spec->curdir.
+The (parent) directory in which to create the distribution directory.
+The default is File::Spec->curdir.  The distribution will be created
+under this according to the "dist" form of C<name> (e.g. "Foo-Bar".)
 
 =item xs
 
-Generates an XS based module.
+If true, generates an XS based module.
 
 =back
 
 =head2 Manipulating the Distribution
 
-=head3 regen( [OPTIONS] )
+These methods immediately affect the filesystem.
 
-Regenerate all files that are missing or that have changed. If the
-optional C<clean> argument is given, it also removes any extraneous
-files that do not belong to the distribution.
+=head3 regen()
 
-=over
+Regenerate all missing or changed files.
 
-=item clean
+  $dist->regen(clean => 1);
 
-When true, removes any files not part of the distribution while
-regenerating.
-
-=back
+If the optional C<clean> argument is given, it also removes any
+extraneous files that do not belong to the distribution.
 
 =head3 clean()
 
 Removes any files that are not part of the distribution.
 
-=head3 revert( [$filename] )
+  $dist->clean;
+
+=begin TODO
+
+=head3 revert()
 
 [Unimplemented] Returns the object to its initial state, or given a
 $filename it returns that file to it's initial state if it is one of
 the built-in files.
 
+  $dist->revert;
+  $dist->revert($filename);
+
+=end TODO
+
 =head3 remove()
 
-Removes the complete distribution.
+Removes the entire distribution directory.
 
 =head2 Editing Files
 
-Note that all ${filename}s should be specified with unix-style paths,
+Note that C<$filename> should always be specified with unix-style paths,
 and are relative to the distribution root directory. Eg 'lib/Module.pm'
 
-=head3 add_file( $filename, $content )
+No filesystem action is performed until the distribution is regenerated.
 
-Add a $filename containg $content to the distribution. No action is
-performed until the distribution is regenerated.
+=head3 add_file()
 
-=head3 remove_file( $filename )
+Add a $filename containg $content to the distribution.
 
-Removes $filename from the distribution. No action is performed until
-the distribution is regenerated.
+  $dist->add_file( $filename, $content );
 
-=head3 change_file( $filename, $content )
+=head3 remove_file()
+
+Removes C<$filename> from the distribution.
+
+  $dist->remove_file( $filename );
+
+=head3 change_file()
 
 Changes the contents of $filename to $content. No action is performed
 until the distribution is regenerated.
+
+  $dist->change_file( $filename, $content );
 
 =head2 Properties
 
@@ -508,7 +539,21 @@ Returns the name of the distribution.
 
 =head3 dirname()
 
-Returns the directory name where the distribution is created.
+Returns the directory where the distribution is created.
+
+  $dist->dirname; # e.g. t/_tmp/Simple
+
+=head2 Functions
+
+=head3 undent()
+
+Removes leading whitespace from a multi-line string according to the
+amount of whitespace on the first line.
+
+  my $string = undent("  foo(\n    bar => 'baz'\n  )");
+  $string eq "foo(
+    bar => 'baz'
+  )";
 
 =cut
 
