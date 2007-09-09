@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+ - Got rid of a call to eliminate_macros, which isn't needed in
+   Module::Build since there is no external make utility involved.
+   Override expand_test_dir to make up for the fact that the
+   home-grown glob() returns absolute, not relative, paths. [Craig
+   A. Berry]
+
  - Fixed a catdir() that needed to be catfile() in the .packlist
    creation code. [John E. Malmberg]
 

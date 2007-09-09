@@ -80,7 +80,6 @@ sub _prefixify {
     $self->log_verbose("  prefixify $path from $sprefix to $rprefix\n");
 
     # Translate $(PERLPREFIX) to a real path.
-    $rprefix = $self->eliminate_macros($rprefix);
     $rprefix = VMS::Filespec::vmspath($rprefix) if $rprefix;
     $sprefix = VMS::Filespec::vmspath($sprefix) if $sprefix;
 
@@ -220,6 +219,26 @@ sub rscan_dir {
   return $result;
 }
 
+
+=item expand_test_dir
+
+Inherit the standard version but relativize the paths as the native glob() doesn't
+do that for us.
+
+=cut
+
+sub expand_test_dir {
+  my ($self, $dir) = @_;
+
+  my @reldirs = $self->SUPER::expand_test_dir( $dir );
+
+  for my $eachdir (@reldirs) {
+    my ($v,$d,$f) = File::Spec->splitpath( $eachdir );
+    my $reldir = File::Spec->abs2rel( File::Spec->catpath( $v, $d, '' ) );
+    $eachdir = File::Spec->catfile( $reldir, $f );
+  }
+  return @reldirs;
+}
 
 =back
 
