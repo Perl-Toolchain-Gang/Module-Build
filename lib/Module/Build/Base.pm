@@ -3246,7 +3246,7 @@ sub script_files {
     return $_ = {$_ => 1};
   }
   
-  return $_ = { map {$_,1} $self->_files_in( File::Spec->catdir( $self->base_dir, 'bin' ) ) };
+  return $_ = { map {$_,1} $self->_files_in('bin') };
 }
 BEGIN { *scripts = \&script_files; }
 
