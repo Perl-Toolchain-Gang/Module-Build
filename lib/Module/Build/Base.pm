@@ -954,7 +954,7 @@ sub dist_version {
 
   die ("Can't determine distribution version, must supply either 'dist_version',\n".
        "'dist_version_from', or 'module_name' parameter")
-    unless $p->{dist_version};
+    unless defined $p->{dist_version};
 
   return $p->{dist_version};
 }
@@ -1223,7 +1223,7 @@ sub check_installed_status {
     }
     
     $status{have} = $pm_info->version();
-    if ($spec and !$status{have}) {
+    if ($spec and !defined($status{have})) {
       @status{ qw(have message) } = (undef, "Couldn't find a \$VERSION in prerequisite $modname");
       return \%status;
     }
@@ -1978,7 +1978,8 @@ sub prereq_report {
       my $vspace = q{ } x ($ver_len - length $mod->{need});
       my $f = $mod->{ok} ? ' ' : '!';
       $output .=
-        "  $f $mod->{name} $space     $mod->{need}  $vspace   $mod->{have}\n";
+        "  $f $mod->{name} $space     $mod->{need}  $vspace   ".
+        (defined($mod->{have}) ? $mod->{have} : "")."\n";
     }
   }
   return $output;

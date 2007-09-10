@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - When a module had 0.000 as its version, a few places in the code
+   thought the module had no version at all.  This is now
+   fixed. [Andrew "Zefram" Main]
+
  - When finding the default set of script_files, we now compute them
    as relative paths, not absolute. [Spotted by Curtis "Ovid" Poe]
 
