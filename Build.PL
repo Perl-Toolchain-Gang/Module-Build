@@ -3,8 +3,10 @@ use strict;
 # On some platforms (*ahem*, MacPerl 5.6.1) "use lib qw(lib);" doesn't
 # find the local "lib" directory, so we use File::Spec to do it properly.
 use File::Spec 0.82;
-use lib File::Spec->catdir('lib');      # use our self to install
-use lib File::Spec->catdir('t', 'lib'); # use bundled Test::More
+use lib File::Spec->catdir('lib');          # use our self to install
+# XXX we're not actually able to use the bundled copy
+use lib File::Spec->catdir('t', 'bundled'); # use bundled Test::More
+use lib File::Spec->catdir('t', 'lib');     # our utilities
 
 # We use Module::Build to test & install itself.
 use Module::Build;
