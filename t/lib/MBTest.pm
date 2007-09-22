@@ -3,6 +3,7 @@ package MBTest;
 use strict;
 
 use File::Spec;
+use File::Path ();
 
 BEGIN {
   # Make sure none of our tests load the users ~/.modulebuildrc file
@@ -61,10 +62,15 @@ __PACKAGE__->export(scalar caller, @extra_exports);
 
 { # Setup a temp directory if it doesn't exist
   my $cwd = Cwd::cwd;
-  my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' );
+  my $tmp = File::Spec->catdir( $cwd, 't', '_tmp.' . $$);
   mkdir $tmp, 0777 unless -d $tmp;
 
   sub tmpdir { $tmp }
+  END {
+    if(-d $tmp) {
+      File::Path::rmtree($tmp) or warn "cannot clean dir '$tmp'";
+    }
+  }
 }
 ########################################################################
 

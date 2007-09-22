@@ -58,7 +58,7 @@ $dist->regen;
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 use File::Spec::Functions qw( catdir );
-my $destdir = catdir($cwd, 't', 'install_test');
+my $destdir = catdir($cwd, 't', 'install_test.' . $$);
 
 
 my $mb = Module::Build->new(
