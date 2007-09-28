@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - We now use a much more reliable method when Data::Dumper-ing saved
+   state data to the _build/ directory. [Yves]
+
  - When a module had 0.000 as its version, a few places in the code
    thought the module had no version at all.  This is now
    fixed. [Andrew "Zefram" Main]

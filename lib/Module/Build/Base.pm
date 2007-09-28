@@ -1029,8 +1029,14 @@ sub _write_data {
   
   my $file = $self->config_file($filename);
   my $fh = IO::File->new("> $file") or die "Can't create '$file': $!";
-  local $Data::Dumper::Terse = 1;
-  print $fh ref($data) ? Data::Dumper::Dumper($data) : $data;
+  unless (ref($data)) {  # e.g. magicnum
+    print $fh $data;
+    return;
+  }
+
+  print $fh ("do{ my "
+            . Data::Dumper->new([$data],['x'])->Purity(1)->Dump()
+            . '$x; }');
 }
 
 sub write_config {
