@@ -63,26 +63,27 @@ $mb->add_to_cleanup($destdir);
   eval {$mb->dispatch('install', destdir => $destdir)};
   is $@, '';
   
-  my $libdir = strip_volume( $mb->install_destination('lib') );
-  my $install_to = File::Spec->catfile($destdir, $libdir, $dist->name ) . '.pm';
+  my @libdir = strip_volume( $mb->install_destination('lib') );
+  my $install_to = File::Spec->catfile($destdir, @libdir, $dist->name ) . '.pm';
   file_exists($install_to);
   
-  local @INC = (@INC, File::Spec->catdir($destdir, $libdir));
+  local @INC = (@INC, File::Spec->catdir($destdir, @libdir));
   eval "require @{[$dist->name]}";
   is $@, '';
   
   # Make sure there's a packlist installed
   my $archdir = $mb->install_destination('arch');
-  my ($v, $d) = File::Spec->splitpath($archdir, 1);
-  my $packlist = File::Spec->catdir($destdir, $d, 'auto', $dist->name, '.packlist');
+  my @dirs = strip_volume($archdir);
+  my $packlist = File::Spec->catfile
+                            ($destdir, @dirs, 'auto', $dist->name, '.packlist');
   is -e $packlist, 1, "$packlist should be written";
 }
 
 {
   eval {$mb->dispatch('install', installdirs => 'core', destdir => $destdir)};
   is $@, '';
-  my $libdir = strip_volume( $Config{installprivlib} );
-  my $install_to = File::Spec->catfile($destdir, $libdir, $dist->name ) . '.pm';
+  my @libdir = strip_volume( $Config{installprivlib} );
+  my $install_to = File::Spec->catfile($destdir, @libdir, $dist->name ) . '.pm';
   file_exists($install_to);
 }
 
@@ -90,7 +91,8 @@ $mb->add_to_cleanup($destdir);
   my $libdir = File::Spec->catdir(File::Spec->rootdir, 'foo', 'bar');
   eval {$mb->dispatch('install', install_path => {lib => $libdir}, destdir => $destdir)};
   is $@, '';
-  my $install_to = File::Spec->catfile($destdir, $libdir, $dist->name ) . '.pm';
+  my @dirs = strip_volume($libdir);
+  my $install_to = File::Spec->catfile($destdir, @dirs, $dist->name ) . '.pm';
   file_exists($install_to);
 }
 
@@ -98,7 +100,8 @@ $mb->add_to_cleanup($destdir);
   my $libdir = File::Spec->catdir(File::Spec->rootdir, 'foo', 'base');
   eval {$mb->dispatch('install', install_base => $libdir, destdir => $destdir)};
   is $@, '';
-  my $install_to = File::Spec->catfile($destdir, $libdir, 'lib', 'perl5', $dist->name ) . '.pm';
+  my @dirs = strip_volume($libdir);
+  my $install_to = File::Spec->catfile($destdir, @dirs, 'lib', 'perl5', $dist->name ) . '.pm';
   file_exists($install_to);
 }
 
@@ -111,8 +114,8 @@ $mb->add_to_cleanup($destdir);
   eval {$mb->dispatch('install', destdir => $destdir)};
   is $@, '';
   
-  my $libdir = strip_volume( $mb->install_destination('lib') );
-  local @INC = (@INC, File::Spec->catdir($destdir, $libdir));
+  my @libdir = strip_volume( $mb->install_destination('lib') );
+  local @INC = (@INC, File::Spec->catdir($destdir, @libdir));
   eval "require @{[$dist->name]}::ConfigData";
 
   is $mb->feature('auto_foo'), 1;
@@ -152,13 +155,15 @@ is $@, '';
   eval {$mb->run_perl_script('Build.PL', [], ['--install_path', "lib=$libdir"])};
   is $@, '';
   
-  eval {$mb->run_perl_script('Build', [], ['install', '--destdir', $destdir])};
+  my $cmd = 'Build';
+     $cmd .= ".COM" if $^O eq 'VMS';
+  eval {$mb->run_perl_script($cmd, [], ['install', '--destdir', $destdir])};
   is $@, '';
   my $install_to = File::Spec->catfile($destdir, $libdir, $dist->name ) . '.pm';
   file_exists($install_to);
 
   my $basedir = File::Spec->catdir('', 'bar');
-  eval {$mb->run_perl_script('Build', [], ['install', '--destdir', $destdir,
+  eval {$mb->run_perl_script($cmd, [], ['install', '--destdir', $destdir,
 					      '--install_base', $basedir])};
   is $@, '';
   
@@ -200,6 +205,15 @@ Simple Man <simple@example.com>
   my $pods = $mb->_find_file_by_type('pod', 'lib');
   is keys %$pods, 1;
   my $expect = $mb->localize_file_path('lib/Simple/Docs.pod');
+
+  # TODO:
+  # True for traditional VMS, but will need to be changed when ODS-5 support
+  # for case preserved filenames is active.
+  # The issue is that the keys to the $pods hash are currently being set to
+  # lowercase on VMS so can not be found in exact case.
+
+  $expect = lc($expect) if $^O eq 'VMS';
+
   is $pods->{$expect}, $expect;
   
   my $pms = $mb->_find_file_by_type('awefawef', 'lib');
@@ -221,7 +235,8 @@ Simple Man <simple@example.com>
 sub strip_volume {
   my $dir = shift;
   (undef, $dir) = File::Spec->splitpath( $dir, 1 );
-  return $dir;
+  my @dirs = File::Spec->splitdir($dir);
+  return @dirs;
 }
 
 sub file_exists {
