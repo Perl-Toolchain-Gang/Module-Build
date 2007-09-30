@@ -1345,7 +1345,7 @@ sub print_build_script {
   my $case_tolerant = 0+(File::Spec->can('case_tolerant')
 			 && File::Spec->case_tolerant);
   $q{base_dir} = uc $q{base_dir} if $case_tolerant;
-  $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $^O eq 'MSWin32';
+  $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $self->is_windowsish;
 
   $q{magic_numfile} = $self->config_file('magicnum');
 
