@@ -5,6 +5,9 @@ Revision history for Perl extension Module::Build.
    illegal characters in VMS file specs. [John E. Malmberg and Craig
    A. Berry]
 
+ - Fixed the _detildefy() method on VMS. [John E. Malmberg and Craig
+   A. Berry]
+
  - We now use a much more reliable method when Data::Dumper-ing saved
    state data to the _build/ directory. [Yves]
 
