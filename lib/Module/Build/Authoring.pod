@@ -241,8 +241,8 @@ library (thus the C<h> part) into perl extensions (thus the C<xs>
 part).
 
 These days, C<h2xs> has largely been superseded by modules like
-C<ExtUtils::ModuleMaker>, C<Module::Starter>, and C<Module::Maker>.
-They have varying degrees of support for C<Module::Build>.
+C<ExtUtils::ModuleMaker>, and C<Module::Starter>.  They have varying
+degrees of support for C<Module::Build>.
 
 
 =head1 AUTOMATION
