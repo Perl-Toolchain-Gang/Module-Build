@@ -213,6 +213,11 @@ interpreter that are supported by your module.  The same version
 dependency-checking semantics are available, except that we also
 understand perl's new double-dotted version numbers.
 
+=head2 XS Extensions
+
+Modules which need to compile XS code should list C<ExtUtils::CBuilder>
+as a C<build_requires> element.
+
 
 =head1 SAVING CONFIGURATION INFORMATION
 
