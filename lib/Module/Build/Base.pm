@@ -3276,22 +3276,21 @@ sub script_files {
 BEGIN { *scripts = \&script_files; }
 
 {
-  my %licenses =
-    (
-     perl => 'http://dev.perl.org/licenses/',
-     apache => 'http://apache.org/licenses/LICENSE-2.0',
-     artistic => 'http://opensource.org/licenses/artistic-license.php',
-     artistic_2 => 'http://opensource.org/licenses/artistic-license-2.0.php',
-     lgpl => 'http://www.opensource.org/licenses/lgpl-license.php',
-     bsd => 'http://www.opensource.org/licenses/bsd-license.php',
-     gpl => 'http://www.opensource.org/licenses/gpl-license.php',
-     mit => 'http://opensource.org/licenses/mit-license.php',
-     mozilla => 'http://opensource.org/licenses/mozilla1.1.php',
-     open_source => undef,
-     unrestricted => undef,
-     restrictive => undef,
-     unknown => undef,
-    );
+  my %licenses = (
+    perl         => 'http://dev.perl.org/licenses/',
+    apache       => 'http://apache.org/licenses/LICENSE-2.0',
+    artistic     => 'http://opensource.org/licenses/artistic-license.php',
+    artistic_2   => 'http://opensource.org/licenses/artistic-license-2.0.php',
+    lgpl         => 'http://opensource.org/licenses/lgpl-license.php',
+    bsd          => 'http://opensource.org/licenses/bsd-license.php',
+    gpl          => 'http://opensource.org/licenses/gpl-license.php',
+    mit          => 'http://opensource.org/licenses/mit-license.php',
+    mozilla      => 'http://opensource.org/licenses/mozilla1.1.php',
+    open_source  => undef,
+    unrestricted => undef,
+    restrictive  => undef,
+    unknown      => undef,
+  );
   sub valid_licenses {
     return \%licenses;
   }

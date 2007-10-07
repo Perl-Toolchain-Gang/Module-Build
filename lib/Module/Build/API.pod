@@ -436,6 +436,11 @@ The distribution is licensed under the Apache Software License
 The distribution is licensed under the Artistic License, as specified
 by the F<Artistic> file in the standard Perl distribution.
 
+=item artistic_2
+
+The distribution is licensed under the Artistic 2.0 License
+(L<http://opensource.org/licenses/artistic-license-2.0.php>.)
+
 =item bsd
 
 The distribution is licensed under the BSD License
