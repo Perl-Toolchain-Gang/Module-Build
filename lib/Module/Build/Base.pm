@@ -3279,10 +3279,10 @@ BEGIN { *scripts = \&script_files; }
   my %licenses =
     (
      perl => 'http://dev.perl.org/licenses/',
-     gpl => 'http://www.opensource.org/licenses/gpl-license.php',
      apache => 'http://apache.org/licenses/LICENSE-2.0',
      artistic => 'http://opensource.org/licenses/artistic-license.php',
-     lgpl => 'http://opensource.org/licenses/artistic-license.php',
+     artistic_2 => 'http://opensource.org/licenses/artistic-license-2.0.php',
+     lgpl => 'http://www.opensource.org/licenses/lgpl-license.php',
      bsd => 'http://www.opensource.org/licenses/bsd-license.php',
      gpl => 'http://www.opensource.org/licenses/gpl-license.php',
      mit => 'http://opensource.org/licenses/mit-license.php',

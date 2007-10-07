@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Added 'artistic_2' license, corrected 'lgpl' license url (bug #29783)
+   [David Thomas]
+
  - VMS find_perl_interpreter() is just $^X (bug #29810) [Craig A. Berry]
 
  - Some large VMS fixes, mostly having to do with the non-case-
