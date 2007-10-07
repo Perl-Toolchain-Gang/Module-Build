@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+ - VMS find_perl_interpreter() is just $^X (bug #29810) [Craig A. Berry]
+
  - Some large VMS fixes, mostly having to do with the non-case-
    preserving nature of most VMS filesystems, but also correcting for
    illegal characters in VMS file specs. [John E. Malmberg and Craig
