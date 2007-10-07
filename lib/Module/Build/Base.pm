@@ -383,6 +383,17 @@ sub _perl_is_same {
   return $self->_backticks(@cmd) eq Config->myconfig;
 }
 
+# cache _discover_perl_interpreter() results
+{
+  my $known_perl;
+  sub find_perl_interpreter {
+    my $self = shift;
+
+    return $known_perl if defined($known_perl);
+    return $known_perl = $self->_discover_perl_interpreter;
+  }
+}
+
 # Returns the absolute path of the perl interperter used to invoke
 # this process. The path is derived from $^X or $Config{perlpath}. On
 # some platforms $^X contains the complete absolute path of the
@@ -392,8 +403,8 @@ sub _perl_is_same {
 # executable extension on platforms that use one. It's a fatal error
 # if the interpreter can't be found because it can result in undefined
 # behavior by routines that depend on it (generating errors or
-# invoking the wrong perl.
-sub find_perl_interpreter {
+# invoking the wrong perl.)
+sub _discover_perl_interpreter {
   my $proto = shift;
   my $c     = ref($proto) ? $proto->{config} : 'Module::Build::Config';
 
@@ -430,7 +441,7 @@ sub find_perl_interpreter {
 
   } else {
 
-    # Try 3.B, First look in $Config{perlpath}, then search the users
+    # Try 3.B, First look in $Config{perlpath}, then search the user's
     # PATH. We do not want to do either if we are running from an
     # uninstalled perl in a perl source tree.
 
