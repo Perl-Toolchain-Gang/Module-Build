@@ -29,12 +29,12 @@ sub new {
   die "Too early to specify a build action '$self->{action}'.  Do 'Build $self->{action}' instead.\n"
     if $self->{action} && $self->{action} ne 'Build_PL';
 
-  $self->dist_name;
-  $self->dist_version;
-
   $self->check_manifest;
   $self->check_prereq;
   $self->check_autofeatures;
+
+  $self->dist_name;
+  $self->dist_version;
 
   $self->_set_install_paths;
   $self->_find_nested_builds;

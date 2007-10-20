@@ -1,5 +1,11 @@
 Revision history for Perl extension Module::Build.
 
+ - When checking prerequisites, the required version of perl is now
+   checked before we start finding the $VERSION declaration of the
+   distribution, which results in much more intuitive error messages
+   e.g. if the author is using 5.6-isms in their declaration but the
+   user doesn't have 5.6. [Slaven Rezic]
+
  - Added 'artistic_2' license, corrected 'lgpl' license url (bug #29783)
    [David Thomas]
 
