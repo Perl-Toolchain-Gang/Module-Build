@@ -10,7 +10,7 @@ use File::Path ();
 use File::Basename ();
 use File::Spec 0.82 ();
 use File::Compare ();
-use Data::Dumper ();
+use Module::Build::Dumper ();
 use IO::File ();
 use Text::ParseWords ();
 
@@ -1042,9 +1042,7 @@ sub _write_data {
     return;
   }
 
-  print $fh ("do{ my "
-            . Data::Dumper->new([$data],['x'])->Purity(1)->Dump()
-            . '$x; }');
+  print {$fh} Module::Build::Dumper->_data_dump($data);
 }
 
 sub write_config {
