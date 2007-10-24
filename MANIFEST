@@ -9,6 +9,7 @@ lib/Module/Build/Base.pm
 lib/Module/Build/Compat.pm
 lib/Module/Build/Config.pm
 lib/Module/Build/Cookbook.pm
+lib/Module/Build/Dumper.pm
 lib/Module/Build/ModuleInfo.pm
 lib/Module/Build/Notes.pm
 lib/Module/Build/Platform/aix.pm
