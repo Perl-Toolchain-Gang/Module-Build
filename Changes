@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - All .pm files in the Module-Build distribution (except for
+   M::B::Version.pm, which is kind of tied to version.pm) now have the
+   same $VERSION number explicitly specified.
+
  - When checking prerequisites, the required version of perl is now
    checked before we start finding the $VERSION declaration of the
    distribution, which results in much more intuitive error messages
