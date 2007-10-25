@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+ - Pass quiet() option to ExtUtils::CBuilder object.
+
 0.2808_01 - Wed Oct 24 11:51:25 2007
 
  - All .pm files in the Module-Build distribution (except for

@@ -3911,7 +3911,10 @@ sub _cbuilder {
   return unless $self->_mb_feature('C_support');
 
   require ExtUtils::CBuilder;
-  return $p->{_cbuilder} = ExtUtils::CBuilder->new(config => $self->config);
+  return $p->{_cbuilder} = ExtUtils::CBuilder->new(
+    config => $self->config,
+    ($self->quiet ? (quiet => 1 ) : ()),
+  );
 }
 
 sub have_c_compiler {
