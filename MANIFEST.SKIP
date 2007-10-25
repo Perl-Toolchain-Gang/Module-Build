@@ -19,7 +19,7 @@ CVS
 (^|/)\.
 Makefile$
 /cover_db/
-^bleadcheck\.pl$
+bleadcheck\.pl$
 
 ^TODO$
 ^CPANTEST
@@ -34,6 +34,6 @@ save_err$
 /Script$
 ^META-
 Plugin
-^doc_check.pl$
+doc_check.pl$
 ^[^/]+\.patch$
 ^devtools
