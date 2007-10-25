@@ -3902,13 +3902,14 @@ sub autosplit_file {
   AutoSplit::autosplit($file, $dir);
 }
 
-sub _cbuilder {
+sub cbuilder {
   # Returns a CBuilder object
 
   my $self = shift;
   my $p = $self->{properties};
   return $p->{_cbuilder} if $p->{_cbuilder};
-  return unless $self->_mb_feature('C_support');
+  die "Module::Build is not configured with C_support"
+	  unless $self->_mb_feature('C_support');
 
   require ExtUtils::CBuilder;
   return $p->{_cbuilder} = ExtUtils::CBuilder->new(
@@ -3924,7 +3925,7 @@ sub have_c_compiler {
   return $p->{have_compiler} if defined $p->{have_compiler};
   
   $self->log_verbose("Checking if compiler tools configured... ");
-  my $b = $self->_cbuilder;
+  my $b = eval { $self->cbuilder };
   my $have = $b && $b->have_compiler;
   $self->log_verbose($have ? "ok.\n" : "failed.\n");
   return $p->{have_compiler} = $have;
@@ -3932,8 +3933,7 @@ sub have_c_compiler {
 
 sub compile_c {
   my ($self, $file, %args) = @_;
-  my $b = $self->_cbuilder
-    or die "Module::Build is not configured with C_support";
+  my $b = $self->cbuilder;
 
   my $obj_file = $b->object_file($file);
   $self->add_to_cleanup($obj_file);
@@ -3966,9 +3966,7 @@ sub link_c {
   my $module_name = $self->module_name;
   $module_name  ||= $spec->{module_name};
 
-  my $b = $self->_cbuilder
-    or die "Module::Build is not configured with C_support";
-  $b->link(
+  $self->cbuilder->link(
     module_name => $module_name,
     objects     => [$spec->{obj_file}, @$objects],
     lib_file    => $spec->{lib_file},

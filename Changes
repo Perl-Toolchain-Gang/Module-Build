@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Exposed the internal ExtUtils::CBuilder object as part of our API,
+   via the cbuilder() method. [Zefram]
+
  - Upgraded to version.pm 0.74 (fixes bug #30004.)
 
  - Overwrite core (post-5.9.4) Module::Build installs (bug #20528.)

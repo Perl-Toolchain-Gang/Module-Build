@@ -855,6 +855,15 @@ soon as it begins execution.
 Returns a hash reference indicating the C<build_requires>
 prerequisites that were passed to the C<new()> method.
 
+=item cbuilder()
+
+[version 0.2809]
+
+Returns the internal ExtUtils::CBuilder object that can be used for
+compiling & linking C code.  If no such object is available (e.g. if
+the system has no compiler installed) an exception will be thrown.
+
+
 =item check_installed_status($module, $version)
 
 [version 0.11]
