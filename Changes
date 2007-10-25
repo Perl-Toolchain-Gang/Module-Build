@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+ - Overwrite core (post-5.9.4) Module::Build installs (bug #20528.)
+
  - Pass quiet() option to ExtUtils::CBuilder object.
 
 0.2808_01 - Wed Oct 24 11:51:25 2007

@@ -51,6 +51,9 @@ my $build = ModuleBuildBuilder->new(
   sign          => 1,
   create_readme => 1,
 
+  # overwrite the M::B that shipped in core
+  installdirs   => ($] >= 5.009004 ? 'core' : 'site'),
+
   auto_features => {
     YAML_support => {
       description => "Use YAML.pm to write META.yml files",
