@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+ - Upgraded to version.pm 0.74 (fixes bug #30004.)
+
  - Overwrite core (post-5.9.4) Module::Build installs (bug #20528.)
 
  - Pass quiet() option to ExtUtils::CBuilder object.

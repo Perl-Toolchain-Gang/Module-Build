@@ -46,7 +46,7 @@ my $build = ModuleBuildBuilder->new(
     'ExtUtils::ParseXS'  => 1.02,
     'Pod::Readme'        => 0.04,
     'Module::Signature'  => 0.21,
-    'version'            => 0.661,
+    'version'            => 0.74,
   },
   sign          => 1,
   create_readme => 1,
