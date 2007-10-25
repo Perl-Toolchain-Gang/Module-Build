@@ -36,3 +36,4 @@ save_err$
 Plugin
 ^doc_check.pl$
 ^[^/]+\.patch$
+^devtools
