@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+ - Fixed a File::Spec mal-ism in t/destinations.t [Craig A. Berry]
+
  - Exposed the internal ExtUtils::CBuilder object as part of our API,
    via the cbuilder() method. [Zefram]
 
