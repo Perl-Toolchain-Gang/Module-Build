@@ -7,6 +7,7 @@ $VERSION = eval $VERSION;
 BEGIN { require 5.00503 }
 
 use Carp;
+use Cwd ();
 use File::Copy ();
 use File::Find ();
 use File::Path ();
@@ -319,7 +320,6 @@ sub _find_nested_builds {
 }
 
 sub cwd {
-  require Cwd;
   return Cwd::cwd();
 }
 
@@ -435,7 +435,7 @@ sub _discover_perl_interpreter {
 
     # CBuilder is also in the core, so it should be available here
     require ExtUtils::CBuilder;
-    my $perl_src = ExtUtils::CBuilder->perl_src;
+    my $perl_src = Cwd::realpath( ExtUtils::CBuilder->perl_src );
     if ( defined($perl_src) && length($perl_src) ) {
       my $uninstperl =
         File::Spec->rel2abs(File::Spec->catfile( $perl_src, $perl_basename ));
