@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Fixed our check for Archive::Tar in the t/runthrough.t test, which
+   fixes a common failure on Win32. [Spotted by Chris Williams]
+
  - Fixed a File::Spec mal-ism in t/destinations.t [Craig A. Berry]
 
  - Exposed the internal ExtUtils::CBuilder object as part of our API,

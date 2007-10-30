@@ -1285,7 +1285,7 @@ sub check_installed_version {
   my $status = $self->check_installed_status($modname, $spec);
   
   if ($status->{ok}) {
-    return $status->{have} if $status->{have} and $status->{have} ne '<none>';
+    return $status->{have} if $status->{have} and "$status->{have}" ne '<none>';
     return '0 but true';
   }
   

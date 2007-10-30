@@ -149,7 +149,7 @@ SKIP: {
 
   SKIP: {
     skip( "not sure if we can create a tarball on this platform", 1 )
-      unless $mb->check_installed_status('Archive::Tar', 0) ||
+      unless $mb->check_installed_version('Archive::Tar', 0) ||
 	     $mb->isa('Module::Build::Platform::Unix');
 
     $mb->add_to_cleanup($mb->dist_dir . ".tar.gz");
