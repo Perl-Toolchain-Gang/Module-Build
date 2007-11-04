@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - Removed some assumptions about what makefiles are called (not
+   necessarily "Makefile") and how they take their arguments, to get
+   VMS tests working better. [John E. Malmberg]
+
  - Fixed our check for Archive::Tar in the t/runthrough.t test, which
    fixes a common failure on Win32. [Spotted by Chris Williams]
 

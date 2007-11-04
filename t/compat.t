@@ -14,7 +14,10 @@ delete @ENV{@makefile_keys};
 
 my @makefile_types = qw(small passthrough traditional);
 my $tests_per_type = 14;
-if ( $Config{make} && find_in_path($Config{make}) ) {
+
+#find_in_path does not understand VMS.
+
+if ( $Config{make} && $^O ne 'VMS' ? find_in_path($Config{make}) : 1 ) {
     plan tests => 38 + @makefile_types*$tests_per_type*2;
 } else {
     plan skip_all => "Don't know how to invoke 'make'";
@@ -44,6 +47,15 @@ use Module::Build::Compat;
 use Carp;  $SIG{__WARN__} = \&Carp::cluck;
 
 my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
+
+my $makefile = 'Makefile';
+
+# VMS MMK/MMS by convention use Descrip.MMS
+
+if ($^O eq 'VMS' && $Config::Config{make} =~ /MM[K|S]/i) {
+    $makefile = 'Descrip.MMS';
+}
+
 
 #########################
 
@@ -95,7 +107,8 @@ ok $mb, "Module::Build->new_from_context";
   # in older-generated Makefile.PLs
   my $warning = '';
   local $SIG{__WARN__} = sub { $warning = shift; };
-  my $maketext = eval { Module::Build::Compat->fake_makefile(makefile => 'Makefile') };
+
+  my $maketext = eval { Module::Build::Compat->fake_makefile(makefile => $makefile) };
   is $@, '', "fake_makefile lived";
   like $maketext, qr/^realclean/m, "found 'realclean' in fake_makefile output";
   like $warning, qr/build_class/, "saw warning about 'build_class'";
@@ -171,17 +184,41 @@ ok $mb, "Module::Build->new_from_context";
   like $output, qr/(?:# ok \d+\s+)+/, 'Should be verbose';
 
   # Make sure various Makefile arguments are supported
-  $output = stdout_of( sub { $ran_ok = $mb->do_system(@make, 'test', 'TEST_VERBOSE=0') } );
+  my $make_macro = 'TEST_VERBOSE=0';
+
+  # VMS MMK/MMS macros use different syntax.
+  # and this is not really a MMK/MMS macro, but one expected
+  # to be inherited by the child process running Perl.
+  my $old_test_verbose = $ENV{TEST_VERBOSE};
+  if ($^O eq 'VMS' && $Config::Config{make} =~ /MM[K|S]/i) {
+    $make_macro = '';
+    $ENV{TEST_VERBOSE} = 0;
+  }
+
+  $output = stdout_of( sub {
+    $ran_ok = $mb->do_system(@make, 'test', $make_macro)
+  } );
+
+  # Clean up on VMS
+  if ($^O eq 'VMS' && $Config::Config{make} =~ /MM[K|S]/i) {
+    if (defined $old_test_verbose) {
+      $ENV{TEST_VERBOSE} = $old_test_verbose;
+    } else {
+      delete $ENV{TEST_VERBOSE};
+    }
+  }
+
   ok $ran_ok, "make test without verbose ran ok";
   $output =~ s/^/# /gm;  # Don't confuse our own test output
-  like $output, qr/(?:# .+basic\.+ok\s+(?:[\d.]+\s*m?s\s*)?)# All tests/,
-      'Should be non-verbose';
+  like $output,
+       qr/(?s:# .+basic\.+(?:.*#\s)ok\s+(?:[\d.]+\s*m?s\s*)?)# All tests/,
+       'Should be non-verbose';
 
   $mb->delete_filetree($libdir);
   ok ! -e $libdir, "Sample installation directory should be cleaned up";
 
   stdout_of( sub { $mb->do_system(@make, 'realclean'); } );
-  ok ! -e 'Makefile', "Makefile shouldn't exist";
+  ok ! -e $makefile, "$makefile shouldn't exist";
 
   1 while unlink 'Makefile.PL';
   ok ! -e 'Makefile.PL', "Makefile.PL cleaned up";
@@ -202,7 +239,7 @@ ok $mb, "Module::Build->new_from_context";
   unlike $b2->install_base, qr/^~/, "Tildes should be expanded";
   
   stdout_of( sub { $mb->do_system(@make, 'realclean'); } );
-  ok ! -e 'Makefile', "Makefile shouldn't exist";
+  ok ! -e $makefile, "$makefile shouldn't exist";
 
   1 while unlink 'Makefile.PL';
   ok ! -e 'Makefile.PL', "Makefile.PL cleaned up";
@@ -269,13 +306,13 @@ sub test_makefile_creation {
     $label .= " (postargs: $postargs)";
   }
   ok $result, $label;
-  ok -e 'Makefile', "Makefile exists";
+  ok -e '$makefile', "$makefile exists";
   
   if ($cleanup) {
     $output = stdout_of( sub {
       $build->do_system(@make, 'realclean');
     });
-    ok ! -e 'Makefile', "Makefile cleaned up";
+    ok ! -e '$makefile', "$makefile cleaned up";
   }
   else {
     pass '(skipping cleanup)'; # keep test count constant
@@ -286,10 +323,10 @@ sub test_makefile_prereq_pm {
   my %requires = %{ $_[0] };
   delete $requires{perl}; # until EU::MM supports this
   SKIP: {
-    skip 'Makefile not found', 1 unless -e 'Makefile';
+    skip "$makefile not found", 1 unless -e $makefile;
     my $prereq_pm = find_makefile_prereq_pm();
     is_deeply $prereq_pm, \%requires,
-      "Makefile has correct PREREQ_PM line";
+      "$makefile has correct PREREQ_PM line";
   }
 }
 
@@ -312,8 +349,8 @@ sub test_makefile_pl_requires_perl {
 # Following subroutine adapted from code in CPAN.pm 
 # by Andreas Koenig and A. Speer.
 sub find_makefile_prereq_pm {
-  my $fh = IO::File->new( 'Makefile', 'r' ) 
-    or die "Can't read Makefile: $!";
+  my $fh = IO::File->new( $makefile, 'r' ) 
+    or die "Can't read $makefile: $!";
   my $req = {};
   local($/) = "\n";
   while (<$fh>) {
