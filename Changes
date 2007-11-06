@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - Added a few more VMS-specific entries to the default MANIFEST.SKIP
+   file that (sometimes) gets created during the 'manifest'
+   action. [John E. Malmberg]
+
  - Fixed a catdir() that should have been a catfile() when creating a
    ppmdist. [John E. Malmberg]
 

@@ -3179,10 +3179,18 @@ sub _write_default_maniskip {
 \bblibdirs$
 ^MANIFEST\.SKIP$
 
+# Avoid VMS specific Makmaker generated files
+\bDescrip.MMS$
+\bDESCRIP.MMS$
+\bdescrip.mms$
+
 # Avoid Module::Build generated and utility files.
 \bBuild$
 \bBuild.bat$
 \b_build
+\bBuild.COM$
+\bBUILD.COM$
+\bbuild.com$
 
 # Avoid Devel::Cover generated files
 \bcover_db
