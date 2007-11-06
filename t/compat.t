@@ -306,7 +306,7 @@ sub test_makefile_creation {
     $label .= " (postargs: $postargs)";
   }
   ok $result, $label;
-  ok -e '$makefile', "$makefile exists";
+  ok -e $makefile, "$makefile exists";
   
   if ($cleanup) {
     $output = stdout_of( sub {
