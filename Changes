@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Fixed a catdir() that should have been a catfile() when creating a
+   ppmdist. [John E. Malmberg]
+
  - Removed some assumptions about what makefiles are called (not
    necessarily "Makefile") and how they take their arguments, to get
    VMS tests working better. [John E. Malmberg]
