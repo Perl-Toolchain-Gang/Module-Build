@@ -240,19 +240,12 @@ sub fake_makefile {
 
   my $Build = 'Build' . $filetype . ' --makefile_env_macros 1';
 
-  # Start with a couple special actions
-  my $unlink_makefile = "unlink -e shift $args{makefile}";
-
-  # VMS MMS/MMK and DCL needs different syntax.
-  $unlink_makefile = "\"1 while unlink \'$args{makefile}\'\""
-    if $class->is_vmsish;
-
   my $maketext = <<"EOF";
 all : force_do_it
 	$perl $Build
 realclean : force_do_it
 	$perl $Build realclean
-	$perl -e $unlink_makefile
+	$perl -e 1 -e while -e unlink -e shift $args{makefile}
 
 force_do_it :
 	@ $noop
