@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Zillions of special-cases have been added in Compat.pm for dealing
+   with the special Makefile system on VMS. [John E. Malmberg]
+
  - Fixed some stuff in how VMS command-args get quoted. [John E. Malmberg]
 
  - VMS now overrides localize_file_path() and localize_dir_path() so

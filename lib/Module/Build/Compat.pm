@@ -171,7 +171,18 @@ sub makefile_to_build_args {
 		       die "Malformed argument '$arg'");
 
     # Do tilde-expansion if it looks like a tilde prefixed path
-    ( $val ) = glob( $val ) if $val =~ /^~/;
+    if ($val =~ /^~/) {
+        if ($^O ne 'VMS') {
+            ( $val ) = glob( $val );
+        } else {
+            # TODO Home grown glob for Perl/VMS can not handle ~ yet.
+            # Can not use is_vmsish because this is for all instances
+            # of perl on VMS, not just when MMS/MMK is being used.
+
+            my $class = 'Module::Build';
+            ( $val ) = $class->_detildefy($val);
+        }
+    }
 
     if (exists $makefile_to_build{$key}) {
       my $trans = $makefile_to_build{$key};
@@ -216,18 +227,32 @@ sub fake_makefile {
   my $class = $args{build_class};
 
   my $perl = $class->find_perl_interpreter;
+
+  # VMS MMS/MMK need to use MCR to run the Perl image.
+  $perl = 'MCR ' . $perl if $class->is_vmsish;
+
   my $noop = ($class->is_windowsish ? 'rem>nul'  :
 	      $class->is_vmsish     ? 'Continue' :
 	      'true');
-  my $Build = 'Build --makefile_env_macros 1';
+
+  # VMS has different file type.
+  my $filetype = $class->is_vmsish ? '.COM' : '';
+
+  my $Build = 'Build' . $filetype . ' --makefile_env_macros 1';
 
   # Start with a couple special actions
+  my $unlink_makefile = "unlink -e shift $args{makefile}";
+
+  # VMS MMS/MMK and DCL needs different syntax.
+  $unlink_makefile = "\"1 while unlink \'$args{makefile}\'\""
+    if $class->is_vmsish;
+
   my $maketext = <<"EOF";
 all : force_do_it
 	$perl $Build
 realclean : force_do_it
 	$perl $Build realclean
-	$perl -e unlink -e shift $args{makefile}
+	$perl -e $unlink_makefile
 
 force_do_it :
 	@ $noop
@@ -241,7 +266,10 @@ $action : force_do_it
 EOF
   }
   
-  $maketext .= "\n.EXPORT : " . join(' ', keys %makefile_to_build) . "\n\n";
+  # MMS/MMK on VMS do not support .EXPORT
+  
+  $maketext .= "\n.EXPORT : " . join(' ', keys %makefile_to_build) . "\n\n"
+     unless $class->is_vmsish;
   
   return $maketext;
 }
@@ -267,7 +295,14 @@ sub fake_prereqs {
 
 sub write_makefile {
   my ($pack, %in) = @_;
-  $in{makefile} ||= 'Makefile';
+
+  unless (exists $in{build_class}) {
+    warn "Unknown 'build_class', defaulting to 'Module::Build'\n";
+    $in{build_class} = 'Module::Build';
+  }
+  my $class = $in{build_class};
+  $in{makefile} ||= $class->is_vmsish ? 'Descrip.MMS' : 'Makefile';
+
   open  MAKE, "> $in{makefile}" or die "Cannot write $in{makefile}: $!";
   print MAKE $pack->fake_prereqs;
   print MAKE $pack->fake_makefile(%in);
