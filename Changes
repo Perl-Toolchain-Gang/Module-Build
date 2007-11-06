@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+ - Fixed some stuff in how VMS command-args get quoted. [John E. Malmberg]
+
  - VMS now overrides localize_file_path() and localize_dir_path() so
    we don't need to do special stuff in the general case. [John
    E. Malmberg]

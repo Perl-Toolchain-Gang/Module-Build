@@ -136,7 +136,9 @@ sub _quote_args {
                    ? 1 
                    : 0;
 
-  map { $_ = q(").$_.q(") if !/^\"/ && length($_) > 0 }
+  # Do not quote qualifiers that begin with '/' or already
+  # quoted arguments.
+  map { $_ = q(").$_.q(") if !/^[\"|\/]/ && length($_) > 0 }
      ($got_arrayref ? @{$args[0]} 
                     : @args
      );
