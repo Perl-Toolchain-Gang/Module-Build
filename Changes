@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - VMS now overrides localize_file_path() and localize_dir_path() so
+   we don't need to do special stuff in the general case. [John
+   E. Malmberg]
+
  - Added a few more VMS-specific entries to the default MANIFEST.SKIP
    file that (sometimes) gets created during the 'manifest'
    action. [John E. Malmberg]

@@ -357,6 +357,29 @@ lossy.
 
 sub find_perl_interpreter { return $^X; }
 
+=item localize_file_path
+
+Convert the file path to the local syntax
+
+=cut
+
+sub localize_file_path {
+  my ($self, $path) = @_;
+  $path =~ s/\.\z//;
+  return VMS::Filespec::vmsify($path);
+}
+
+=item localize_dir_path
+
+Convert the directory path to the local syntax
+
+=cut
+
+sub localize_dir_path {
+  my ($self, $path) = @_;
+  return VMS::Filespec::vmspath($path);
+}
+
 =back
 
 =head1 AUTHOR
