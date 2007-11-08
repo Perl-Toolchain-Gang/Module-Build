@@ -17,7 +17,7 @@ my %makefile_to_build =
    VERBINST     => 'verbose',
    INC     => sub { map {('--extra_compiler_flags', $_)} Module::Build->split_like_shell(shift) },
    POLLUTE => sub { ('--extra_compiler_flags', '-DPERL_POLLUTE') },
-   INSTALLDIRS => sub {local $_ = shift; 'installdirs=' . (/^perl$/ ? 'core' : $_) },
+   INSTALLDIRS => sub {local $_ = shift; ('--installdirs', (/^perl$/ ? 'core' : $_)) },
    LIB => sub { ('--install_path', 'lib='.shift()) },
 
    # Some names they have in common

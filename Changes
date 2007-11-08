@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Fixed processing of INSTALLDIRS=whatever for compatibility
+   Makefiles. [Spotted by John Peacock]
+
  - Zillions of special-cases have been added in Compat.pm for dealing
    with the special Makefile system on VMS. [John E. Malmberg]
 
