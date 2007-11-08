@@ -18,7 +18,7 @@ my $tests_per_type = 14;
 #find_in_path does not understand VMS.
 
 if ( $Config{make} && $^O ne 'VMS' ? find_in_path($Config{make}) : 1 ) {
-    plan tests => 38 + @makefile_types*$tests_per_type*2;
+    plan tests => 37 + @makefile_types*$tests_per_type*2;
 } else {
     plan skip_all => "Don't know how to invoke 'make'";
 }
@@ -213,9 +213,6 @@ ok $mb, "Module::Build->new_from_context";
   like $output,
        qr/(?:# .+basic\.+ok\s+(?:[\d.]+\s*m?s\s*)?)# All tests/,
        'Should be non-verbose';
-
-  $mb->delete_filetree($libdir);
-  ok ! -e $libdir, "Sample installation directory should be cleaned up";
 
   stdout_of( sub { $mb->do_system(@make, 'realclean'); } );
   ok ! -e $makefile, "$makefile shouldn't exist";
