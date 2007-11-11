@@ -101,7 +101,7 @@ ok ! -e 'blib';
 
 
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+chdir( $cwd ) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
 
 
@@ -127,7 +127,7 @@ $mb->dispatch('realclean');
 is $@, '';
 
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+chdir( $cwd ) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
 
 
@@ -222,7 +222,7 @@ $mb->dispatch('realclean');
 is $@, '';
 
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
+chdir( $cwd ) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
 
 use File::Path;
