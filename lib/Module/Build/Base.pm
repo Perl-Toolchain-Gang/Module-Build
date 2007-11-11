@@ -1,4 +1,6 @@
 package Module::Build::Base;
+# -*- mode: cperl; tab-width: 8; indent-tabs-mode: nil; basic-offset: 2 -*-
+# vim:ts=8:sw=2:et:sta:sts=2
 
 use strict;
 use vars qw($VERSION);
@@ -4290,5 +4292,3 @@ modify it under the same terms as Perl itself.
 perl(1), Module::Build(3)
 
 =cut
-
-# vim:ts=8:sw=2:et:sta:sts=2
