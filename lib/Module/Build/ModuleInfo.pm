@@ -1,4 +1,6 @@
 package Module::Build::ModuleInfo;
+# -*- mode: cperl; tab-width: 8; indent-tabs-mode: nil; basic-offset: 2 -*-
+# vim:ts=8:sw=2:et:sta:sts=2
 
 # This module provides routines to gather information about
 # perl modules (assuming this may be expanded in the distant
@@ -14,16 +16,16 @@ use IO::File;
 use Module::Build::Version;
 
 
-my $PKG_REGEXP  = qr/   # match a package declaration
+my $PKG_REGEXP  = qr{   # match a package declaration
   ^[\s\{;]*             # intro chars on a line
   package               # the word 'package'
   \s+                   # whitespace
   ([\w:]+)              # a package name
   \s*                   # optional whitespace
   ;                     # semicolon line terminator
-/x;
+}x;
 
-my $VARNAME_REGEXP = qr/ # match fully-qualified VERSION name
+my $VARNAME_REGEXP = qr{ # match fully-qualified VERSION name
   ([\$*])         # sigil - $ or *
   (
     (             # optional leading package name
@@ -32,9 +34,9 @@ my $VARNAME_REGEXP = qr/ # match fully-qualified VERSION name
     )?
     VERSION
   )\b
-/x;
+}x;
 
-my $VERS_REGEXP = qr/ # match a VERSION definition
+my $VERS_REGEXP = qr{ # match a VERSION definition
   (?:
     \(\s*$VARNAME_REGEXP\s*\) # with parens
   |
@@ -42,43 +44,45 @@ my $VERS_REGEXP = qr/ # match a VERSION definition
   )
   \s*
   =[^=~]  # = but not ==, nor =~
-/x;
+}x;
 
 
 sub new_from_file {
-  my $package  = shift;
+  my $class    = shift;
   my $filename = File::Spec->rel2abs( shift );
+
   return undef unless defined( $filename ) && -f $filename;
-  return $package->_init( undef, $filename, @_ );
+  return $class->_init(undef, $filename, @_);
 }
 
 sub new_from_module {
-  my $package = shift;
+  my $class   = shift;
   my $module  = shift;
   my %props   = @_;
+
   $props{inc} ||= \@INC;
-  my $filename = $package->find_module_by_name( $module, $props{inc} );
+  my $filename = $class->find_module_by_name( $module, $props{inc} );
   return undef unless defined( $filename ) && -f $filename;
-  return $package->_init( $module, $filename, %props );
+  return $class->_init($module, $filename, %props);
 }
 
 sub _init {
-  my $package  = shift;
+  my $class    = shift;
   my $module   = shift;
   my $filename = shift;
-
   my %props = @_;
+
   my( %valid_props, @valid_props );
   @valid_props = qw( collect_pod inc );
   @valid_props{@valid_props} = delete( @props{@valid_props} );
   warn "Unknown properties: @{[keys %props]}\n" if scalar( %props );
 
   my %data = (
-    module   => $module,
-    filename => $filename,
-    version  => undef,
-    packages => [],
-    versions => {},
+    module       => $module,
+    filename     => $filename,
+    version      => undef,
+    packages     => [],
+    versions     => {},
     pod          => {},
     pod_headings => [],
     collect_pod  => 0,
@@ -86,20 +90,22 @@ sub _init {
     %valid_props,
   );
 
-  my $self = bless( \%data, $package );
+  my $self = bless(\%data, $class);
 
   $self->_parse_file();
 
-  unless ( $self->{module} && length( $self->{module} ) ) {
-    my( $v, $d, $f ) = File::Spec->splitpath( $self->{filename} );
-    if ( $f =~ /\.pm$/ ) {
+  unless($self->{module} and length($self->{module})) {
+    my ($v, $d, $f) = File::Spec->splitpath($self->{filename});
+    if($f =~ /\.pm$/) {
       $f =~ s/\..+$//;
       my @candidates = grep /$f$/, @{$self->{packages}};
-      $self->{module} = shift( @candidates ); # punt
-    } else {
-      if ( grep /main/, @{$self->{packages}} ) {
-	$self->{module} = 'main';
-      } else {
+      $self->{module} = shift(@candidates); # punt
+    }
+    else {
+      if(grep /main/, @{$self->{packages}}) {
+        $self->{module} = 'main';
+      }
+      else {
         $self->{module} = $self->{packages}[0] || '';
       }
     }
@@ -113,7 +119,7 @@ sub _init {
 
 # class method
 sub _do_find_module {
-  my $package = shift;
+  my $class   = shift;
   my $module  = shift || die 'find_module_by_name() requires a package name';
   my $dirs    = shift || \@INC;
 
