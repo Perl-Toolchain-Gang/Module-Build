@@ -34,6 +34,24 @@ BEGIN {
   );
 }
 
+# not methods
+*ScopeGuard::DESTROY = sub {
+  my $self = shift;
+  return unless($self and @$self);
+  $self->[0]->()
+};
+sub scoped { my ($sub) = @_; bless([$sub], 'ScopeGuard'); }
+
+sub undent {
+  my ($string) = @_;
+
+  my ($space) = $string =~ m/^(\s+)/;
+  $string =~ s/^$space//gm;
+
+  return($string);
+}
+########################################################################
+
 sub new {
   my $package = shift;
   my %options = @_;
@@ -60,16 +78,6 @@ sub new {
   $self->_gen_default_filedata();
 
   return $self;
-}
-
-# not a method
-sub undent {
-  my ($string) = @_;
-
-  my ($space) = $string =~ m/^(\s+)/;
-  $string =~ s/^$space//gm;
-
-  return($string);
 }
 
 sub _gen_default_filedata {
