@@ -8,6 +8,8 @@ $VERSION = '0.01';
 $VERBOSE = 0;
 
 
+use Carp;
+
 use Cwd ();
 use File::Basename ();
 use File::Find ();
@@ -358,6 +360,7 @@ sub clean {
 
 sub remove {
   my $self = shift;
+  croak("invalid usage -- remove()") if(@_);
   File::Path::rmtree( File::Spec->canonpath($self->dirname) );
 }
 
