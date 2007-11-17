@@ -289,6 +289,8 @@ EOM
   $self->{pod_headings} = \@pod;
 }
 
+{
+my $pn = 0;
 sub _evaluate_version_line {
   my $self = shift;
   my( $sigil, $var, $line ) = @_;
@@ -298,8 +300,9 @@ sub _evaluate_version_line {
   # We compile into $vsub because 'use version' would cause
   # compiletime/runtime issues with local()
   my $vsub;
+  $pn++; # everybody gets their own package
   my $eval = qq{BEGIN { q#  Hide from _packages_inside()
-    #; package Module::Build::ModuleInfo::_version;
+    #; package Module::Build::ModuleInfo::_version::p$pn;
     no strict;
 
     local $sigil$var;
@@ -323,6 +326,7 @@ sub _evaluate_version_line {
   $result = Module::Build::Version->new($result);
 
   return $result;
+}
 }
 
 
