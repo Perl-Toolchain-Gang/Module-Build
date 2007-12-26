@@ -834,6 +834,7 @@ __PACKAGE__->add_property($_) for qw(
   recursive_test_files
   script_files
   scripts
+  sign
   test_files
   verbose
   xs_files

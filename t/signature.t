@@ -6,7 +6,7 @@ use MBTest;
 
 if ( $ENV{TEST_SIGNATURE} ) {
   if ( have_module( 'Module::Signature' ) ) {
-    plan tests => 10;
+    plan tests => 13;
   } else {
     plan skip_all => '$ENV{TEST_SIGNATURE} is set, but Module::Signature not found';
   }
@@ -79,6 +79,24 @@ is $@, '';
 eval { $mb->dispatch('realclean') };
 is $@, '';
 
+chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+
+{
+    local @ARGV = '--sign=1';
+    $dist->change_build_pl({
+        module_name => $dist->name,
+        license     => 'perl',
+    });
+    $dist->regen;
+    
+    my $mb = Module::Build->new_from_context;
+    is $mb->{properties}{sign}, 1;
+    
+    eval {$mb->dispatch('distdir')};
+    is $@, '';
+    chdir( $mb->dist_dir ) or die "Can't chdir to '@{[$mb->dist_dir]}': $!";
+    ok -e 'SIGNATURE', 'Build.PL --sign=1 signs';
+}
 
 # cleanup
 chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
