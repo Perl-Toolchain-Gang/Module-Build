@@ -42,6 +42,8 @@ sub _version {
   my ($file) = @_;
   my $fh = IO::File->new($file) or die "Can't read $file: $!";
   while (<$fh>) {
+    # This regex has been tested to work against all versions of M::B
+    # up through at least 0.2808.  No guarantees for other modules.
     return (eval $2) if /^\s*\$VERSION\s*=\s*(['"]?)([\d._]+)\1/;
   }
   return;
