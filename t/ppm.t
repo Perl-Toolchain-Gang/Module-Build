@@ -3,12 +3,12 @@
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest;
+
 use Module::Build;
 use Module::Build::ConfigData;
 
 my $manpage_support = Module::Build::ConfigData->feature('manpage_support');
 my $HTML_support = Module::Build::ConfigData->feature('HTML_support');
-
 
 {
   my ($have_c_compiler, $C_support_feature) = check_compiler();
@@ -21,9 +21,10 @@ my $HTML_support = Module::Build::ConfigData->feature('HTML_support');
   } elsif ( ! eval {IO::Zlib->VERSION(1.01)} ) {
     plan skip_all => "IO::Zlib 1.01 required to read compressed archives.";
   } else {
-    plan tests => 12;
+    plan tests => 13;
   }
 }
+ensure_blib('Module::Build');
 
 
 use Cwd ();

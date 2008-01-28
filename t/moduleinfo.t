@@ -4,7 +4,10 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 86;
+use MBTest tests => 87;
+
+use_ok 'Module::Build::ModuleInfo';
+ensure_blib('Module::Build::ModuleInfo');
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -17,9 +20,6 @@ $dist->regen;
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 #########################
-
-
-use_ok( 'Module::Build::ModuleInfo' );
 
 # class method C<find_module_by_name>
 my $module = Module::Build::ModuleInfo->find_module_by_name(

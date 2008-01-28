@@ -2,13 +2,15 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 18;
+use MBTest tests => 20;
+
+use_ok 'Module::Build';
+ensure_blib('Module::Build');
 
 use Cwd ();
 my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
-use Module::Build;
 use Module::Build::ConfigData;
 use DistGen;
 

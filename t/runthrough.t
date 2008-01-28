@@ -3,9 +3,11 @@
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest tests => 32;
-use Module::Build;
-use Module::Build::ConfigData;
 
+use_ok 'Module::Build';
+ensure_blib('Module::Build');
+
+use Module::Build::ConfigData;
 my $have_yaml = Module::Build::ConfigData->feature('YAML_support');
 
 #########################
@@ -57,15 +59,6 @@ $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
-#########################
-
-use Module::Build;
-ok(1);
-
-SKIP: {
-  skip "no blib in core", 1 if $ENV{PERL_CORE};
-  like $INC{'Module/Build.pm'}, qr/\bblib\b/, "Make sure version from blib/ is loaded";
-}
 
 #########################
 

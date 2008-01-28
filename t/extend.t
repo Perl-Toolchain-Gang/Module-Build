@@ -2,7 +2,10 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 65;
+use MBTest tests => 66;
+
+use_ok 'Module::Build';
+ensure_blib('Module::Build');
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -15,9 +18,6 @@ $dist->regen;
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 #########################
-
-use Module::Build;
-ok 1;
 
 # Here we make sure actions are only called once per dispatch()
 $::x = 0;

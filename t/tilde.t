@@ -4,7 +4,10 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 15;
+use MBTest tests => 17;
+
+use_ok 'Module::Build';
+ensure_blib('Module::Build');
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -16,8 +19,6 @@ $dist->regen;
 
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
-
-use Module::Build;
 
 sub run_sample {
     my @args = @_;

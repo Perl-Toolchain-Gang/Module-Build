@@ -18,11 +18,13 @@ my $tests_per_type = 14;
 #find_in_path does not understand VMS.
 
 if ( $Config{make} && $^O ne 'VMS' ? find_in_path($Config{make}) : 1 ) {
-    plan tests => 37 + @makefile_types*$tests_per_type*2;
+    plan tests => 38 + @makefile_types*$tests_per_type*2;
 } else {
     plan skip_all => "Don't know how to invoke 'make'";
 }
-ok 1, "Loaded";
+
+use_ok 'Module::Build';
+ensure_blib('Module::Build');
 
 
 #########################

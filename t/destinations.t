@@ -2,7 +2,10 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 113;
+use MBTest tests => 115;
+
+use_ok 'Module::Build';
+ensure_blib('Module::Build');
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -23,7 +26,6 @@ use File::Spec::Functions qw( catdir splitdir splitpath );
 # We need to create a well defined environment to test install paths.
 # We do this by setting up appropriate Config entries.
 
-use Module::Build;
 my @installstyle = qw(lib perl5);
 my $mb = Module::Build->new_from_context(
   installdirs => 'site',

@@ -53,12 +53,12 @@ my @win_splits =
    { 'a " b " c'            => [ 'a', ' b ', 'c' ] },
 );
 
-plan tests => 10 + 2*@unix_splits + 2*@win_splits;
+plan tests => 11 + 2*@unix_splits + 2*@win_splits;
+
+use_ok 'Module::Build';
+ensure_blib('Module::Build');
 
 #########################
-
-use Module::Build;
-ok(1);
 
 # Should always return an array unscathed
 foreach my $platform ('', '::Platform::Unix', '::Platform::Windows') {

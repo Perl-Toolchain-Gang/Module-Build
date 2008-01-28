@@ -17,9 +17,10 @@ use Module::Build::ConfigData;
   } elsif ( ! eval {require Archive::Zip} ) {
     plan skip_all => "Archive::Zip required.";
   } else {
-    plan tests => 3;
+    plan tests => 4;
   }
 }
+ensure_blib('Module::Build');
 
 
 use Cwd ();

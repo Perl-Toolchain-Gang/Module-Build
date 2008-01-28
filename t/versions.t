@@ -2,7 +2,10 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 2;
+use MBTest tests => 4;
+
+use_ok 'Module::Build';
+ensure_blib('Module::Build');
 
 use Cwd ();
 my $cwd = Cwd::cwd;
@@ -13,8 +16,6 @@ my $dist = DistGen->new( dir => $tmp );
 $dist->regen;
 
 #########################
-
-use Module::Build;
 
 my @mod = split( /::/, $dist->name );
 my $file = File::Spec->catfile( $dist->dirname, 'lib', @mod ) . '.pm';

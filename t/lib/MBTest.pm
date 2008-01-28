@@ -54,6 +54,7 @@ my @extra_exports = qw(
   find_in_path
   check_compiler
   have_module
+  ensure_blib
 );
 push @EXPORT, @extra_exports;
 __PACKAGE__->export(scalar caller, @extra_exports);
@@ -161,6 +162,17 @@ sub check_compiler {
 sub have_module {
   my $module = shift;
   return eval "use $module; 1";
+}
+
+sub ensure_blib {
+  # Make sure the given module was loaded from blib/, not the larger system
+  my $mod = shift;
+  (my $path = $mod) =~ s{::}{/}g;
+  
+ SKIP: {
+    skip "no blib in core", 1 if $ENV{PERL_CORE};
+    like $INC{"$path.pm"}, qr/\bblib\b/, "Make sure $mod was loaded from blib/";
+  }
 }
 
 1;

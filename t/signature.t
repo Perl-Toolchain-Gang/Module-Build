@@ -6,13 +6,16 @@ use MBTest;
 
 if ( $ENV{TEST_SIGNATURE} ) {
   if ( have_module( 'Module::Signature' ) ) {
-    plan tests => 13;
+    plan tests => 15;
   } else {
     plan skip_all => '$ENV{TEST_SIGNATURE} is set, but Module::Signature not found';
   }
 } else {
   plan skip_all => '$ENV{TEST_SIGNATURE} is not set';
 }
+
+use_ok 'Module::Build';
+ensure_blib('Module::Build');
 
 #########################
 
@@ -34,8 +37,6 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 #########################
 
-use Module::Build;
-
 my $mb = Module::Build->new_from_context;
 
 
@@ -56,8 +57,10 @@ my $mb = Module::Build->new_from_context;
   my @run_order;
   {
     local $^W; # Skip 'redefined' warnings
-    local *Module::Signature::sign              = sub { push @run_order, 'sign' };
-    local *Module::Build::Base::ACTION_distmeta = sub { push @run_order, 'distmeta' };
+    local *Module::Signature::sign;
+    *Module::Signature::sign = sub { push @run_order, 'sign' };
+    local *Module::Build::Base::ACTION_distmeta;
+    *Module::Build::Base::ACTION_distmeta = sub { push @run_order, 'distmeta' };
     eval { $mb->dispatch('distdir') };
   }
   is $@, '';

@@ -2,8 +2,12 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 34;
+use MBTest tests => 36;
 
+use_ok 'Module::Build';
+ensure_blib('Module::Build');
+
+use Config;
 use Cwd ();
 my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
@@ -15,9 +19,6 @@ $dist->regen;
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 #########################
-
-use Module::Build;
-use Config;
 
 
 $dist->add_file( 'script', <<'---' );

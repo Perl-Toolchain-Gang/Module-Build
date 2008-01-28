@@ -7,10 +7,12 @@ use Module::Build;
 use Module::Build::ConfigData;
 
 if ( Module::Build::ConfigData->feature('manpage_support') ) {
-  plan tests => 21;
+  plan tests => 22;
 } else {
   plan skip_all => 'manpage_support feature is not enabled';
 }
+ensure_blib('Module::Build');
+
 
 #########################
 

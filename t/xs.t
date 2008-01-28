@@ -13,9 +13,12 @@ use Module::Build;
   } elsif ( !$have_c_compiler ) {
     plan skip_all => 'C_support enabled, but no compiler found';
   } else {
-    plan tests => 22;
+    plan tests => 23;
   }
 }
+
+ensure_blib('Module::Build');
+
 
 #########################
 

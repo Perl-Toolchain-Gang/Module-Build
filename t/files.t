@@ -2,8 +2,12 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 6;
+use MBTest tests => 8;
 
+use_ok 'Module::Build';
+ensure_blib('Module::Build');
+
+use IO::File;
 use Cwd ();
 my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
@@ -15,10 +19,7 @@ $dist->regen;
 chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 
-use IO::File;
 
-
-use Module::Build;
 my $mb = Module::Build->new_from_context;
 my @files;
 
