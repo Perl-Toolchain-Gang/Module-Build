@@ -13,12 +13,12 @@ local  @ENV{@makefile_keys};
 delete @ENV{@makefile_keys};
 
 my @makefile_types = qw(small passthrough traditional);
-my $tests_per_type = 14;
+my $tests_per_type = 15;
 
 #find_in_path does not understand VMS.
 
 if ( $Config{make} && $^O ne 'VMS' ? find_in_path($Config{make}) : 1 ) {
-    plan tests => 38 + @makefile_types*$tests_per_type*2;
+    plan tests => 32 + @makefile_types*$tests_per_type*2;
 } else {
     plan skip_all => "Don't know how to invoke 'make'";
 }
@@ -29,8 +29,6 @@ ensure_blib('Module::Build');
 
 #########################
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 # Create test distribution; set requires and build_requires
@@ -157,7 +155,7 @@ ok $mb, "Module::Build->new_from_context";
   # Make sure various Makefile.PL arguments are supported
   Module::Build::Compat->create_makefile_pl('passthrough', $mb);
 
-  my $libdir = File::Spec->catdir( $cwd, 't', 'libdir' );
+  my $libdir = File::Spec->catdir( $tmp, 'libdir' );
   my $result;
   stdout_of( sub {
     $result = $mb->run_perl_script('Makefile.PL', [],
@@ -243,6 +241,9 @@ ok $mb, "Module::Build->new_from_context";
   1 while unlink 'Makefile.PL';
   ok ! -e 'Makefile.PL', "Makefile.PL cleaned up";
 }
+
+# cleanup
+$dist->remove;
 
 #########################################################
 
@@ -372,6 +373,3 @@ sub find_makefile_prereq_pm {
   }
   return $req;
 }
-
-# cleanup
-$dist->remove;
