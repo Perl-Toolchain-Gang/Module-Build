@@ -374,8 +374,4 @@ sub find_makefile_prereq_pm {
 }
 
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

@@ -7,8 +7,6 @@ use MBTest tests => 20;
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 use Module::Build::ConfigData;
@@ -38,7 +36,6 @@ SKIP: {
 
   ok -e 'META.yml';
 
-  chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
   $dist->remove;
 }
 
@@ -145,8 +142,4 @@ is( $mb->dist_abstract, "A simple module",
 
 ############################################################
 # cleanup
-chdir( $cwd ) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

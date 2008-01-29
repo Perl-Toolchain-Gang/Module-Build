@@ -7,8 +7,6 @@ use MBTest tests => 9;
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
@@ -67,7 +65,6 @@ like($output, qr/\.\.OK/);
 
 is($::x, 3, "called a third time");
 
-chdir( $cwd ) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
 
 # vim:ts=4:sw=4:et:sta

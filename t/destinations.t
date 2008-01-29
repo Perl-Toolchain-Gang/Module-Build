@@ -7,8 +7,6 @@ use MBTest tests => 115;
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
@@ -323,8 +321,4 @@ sub test_install_destinations {
 }
 
 
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

@@ -7,8 +7,6 @@ use MBTest tests => 52;
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
@@ -165,7 +163,6 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
   is $args{foo}, 1;
 
   # revert test distribution to pristine state because we modified a file
-  chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
   $dist->remove;
   $dist = DistGen->new( dir => $tmp );
   $dist->regen;
@@ -208,8 +205,4 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 
 
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

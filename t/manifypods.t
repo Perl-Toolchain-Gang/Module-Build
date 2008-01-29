@@ -139,7 +139,6 @@ $mb->dispatch('realclean');
 
 
 # revert to a pristine state
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
 $dist = DistGen->new( dir => $tmp );
 $dist->regen;
@@ -166,8 +165,4 @@ foreach ('testcover', 'disttest') {
 
 
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

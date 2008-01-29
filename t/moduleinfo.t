@@ -9,8 +9,6 @@ use MBTest tests => 87;
 use_ok 'Module::Build::ModuleInfo';
 ensure_blib('Module::Build::ModuleInfo');
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
@@ -201,7 +199,6 @@ foreach my $module ( @modules ) {
 }
 
 # revert to pristine state
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
 $dist = DistGen->new( dir => $tmp );
 $dist->regen;
@@ -260,7 +257,6 @@ is( $pm_info->version, '1.23_01', 'alpha version reported');
 ok( $pm_info->version > 1.23, 'alpha version greater than non');
 
 # revert to pristine state
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
 $dist = DistGen->new( dir => $tmp );
 $dist->regen;
@@ -443,8 +439,4 @@ $VERSION = version->new('0.61.' . (qw$Revision: 129 $)[1]);
 
 
 # cleanup
-chdir( $cwd ) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

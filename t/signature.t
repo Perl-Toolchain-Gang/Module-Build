@@ -19,8 +19,6 @@ ensure_blib('Module::Build');
 
 #########################
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
@@ -102,8 +100,4 @@ chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
 }
 
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

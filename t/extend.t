@@ -7,8 +7,6 @@ use MBTest tests => 66;
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
@@ -276,8 +274,4 @@ print "Hello, World!\n";
 }
 
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

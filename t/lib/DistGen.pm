@@ -20,11 +20,11 @@ use Tie::CPHash;
 use Data::Dumper;
 
 BEGIN {
-    if( $^O eq 'VMS' ) {
-        # For things like vmsify()
-        require VMS::Filespec;
-        VMS::Filespec->import;
-    }
+  if( $^O eq 'VMS' ) {
+    # For things like vmsify()
+    require VMS::Filespec;
+    VMS::Filespec->import;
+  }
 }
 BEGIN {
   use Exporter 'import';
@@ -32,14 +32,6 @@ BEGIN {
     undent
   );
 }
-
-# not methods
-*ScopeGuard::DESTROY = sub {
-  my $self = shift;
-  return unless($self and @$self);
-  $self->[0]->()
-};
-sub scoped { my ($sub) = @_; bless([$sub], 'ScopeGuard'); }
 
 sub undent {
   my ($string) = @_;
@@ -64,6 +56,9 @@ sub new {
     %options,
   );
   my $self = bless( \%data, $package );
+
+  # So we can clean up later even if the caller chdir()s
+  $self->{dir} = File::Spec->rel2abs($self->{dir});
 
   tie %{$self->{filedata}}, 'Tie::CPHash';
 
@@ -368,7 +363,7 @@ sub clean {
 sub remove {
   my $self = shift;
   croak("invalid usage -- remove()") if(@_);
-  File::Path::rmtree( File::Spec->canonpath($self->dirname) );
+  File::Path::rmtree( $self->dirname );
 }
 
 sub revert {

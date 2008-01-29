@@ -23,8 +23,6 @@ use Module::Build::ConfigData;
 ensure_blib('Module::Build');
 
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 
@@ -83,9 +81,4 @@ ok(
   'Distribution contains META.yml'
 );
 
-$dist->clean();
-
-chdir( $cwd );
-use File::Path;
-rmtree( $tmp );
-
+$dist->remove;

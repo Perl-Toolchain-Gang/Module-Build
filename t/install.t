@@ -226,7 +226,6 @@ Simple Man <simple@example.com>
   is keys %$pms, 0;
 
   # revert to pristine state
-  chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
   $dist->remove;
   $dist = DistGen->new( dir => $tmp );
   $dist->regen;
@@ -247,8 +246,4 @@ sub file_exists {
 
 
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

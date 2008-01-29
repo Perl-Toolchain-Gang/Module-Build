@@ -7,8 +7,6 @@ use MBTest tests => 51;
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 use Module::Build::ConfigData;
@@ -583,8 +581,4 @@ is_deeply($mb->find_dist_packages, {});
 
 ############################################################
 # cleanup
-chdir( $cwd ) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

@@ -7,8 +7,6 @@ use MBTest tests => 4;
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
@@ -26,6 +24,3 @@ ok( Module::Build->compare_versions( '1.01_01', '>', '1.01' ), 'compare: 1.0_01 
 
 # cleanup
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

@@ -8,8 +8,6 @@ use_ok 'Module::Build';
 ensure_blib('Module::Build');
 
 use IO::File;
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
@@ -61,8 +59,4 @@ my @files;
 }
 
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );

@@ -7,8 +7,6 @@ use MBTest tests => 15 + 12;
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
 
-use Cwd ();
-my $cwd = Cwd::cwd();
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
@@ -102,7 +100,6 @@ is(scalar(@{[$all_output =~ m/OK 1/mg]}), 3 );
 is(scalar(@{[$all_output =~ m/OK/mg]}),   8 );
 is(scalar(@{[$all_output =~ m/ALL TESTS SUCCESSFUL\./mg]}),   1);
 
-chdir($cwd) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
 
 { # once-again
@@ -180,7 +177,6 @@ like($all_output, qr/^OK 2 - SECOND TEST IN ANOTHER_EXT/m);
 is(scalar(@{[$all_output =~ m/(OK 1)/mg]}), 5 );
 is(scalar(@{[$all_output =~ m/(OK)/mg]}),   13 );
 
-chdir($cwd) or die "Can't chdir to '$cwd': $!";
 $dist->remove;
 } # end once-again
 

@@ -27,8 +27,6 @@ my $HTML_support = Module::Build::ConfigData->feature('HTML_support');
 ensure_blib('Module::Build');
 
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 
@@ -182,11 +180,7 @@ SKIP: {
 }
 
 
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );
 
 
 ########################################

@@ -12,8 +12,6 @@ my $have_yaml = Module::Build::ConfigData->feature('YAML_support');
 
 #########################
 
-use Cwd ();
-my $cwd = Cwd::cwd;
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
@@ -199,7 +197,6 @@ ok ! -e $mb->build_script;
 ok ! -e $mb->config_dir;
 ok ! -e $mb->dist_dir;
 
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
 
 SKIP: {
@@ -234,13 +231,8 @@ echo Hello, World!
   my $out = slurp( $script_file );
   is $out, $script_data, '  unmodified by pl2bat';
 
-  chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
   $dist->remove;
 }
 
 # cleanup
-chdir( $cwd ) or die "Can''t chdir to '$cwd': $!";
 $dist->remove;
-
-use File::Path;
-rmtree( $tmp );
