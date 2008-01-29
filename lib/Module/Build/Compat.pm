@@ -50,7 +50,7 @@ sub create_makefile_pl {
   }
 
   # If a *bundled* custom subclass is being used, make sure we add its
-  # directory to @INC.
+  # directory to @INC.  Also, lib.pm always needs paths in Unix format.
   my $subclass_load = '';
   if (ref($build) ne "Module::Build") {
     my $subclass_dir = $package->subclass_dir($build);
@@ -60,10 +60,13 @@ sub create_makefile_pl {
 
       if ($build->dir_contains($base_dir, $subclass_dir)) {
 	$subclass_dir = File::Spec->abs2rel($subclass_dir, $base_dir);
+	$subclass_dir = $package->unixify_dir($subclass_dir);
         $subclass_load = "use lib '$subclass_dir';";
       }
+      # Otherwise, leave it the empty string
 
     } else {
+      $subclass_dir = $package->unixify_dir($subclass_dir);
       $subclass_load = "use lib '$subclass_dir';";
     }
   }
@@ -159,6 +162,11 @@ sub subclass_dir {
   
   return (Module::Build::ModuleInfo->find_module_dir_by_name(ref $build)
 	  || File::Spec->catdir($build->config_dir, 'lib'));
+}
+
+sub unixify_dir {
+  my ($self, $path) = @_;
+  return join '/', File::Spec->splitdir($path);
 }
 
 sub makefile_to_build_args {
