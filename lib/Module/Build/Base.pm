@@ -830,6 +830,7 @@ __PACKAGE__->add_property($_) for qw(
   pod_files
   pollute
   prefix
+  program_name
   quiet
   recursive_test_files
   script_files
