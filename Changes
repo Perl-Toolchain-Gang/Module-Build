@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Fixed processing of INC=, POLLUTE=, INSTALLDIRS=, and LIB= for
+   passthrough/small Makefile.PLs.
+
  - perl Build.PL --sign=1 now signs. [Michael G Schwern]
 
  - Fixed processing of INSTALLDIRS=whatever for compatibility

@@ -18,7 +18,7 @@ my $tests_per_type = 15;
 #find_in_path does not understand VMS.
 
 if ( $Config{make} && $^O ne 'VMS' ? find_in_path($Config{make}) : 1 ) {
-    plan tests => 32 + @makefile_types*$tests_per_type*2;
+    plan tests => 34 + @makefile_types*$tests_per_type*2;
 } else {
     plan skip_all => "Don't know how to invoke 'make'";
 }
@@ -214,11 +214,28 @@ ok $mb, "Module::Build->new_from_context";
        qr/# .+basic[.\s#]+ok[.\s#]+All tests successful/,
        'Should be non-verbose';
 
+  (my $libdir2 = $libdir) =~ s/libdir/lbiidr/;
+  ($output) = stdout_stderr_of(
+    sub {
+      $ran_ok = $mb->do_system(@make, 'fakeinstall',
+			       'INSTALLDIRS=vendor',
+			       "INSTALLVENDORLIB=$libdir2");
+    }
+  );
+
+  ok $ran_ok, "make fakeinstall with INSTALLDIRS=vendor ran ok";
+  $output =~ s/^/# /gm;  # Don't confuse our own test output
+  like $output,
+       qr/\Q$libdir2/,
+       'Should have installdirs=vendor';
+
   stdout_of( sub { $mb->do_system(@make, 'realclean'); } );
   ok ! -e $makefile, "$makefile shouldn't exist";
 
   1 while unlink 'Makefile.PL';
   ok ! -e 'Makefile.PL', "Makefile.PL cleaned up";
+
+  1 while unlink $libdir, $libdir2;
 }
 
 { # Make sure tilde-expansion works

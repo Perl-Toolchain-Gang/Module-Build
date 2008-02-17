@@ -15,10 +15,10 @@ my %makefile_to_build =
   (
    TEST_VERBOSE => 'verbose',
    VERBINST     => 'verbose',
-   INC     => sub { map {('--extra_compiler_flags', $_)} Module::Build->split_like_shell(shift) },
-   POLLUTE => sub { ('--extra_compiler_flags', '-DPERL_POLLUTE') },
-   INSTALLDIRS => sub {local $_ = shift; ('--installdirs', (/^perl$/ ? 'core' : $_)) },
-   LIB => sub { ('--install_path', 'lib='.shift()) },
+   INC          => sub { map {(extra_compiler_flags => $_)} Module::Build->split_like_shell(shift) },
+   POLLUTE      => sub { (extra_compiler_flags => '-DPERL_POLLUTE') },
+   INSTALLDIRS  => sub { local $_ = shift; (installdirs => (/^perl$/ ? 'core' : $_)) },
+   LIB          => sub { (install_path => ('lib='.shift())) },
 
    # Some names they have in common
    map {$_, lc($_)} qw(DESTDIR PREFIX INSTALL_BASE UNINST),
@@ -170,7 +170,7 @@ sub unixify_dir {
 }
 
 sub makefile_to_build_args {
-  shift;
+  my $class = shift;
   my @out;
   foreach my $arg (@_) {
     next if $arg eq '';
@@ -194,13 +194,23 @@ sub makefile_to_build_args {
 
     if (exists $makefile_to_build{$key}) {
       my $trans = $makefile_to_build{$key};
-      push @out, ref($trans) ? $trans->($val) : ("--$trans", $val);
+      push @out, $class->_argvify( ref($trans) ? $trans->($val) : ($trans => $val) );
     } elsif (exists $Config{lc($key)}) {
-      push @out, '--config', lc($key) . "=$val";
+      push @out, $class->_argvify( config => lc($key) . "=$val" );
     } else {
       # Assume M::B can handle it in lowercase form
-      push @out, "--\L$key", $val;
+      push @out, $class->_argvify("\L$key" => $val);
     }
+  }
+  return @out;
+}
+
+sub _argvify {
+  my ($self, @pairs) = @_;
+  my @out;
+  while (@pairs) {
+    my ($k, $v) = splice @pairs, 0, 2;
+    push @out, ("--$k", $v);
   }
   return @out;
 }
