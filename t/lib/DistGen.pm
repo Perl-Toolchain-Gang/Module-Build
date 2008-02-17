@@ -411,6 +411,24 @@ sub change_file {
   $self->{pending}{change}{$file} = 1;
 }
 
+sub chdir_in {
+  my $self = shift;
+
+  $self->{original_dir} ||= Cwd::cwd; # only once
+  my $dir = $self->dirname;
+  chdir($dir) or die "Can't chdir to '$dir': $!";
+} # end subroutine chdir_in definition
+########################################################################
+
+sub chdir_original {
+  my $self = shift;
+
+  croak("never called chdir_in()") unless($self->{original_dir});
+  my $dir = $self->{original_dir};
+  chdir($dir) or die "Can't chdir to '$dir': $!";
+} # end subroutine chdir_original definition
+########################################################################
+
 1;
 
 __END__
@@ -487,6 +505,19 @@ Regenerate all missing or changed files.
 
 If the optional C<clean> argument is given, it also removes any
 extraneous files that do not belong to the distribution.
+
+=head2 chdir_in
+
+Change directory into the dist root.
+
+  $dist->chdir_in;
+
+=head2 chdir_original
+
+Returns to whatever directory you were in before chdir_in() (regardless
+of the cwd.)
+
+  $dist->chdir_original;
 
 =head3 clean()
 
