@@ -27,7 +27,8 @@ BEGIN {
   }
 }
 BEGIN {
-  use Exporter 'import';
+  require Exporter;
+  *{import} = \&Exporter::import;
   @EXPORT_OK = qw(
     undent
   );
