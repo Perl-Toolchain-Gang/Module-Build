@@ -37,6 +37,8 @@ sub create_makefile_pl {
     $fh = $args{fh};
   } else {
     $args{file} ||= 'Makefile.PL';
+    local $build->{properties}{quiet} = 1;
+    $build->delete_filetree($args{file});
     $fh = IO::File->new("> $args{file}") or die "Can't write $args{file}: $!";
   }
 

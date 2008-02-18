@@ -3040,7 +3040,6 @@ sub ACTION_distclean {
 sub do_create_makefile_pl {
   my $self = shift;
   require Module::Build::Compat;
-  $self->delete_filetree('Makefile.PL');
   $self->log_info("Creating Makefile.PL\n");
   Module::Build::Compat->create_makefile_pl($self->create_makefile_pl, $self, @_);
   $self->_add_to_manifest('MANIFEST', 'Makefile.PL');
