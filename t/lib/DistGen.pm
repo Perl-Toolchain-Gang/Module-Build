@@ -185,14 +185,14 @@ sub _gen_default_filedata {
           OUTPUT:
               RETVAL
 
-      char *
+      const char *
       xs_version()
           CODE:
         RETVAL = XS_VERSION;
           OUTPUT:
         RETVAL
 
-      char *
+      const char *
       version()
           CODE:
         RETVAL = VERSION;

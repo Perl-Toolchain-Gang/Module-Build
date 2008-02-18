@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Applied the 'const' modifier to version() and xs_version() XS
+   functions we use during testing. [Robin Barker]
+
  - Fixed processing of INC=, POLLUTE=, INSTALLDIRS=, and LIB= for
    passthrough/small Makefile.PLs.
 
