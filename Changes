@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+ - Documented the fix_shebang_line() method. [Elliot Shank]
+
  - Applied the 'const' modifier to version() and xs_version() XS
    functions we use during testing. [Robin Barker]
 

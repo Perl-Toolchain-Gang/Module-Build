@@ -1175,6 +1175,19 @@ The C<feature()> and C<config_data()> methods represent
 Module::Build's main support for configuration of installed modules.
 See also L<Module::Build::Authoring/"SAVING CONFIGURATION INFORMATION">.
 
+=item fix_shebang_line(@files)
+
+[version 0.??]
+
+Modify any "shebang" line in the specified files to use the path to the
+perl executable being used for the current build.  Files are modified
+in-place.  The existing shebang line must have a command that contains
+"C<perl>"; arguments to the command do not count.  In particular, this
+means that the use of C<#!/usr/bin/env perl> will not be changed.
+
+For an explanation of shebang lines, see
+L<http://en.wikipedia.org/wiki/Shebang_%28Unix%29>.
+
 =item have_c_compiler()
 
 [version 0.21]
