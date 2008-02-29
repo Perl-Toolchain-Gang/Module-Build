@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Fixed our Data::Dumper wrapper's sensitivity to users who might set
+   $Data::Dumper::Terse. [Spotted by Dominique Dumont]
+
  - Documented the fix_shebang_line() method. [Elliot Shank]
 
  - Applied the 'const' modifier to version() and xs_version() XS
