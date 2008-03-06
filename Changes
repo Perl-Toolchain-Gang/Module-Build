@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Added 'gpl2' and 'gpl3' to the list of valid licenses. [Allen
+   Engelhardt]
+
  - Fixed our Data::Dumper wrapper's sensitivity to users who might set
    $Data::Dumper::Terse. [Spotted by Dominique Dumont]
 
