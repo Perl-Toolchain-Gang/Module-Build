@@ -4009,11 +4009,13 @@ sub compile_xs {
       or die "Can't find ExtUtils::xsubpp in INC (@INC)";
     
     my @typemaps;
-    push @typemaps, Module::Build::ModuleInfo->find_module_by_name('ExtUtils::typemap', \@INC);
-    my $lib_typemap = Module::Build::ModuleInfo->find_module_by_name('typemap', ['lib']);
-    if (defined $lib_typemap and -e $lib_typemap) {
-      push @typemaps, 'typemap';
-    }
+    push @typemaps, Module::Build::ModuleInfo->find_module_by_name(
+        'ExtUtils::typemap', \@INC
+    );
+    my $lib_typemap = Module::Build::ModuleInfo->find_module_by_name(
+        'typemap', [File::Basename::dirname($file)]
+    );
+    push @typemaps, $lib_typemap if $lib_typemap;
     @typemaps = map {+'-typemap', $_} @typemaps;
 
     my $cf = $self->{config};
