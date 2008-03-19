@@ -39,6 +39,7 @@ my %OSTYPES = qw(
 		 openbsd   Unix
 		 netbsd    Unix
 		 dec_osf   Unix
+		 nto       Unix
 		 svr4      Unix
 		 svr5      Unix
 		 sco_sv    Unix
