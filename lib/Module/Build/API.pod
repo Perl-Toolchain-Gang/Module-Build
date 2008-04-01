@@ -502,16 +502,16 @@ choose to provide this field, you should make sure that you keep it in
 sync with your written documentation if you ever change your licensing
 terms.
 
+You may also use a license type of C<unknown> if you don't wish to
+specify your terms in the metadata.
+
 It is a fatal error to use a license other than the ones mentioned
 above.  This is not because I wish to impose licensing terms on you -
 please let me know if you would like another license option to be
-added to the list.  You may also use a license type of C<unknown> if
-you don't wish to specify your terms (but this is usually not a good
-idea for you to do!).
-
-I just started out with a small set of licenses to keep things simple,
-figuring I'd let people with actual working knowledge in this area
-tell me what to do.  So if that's you, drop me a line.
+added to the list.  I just started out with a small set of licenses to
+keep things simple, figuring I'd let people with actual working
+knowledge in this area tell me what to do.  So if that's you, drop me
+a line.
 
 =item meta_add
 

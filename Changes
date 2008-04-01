@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Edited the Module::Build::API docs prose about the 'license' field
+   in response to some comments on the module-authors mailing list.
+
 0.2808_02
 
  - Fixed a typo in some example code in the Cookbook. [Jeremy Leader]
