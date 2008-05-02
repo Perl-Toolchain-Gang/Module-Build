@@ -696,6 +696,7 @@ sub ACTION_config_data {
         no strict 'refs';
 	if ( $type eq 'HASH' ) {
           *{"$class\::$property"} = sub {
+            # XXX this needs 'use strict' again
 	    my $self = shift;
 	    my $x = $self->{properties};
 	    return $x->{$property} unless @_;
@@ -719,6 +720,7 @@ sub ACTION_config_data {
 
         } else {
           *{"$class\::$property"} = sub {
+            # XXX this needs 'use strict' again
 	    my $self = shift;
 	    $self->{properties}{$property} = shift if @_;
 	    return $self->{properties}{$property};
