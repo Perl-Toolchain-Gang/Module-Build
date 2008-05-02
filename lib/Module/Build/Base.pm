@@ -334,14 +334,14 @@ sub _quote_args {
   my @quoted;
 
   for (@args) {
-    if ( /^[^\s*?!$<>;\\|'"\[\]\{\}]+$/ ) {
+    if ( /^[^\s*?!\$<>;\\|'"\[\]\{\}]+$/ ) {
       # Looks pretty safe
       push @quoted, $_;
     } else {
       # XXX this will obviously have to improve - is there already a
       # core module lying around that does proper quoting?
-      s/"/"'"'"/g;
-      push @quoted, qq("$_");
+      s/('+)/'"$1"'/g;
+      push @quoted, qq('$_');
     }
   }
 

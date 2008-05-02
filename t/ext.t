@@ -8,6 +8,9 @@ my @unix_splits =
   (
    { q{one t'wo th'ree f"o\"ur " "five" } => [ 'one', 'two three', 'fo"ur ', 'five' ] },
    { q{ foo bar }                         => [ 'foo', 'bar'                         ] },
+   { q{ D\'oh f\{g\'h\"i\]\* }            => [ "D'oh", "f{g'h\"i]*"                 ] },
+   { q{ D\$foo }                          => [ 'D$foo'                              ] },
+   { qq{one\\\ntwo}                       => [ "one\ntwo"                           ] },
   );
 
 my @win_splits = 
@@ -53,7 +56,7 @@ my @win_splits =
    { 'a " b " c'            => [ 'a', ' b ', 'c' ] },
 );
 
-plan tests => 11 + 2*@unix_splits + 2*@win_splits;
+plan tests => 11 + 4*@unix_splits + 4*@win_splits;
 
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
@@ -94,11 +97,41 @@ foreach my $test (@win_splits) {
 }
 
 {
+  # Make sure data can make a round-trip through an external perl
+  # process, which can involve the shell command line
+
+  # Holy crap, I can't believe this works:
+  local $Module::Build{properties}{quiet} = 1;
+
+  my @data = map values(%$_), @unix_splits, @win_splits;
+  for my $d (@data) {
+    my $out = stdout_of
+      ( sub {
+	  Module::Build->run_perl_script('-le', [], ['print join " ", map "{$_}", @ARGV', @$d]);
+	} );
+    chomp $out;
+    is($out, join(' ', map "{$_}", @$d), "perl round trip for ".join('',map "{$_}", @$d));
+  }
+}
+
+{
+  # Make sure data can make a round-trip through an external backtick
+  # process, which can involve the shell command line
+
+  local $Module::Build{properties}{quiet} = 1;
+  my @data = map values(%$_), @unix_splits, @win_splits;
+  for my $d (@data) {
+    chomp(my $out = Module::Build->_backticks('perl', '-le', 'print join " ", map "{$_}", @ARGV', @$d));
+    is($out, join(' ', map "{$_}", @$d), "backticks round trip for ".join('',map "{$_}", @$d));
+  }
+}
+
+{
   # Make sure run_perl_script() propagates @INC
   my $dir = 'whosiewhatzit';
   mkdir $dir, 0777;
   local @INC = ($dir, @INC);
-  my $output = stdout_of( sub { Module::Build->run_perl_script('', ['-le', 'print for @INC']) } );
+  my $output = stdout_of( sub { Module::Build->run_perl_script('-le', [], ['print for @INC']) } );
   like $output, qr{^$dir}m;
   rmdir $dir;
 }

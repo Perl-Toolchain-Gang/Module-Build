@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - Fixed a couple bugs in how we quote arguments to external processes
+   when they have to pass through the shell.  Also much more
+   thoroughly tested our quoting now.
+
  - Edited the Module::Build::API docs prose about the 'license' field
    in response to some comments on the module-authors mailing list.
 
