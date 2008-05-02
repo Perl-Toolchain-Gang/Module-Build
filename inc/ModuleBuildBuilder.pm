@@ -37,6 +37,6 @@ sub ACTION_distdir {
 
 sub do_replace {
   my ($self, $code, $file) = @_;
-  $self->run_perl_command(['-pi.bak', '-e', $code, $file]);
+  $self->run_perl_script('-e', ['-pi.bak'], [$code, $file]);
   1 while unlink "$file.bak";
 }
