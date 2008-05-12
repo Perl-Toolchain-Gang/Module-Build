@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+ - Added 'gnu' and 'gnukfreebsd' as Unix variants. [Niko Tyni]
+
  - Fixed a couple bugs in how we quote arguments to external processes
    when they have to pass through the shell.  Also much more
    thoroughly tested our quoting now.
