@@ -185,6 +185,7 @@ sub _parse_fh {
   my $pod_data = '';
 
   while (defined( my $line = <$fh> )) {
+    my $line_num = $.;
 
     chomp( $line );
     next if $line =~ /^\s*#/;
@@ -239,7 +240,7 @@ sub _parse_fh {
 	  # that we should watch out for...)
 	  warn <<"EOM" unless $line =~ /=\s*eval/;
 Package '$vers_pkg' already declared with version '$vers{$vers_pkg}',
-ignoring subsequent declaration.
+ignoring subsequent declaration on line $line_num.
 EOM
 	}
 
@@ -269,7 +270,7 @@ EOM
 	} else {
 	  warn <<"EOM";
 Package '$pkg' already declared with version '$vers{$pkg}'
-ignoring new version '$v'.
+ignoring new version '$v' on line $line_num.
 EOM
 	}
 

@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - If there are multiple assignments to the $VERSION variable in
+   someone's module and this generates warnings, tell the user what
+   line number the problem is at.
+
  - Added 'gnu' and 'gnukfreebsd' as Unix variants. [Niko Tyni]
 
  - Fixed a couple bugs in how we quote arguments to external processes
