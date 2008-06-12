@@ -211,7 +211,7 @@ ok $mb, "Module::Build->new_from_context";
   ok $ran_ok, "make test without verbose ran ok";
   $output =~ s/^/# /gm;  # Don't confuse our own test output
   like $output,
-       qr/# .+basic[.\s#]+ok[.\s#]+All tests successful/,
+       qr/# .+basic(\.t)?[.\s#]+ok[.\s#]+All tests successful/,
        'Should be non-verbose';
 
   (my $libdir2 = $libdir) =~ s/libdir/lbiidr/;
