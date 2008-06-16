@@ -23,6 +23,8 @@ if ( $Config{make} && $^O ne 'VMS' ? find_in_path($Config{make}) : 1 ) {
     plan skip_all => "Don't know how to invoke 'make'";
 }
 
+my $is_vms_mms = ($^O eq 'VMS') && ($Config{make} =~ /MM[SK]/i);
+
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
 
@@ -51,8 +53,7 @@ my @make = $Config{make} eq 'nmake' ? ('nmake', '-nologo') : ($Config{make});
 my $makefile = 'Makefile';
 
 # VMS MMK/MMS by convention use Descrip.MMS
-
-if ($^O eq 'VMS' && $Config::Config{make} =~ /MM[K|S]/i) {
+if ($is_vms_mms) {
     $makefile = 'Descrip.MMS';
 }
 
@@ -187,26 +188,13 @@ ok $mb, "Module::Build->new_from_context";
   my $make_macro = 'TEST_VERBOSE=0';
 
   # VMS MMK/MMS macros use different syntax.
-  # and this is not really a MMK/MMS macro, but one expected
-  # to be inherited by the child process running Perl.
-  my $old_test_verbose = $ENV{TEST_VERBOSE};
-  if ($^O eq 'VMS' && $Config::Config{make} =~ /MM[K|S]/i) {
-    $make_macro = '';
-    $ENV{TEST_VERBOSE} = 0;
+  if ($is_vms_mms) {
+    $make_macro = '/macro=("' . $make_macro . '")';
   }
 
   $output = stdout_of( sub {
     $ran_ok = $mb->do_system(@make, 'test', $make_macro)
   } );
-
-  # Clean up on VMS
-  if ($^O eq 'VMS' && $Config::Config{make} =~ /MM[K|S]/i) {
-    if (defined $old_test_verbose) {
-      $ENV{TEST_VERBOSE} = $old_test_verbose;
-    } else {
-      delete $ENV{TEST_VERBOSE};
-    }
-  }
 
   ok $ran_ok, "make test without verbose ran ok";
   $output =~ s/^/# /gm;  # Don't confuse our own test output
@@ -215,11 +203,15 @@ ok $mb, "Module::Build->new_from_context";
        'Should be non-verbose';
 
   (my $libdir2 = $libdir) =~ s/libdir/lbiidr/;
+  my @make_args = ('INSTALLDIRS=vendor', "INSTALLVENDORLIB=$libdir2");
+
+  if ($is_vms_mms) { # VMS MMK/MMS macros use different syntax.
+    $make_args[0] = '/macro=("' . join('","',@make_args) . '")';
+    pop @make_args while scalar(@make_args) > 1;
+  }
   ($output) = stdout_stderr_of(
     sub {
-      $ran_ok = $mb->do_system(@make, 'fakeinstall',
-			       'INSTALLDIRS=vendor',
-			       "INSTALLVENDORLIB=$libdir2");
+      $ran_ok = $mb->do_system(@make, 'fakeinstall', @make_args);
     }
   );
 

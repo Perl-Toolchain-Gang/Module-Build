@@ -99,9 +99,7 @@ if (grep {-e File::Spec->catfile($_, qw(Module Build Platform), $^O) . '.pm'} @I
 
 sub os_type { $OSTYPES{$^O} }
 
-sub is_vmsish {
-    return ((os_type() || '') eq 'VMS' && $Config::Config{make} =~ /MM[K|S]/i)
-}
+sub is_vmsish { return ((os_type() || '') eq 'VMS') }
 sub is_windowsish { return ((os_type() || '') eq 'Windows') }
 sub is_unixish { return ((os_type() || '') eq 'Unix') }
 

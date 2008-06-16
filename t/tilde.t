@@ -38,6 +38,13 @@ my $p = 'install_base';
 
 SKIP: {
     my $home = $ENV{HOME} ? $ENV{HOME} : undef;
+
+    if ($^O eq 'VMS') {
+        # Convert the path to UNIX format, trim off the trailing slash
+        $home = VMS::Filespec::unixify($home);
+        $home =~ s#/$##;
+    }
+
     unless (defined $home) {
       my @info = eval { getpwuid $> };
       skip "No home directory for tilde-expansion tests", 14 if $@;
@@ -85,7 +92,16 @@ SKIP: {
     skip "No home directory for tilde-expansion tests", 1 if $@;
     my ($me, $home) = @info[0,7];
     
-    is( run_sample( $p => "~$me/foo")->$p(),  "$home/foo" );
+    my $expected = "$home/foo";
+
+    if ($^O eq 'VMS') {
+        # Convert the path to UNIX format and trim off the trailing slash
+        $home = VMS::Filespec::unixify($home);
+        $home =~ s#/$##;
+        $expected = $home . '/../[^/]+' . '/foo';
+    }
+
+    like( run_sample( $p => "~$me/foo")->$p(),  qr($expected)i );
 }
 
 

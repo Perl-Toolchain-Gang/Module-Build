@@ -136,12 +136,15 @@ sub _quote_args {
                    ? 1 
                    : 0;
 
-  # Do not quote qualifiers that begin with '/' or already
-  # quoted arguments.
-  map { $_ = q(").$_.q(") if !/^[\"|\/]/ && length($_) > 0 }
-     ($got_arrayref ? @{$args[0]} 
-                    : @args
-     );
+  # Do not quote qualifiers that begin with '/'.
+  map { if (!/^\//) { 
+          $_ =~ s/\"/""/g;     # escape C<"> by doubling
+          $_ = q(").$_.q(");
+        }
+  }
+    ($got_arrayref ? @{$args[0]} 
+                   : @args
+    );
 
   return $got_arrayref ? $args[0] 
                        : join(' ', @args);

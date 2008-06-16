@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Integrated an omnibus patch for various VMS fixes. [Craig Berry &
+   John E. Malmberg]
+
  - Some versions of Test::Harness (or something) seem to not be
    stripping the ".t" suffix when outputting test reports, which was
    causing one of our tests in t/compat.t to fail.  Fixed. [Spotted by

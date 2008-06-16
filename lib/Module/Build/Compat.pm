@@ -181,18 +181,7 @@ sub makefile_to_build_args {
 		       die "Malformed argument '$arg'");
 
     # Do tilde-expansion if it looks like a tilde prefixed path
-    if ($val =~ /^~/) {
-        if ($^O ne 'VMS') {
-            ( $val ) = glob( $val );
-        } else {
-            # TODO Home grown glob for Perl/VMS can not handle ~ yet.
-            # Can not use is_vmsish because this is for all instances
-            # of perl on VMS, not just when MMS/MMK is being used.
-
-            my $class = 'Module::Build';
-            ( $val ) = $class->_detildefy($val);
-        }
-    }
+    ( $val ) = Module::Build->_detildefy( $val ) if $val =~ /^~/;
 
     if (exists $makefile_to_build{$key}) {
       my $trans = $makefile_to_build{$key};
@@ -249,13 +238,12 @@ sub fake_makefile {
   my $perl = $class->find_perl_interpreter;
 
   # VMS MMS/MMK need to use MCR to run the Perl image.
-  $perl = 'MCR ' . $perl if $class->is_vmsish;
+  $perl = 'MCR ' . $perl if $self->_is_vms_mms;
 
   my $noop = ($class->is_windowsish ? 'rem>nul'  :
-	      $class->is_vmsish     ? 'Continue' :
+	      $self->_is_vms_mms    ? 'Continue' :
 	      'true');
 
-  # VMS has different file type.
   my $filetype = $class->is_vmsish ? '.COM' : '';
 
   my $Build = 'Build' . $filetype . ' --makefile_env_macros 1';
@@ -265,7 +253,7 @@ all : force_do_it
 	$perl $Build
 realclean : force_do_it
 	$perl $Build realclean
-	$perl -e 1 -e while -e unlink -e shift $args{makefile}
+	$perl -e 1 -e while -e unlink -e q=$args{makefile}=
 
 force_do_it :
 	@ $noop
@@ -279,10 +267,17 @@ $action : force_do_it
 EOF
   }
   
-  # MMS/MMK on VMS do not support .EXPORT
-  
-  $maketext .= "\n.EXPORT : " . join(' ', keys %makefile_to_build) . "\n\n"
-     unless $class->is_vmsish;
+  if ($self->_is_vms_mms) {
+    # Roll our own .EXPORT as MMS/MMK don't honor that directive.
+    $maketext .= "\n.FIRST\n\t\@ $noop\n"; 
+    for my $macro (keys %makefile_to_build) {
+      $maketext .= ".IFDEF $macro\n\tDEFINE $macro \"\$($macro)\"\n.ENDIF\n";
+    }
+    $maketext .= "\n"; 
+  }
+  else {
+    $maketext .= "\n.EXPORT : " . join(' ', keys %makefile_to_build) . "\n\n";
+  }
   
   return $maketext;
 }
@@ -314,12 +309,16 @@ sub write_makefile {
     $in{build_class} = 'Module::Build';
   }
   my $class = $in{build_class};
-  $in{makefile} ||= $class->is_vmsish ? 'Descrip.MMS' : 'Makefile';
+  $in{makefile} ||= $pack->_is_vms_mms ? 'Descrip.MMS' : 'Makefile';
 
   open  MAKE, "> $in{makefile}" or die "Cannot write $in{makefile}: $!";
   print MAKE $pack->fake_prereqs;
   print MAKE $pack->fake_makefile(%in);
   close MAKE;
+}
+
+sub _is_vms_mms {
+  return Module::Build->is_vmsish && ($Config{make} =~ m/MM[SK]/i);
 }
 
 1;
