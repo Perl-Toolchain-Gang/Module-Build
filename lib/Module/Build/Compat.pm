@@ -247,13 +247,15 @@ sub fake_makefile {
   my $filetype = $class->is_vmsish ? '.COM' : '';
 
   my $Build = 'Build' . $filetype . ' --makefile_env_macros 1';
+  my $unlink = $class->oneliner('1 while unlink $ARGV[0]', [], [$args{makefile}]);
+  $unlink =~ s/\$/\$\$/g;
 
   my $maketext = <<"EOF";
 all : force_do_it
 	$perl $Build
 realclean : force_do_it
 	$perl $Build realclean
-	$perl -e 1 -e while -e unlink -e q=$args{makefile}=
+	$unlink
 
 force_do_it :
 	@ $noop

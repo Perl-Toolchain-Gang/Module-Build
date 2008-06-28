@@ -4044,6 +4044,26 @@ sub split_like_shell {
   return Text::ParseWords::shellwords($string);
 }
 
+sub oneliner {
+  # Returns a string that the shell can evaluate as a perl command.
+  # This should be avoided whenever possible, since "the shell" really
+  # means zillions of shells on zillions of platforms and it's really
+  # hard to get it right all the time.
+
+  # Some of this code is stolen with permission from ExtUtils::MakeMaker.
+
+  my($self, $cmd, $switches, $args) = @_;
+  $switches = [] unless defined $switches;
+  $args = [] unless defined $args;
+
+  # Strip leading and trailing newlines
+  $cmd =~ s{^\n+}{};
+  $cmd =~ s{\n+$}{};
+
+  my $perl = ref($self) ? $self->perl : $self->find_perl_interpreter;
+  return $self->_quote_args($perl, @$switches, '-e', $cmd, @$args);
+}
+
 sub run_perl_script {
   my ($self, $script, $preargs, $postargs) = @_;
   foreach ($preargs, $postargs) {
