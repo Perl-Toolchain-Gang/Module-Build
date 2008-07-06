@@ -304,6 +304,7 @@ sub _evaluate_version_line {
   $pn++; # everybody gets their own package
   my $eval = qq{BEGIN { q#  Hide from _packages_inside()
     #; package Module::Build::ModuleInfo::_version::p$pn;
+    use Module::Build::Version;
     no strict;
 
     local $sigil$var;
@@ -321,7 +322,9 @@ sub _evaluate_version_line {
     if $@;
   (ref($vsub) eq 'CODE') or
     die "failed to build version sub for $self->{filename}";
-  my $result = $vsub->();
+  my $result = eval { $vsub->() };
+
+  die "Could not get version from $self->{filename} by executing:\n$eval\n\nThe fatal error was: $@\n" if $@;
 
   # Bless it into our own version class
   $result = Module::Build::Version->new($result);

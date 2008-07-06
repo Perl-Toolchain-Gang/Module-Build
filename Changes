@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - Improved support for parsing qv() in modules' $VERSION
+   declarations, and made $VERSION-parsing errors more verbose. [Jos
+   Boumans]
+
  - Integrated an omnibus patch for various VMS fixes. [Craig Berry &
    John E. Malmberg]
 
