@@ -1510,9 +1510,14 @@ sub _call_action {
   return $self->$method();
 }
 
+# cuts the user-specified options out of the command-line args
 sub cull_options {
     my $self = shift;
-    my $specs = $self->get_options or return ({}, @_);
+    my (@argv) = @_;
+
+    my $specs = $self->get_options;
+    return({}, @argv) unless($specs and %$specs); # no user options
+
     require Getopt::Long;
     # XXX Should we let Getopt::Long handle M::B's options? That would
     # be easy-ish to add to @specs right here, but wouldn't handle options
@@ -1531,7 +1536,7 @@ sub cull_options {
         $args->{$k} = $v->{default} if exists $v->{default};
     }
 
-    local @ARGV = @_; # No other way to dupe Getopt::Long
+    local @ARGV = @argv; # No other way to dupe Getopt::Long
 
     # Get the options values and return them.
     # XXX Add option to allow users to set options?
@@ -1598,6 +1603,7 @@ sub _read_arg {
   }
 }
 
+# decide whether or not an option requires/has an opterand
 sub _optional_arg {
   my $self = shift;
   my $opt  = shift;
@@ -1627,7 +1633,7 @@ sub _optional_arg {
 
   # we're punting a bit here, if an option appears followed by a digit
   # we take the digit as the argument for the option. If there is
-  # nothing that looks like a digit, we pretent the option is a flag
+  # nothing that looks like a digit, we pretend the option is a flag
   # that is being set and has no argument.
   my $arg = 1;
   $arg = shift(@$argv) if @$argv && $argv->[0] =~ /^\d+$/;
@@ -1637,12 +1643,13 @@ sub _optional_arg {
 
 sub read_args {
   my $self = shift;
-  my ($action, @argv);
+
   (my $args, @_) = $self->cull_options(@_);
   my %args = %$args;
 
   my $opt_re = qr/[\w\-]+/;
 
+  my ($action, @argv);
   while (@_) {
     local $_ = shift;
     if ( /^(?:--)?($opt_re)=(.*)$/ ) {
