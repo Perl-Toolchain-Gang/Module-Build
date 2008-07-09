@@ -3,6 +3,13 @@ Revision history for Perl extension Module::Build.
  - Experimental support for TAP::Harness with --use-tap-harness option
    and the tap_harness_args property. [David Wheeler & Eric Wilhelm]
 
+ - Added test_file_exts property for main-run tests other than '*.t'.
+   [David Wheeler]
+
+ - Fixed getcwd()/rmtree() failure case on 5.10+mac where something is
+   unhappy about all of the tests deleting their distgen directory
+   before leaving it. [Eric Wilhelm & David Wheeler]
+
  - Improved support for parsing qv() in modules' $VERSION
    declarations, and made $VERSION-parsing errors more verbose. [Jos
    Boumans]
