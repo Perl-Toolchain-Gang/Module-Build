@@ -23,7 +23,7 @@ ok(1, 'second test in special_ext');
 
 $dist->regen;
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 #########################
 

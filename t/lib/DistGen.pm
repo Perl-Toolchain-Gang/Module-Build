@@ -364,7 +364,10 @@ sub clean {
 sub remove {
   my $self = shift;
   croak("invalid usage -- remove()") if(@_);
+  $self->chdir_original if($self->did_chdir);
   File::Path::rmtree( $self->dirname );
+  # might as well check
+  croak("\nthis test should have used chdir_in()") unless(Cwd::getcwd);
 }
 
 sub revert {
@@ -417,7 +420,14 @@ sub chdir_in {
   $self->{original_dir} ||= Cwd::cwd; # only once
   my $dir = $self->dirname;
   chdir($dir) or die "Can't chdir to '$dir': $!";
-} # end subroutine chdir_in definition
+}
+########################################################################
+
+sub did_chdir {
+  my $self = shift;
+
+  return exists($self->{original_dir});
+}
 ########################################################################
 
 sub chdir_original {
@@ -426,7 +436,7 @@ sub chdir_original {
   croak("never called chdir_in()") unless($self->{original_dir});
   my $dir = $self->{original_dir};
   chdir($dir) or die "Can't chdir to '$dir': $!";
-} # end subroutine chdir_original definition
+}
 ########################################################################
 
 1;

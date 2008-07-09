@@ -29,7 +29,7 @@ use DistGen;
 my $dist = DistGen->new( dir => $tmp, xs => 1 );
 $dist->regen;
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 my $mb = Module::Build->new_from_context;
 
 
@@ -112,7 +112,7 @@ $dist->remove;
 $dist = DistGen->new( name => 'Simple::With::Deep::Name',
 		      dir => $tmp, xs => 1 );
 $dist->regen;
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 $mb = Module::Build->new_from_context;
 is $@, '';
@@ -205,7 +205,7 @@ ok( Simple::okay() eq 'ok' );
 ---
 
 $dist->regen;
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 
 $mb = Module::Build->new_from_context;

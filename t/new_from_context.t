@@ -17,7 +17,7 @@ my $libdir = 'badlib';
 $dist->add_file("$libdir/Build.PL", 'die');
 $dist->regen;
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 
 unshift(@INC, $libdir);

@@ -44,7 +44,7 @@ my $simple2_file = 'lib/Simple2.pm';
    }
 
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 use Module::Build;
 my $mb = Module::Build->new_from_context;

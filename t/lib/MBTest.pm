@@ -69,7 +69,9 @@ __PACKAGE__->export(scalar caller, @extra_exports);
   sub tmpdir { $tmp }
   END {
     if(-d $tmp) {
-      File::Path::rmtree($tmp) or warn "cannot clean dir '$tmp'";
+      # Go back to where you came from!
+      chdir $cwd or die "Couldn't chdir to $cwd";
+      File::Path::rmtree($tmp) or diag "cannot clean dir '$tmp'";
     }
   }
 }

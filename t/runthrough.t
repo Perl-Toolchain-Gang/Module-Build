@@ -55,7 +55,7 @@ close FH;
 ---
 $dist->regen;
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 
 #########################
@@ -217,7 +217,7 @@ echo Hello, World!
   $dist->add_file( 'bin/script.bat', $script_data );
 
   $dist->regen;
-  chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+  $dist->chdir_in;
 
   $mb = Module::Build->new_from_context;
   ok $mb;

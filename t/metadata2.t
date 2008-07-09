@@ -22,7 +22,7 @@ SKIP: {
   my $dist = DistGen->new( dir => $tmp, skip_manifest => 1 );
   $dist->regen;
 
-  chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+  $dist->chdir_in;
 
   ok ! -e 'MANIFEST';
 
@@ -73,7 +73,7 @@ $dist->change_build_pl
 });
 $dist->regen;
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 
 # .pm File with pod

@@ -31,7 +31,7 @@ $dist->change_build_pl
 });
 $dist->regen;
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 #########################
 
@@ -46,7 +46,7 @@ my $mb = Module::Build->new_from_context;
   
   # Make sure the signature actually verifies
   ok Module::Signature::verify() == Module::Signature::SIGNATURE_OK();
-  chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+  $dist->chdir_in;
 }
 
 {
@@ -80,7 +80,7 @@ is $@, '';
 eval { $mb->dispatch('realclean') };
 is $@, '';
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 {
     local @ARGV = '--sign=1';

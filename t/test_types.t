@@ -34,9 +34,7 @@ die "don't run this non-test file";
 ---
 
 $dist->regen;
-
-chdir($dist->dirname) or die "Can't chdir to '@{[$dist->dirname]}': $!";
-
+$dist->chdir_in;
 #########################
 
 my $mb = Module::Build->subclass(
@@ -116,8 +114,7 @@ use strict; use Simple;
 ok 1;
 ---
 $dist->regen;
-
-chdir($dist->dirname) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 my $mb = Module::Build->subclass(
    code => q#

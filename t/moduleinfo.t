@@ -15,7 +15,7 @@ use DistGen;
 my $dist = DistGen->new( dir => $tmp );
 $dist->regen;
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 #########################
 
@@ -202,7 +202,7 @@ foreach my $module ( @modules ) {
 $dist->remove;
 $dist = DistGen->new( dir => $tmp );
 $dist->regen;
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 
 # Find each package only once
@@ -260,7 +260,7 @@ ok( $pm_info->version > 1.23, 'alpha version greater than non');
 $dist->remove;
 $dist = DistGen->new( dir => $tmp );
 $dist->regen;
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 
 # parse $VERSION lines scripts for package main

@@ -57,7 +57,7 @@ Simple Man <simple@example.com>
 $dist->regen;
 
 
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 use File::Spec::Functions qw( catdir );
 my $destdir = catdir($cwd, 't', 'install_test' . $$);
@@ -142,7 +142,7 @@ $mb->dispatch('realclean');
 $dist->remove;
 $dist = DistGen->new( dir => $tmp );
 $dist->regen;
-chdir( $dist->dirname ) or die "Can't chdir to '@{[$dist->dirname]}': $!";
+$dist->chdir_in;
 
 
 my $mb2 = Module::Build->new(
