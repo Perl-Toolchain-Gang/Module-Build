@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - Fixed getcwd()/rmtree() failure case on 5.10+mac where something is
+   unhappy about all of the tests deleting their distgen directory
+   before leaving it. [Eric Wilhelm & David Wheeler]
+
  - Improved support for parsing qv() in modules' $VERSION
    declarations, and made $VERSION-parsing errors more verbose. [Jos
    Boumans]
