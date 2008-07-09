@@ -63,6 +63,7 @@ t/ppm.t
 t/runthrough.t
 t/script_dist.t
 t/signature.t
+t/test_file_exts.t
 t/test_type.t
 t/test_types.t
 t/tilde.t

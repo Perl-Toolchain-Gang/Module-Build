@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Added test_file_exts property for main-run tests other than '*.t'.
+   [David Wheeler]
+
  - Fixed getcwd()/rmtree() failure case on 5.10+mac where something is
    unhappy about all of the tests deleting their distgen directory
    before leaving it. [Eric Wilhelm & David Wheeler]

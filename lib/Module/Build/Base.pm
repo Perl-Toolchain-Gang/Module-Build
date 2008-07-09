@@ -776,6 +776,7 @@ __PACKAGE__->add_property(use_rcfile => 1);
 __PACKAGE__->add_property(create_packlist => 1);
 __PACKAGE__->add_property(allow_mb_mismatch => 0);
 __PACKAGE__->add_property(config => undef);
+__PACKAGE__->add_property(test_file_exts => ['.t']);
 
 {
   my $Is_ActivePerl = eval {require ActivePerl::DocTools};
@@ -2110,7 +2111,7 @@ sub generic_test {
   @types or croak "need some types of tests to check";
 
   my %test_types = (
-    default => '.t',
+    default => $p->{test_file_exts},
     (defined($p->{test_types}) ? %{$p->{test_types}} : ()),
   );
 
@@ -2120,7 +2121,7 @@ sub generic_test {
   }
 
   # we use local here because it ends up two method calls deep
-  local $p->{test_file_exts} = [ @test_types{@types} ];
+  local $p->{test_file_exts} = [ map { ref $_ ? @$_ : $_ } @test_types{@types} ];
   $self->depends_on('code');
 
   # Protect others against our @INC changes
@@ -2186,7 +2187,7 @@ sub test_files {
 
 sub expand_test_dir {
   my ($self, $dir) = @_;
-  my $exts = $self->{properties}{test_file_exts} || ['.t'];
+  my $exts = $self->{properties}{test_file_exts};
 
   return sort map { @{$self->rscan_dir($dir, qr{^[^.].*\Q$_\E$})} } @$exts
     if $self->recursive_test_files;

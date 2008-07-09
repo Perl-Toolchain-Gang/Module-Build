@@ -554,6 +554,10 @@ rather than just summary information, pass the argument C<verbose=1>.
 If you want to run tests under the perl debugger, pass the argument
 C<debugger=1>.
 
+If you want to have Module::Build find test files with different file
+name extensions, pass the C<test_file_exts> argument with an array
+of extensions, such as C<[qw( .t .s .z )]>.
+
 In addition, if a file called C<visual.pl> exists in the top-level
 directory, this file will be executed as a Perl script and its output
 will be shown to the user.  This is a good place to put speed tests or
@@ -597,7 +601,7 @@ enumerate them in the test_types parameter.
     ...
     test_types  => {
       special => '.st',
-      author  => '.at',
+      author  => ['.at', '.pt' ],
     },
     ...
 
