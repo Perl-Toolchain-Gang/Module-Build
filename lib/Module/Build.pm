@@ -543,10 +543,10 @@ F<MANIFEST.SKIP> file (See L<manifest> for details)
 
 [version 0.01]
 
-This will use C<Test::Harness> to run any regression tests and report
-their results.  Tests can be defined in the standard places: a file
-called C<test.pl> in the top-level directory, or several files ending
-with C<.t> in a C<t/> directory.
+This will use C<Test::Harness> or C<TAP::Harness> to run any regression
+tests and report their results. Tests can be defined in the standard
+places: a file called C<test.pl> in the top-level directory, or several
+files ending with C<.t> in a C<t/> directory.
 
 If you want tests to be 'verbose', i.e. show details of test execution
 rather than just summary information, pass the argument C<verbose=1>.
@@ -557,6 +557,10 @@ C<debugger=1>.
 If you want to have Module::Build find test files with different file
 name extensions, pass the C<test_file_exts> argument with an array
 of extensions, such as C<[qw( .t .s .z )]>.
+
+If you want test to be run by C<TAP::Harness>, rather than C<Test::Harness>,
+pass the argument C<tap_harness_args> as an array reference of arguments to
+pass to the TAP::Harness constructor.
 
 In addition, if a file called C<visual.pl> exists in the top-level
 directory, this file will be executed as a Perl script and its output

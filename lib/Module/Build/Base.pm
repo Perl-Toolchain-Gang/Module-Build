@@ -777,6 +777,8 @@ __PACKAGE__->add_property(create_packlist => 1);
 __PACKAGE__->add_property(allow_mb_mismatch => 0);
 __PACKAGE__->add_property(config => undef);
 __PACKAGE__->add_property(test_file_exts => ['.t']);
+__PACKAGE__->add_property(use_tap_harness => 0);
+__PACKAGE__->add_property(tap_harness_args => {});
 
 {
   my $Is_ActivePerl = eval {require ActivePerl::DocTools};
@@ -1568,6 +1570,8 @@ sub args {
     return $self->{args}{$key};
 }
 
+# allows select parameters (with underscores) to be spoken with dashes
+# when used as command-line options
 sub _translate_option {
   my $self = shift;
   my $opt  = shift;
@@ -1586,6 +1590,8 @@ sub _translate_option {
     meta_merge
     test_files
     use_rcfile
+    use_tap_harness
+    tap_harness_args
   ); # normalize only selected option names
 
   return $opt;
@@ -1620,6 +1626,7 @@ sub _optional_arg {
     uninst
     use_rcfile
     verbose
+    use_tap_harness
   );
 
   # inverted boolean options; eg --noverbose or --no-verbose
@@ -2140,40 +2147,77 @@ sub generic_test {
 
 sub do_tests {
   my $self = shift;
-  my $p = $self->{properties};
-  require Test::Harness;
-
-  # Do everything in our power to work with all versions of Test::Harness
-  my @harness_switches = $p->{debugger} ? qw(-w -d) : ();
-  local $Test::Harness::switches    = join ' ', grep defined, $Test::Harness::switches, @harness_switches;
-  local $Test::Harness::Switches    = join ' ', grep defined, $Test::Harness::Switches, @harness_switches;
-  local $ENV{HARNESS_PERL_SWITCHES} = join ' ', grep defined, $ENV{HARNESS_PERL_SWITCHES}, @harness_switches;
-  
-  $Test::Harness::switches = undef   unless length $Test::Harness::switches;
-  $Test::Harness::Switches = undef   unless length $Test::Harness::Switches;
-  delete $ENV{HARNESS_PERL_SWITCHES} unless length $ENV{HARNESS_PERL_SWITCHES};
-  
-  local ($Test::Harness::verbose,
-	 $Test::Harness::Verbose,
-	 $ENV{TEST_VERBOSE},
-         $ENV{HARNESS_VERBOSE}) = ($p->{verbose} || 0) x 4;
 
   my $tests = $self->find_test_files;
 
-  if (@$tests) {
-    # Work around a Test::Harness bug that loses the particular perl
-    # we're running under.  $self->perl is trustworthy, but $^X isn't.
-    local $^X = $self->perl;
-    Test::Harness::runtests(@$tests);
-  } else {
+  if(@$tests) {
+    my $args = $self->tap_harness_args;
+    if($self->use_tap_harness or ($args and %$args)) {
+      $self->run_tap_harness($tests);
+    }
+    else {
+      $self->run_test_harness($tests);
+    }
+  }
+  else {
     $self->log_info("No tests defined.\n");
   }
 
-  # This will get run and the user will see the output.  It doesn't
-  # emit Test::Harness-style output.
-  if (-e 'visual.pl') {
-    $self->run_perl_script('visual.pl', '-Mblib='.$self->blib);
-  }
+  $self->run_visual_script;
+}
+
+sub run_tap_harness {
+  my ($self, $tests) = @_;
+
+  require TAP::Harness;
+
+  # TODO allow the test @INC to be set via our API?
+
+  TAP::Harness->new({
+    lib => [@INC],
+    verbosity => $self->{properties}{verbose},
+    switches  => [ $self->harness_switches ],
+    %{ $self->tap_harness_args },
+  })->runtests(@$tests);
+}
+
+sub run_test_harness {
+    my ($self, $tests) = @_;
+    require Test::Harness;
+    my $p = $self->{properties};
+    my @harness_switches = $self->harness_switches;
+
+    # Work around a Test::Harness bug that loses the particular perl
+    # we're running under.  $self->perl is trustworthy, but $^X isn't.
+    local $^X = $self->perl;
+
+    # Do everything in our power to work with all versions of Test::Harness
+    local $Test::Harness::switches    = join ' ', grep defined, $Test::Harness::switches, @harness_switches;
+    local $Test::Harness::Switches    = join ' ', grep defined, $Test::Harness::Switches, @harness_switches;
+    local $ENV{HARNESS_PERL_SWITCHES} = join ' ', grep defined, $ENV{HARNESS_PERL_SWITCHES}, @harness_switches;
+
+    $Test::Harness::switches = undef   unless length $Test::Harness::switches;
+    $Test::Harness::Switches = undef   unless length $Test::Harness::Switches;
+    delete $ENV{HARNESS_PERL_SWITCHES} unless length $ENV{HARNESS_PERL_SWITCHES};
+
+    local ($Test::Harness::verbose,
+           $Test::Harness::Verbose,
+           $ENV{TEST_VERBOSE},
+           $ENV{HARNESS_VERBOSE}) = ($p->{verbose} || 0) x 4;
+
+    Test::Harness::runtests(@$tests);
+}
+
+sub run_visual_script {
+    my $self = shift;
+    # This will get run and the user will see the output.  It doesn't
+    # emit Test::Harness-style output.
+    $self->run_perl_script('visual.pl', '-Mblib='.$self->blib)
+        if -e 'visual.pl';
+}
+
+sub harness_switches {
+    shift->{properties}{debugger} ? qw(-w -d) : ();
 }
 
 sub test_files {

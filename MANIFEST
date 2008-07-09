@@ -67,5 +67,6 @@ t/test_file_exts.t
 t/test_type.t
 t/test_types.t
 t/tilde.t
+t/use_tap_harness.t
 t/versions.t
 t/xs.t

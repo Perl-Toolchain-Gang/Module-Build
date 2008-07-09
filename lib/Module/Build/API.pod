@@ -725,6 +725,26 @@ C<*.t> in the F<t/> subdirectory.  If the C<recursive_test_files>
 property is true, then the C<t/> directory will be scanned recursively
 for C<*.t> files.
 
+=item use_tap_harness
+
+[version 0.2808_03]
+
+An optional parameter indicating whether or not to use TAP::Harness for
+testing rather than Test::Harness. Defaults to false. If set to true, you must
+therefore be sure to add TAP::Harness as a requirement for your module in
+L</build_requires>. Implicitly set to a true value if C<tap_harness_args> is
+specified.
+
+=item tap_harness_args
+
+[version 0.2808_03]
+
+An optional parameter specifying parameters to be passed to TAP::Harness when
+running tests. Must be given as a hash reference of parameters; see the
+L<TAP::Harness|TAP::Harness> documentation for details. Note that specifying
+this parameter will implicitly set C<use_tap_harness> to a true value. You
+must therefore be sure to add TAP::Harness as a requirement for your module in
+L</build_requires>.
 
 =item xs_files
 
