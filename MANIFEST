@@ -61,6 +61,7 @@ t/parents.t
 t/pod_parser.t
 t/ppm.t
 t/runthrough.t
+t/script_dist.t
 t/signature.t
 t/test_type.t
 t/test_types.t
