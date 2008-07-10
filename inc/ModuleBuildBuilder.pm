@@ -32,7 +32,7 @@ sub ACTION_distdir {
   $self->do_replace(qq[s{ModuleBuildBuilder}{Module::Build}gs], $build_pl);
 
   # XXX Band-aid the signing here again, since we modified some files.
-  $self->depends_on('distsign');
+  $self->depends_on('distsign') if($self->sign);
 }
 
 sub do_replace {

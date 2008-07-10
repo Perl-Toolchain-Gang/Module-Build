@@ -1626,6 +1626,7 @@ sub _optional_arg {
     uninst
     use_rcfile
     verbose
+    sign
     use_tap_harness
   );
 
