@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+0.2808_02 - Wed Jul  9 16:45:08 PDT 2008
+
  - Experimental support for TAP::Harness with --use-tap-harness option
    and the tap_harness_args property. [David Wheeler & Eric Wilhelm]
 
@@ -37,8 +39,6 @@ Revision history for Perl extension Module::Build.
 
  - Edited the Module::Build::API docs prose about the 'license' field
    in response to some comments on the module-authors mailing list.
-
-0.2808_02
 
  - Fixed a typo in some example code in the Cookbook. [Jeremy Leader]
 
