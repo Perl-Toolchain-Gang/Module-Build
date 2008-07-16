@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ - Fixed the documentation for script_files to indicate that we search
+   bin/ for scripts by default.  It has been this way for several
+   years. [Spotted by Ron Savage]
+
 0.2808_02 - Wed Jul  9 16:45:08 PDT 2008
 
  - Experimental support for TAP::Harness with --use-tap-harness option

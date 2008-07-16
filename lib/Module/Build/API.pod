@@ -683,13 +683,13 @@ for the details of how requirements can be specified.
 
 An optional parameter specifying a set of files that should be
 installed as executable Perl scripts when the module is installed.
-May be given as an array reference of the files, or as a hash
-reference whose keys are the files (and whose values will currently be
-ignored).
+May be given as an array reference of the files, as a hash reference
+whose keys are the files (and whose values will currently be ignored),
+as a string giving the name of a directory in which to find scripts,
+or as a string giving the name of a single script file.
 
-The default is to install no script files - in other words, there is
-no default location where Module::Build will look for script files to
-install.
+The default is to install any scripts found in a F<bin> directory at
+the top level of the distribution.
 
 For backward compatibility, you may use the parameter C<scripts>
 instead of C<script_files>.  Please consider this usage deprecated,
