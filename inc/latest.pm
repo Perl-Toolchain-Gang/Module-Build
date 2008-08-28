@@ -74,12 +74,14 @@ sub _search_bundled {
   return;
 }
 
+# Look for the given path in @INC.
 sub _search_INC {
   # TODO: doesn't handle coderefs or arrayrefs or objects in @INC, but
   # it probably should
   my ($self, $file) = @_;
 
   foreach my $dir (@INC) {
+    next if ref $dir;
     my $try = File::Spec->catfile($dir, $file);
     return $try if -e $try;
   }
@@ -87,6 +89,7 @@ sub _search_INC {
   return;
 }
 
+# Translate a module name into a directory/file.pm to search for in @INC
 sub _mod2path {
   my ($self, $mod) = @_;
   my @parts = split /::/, $mod;
