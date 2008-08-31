@@ -105,7 +105,7 @@ $dist->chdir_in;
   $mb->add_to_cleanup('save_out');
   # Use uc() so we don't confuse the current test output
   like uc(stdout_of( sub {$mb->dispatch('test', verbose => 1)} )), qr/^OK \d/m;
-  like uc(stdout_of( sub {$mb->dispatch('test', verbose => 0)} )), qr/\.\.OK/;
+  like uc(stdout_of( sub {$mb->dispatch('test', verbose => 0)} )), qr/\.\. ?OK/;
 
   $mb->dispatch('realclean');
   $dist->clean;

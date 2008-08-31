@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ - Made adjustments for the format changes of recent Test::Harness
+   output. [Nicholas Clark]
+
  - Fixed the documentation for script_files to indicate that we search
    bin/ for scripts by default.  It has been this way for several
    years. [Spotted by Ron Savage]

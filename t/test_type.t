@@ -61,7 +61,7 @@ is( $::x, 2, "called again");
 my $output = uc(stdout_of(
     sub {$mb->dispatch('testspecial', verbose => 0)}
 ));
-like($output, qr/\.\.OK/);
+like($output, qr/\.\. ?OK/);
 
 is($::x, 3, "called a third time");
 
