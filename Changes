@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.2808_03
+0.2808_04 - Thu Sep 11 22:51:27 PDT 2008
 
  - Backed-out incompatible Module::Finder change (first in 0.2808_02.)
 
