@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+0.2808_03
+
+ - Backed-out incompatible Module::Finder change (first in 0.2808_02.)
+
 0.2808_03 - Mon Sep  1 14:43:27 PDT 2008
 
  - Made adjustments for the format changes of recent Test::Harness

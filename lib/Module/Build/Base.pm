@@ -965,13 +965,10 @@ sub dist_version {
 
   return $p->{dist_version} if defined $p->{dist_version};
 
-  if(my $file = $self->dist_version_from) {
-    my $mod = $self->module_name;
-    $file = File::Spec->catfile(split(qr{/}, $file));
-
-    my $pm_info = Module::Build::ModuleInfo->new_from_file(
-      $file, (defined($mod) ? (module => $mod) : ())
-    ) or die "Can't find file '$file' to determine version";
+  if ( my $dist_version_from = $self->dist_version_from ) {
+    my $version_from = File::Spec->catfile( split( qr{/}, $dist_version_from ) );
+    my $pm_info = Module::Build::ModuleInfo->new_from_file( $version_from )
+      or die "Can't find file $version_from to determine version";
     $p->{dist_version} = $pm_info->version();
   }
 

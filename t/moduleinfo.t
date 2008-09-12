@@ -4,7 +4,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 87;
+use MBTest tests => 82;
 
 use_ok 'Module::Build::ModuleInfo';
 ensure_blib('Module::Build::ModuleInfo');
@@ -321,20 +321,6 @@ foreach my $script ( @scripts ) {
 	       File::Spec->catfile( 'bin', 'simple.plx' ) );
 
   is( $pm_info->version, '0.01', "correct script version ($i of $n)" );
-  $i++;
-}
-
-# check the 'explicit module' usage of new_from_file()
-($i, $n) = (1, scalar(@scripts) - 3);
-foreach my $script (@scripts[3 .. $#scripts]) {
-  $dist->change_file('bin/simple.plx', $script);
-  $dist->regen;
-  $pm_info = Module::Build::ModuleInfo->new_from_file(
-    File::Spec->catfile('bin', 'simple.plx'),
-    module => '_private',
-  );
-
-  is($pm_info->version, '999', "correct script version ($i of $n)");
   $i++;
 }
 
