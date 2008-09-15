@@ -4,13 +4,20 @@ use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest;
 
+use Module::Build;
+
+my $parsewords_bug = Text::ParseWords->VERSION < 3.24 and
+  diag("\n\nPerl UPGRADE STRONGLY RECOMMENDED" .
+    "\n\n\n    NOTICE:  Text::ParseWords below 3.24 has BUGS!\n\n\n");
+
 my @unix_splits = 
   (
    { q{one t'wo th'ree f"o\"ur " "five" } => [ 'one', 'two three', 'fo"ur ', 'five' ] },
    { q{ foo bar }                         => [ 'foo', 'bar'                         ] },
    { q{ D\'oh f\{g\'h\"i\]\* }            => [ "D'oh", "f{g'h\"i]*"                 ] },
    { q{ D\$foo }                          => [ 'D$foo'                              ] },
-   { qq{one\\\ntwo}                       => [ "one\ntwo"                           ] },
+   ($parsewords_bug ? () :
+     { qq{one\\\ntwo}                     => [ "one\ntwo"                           ] }),
   );
 
 my @win_splits = 
@@ -56,9 +63,8 @@ my @win_splits =
    { 'a " b " c'            => [ 'a', ' b ', 'c' ] },
 );
 
-plan tests => 11 + 4*@unix_splits + 4*@win_splits;
+plan tests => 10 + 4*@unix_splits + 4*@win_splits;
 
-use_ok 'Module::Build';
 ensure_blib('Module::Build');
 
 #########################
@@ -145,5 +151,7 @@ sub do_split_tests {
   is( 0 + grep( !defined(), @result ), # all defined
       0,
       "'$string' result all defined" );
-  is_deeply(\@result, $expected);
+  is_deeply(\@result, $expected) or
+    diag("$package split_like_shell error \n" .
+      ">$string< is not splitting as >" . join("|", @$expected) . '<');
 }
