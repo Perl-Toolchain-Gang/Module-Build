@@ -365,6 +365,8 @@ sub _backticks {
   }
 }
 
+# Tells us whether the construct open($fh, '-|', @command) is
+# supported.  It would probably be better to dynamically sense this.
 sub have_forkpipe { 1 }
 
 # Determine whether a given binary is the same as the perl
