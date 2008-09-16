@@ -330,7 +330,6 @@ sub _quote_args {
   # proper quoting so that the subprocess sees this same list of args.
   my ($self, @args) = @_;
 
-  my $return_args = '';
   my @quoted;
 
   for (@args) {

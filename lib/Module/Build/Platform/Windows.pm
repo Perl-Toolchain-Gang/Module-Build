@@ -175,6 +175,29 @@ EOT
 }
 
 
+sub _quote_args {
+  # Returns a string that can become [part of] a command line with
+  # proper quoting so that the subprocess sees this same list of args.
+  my ($self, @args) = @_;
+
+  my @quoted;
+
+  for (@args) {
+    if ( /^[^\s*?!\$<>;|'"\[\]\{\}]+$/ ) {
+      # Looks pretty safe
+      push @quoted, $_;
+    } else {
+      # XXX this will obviously have to improve - is there already a
+      # core module lying around that does proper quoting?
+      s/"/\\"/g;
+      push @quoted, qq("$_");
+    }
+  }
+
+  return join " ", @quoted;
+}
+
+
 sub split_like_shell {
   # As it turns out, Windows command-parsing is very different from
   # Unix command-parsing.  Double-quotes mean different things,
