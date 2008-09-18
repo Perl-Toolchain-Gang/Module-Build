@@ -11,14 +11,33 @@ use Module::Build;
 use Module::Build::ModuleInfo;
 use Data::Dumper;
 
+my %convert_installdirs = (
+    PERL        => 'core',
+    SITE        => 'site',
+    VENDOR      => 'vendor',
+);
+
 my %makefile_to_build = 
   (
    TEST_VERBOSE => 'verbose',
    VERBINST     => 'verbose',
    INC          => sub { map {(extra_compiler_flags => $_)} Module::Build->split_like_shell(shift) },
    POLLUTE      => sub { (extra_compiler_flags => '-DPERL_POLLUTE') },
-   INSTALLDIRS  => sub { local $_ = shift; (installdirs => (/^perl$/ ? 'core' : $_)) },
-   LIB          => sub { (install_path => ('lib='.shift())) },
+   INSTALLDIRS  => sub { installdirs => $convert_installdirs{uc shift()} },
+   LIB          => sub { (install_path => "lib=".shift) },
+
+   # Convert INSTALLVENDORLIB and friends.
+   (
+       map {
+           my $name = "INSTALL".$_."LIB";
+           $name => sub {
+                 my @ret = (config => { lc $name => shift });
+                 print STDERR "# Converted to @ret\n";
+
+                 return @ret;
+           }
+       } keys %convert_installdirs
+   ),
 
    # Some names they have in common
    map {$_, lc($_)} qw(DESTDIR PREFIX INSTALL_BASE UNINST),
