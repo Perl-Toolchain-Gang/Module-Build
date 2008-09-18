@@ -85,6 +85,8 @@ sub resume {
   }
   
   $self->{invoked_action} = $self->{action} ||= 'build';
+
+  $self->_set_install_paths;
   
   return $self;
 }

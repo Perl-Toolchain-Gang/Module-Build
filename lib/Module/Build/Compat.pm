@@ -23,8 +23,17 @@ my %makefile_to_build =
    VERBINST     => 'verbose',
    INC          => sub { map {(extra_compiler_flags => $_)} Module::Build->split_like_shell(shift) },
    POLLUTE      => sub { (extra_compiler_flags => '-DPERL_POLLUTE') },
-   INSTALLDIRS  => sub { installdirs => $convert_installdirs{uc shift()} },
-   LIB          => sub { (install_path => "lib=".shift) },
+   INSTALLDIRS  => sub { (installdirs => $convert_installdirs{uc shift()}) },
+   LIB          => sub {
+       my $lib = shift;
+       my %config = (
+           installprivlib  => $lib,
+           installsitelib  => $lib,
+           installarchlib  => "$lib/$Config{archname}",
+           installsitearch => "$lib/$Config{archname}"
+       );
+       return map { (config => "$_=$config{$_}") } keys %config;
+   },
 
    # Convert INSTALLVENDORLIB and friends.
    (
