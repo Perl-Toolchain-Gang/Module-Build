@@ -256,6 +256,23 @@ sub split_like_shell {
   return @argv;
 }
 
+
+# system(@cmd) does not like having double-quotes in it on Windows.
+# So we quote them and run it as a single command.
+sub do_system {
+  my ($self, @cmd) = @_;
+
+  my $cmd = $self->_quote_args(@cmd);
+  my $status = system($cmd);
+  if ($status and $! =~ /Argument list too long/i) {
+    my $env_entries = '';
+    foreach (sort keys %ENV) { $env_entries .= "$_=>".length($ENV{$_})."; " }
+    warn "'Argument list' was 'too long', env lengths are $env_entries";
+  }
+  return !$status;
+}
+
+
 1;
 
 __END__
