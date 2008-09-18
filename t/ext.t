@@ -6,18 +6,13 @@ use MBTest;
 
 use Module::Build;
 
-my $parsewords_bug = Text::ParseWords->VERSION < 3.24 and
-  diag("\n\nPerl UPGRADE STRONGLY RECOMMENDED" .
-    "\n\n\n    NOTICE:  Text::ParseWords below 3.24 has BUGS!\n\n\n");
-
 my @unix_splits = 
   (
    { q{one t'wo th'ree f"o\"ur " "five" } => [ 'one', 'two three', 'fo"ur ', 'five' ] },
    { q{ foo bar }                         => [ 'foo', 'bar'                         ] },
    { q{ D\'oh f\{g\'h\"i\]\* }            => [ "D'oh", "f{g'h\"i]*"                 ] },
    { q{ D\$foo }                          => [ 'D$foo'                              ] },
-   ($parsewords_bug ? () :
-     { qq{one\\\ntwo}                     => [ "one\ntwo"                           ] }),
+   { qq{one\\\ntwo}                       => [ "one\ntwo"                           ] },  # TODO
   );
 
 my @win_splits = 
@@ -77,8 +72,13 @@ foreach my $platform ('', '::Platform::Unix', '::Platform::Windows') {
   is "@result", "foo bar baz", "Split using $pkg";
 }
 
+# I think 3.24 isn't actually the majik version, my 3.23 seems to pass...
+my $low_TPW_version = Text::ParseWords->VERSION < 3.24;
 use Module::Build::Platform::Unix;
 foreach my $test (@unix_splits) {
+  # Text::ParseWords bug:
+  local $TODO = $low_TPW_version && ((keys %$test)[0] =~ m{\\\n});
+
   do_split_tests('Module::Build::Platform::Unix', $test);
 }
 
