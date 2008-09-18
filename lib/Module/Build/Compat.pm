@@ -24,6 +24,9 @@ my %makefile_to_build =
    map {$_, lc($_)} qw(DESTDIR PREFIX INSTALL_BASE UNINST),
   );
 
+my %macro_to_build = %makefile_to_build;
+# "LIB=foo make" is not the same as "perl Makefile.PL LIB=foo"
+delete $macro_to_build{LIB};
 
 
 sub create_makefile_pl {
@@ -208,7 +211,7 @@ sub _argvify {
 
 sub makefile_to_build_macros {
   my @out;
-  while (my ($macro, $trans) = each %makefile_to_build) {
+  while (my ($macro, $trans) = each %macro_to_build) {
     # On some platforms (e.g. Cygwin with 'make'), the mere presence
     # of "EXPORT: FOO" in the Makefile will make $ENV{FOO} defined.
     # Therefore we check length() too.
@@ -272,13 +275,13 @@ EOF
   if ($self->_is_vms_mms) {
     # Roll our own .EXPORT as MMS/MMK don't honor that directive.
     $maketext .= "\n.FIRST\n\t\@ $noop\n"; 
-    for my $macro (keys %makefile_to_build) {
+    for my $macro (keys %macro_to_build) {
       $maketext .= ".IFDEF $macro\n\tDEFINE $macro \"\$($macro)\"\n.ENDIF\n";
     }
     $maketext .= "\n"; 
   }
   else {
-    $maketext .= "\n.EXPORT : " . join(' ', keys %makefile_to_build) . "\n\n";
+    $maketext .= "\n.EXPORT : " . join(' ', keys %macro_to_build) . "\n\n";
   }
   
   return $maketext;
