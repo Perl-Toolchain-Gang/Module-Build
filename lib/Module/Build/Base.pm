@@ -1851,9 +1851,9 @@ sub merge_args {
     if ($key eq 'config') {
       $self->config($_ => $val->{$_}) foreach keys %$val;
     } else {
-      my $add_to = ( $additive{$key} ? $self->{properties}{$key}
-		     : $self->valid_property($key) ? $self->{properties}
-		     : $self->{args});
+      my $add_to = $additive{$key}             ? $self->{properties}{$key} :
+                   $self->valid_property($key) ? $self->{properties}       :
+                   $self->{args}               ;
 
       if ($additive{$key}) {
 	$add_to->{$_} = $val->{$_} foreach keys %$val;
