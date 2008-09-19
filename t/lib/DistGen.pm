@@ -200,6 +200,11 @@ sub _gen_default_filedata {
         RETVAL
       ---
 
+  # 5.6 is missing const char * in its typemap
+  $self->$add_unless('typemap', undent(<<"      ---"));
+      const char *              T_PV
+      ---
+
   $self->$add_unless('t/basic.t', undent(<<"    ---"));
     use Test::More tests => 2;
     use strict;
