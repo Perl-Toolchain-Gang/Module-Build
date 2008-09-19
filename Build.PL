@@ -4,8 +4,8 @@ use strict;
 # find the local "lib" directory, so we use File::Spec to do it properly.
 use File::Spec 0.82;
 use lib File::Spec->catdir('lib');          # use our self to install
-# XXX we're not actually able to use the bundled copy
-use lib File::Spec->catdir('t', 'bundled'); # use bundled Test::More
+# XXX This doesn't carry over to sub processes
+use lib File::Spec->catdir('t', 'bundled'); # use bundled modules
 use lib File::Spec->catdir('t', 'lib');     # our utilities
 
 # We use Module::Build to test & install itself.
@@ -20,8 +20,12 @@ use ModuleBuildBuilder;
 my $build = ModuleBuildBuilder->new(
   module_name => 'Module::Build',
   license     => 'perl',
+  build_requires        => {
+    'Test::More'            => 0.49,
+    'Test::Harness'         => 2.03,    # when TODO tests worked
+  },
   requires    => {
-    'perl'                  => '5.005_04',
+    'perl'                  => '5.006001',
     'Data::Dumper'          => 0,
     'File::Basename'        => 0,
     'File::Compare'         => 0,

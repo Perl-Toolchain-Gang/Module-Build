@@ -7,6 +7,17 @@ Revision history for Perl extension Module::Build.
 
  - Fix some shell-quoting issues on Windows.
 
+ - Now works again on 5.6.2 and Windows [Schwern]
+
+ - Removed bundled Test::More.  The bundling didn't really work anyway.
+   [Schwern]
+
+ - Added Test::More and Test::Harness as build_requires deps.  We need
+   Test::Harness support for TODO tests. [Schwern]
+
+ - Minimum required version is now 5.6.1.  5.5 is dead, I don't have a
+   5.6.0 to test and I don't think anyone will notice. [Schwern]
+
 0.2808_04 - Thu Sep 11 22:51:27 PDT 2008
 
  - Backed-out incompatible Module::Finder change (first in 0.2808_02.)

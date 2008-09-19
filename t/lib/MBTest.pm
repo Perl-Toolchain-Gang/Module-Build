@@ -9,9 +9,8 @@ BEGIN {
   # Make sure none of our tests load the users ~/.modulebuildrc file
   $ENV{MODULEBUILDRC} = 'NONE';
 
-  # In case the test wants to use Test::More or our other bundled
-  # modules, make sure they can be loaded.  They'll still do "use
-  # Test::More" in the test script.
+  # In case the test wants to use our other bundled
+  # modules, make sure they can be loaded.
   my $t_lib = File::Spec->catdir('t', 'bundled');
 
   unless ($ENV{PERL_CORE}) {
