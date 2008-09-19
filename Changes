@@ -1,26 +1,26 @@
 Revision history for Perl extension Module::Build.
 
-0.2808_05 -
+0.2808_05 - Thu Sep 18 23:30:39 PDT 2008
 
- - Skip test in t/ext.t which tickles Text::ParseWords::shellwords() in
-   5.6.2 [David Wheeler]
+ - Skip test in t/ext.t which tickles shellwords() in Text::ParseWords
+   below 3.23 [David Wheeler, Ken]
 
- - Fix some shell-quoting issues on Windows.
+ - Fixed some shell-quoting issues in do_system() on Windows [Ken,
+   Schwern, reported by Curtis Jewell]
 
- - Now works again on 5.6.2 and Windows [Schwern]
-
- - Removed bundled Test::More.  The bundling didn't really work anyway.
+ - Fixed t/xs.t failure for missing 'const char *' typemap in 5.6
    [Schwern]
 
- - Added Test::More and Test::Harness as build_requires deps.  We need
-   Test::Harness support for TODO tests. [Schwern]
+ - Added build_requires for Test::More 0.49 and Test::Harness 2.03.
+   Removed bundled Test::More (was not working for 5.005x anyway).
+   [Schwern]
 
- - Minimum required version is now 5.6.1.  5.5 is dead, I don't have a
-   5.6.0 to test and I don't think anyone will notice. [Schwern]
+ - Minimum required perl version is now 5.6.1. [Schwern]
 
 0.2808_04 - Thu Sep 11 22:51:27 PDT 2008
 
- - Backed-out incompatible Module::Finder change (first in 0.2808_02.)
+ - Backed-out incompatible Module::Build::ModuleInfo change (first in
+   0.2808_02.)
 
 0.2808_03 - Mon Sep  1 14:43:27 PDT 2008
 
