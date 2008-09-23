@@ -1084,10 +1084,10 @@ sub check_autofeatures {
 
   $self->log_info("Checking features:\n");
 
-  my $max_name_len;
-  $max_name_len = ( length($_) > $max_name_len ) ?
-                    length($_) : $max_name_len
-    for keys %$features;
+  my $max_name_len = 0;
+  for my $name (keys %$features) {
+      $max_name_len = max( length($name), $max_name_len );
+  }
 
   while (my ($name, $info) = each %$features) {
     $self->log_info("  $name" . '.' x ($max_name_len - length($name) + 4));
@@ -1113,6 +1113,11 @@ sub check_autofeatures {
   }
 
   $self->log_warn("\n");
+}
+
+sub max {
+    my($a, $b) = @_;
+    return $a > $b ? $a : $b;
 }
 
 sub prereq_failures {
