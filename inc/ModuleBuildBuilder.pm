@@ -40,3 +40,5 @@ sub do_replace {
   $self->run_perl_script('-e', ['-pi.bak'], [$code, $file]);
   1 while unlink "$file.bak";
 }
+
+1;
