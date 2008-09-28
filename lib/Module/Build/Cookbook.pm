@@ -431,6 +431,30 @@ the C<install> action:
   )->create_build_script;
 
 
+=head2 Adding an action
+
+You can add a new C<./Build> action simply by writing the method for
+it in your subclass.  Use C<depends_on> to declare that another action
+must have been run before your action.
+
+For example, let's say you wanted to be able to write C<./Build
+commit> to test your code and commit it to version control.
+
+  # Build.PL
+  use Module::Build;
+  my $class = Module::Build->subclass(
+      class => "Module::Build::Custom",
+      code => <<'SUBCLASS' );
+
+  sub ACTION_commit {
+      my $self = shift;
+
+      $self->depends_on("test");
+      $self->do_system(qw(svn commit));
+  }
+  SUBCLASS
+
+
 =head1 AUTHOR
 
 Ken Williams <kwilliams@cpan.org>
@@ -438,7 +462,7 @@ Ken Williams <kwilliams@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2001-2006 Ken Williams.  All rights reserved.
+Copyright (c) 2001-2008 Ken Williams.  All rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.

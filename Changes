@@ -1,9 +1,13 @@
 Revision history for Perl extension Module::Build.
 
 0.30_01
+ New Docs
+ - Added a recipe for writing a new action to Module::Build::Cookbook
 
+ Bug Fixes
  - Workaround HARNESS_TIMER env issue in t/compat.t (RT#39635)
 
+ Other
  - Updated our embedded version.pm to 0.76, enhanced documentation on
    dist_version_from.  [John Peacock]
 
