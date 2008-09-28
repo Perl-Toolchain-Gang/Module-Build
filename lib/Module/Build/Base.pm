@@ -644,125 +644,127 @@ sub ACTION_config_data {
       );
 }
 
-{
-    my %valid_properties = ( __PACKAGE__,  {} );
-    my %additive_properties;
+########################################################################
+{ # enclosing these lexicals -- TODO 
+  my %valid_properties = ( __PACKAGE__,  {} );
+  my %additive_properties;
 
-    sub _mb_classes {
-      my $class = ref($_[0]) || $_[0];
-      return ($class, $class->mb_parents);
+  sub _mb_classes {
+    my $class = ref($_[0]) || $_[0];
+    return ($class, $class->mb_parents);
+  }
+
+  sub valid_property {
+    my ($class, $prop) = @_;
+    return grep exists( $valid_properties{$_}{$prop} ), $class->_mb_classes;
+  }
+
+  sub valid_properties {
+    return keys %{ shift->valid_properties_defaults() };
+  }
+
+  sub valid_properties_defaults {
+    my %out;
+    for (reverse shift->_mb_classes) {
+      @out{ keys %{ $valid_properties{$_} } } = values %{ $valid_properties{$_} };
+    }
+    return \%out;
+  }
+
+  sub array_properties {
+    for (shift->_mb_classes) {
+      return @{$additive_properties{$_}->{ARRAY}}
+        if exists $additive_properties{$_}->{ARRAY};
+    }
+  }
+
+  sub hash_properties {
+    for (shift->_mb_classes) {
+      return @{$additive_properties{$_}->{'HASH'}}
+        if exists $additive_properties{$_}->{'HASH'};
+    }
+  }
+
+  sub add_property {
+    my ($class, $property, $default) = @_;
+    die "Property '$property' already exists" if $class->valid_property($property);
+
+    $valid_properties{$class}{$property} = $default;
+
+    my $type = ref $default;
+    if ($type) {
+      push @{$additive_properties{$class}->{$type}}, $property;
     }
 
-    sub valid_property {
-      my ($class, $prop) = @_;
-      return grep exists( $valid_properties{$_}{$prop} ), $class->_mb_classes;
-    }
+    unless ($class->can($property)) {
+      no strict 'refs';
+      if ( $type eq 'HASH' ) {
+        *{"$class\::$property"} = sub {
+          # XXX this needs 'use strict' again
+          my $self = shift;
+          my $x = $self->{properties};
+          return $x->{$property} unless @_;
 
-    sub valid_properties {
-      return keys %{ shift->valid_properties_defaults() };
-    }
+          if ( defined($_[0]) && !ref($_[0]) ) {
+            if ( @_ == 1 ) {
+              return exists( $x->{$property}{$_[0]} ) ?
+                       $x->{$property}{$_[0]} : undef;
+            } elsif ( @_ % 2 == 0 ) {
+              my %args = @_;
+              while ( my($k, $v) = each %args ) {
+                $x->{$property}{$k} = $v;
+              }
+            } else {
+              die "Unexpected arguments for property '$property'\n";
+            }
+          } else {
+            $x->{$property} = $_[0];
+          }
+        };
 
-    sub valid_properties_defaults {
-      my %out;
-      for (reverse shift->_mb_classes) {
-	@out{ keys %{ $valid_properties{$_} } } = values %{ $valid_properties{$_} };
-      }
-      return \%out;
-    }
-
-    sub array_properties {
-      for (shift->_mb_classes) {
-        return @{$additive_properties{$_}->{ARRAY}}
-	  if exists $additive_properties{$_}->{ARRAY};
-      }
-    }
-
-    sub hash_properties {
-      for (shift->_mb_classes) {
-        return @{$additive_properties{$_}->{'HASH'}}
-	  if exists $additive_properties{$_}->{'HASH'};
-      }
-    }
-
-    sub add_property {
-      my ($class, $property, $default) = @_;
-      die "Property '$property' already exists" if $class->valid_property($property);
-
-      $valid_properties{$class}{$property} = $default;
-
-      my $type = ref $default;
-      if ($type) {
-	push @{$additive_properties{$class}->{$type}}, $property;
-      }
-
-      unless ($class->can($property)) {
-        no strict 'refs';
-	if ( $type eq 'HASH' ) {
-          *{"$class\::$property"} = sub {
-            # XXX this needs 'use strict' again
-	    my $self = shift;
-	    my $x = $self->{properties};
-	    return $x->{$property} unless @_;
-
-	    if ( defined($_[0]) && !ref($_[0]) ) {
-	      if ( @_ == 1 ) {
-		return exists( $x->{$property}{$_[0]} ) ?
-		         $x->{$property}{$_[0]} : undef;
-              } elsif ( @_ % 2 == 0 ) {
-	        my %args = @_;
-	        while ( my($k, $v) = each %args ) {
-	          $x->{$property}{$k} = $v;
-	        }
-	      } else {
-		die "Unexpected arguments for property '$property'\n";
-	      }
-	    } else {
-	      $x->{$property} = $_[0];
-	    }
-	  };
-
-        } else {
-          *{"$class\::$property"} = sub {
-            # XXX this needs 'use strict' again
-	    my $self = shift;
-	    $self->{properties}{$property} = shift if @_;
-	    return $self->{properties}{$property};
-	  }
+      } else {
+        *{"$class\::$property"} = sub {
+          # XXX this needs 'use strict' again
+          my $self = shift;
+          $self->{properties}{$property} = shift if @_;
+          return $self->{properties}{$property};
         }
-
       }
-      return $class;
+
+    }
+    return $class;
+  }
+
+  sub _set_defaults {
+    my $self = shift;
+
+    # Set the build class.
+    $self->{properties}{build_class} ||= ref $self;
+
+    # If there was no orig_dir, set to the same as base_dir
+    $self->{properties}{orig_dir} ||= $self->{properties}{base_dir};
+
+    my $defaults = $self->valid_properties_defaults;
+
+    foreach my $prop (keys %$defaults) {
+      $self->{properties}{$prop} = $defaults->{$prop}
+        unless exists $self->{properties}{$prop};
     }
 
-    sub _set_defaults {
-      my $self = shift;
-
-      # Set the build class.
-      $self->{properties}{build_class} ||= ref $self;
-
-      # If there was no orig_dir, set to the same as base_dir
-      $self->{properties}{orig_dir} ||= $self->{properties}{base_dir};
-
-      my $defaults = $self->valid_properties_defaults;
-      
-      foreach my $prop (keys %$defaults) {
-	$self->{properties}{$prop} = $defaults->{$prop}
-	  unless exists $self->{properties}{$prop};
-      }
-      
-      # Copy defaults for arrays any arrays.
-      for my $prop ($self->array_properties) {
-	$self->{properties}{$prop} = [@{$defaults->{$prop}}]
-	  unless exists $self->{properties}{$prop};
-      }
-      # Copy defaults for arrays any hashes.
-      for my $prop ($self->hash_properties) {
-	$self->{properties}{$prop} = {%{$defaults->{$prop}}}
-	  unless exists $self->{properties}{$prop};
-      }
+    # Copy defaults for arrays any arrays.
+    for my $prop ($self->array_properties) {
+      $self->{properties}{$prop} = [@{$defaults->{$prop}}]
+        unless exists $self->{properties}{$prop};
     }
+    # Copy defaults for arrays any hashes.
+    for my $prop ($self->hash_properties) {
+      $self->{properties}{$prop} = {%{$defaults->{$prop}}}
+        unless exists $self->{properties}{$prop};
+    }
+  }
 
-}
+} # end closure
+########################################################################
 
 # Add the default properties.
 __PACKAGE__->add_property(blib => 'blib');
