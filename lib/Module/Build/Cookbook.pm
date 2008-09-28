@@ -438,7 +438,7 @@ it in your subclass.  Use C<depends_on> to declare that another action
 must have been run before your action.
 
 For example, let's say you wanted to be able to write C<./Build
-commit> to test your code and commit it to version control.
+commit> to test your code and commit it to Subversion.
 
   # Build.PL
   use Module::Build;
@@ -453,6 +453,50 @@ commit> to test your code and commit it to version control.
       $self->do_system(qw(svn commit));
   }
   SUBCLASS
+
+
+=head2 Bundling Module::Build
+
+Let's say you want to make sure your distribution has the right
+version of Module::Build.  First thing you should do is to set
+C<configure_requires> to your minimum version of Module::Build.  See
+L<Module::Build::Authoring>.
+
+But not every build system honors C<configure_requires> yet.  Here's
+how you can ship a safe copy of Module::Build, but still use a newer
+installed version to take advantage of bug fixes and upgrades.
+
+First, install Module::Build into F<Your-Project/inc/Module-Build>.
+CPAN will not index anything in the F<inc> directory so this copy will
+not show up in CPAN searches.
+
+    cd Module-Build
+    perl Build.PL --install_base /path/to/Your-Project/inc/Module-Build
+    ./Build test
+    ./Build install
+
+You should now have all the Module::Build .pm files in
+F<Your-Project/inc/Module-Build/lib/perl5>.
+
+Next, add this to the top of your F<Build.PL>.
+
+    my $Bundled_MB = 0.30;  # or whatever version it was.
+
+    # Find out what version of Module::Build is installed or fail quietly.
+    # This should be cross-platform.
+    my $Installed_MB = 
+        `$^X -le "eval q{require Module::Build; print Module::Build->VERSION} or exit 1";
+    chomp $Installed_MB;
+    $Installed_MB = 0 if $?;
+
+    # Use our bundled copy of Module::Build if it's newer than the installed.
+    unshift @INC, "inc/Module-Build/lib/perl5" if $Bundled_MB > $Installed_MB;
+
+    require Module::Build;
+
+And write the rest of your F<Build.PL> normally.  Module::Build will
+remember your change to C<@INC> and use it when you run F<./Build>.
+
 
 
 =head1 AUTHOR
