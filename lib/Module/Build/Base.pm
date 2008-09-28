@@ -177,8 +177,14 @@ sub _construct {
 
 ################## End constructors #########################
 
-sub log_info { print @_ unless shift()->quiet }
-sub log_verbose { shift()->log_info(@_) if $_[0]->verbose }
+sub log_info {
+  my $self = shift;
+  print @_ unless(ref($self) and $self->quiet);
+}
+sub log_verbose {
+  my $self = shift;
+  $self->log_info(@_) if(ref($self) and $self->verbose);
+}
 sub log_warn {
   # Try to make our call stack invisible
   shift;
@@ -697,41 +703,15 @@ sub ACTION_config_data {
     }
 
     unless ($class->can($property)) {
+      my $maker = $type eq 'HASH' ?
+        '_make_hash_accessor' : '_make_accessor';
+      # TODO probably should put these in a util package
+      $maker = $class->can($maker) or die "where did it go?";
+      my $sub = $maker->($property);
       no strict 'refs';
-      if ( $type eq 'HASH' ) {
-        *{"$class\::$property"} = sub {
-          # XXX this needs 'use strict' again
-          my $self = shift;
-          my $x = $self->{properties};
-          return $x->{$property} unless @_;
-
-          if ( defined($_[0]) && !ref($_[0]) ) {
-            if ( @_ == 1 ) {
-              return exists( $x->{$property}{$_[0]} ) ?
-                       $x->{$property}{$_[0]} : undef;
-            } elsif ( @_ % 2 == 0 ) {
-              my %args = @_;
-              while ( my($k, $v) = each %args ) {
-                $x->{$property}{$k} = $v;
-              }
-            } else {
-              die "Unexpected arguments for property '$property'\n";
-            }
-          } else {
-            $x->{$property} = $_[0];
-          }
-        };
-
-      } else {
-        *{"$class\::$property"} = sub {
-          # XXX this needs 'use strict' again
-          my $self = shift;
-          $self->{properties}{$property} = shift if @_;
-          return $self->{properties}{$property};
-        }
-      }
-
+      *{"$class\::$property"} = $sub;
     }
+
     return $class;
   }
 
@@ -764,6 +744,65 @@ sub ACTION_config_data {
   }
 
 } # end closure
+########################################################################
+sub _make_hash_accessor {
+  my ($property) = @_;
+
+  return sub {
+    my $self = shift;
+
+    # This is only here to deprecate the historic accident of calling
+    # properties as class methods - I suspect it only happens in our
+    # test suite.
+    unless(ref($self)) {
+      carp("\n$property not a class method (@_)");
+      return;
+    }
+
+    my $x = $self->{properties};
+    return $x->{$property} unless @_;
+
+    if(defined($_[0]) && !ref($_[0])) {
+      if(@_ == 1) {
+        return
+          exists($x->{$property}{$_[0]})
+          ? $x->{$property}{$_[0]}
+          : undef;
+      }
+      elsif(@_ % 2 == 0) {
+        my %args = @_;
+        while(my ($k, $v) = each %args) {
+          $x->{$property}{$k} = $v;
+        }
+      }
+      else {
+        die "Unexpected arguments for property '$property'\n";
+      }
+    }
+    else {
+      $x->{$property} = $_[0];
+    }
+  };
+}
+########################################################################
+sub _make_accessor {
+  my ($property) = @_;
+
+  return sub {
+    my $self = shift;
+
+    # This is only here to deprecate the historic accident of calling
+    # properties as class methods - I suspect it only happens in our
+    # test suite.
+    unless(ref($self)) {
+      carp("\n$property not a class method (@_)");
+      return;
+    }
+
+    $self->{properties}{$property} = shift if @_;
+    return $self->{properties}{$property};
+  };
+}
 ########################################################################
 
 # Add the default properties.
