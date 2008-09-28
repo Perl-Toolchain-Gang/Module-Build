@@ -4,7 +4,7 @@ package Module::Build::Base;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.30';
+$VERSION = '0.30_01';
 $VERSION = eval $VERSION;
 BEGIN { require 5.00503 }
 

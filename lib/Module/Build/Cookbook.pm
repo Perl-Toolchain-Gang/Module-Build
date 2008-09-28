@@ -1,7 +1,7 @@
 package Module::Build::Cookbook;
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.30';
+$VERSION = '0.30_01';
 
 
 =head1 NAME
