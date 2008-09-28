@@ -47,7 +47,7 @@ sub _detildefy {
   $value =~ s[^~(\w[-\w]*)?(?=/|$)]   # tilde with optional username
     [$1 ?
      ((getpwnam $1)[7] || "~$1") :
-     (getpwuid $>)[7]
+     ($ENV{HOME} || (getpwuid $>)[7])
     ]ex;
   return $value;
 }

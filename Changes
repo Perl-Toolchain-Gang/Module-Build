@@ -7,6 +7,8 @@ Revision history for Perl extension Module::Build.
 
  Bug Fixes
  - Workaround HARNESS_TIMER env issue in t/compat.t (RT#39635)
+ - Fix ~ expansion when $HOME is different from /etc/passwd as
+   when running sudo.  [rt.cpan.org 39662]
 
  Other
  - Updated our embedded version.pm to 0.76, enhanced documentation on
