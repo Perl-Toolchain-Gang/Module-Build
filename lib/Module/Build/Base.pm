@@ -1125,10 +1125,19 @@ sub check_autofeatures {
 
   $self->log_info("Checking features:\n");
 
-  my $max_name_len = 0;
-  $max_name_len = ( length($_) > $max_name_len ) ?
-                    length($_) : $max_name_len
-    for keys %$features;
+  # TODO refactor into ::Util
+  my $longest = sub {
+    my @str = @_ or croak("no strings given");
+
+    my @len = map({length($_)} @str);
+    my $max = 0;
+    my $longest;
+    for my $i (0..$#len) {
+      ($max, $longest) = ($len[$i], $str[$i]) if($len[$i] > $max);
+    }
+    return($longest);
+  };
+  my $max_name_len = length($longest->(keys %$features));
 
   while (my ($name, $info) = each %$features) {
     $self->log_info("  $name" . '.' x ($max_name_len - length($name) + 4));
