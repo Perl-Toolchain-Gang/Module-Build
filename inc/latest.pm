@@ -23,7 +23,7 @@ sub import {
   my $from_inc = $pack->_search_INC($file);
   unless ($from_inc) {
     # Only bundled is available
-    local @INC = ($bundled_dir, @INC);
+    unshift(@INC, $bundled_dir);
     return $pack->_load($mod, @args);
   }
 
@@ -33,7 +33,7 @@ sub import {
   }
 
   # Load the bundled copy
-  local @INC = ($bundled_dir, @INC);
+  unshift(@INC, $bundled_dir);
   return $pack->_load($mod, @args);
 }
 
