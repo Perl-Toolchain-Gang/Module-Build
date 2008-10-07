@@ -395,7 +395,7 @@ testing, do I generate a test file.
 I'm sure I could not have handled this complexity with EU::MM, but it
 was very easy to do with M::B.
 
-=back 4
+=back
 
 
 =head2 Modifying an action
