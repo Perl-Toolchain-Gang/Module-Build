@@ -15,6 +15,9 @@ BEGIN {
         HARNESS_TIMER
         HARNESS_OPTIONS
         HARNESS_VERBOSE
+        PREFIX
+        INSTALL_BASE
+        INSTALLDIRS
     );
 
     # Remember the ENV values because on VMS %ENV is global

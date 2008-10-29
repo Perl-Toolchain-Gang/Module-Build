@@ -11,6 +11,10 @@ Revision history for Perl extension Module::Build.
    when running sudo.  [rt.cpan.org 39662]
  - Fixed a small POD error in the Cookbook. [Damyan Ivanov]
 
+ Test Fixes
+ - Defend against more stray environment variables interfering
+   with the tests.
+
  Other
  - Updated our embedded version.pm to 0.76, enhanced documentation on
    dist_version_from.  [John Peacock]
