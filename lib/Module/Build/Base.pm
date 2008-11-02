@@ -855,6 +855,7 @@ __PACKAGE__->add_property($_) for qw(
   base_dir
   bindoc_dirs
   c_source
+  create_license
   create_makefile_pl
   create_readme
   debugger
@@ -1629,6 +1630,7 @@ sub _translate_option {
   (my $tr_opt = $opt) =~ tr/-/_/;
 
   return $tr_opt if grep $tr_opt =~ /^(?:no_?)?$_$/, qw(
+    create_license
     create_makefile_pl
     create_readme
     extra_compiler_flags
@@ -1670,6 +1672,7 @@ sub _optional_arg {
 
   my @bool_opts = qw(
     build_bat
+    create_license
     create_readme
     pollute
     quiet
@@ -3150,6 +3153,32 @@ sub do_create_makefile_pl {
   $self->_add_to_manifest('MANIFEST', 'Makefile.PL');
 }
 
+sub do_create_license {
+  my $self = shift;
+  $self->log_info("Creating LICENSE file");
+
+  my $l = $self->license
+    or die "No license specified";
+
+  my $key = $self->valid_licenses->{$l}
+    or die "'$l' isn't a license key we know about";
+  my $class = "Software::License::$key";
+
+  eval "use $class; 1"
+    or die "Can't load Software::License to create LICENSE file: $@";
+
+  $self->delete_filetree('LICENSE');
+
+  my $author = join " & ", @{ $self->dist_author };
+  my $license = $class->new({holder => $author});
+  my $fh = IO::File->new('> LICENSE')
+    or die "Can't write LICENSE file: $!";
+  print $fh $license->fulltext;
+  close $fh;
+
+  $self->_add_to_manifest('MANIFEST', 'LICENSE');
+}
+
 sub do_create_readme {
   my $self = shift;
   $self->delete_filetree('README');
@@ -3396,17 +3425,17 @@ BEGIN { *scripts = \&script_files; }
 
 {
   my %licenses = (
-    perl         => 'http://dev.perl.org/licenses/',
-    apache       => 'http://apache.org/licenses/LICENSE-2.0',
-    artistic     => 'http://opensource.org/licenses/artistic-license.php',
-    artistic_2   => 'http://opensource.org/licenses/artistic-license-2.0.php',
-    lgpl         => 'http://opensource.org/licenses/lgpl-license.php',
-    bsd          => 'http://opensource.org/licenses/bsd-license.php',
-    gpl          => 'http://opensource.org/licenses/gpl-license.php',
-    gpl2         => 'http://opensource.org/licenses/gpl-2.0.php',
-    gpl3         => 'http://opensource.org/licenses/gpl-3.0.html',
-    mit          => 'http://opensource.org/licenses/mit-license.php',
-    mozilla      => 'http://opensource.org/licenses/mozilla1.1.php',
+    perl         => 'Perl_5',
+    apache       => 'Apache_2_0',
+    artistic     => 'Artistic_1_0',
+    artistic_2   => 'Artistic_2_0',
+    lgpl         => 'LGPL_2_1',
+    bsd          => 'BSD',
+    gpl          => 'GPL_1',
+    gpl2         => 'GPL_2',
+    gpl3         => 'GPL_3',
+    mit          => 'MIT',
+    mozilla      => 'Mozilla_1_1',
     open_source  => undef,
     unrestricted => undef,
     restrictive  => undef,
@@ -3433,6 +3462,7 @@ sub ACTION_distmeta {
 
   $self->do_create_makefile_pl if $self->create_makefile_pl;
   $self->do_create_readme if $self->create_readme;
+  $self->do_create_license if $self->create_license;
   $self->do_create_metafile;
 }
 
@@ -3513,8 +3543,13 @@ sub prepare_metadata {
   $node->{version} = '' . $node->{version}; # Stringify version objects
 
   if (defined( $self->license ) &&
-      defined( my $url = $self->valid_licenses->{ $self->license } )) {
-    $node->{resources}{license} = $url;
+      defined( my $key = $self->valid_licenses->{ $self->license } )) {
+    my $class = "Software::License::$key";
+    eval "use $class; 1"
+      or die "Couldn't load $class: $@";
+
+    # S::L requires a 'holder' key
+    $node->{resources}{license} = $class->new({holder=>"nobody"})->url;
   }
 
   if (exists $p->{configure_requires}) {
