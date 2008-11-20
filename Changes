@@ -16,6 +16,7 @@ Revision history for Perl extension Module::Build.
    create a LICENSE file during the 'dist' phase with the full text of
    the license.  This requires Software::License on the author's
    machine.  THIS ALSO STILL NEEDS DOCS.
+ - Added lgpl2/lgpl3 entries to the supported licenses (RT#40532).
 
  Test Fixes
  - Defend against more stray environment variables interfering
