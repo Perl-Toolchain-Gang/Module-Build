@@ -3784,16 +3784,18 @@ sub make_tarball {
     $self->do_system($self->split_like_shell($self->{args}{gzip}), "$file.tar") if $self->{args}{gzip};
   } else {
     require Archive::Tar;
+
     # Archive::Tar versions >= 1.09 use the following to enable a compatibility
     # hack so that the resulting archive is compatible with older clients.
     $Archive::Tar::DO_NOT_USE_PREFIX = 0;
+
     my $files = $self->rscan_dir($dir);
-    my $tar = Archive::Tar->new;
-    $tar->add_files( @$files );
-    for my $f ( $tar->get_files ) {
-      $f->mode( $f->mode & ~022 ); # chmod go-w
+    my $tar   = Archive::Tar->new;
+    $tar->add_files(@$files);
+    for my $f ($tar->get_files) {
+      $f->mode($f->mode & ~022); # chmod go-w
     }
-    $tar->write( "$file.tar.gz", 1 );
+    $tar->write("$file.tar.gz", 1);
   }
 }
 
