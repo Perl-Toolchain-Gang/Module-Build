@@ -15,6 +15,8 @@ Revision history for Perl extension Module::Build.
  - Fix ~ expansion when $HOME is different from /etc/passwd as
    when running sudo.  [rt.cpan.org 39662]
  - Fixed a small POD error in the Cookbook. [Damyan Ivanov]
+ - Unset group/other write permission bits when using Archive::Tar to
+   build the dist tarball. (RT#39804) [David Golden]
 
  Enhancements
  - We now support a 'create_license' parameter to new() that will
