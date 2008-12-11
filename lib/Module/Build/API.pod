@@ -211,12 +211,12 @@ generated F<README>.
 
 [version 0.20]
 
-This should be a short description of the distribution.  This is used
-when generating metadata for F<META.yml> and PPD files.  If it is not
-given then C<Module::Build> looks in the POD of the module from which
-it gets the distribution's version.  It looks for the first line
-matching C<$package\s-\s(.+)>, and uses the captured text as the
-abstract.
+This should be a short description of the distribution.  This is used when
+generating metadata for F<META.yml> and PPD files.  If it is not given
+then C<Module::Build> looks in the POD of the module from which it gets
+the distribution's version.  If it finds a POD section marked "=head1
+NAME", then it looks for the first line matching C<\s+-\s+(.+)>,
+and uses the captured text as the abstract.
 
 =item dist_author
 
