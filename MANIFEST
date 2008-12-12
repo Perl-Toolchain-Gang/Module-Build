@@ -34,7 +34,9 @@ Makefile.PL
 MANIFEST
 META.yml
 README
+scripts/bundle.pl
 scripts/config_data
+t/add_property.t
 t/basic.t
 t/bundled/Tie/CPHash.pm
 t/compat.t

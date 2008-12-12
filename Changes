@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.30_01
+0.30_01 - Thu Dec 11 18:25:53 PST 2008
 
  New Docs
  - Added a recipe for writing a new action to the Cookbook

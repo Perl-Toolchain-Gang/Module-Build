@@ -457,6 +457,9 @@ commit> to test your code and commit it to Subversion.
 
 =head2 Bundling Module::Build
 
+Note: This section probably needs an update as the technology improves
+(see scripts/bundle.pl in the distribution.)
+
 Let's say you want to make sure your distribution has the right
 version of Module::Build.  First thing you should do is to set
 C<configure_requires> to your minimum version of Module::Build.  See
