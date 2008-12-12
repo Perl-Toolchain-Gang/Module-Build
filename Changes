@@ -24,6 +24,8 @@ Revision history for Perl extension Module::Build.
    the license.  This requires Software::License on the author's
    machine.  THIS ALSO STILL NEEDS DOCS.
  - Added lgpl2/lgpl3 entries to the supported licenses (RT#40532).
+ - Support for validating properties with a check subref. [David
+   Wheeler]
 
  Test Fixes
  - Defend against more stray environment variables interfering

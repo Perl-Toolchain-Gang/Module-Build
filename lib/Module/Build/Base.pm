@@ -672,7 +672,9 @@ sub ACTION_config_data {
   sub valid_properties_defaults {
     my %out;
     for (reverse shift->_mb_classes) {
-      @out{ keys %{ $valid_properties{$_} } } = values %{ $valid_properties{$_} };
+      @out{ keys %{ $valid_properties{$_} } } = map {
+        $_->()
+      } values %{ $valid_properties{$_} };
     }
     return \%out;
   }
@@ -692,28 +694,35 @@ sub ACTION_config_data {
   }
 
   sub add_property {
-    my ($class, $property, $default) = @_;
-    die "Property '$property' already exists" if $class->valid_property($property);
+    my ($class, $property) = (shift, shift);
+    die "Property '$property' already exists"
+      if $class->valid_property($property);
+    my %p = @_ == 1 ? ( default => shift ) : @_;
 
-    $valid_properties{$class}{$property} = $default;
+    my $type = ref $p{default};
+    $valid_properties{$class}{$property} = $type eq 'CODE'
+      ? $p{default}
+      : sub { $p{default} };
 
-    my $type = ref $default;
-    if ($type) {
-      push @{$additive_properties{$class}->{$type}}, $property;
-    }
+    push @{$additive_properties{$class}->{$type}}, $property
+      if $type;
 
     unless ($class->can($property)) {
-      my $maker = $type eq 'HASH' ?
-        '_make_hash_accessor' : '_make_accessor';
       # TODO probably should put these in a util package
-      $maker = $class->can($maker) or die "where did it go?";
-      my $sub = $maker->($property);
+      my $sub = $type eq 'HASH'
+        ? _make_hash_accessor($property, \%p)
+        : _make_accessor($property, \%p);
       no strict 'refs';
       *{"$class\::$property"} = $sub;
     }
 
     return $class;
   }
+
+    sub property_error {
+      my $self = shift;
+      die 'ERROR: ', @_;
+    }
 
   sub _set_defaults {
     my $self = shift;
@@ -746,7 +755,8 @@ sub ACTION_config_data {
 } # end closure
 ########################################################################
 sub _make_hash_accessor {
-  my ($property) = @_;
+  my ($property, $p) = @_;
+  my $check = $p->{check} || sub { 1 };
 
   return sub {
     my $self = shift;
@@ -762,31 +772,30 @@ sub _make_hash_accessor {
     my $x = $self->{properties};
     return $x->{$property} unless @_;
 
-    if(defined($_[0]) && !ref($_[0])) {
-      if(@_ == 1) {
-        return
-          exists($x->{$property}{$_[0]})
-          ? $x->{$property}{$_[0]}
-          : undef;
-      }
-      elsif(@_ % 2 == 0) {
-        my %args = @_;
-        while(my ($k, $v) = each %args) {
-          $x->{$property}{$k} = $v;
-        }
-      }
-      else {
+    my $prop = $x->{$property};
+    if ( defined $_[0] && !ref $_[0] ) {
+      if ( @_ == 1 ) {
+        return exists $prop->{$_[0]} ? $prop->{$_[0]} : undef;
+      } elsif ( @_ % 2 == 0 ) {
+        my %new = (%{ $prop }, @_);
+        local $_ = \%new;
+        $x->{$property} = \%new if $check->($self);
+        return $x->{$property};
+      } else {
         die "Unexpected arguments for property '$property'\n";
       }
-    }
-    else {
-      $x->{$property} = $_[0];
+    } else {
+      die "Unexpected arguments for property '$property'\n"
+          if defined $_[0] && ref $_[0] ne 'HASH';
+      local $_ = $_[0];
+      $x->{$property} = shift if $check->($self);
     }
   };
 }
 ########################################################################
 sub _make_accessor {
-  my ($property) = @_;
+  my ($property, $p) = @_;
+  my $check = $p->{check} || sub { 1 };
 
   return sub {
     my $self = shift;
@@ -799,8 +808,11 @@ sub _make_accessor {
       return;
     }
 
-    $self->{properties}{$property} = shift if @_;
-    return $self->{properties}{$property};
+    my $x = $self->{properties};
+    return $x->{$property} unless @_;
+    local $_ = $_[0];
+    $x->{$property} = shift if $check->($self);
+    return $x->{$property};
   };
 }
 ########################################################################
@@ -813,7 +825,6 @@ __PACKAGE__->add_property(build_script => 'Build');
 __PACKAGE__->add_property(build_bat => 0);
 __PACKAGE__->add_property(config_dir => '_build');
 __PACKAGE__->add_property(include_dirs => []);
-__PACKAGE__->add_property(installdirs => 'site');
 __PACKAGE__->add_property(metafile => 'META.yml');
 __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(use_rcfile => 1);
@@ -823,6 +834,20 @@ __PACKAGE__->add_property(config => undef);
 __PACKAGE__->add_property(test_file_exts => ['.t']);
 __PACKAGE__->add_property(use_tap_harness => 0);
 __PACKAGE__->add_property(tap_harness_args => {});
+__PACKAGE__->add_property(
+  'installdirs',
+  default => 'site',
+  check   => sub {
+    return 1 if /^(core|site|vendor)$/;
+    return shift->property_error(
+      $_ eq 'perl'
+      ? 'Perhaps you meant installdirs to be "core" rather than "perl"?'
+      : 'installdirs must be one of "core", "site", or "vendor"'
+    );
+    return shift->property_error("Perhaps you meant 'core'?") if $_ eq 'perl';
+    return 0;
+  },
+);
 
 {
   my $Is_ActivePerl = eval {require ActivePerl::DocTools};
