@@ -458,7 +458,7 @@ commit> to test your code and commit it to Subversion.
 =head2 Bundling Module::Build
 
 Note: This section probably needs an update as the technology improves
-(see scripts/bundle.pl in the distribution.)
+(see scripts/bundle.pl in the distribution).
 
 Let's say you want to make sure your distribution has the right
 version of Module::Build.  First thing you should do is to set
@@ -503,6 +503,9 @@ Next, add this to the top of your F<Build.PL>.
 And write the rest of your F<Build.PL> normally.  Module::Build will
 remember your change to C<@INC> and use it when you run F<./Build>.
 
+In the future, we hope to provide a more automated solution for this
+scenario; see C<inc/latest.pm> in the Module::Build distribution for
+one indication of the direction we're moving.
 
 
 =head1 AUTHOR
