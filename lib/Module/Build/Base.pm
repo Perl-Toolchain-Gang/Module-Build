@@ -3468,8 +3468,33 @@ BEGIN { *scripts = \&script_files; }
     restrictive  => undef,
     unknown      => undef,
   );
+
+  # TODO - would be nice to not have these here, since they're more
+  # properly stored only in Software::License
+  my %license_urls = (
+    perl         => 'http://dev.perl.org/licenses/',
+    apache       => 'http://apache.org/licenses/LICENSE-2.0',
+    artistic     => 'http://opensource.org/licenses/artistic-license.php',
+    artistic_2   => 'http://opensource.org/licenses/artistic-license-2.0.php',
+    lgpl         => 'http://opensource.org/licenses/lgpl-license.php',
+    lgpl2        => 'http://opensource.org/licenses/lgpl-2.1.php',
+    lgpl3        => 'http://opensource.org/licenses/lgpl-3.0.html',
+    bsd          => 'http://opensource.org/licenses/bsd-license.php',
+    gpl          => 'http://opensource.org/licenses/gpl-license.php',
+    gpl2         => 'http://opensource.org/licenses/gpl-2.0.php',
+    gpl3         => 'http://opensource.org/licenses/gpl-3.0.html',
+    mit          => 'http://opensource.org/licenses/mit-license.php',
+    mozilla      => 'http://opensource.org/licenses/mozilla1.1.php',
+    open_source  => undef,
+    unrestricted => undef,
+    restrictive  => undef,
+    unknown      => undef,
+  );
   sub valid_licenses {
     return \%licenses;
+  }
+  sub _license_url {
+    return $license_urls{$_[1]};
   }
 }
 
@@ -3569,14 +3594,19 @@ sub prepare_metadata {
   }
   $node->{version} = '' . $node->{version}; # Stringify version objects
 
-  if (defined( $self->license ) &&
-      defined( my $key = $self->valid_licenses->{ $self->license } )) {
-    my $class = "Software::License::$key";
-    eval "use $class; 1"
-      or die "Couldn't load $class: $@";
+  if (defined( my $l = $self->license )) {
+    die "Unknown license string '$l'"
+      unless exists $self->valid_licenses->{ $self->license };
 
-    # S::L requires a 'holder' key
-    $node->{resources}{license} = $class->new({holder=>"nobody"})->url;
+    if (my $key = $self->valid_licenses->{ $self->license }) {
+      my $class = "Software::License::$key";
+      if (eval "use $class; 1") {
+        # S::L requires a 'holder' key
+        $node->{resources}{license} = $class->new({holder=>"nobody"})->url;
+      } else {
+        $node->{resources}{license} = $self->_license_urls($key);
+      }
+    }
   }
 
   if (exists $p->{configure_requires}) {
