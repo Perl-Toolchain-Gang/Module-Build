@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.30_02 - Mon Dec 15 12:23:55 PST 2008
+
+ Bug Fixes
+ - make Software::License dependency "softer".
+
 0.30_01 - Thu Dec 11 18:25:53 PST 2008
 
  New Docs
