@@ -3604,7 +3604,7 @@ sub prepare_metadata {
         # S::L requires a 'holder' key
         $node->{resources}{license} = $class->new({holder=>"nobody"})->url;
       } else {
-        $node->{resources}{license} = $self->_license_urls($key);
+        $node->{resources}{license} = $self->_license_url($key);
       }
     }
   }
