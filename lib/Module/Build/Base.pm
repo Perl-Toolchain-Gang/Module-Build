@@ -1594,6 +1594,9 @@ sub cull_options {
     my $self = shift;
     my (@argv) = @_;
 
+    # XXX is it even valid to call this as a class method?
+    return({}, @argv) unless(ref($self)); # no object
+
     my $specs = $self->get_options;
     return({}, @argv) unless($specs and %$specs); # no user options
 
