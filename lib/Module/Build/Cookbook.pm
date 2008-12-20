@@ -460,14 +460,15 @@ commit> to test your code and commit it to Subversion.
 Note: This section probably needs an update as the technology improves
 (see scripts/bundle.pl in the distribution).
 
-Let's say you want to make sure your distribution has the right
-version of Module::Build.  First thing you should do is to set
-C<configure_requires> to your minimum version of Module::Build.  See
-L<Module::Build::Authoring>.
+Suppose you want to use some new-ish features of Module::Build,
+e.g. newer than the version of Module::Build your users are likely to
+already have installed on their systems.  The first thing you should
+do is set C<configure_requires> to your minimum version of
+Module::Build.  See L<Module::Build::Authoring>.
 
 But not every build system honors C<configure_requires> yet.  Here's
-how you can ship a safe copy of Module::Build, but still use a newer
-installed version to take advantage of bug fixes and upgrades.
+how you can ship a copy of Module::Build, but still use a newer
+installed version to take advantage of any bug fixes and upgrades.
 
 First, install Module::Build into F<Your-Project/inc/Module-Build>.
 CPAN will not index anything in the F<inc> directory so this copy will
