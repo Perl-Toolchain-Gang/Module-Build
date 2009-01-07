@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+0.3101 - to be released
+
+ Other
+ - added 'haiku' as a Unix-type OS (backported from bleadperl)
+
 0.31 - Sat Dec 20 15:03:33 2008
 
 
