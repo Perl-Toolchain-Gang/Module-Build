@@ -36,7 +36,7 @@ my %OSTYPES = qw(
 		 darwin    Unix
 		 machten   Unix
 		 midnightbsd Unix
-     mirbsd    Unix
+		 mirbsd    Unix
 		 next      Unix
 		 openbsd   Unix
 		 netbsd    Unix
