@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+ Other
+ - added 'mirbsd' as a Unix-type OS (BinGOs)
+
 0.3101 - Thu Jan  8 23:47:17 EST 2009
 
  Other
