@@ -19,7 +19,7 @@ publish:
     - check_changes
     - check_meta_author
     - .test
-    #- .testpod
+    - .testpod
     #- .testpodcoverage
     - .dist
     #- check_kwalitee
