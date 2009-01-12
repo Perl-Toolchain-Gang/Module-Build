@@ -1,11 +1,9 @@
 Revision history for Perl extension Module::Build.
 
- Other
- - added 'mirbsd' as a Unix-type OS (BinGOs)
-
-0.3101 - Thu Jan  8 23:47:17 EST 2009
+0.3101 - Mon Jan 12 13:52:36 PST 2009
 
  Other
+ - added 'mirbsd' as a Unix-type OS [BinGOs]
  - added 'haiku' as a Unix-type OS (backported from bleadperl)
  - skips certain tests on VMS (backported from bleadperl)
  - sets $^X to absolute path in tests (backported from bleadperl)
