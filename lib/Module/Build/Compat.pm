@@ -2,7 +2,7 @@ package Module::Build::Compat;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.3101';
+$VERSION = '0.31_02';
 
 use File::Spec;
 use IO::File;
