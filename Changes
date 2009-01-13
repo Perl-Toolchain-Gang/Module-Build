@@ -6,6 +6,11 @@ Revision history for Perl extension Module::Build.
  - passthrough Makefile.PL will now play nice with cpantesters' on
    exit(0) (RT#32018) [Eric Wilhelm]
 
+0.31011 - Mon Jan 12 21:57:04 PST 2009
+
+ Bug Fixes
+ - t/tilde.t had been failing on MSWin32 (RT#42349)
+
 0.3101 - Mon Jan 12 13:52:36 PST 2009
 
  Other
