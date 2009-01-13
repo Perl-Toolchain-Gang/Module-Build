@@ -41,6 +41,7 @@ t/add_property.t
 t/basic.t
 t/bundled/Tie/CPHash.pm
 t/compat.t
+t/compat/exit.t
 t/destinations.t
 t/ext.t
 t/extend.t

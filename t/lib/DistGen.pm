@@ -419,6 +419,13 @@ sub change_file {
   $self->{pending}{change}{$file} = 1;
 }
 
+sub get_file {
+  my $self = shift;
+  my $file = shift;
+  exists($self->{filedata}{$file}) or croak("no such entry: '$file'");
+  return $self->{filedata}{$file};
+}
+
 sub chdir_in {
   my $self = shift;
 

@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.31_02
 
+ Compat
+ - passthrough Makefile.PL will now play nice with cpantesters' on
+   exit(0) (RT#32018) [Eric Wilhelm]
 
 0.3101 - Mon Jan 12 13:52:36 PST 2009
 
