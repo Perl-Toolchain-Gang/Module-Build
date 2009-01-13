@@ -3966,8 +3966,6 @@ sub _prefixify {
     return $self->_prefixify_default( $type, $rprefix );
   } elsif( !File::Spec->file_name_is_absolute($path) ) {
     $self->log_verbose("    path is relative, not prefixifying.\n");
-  } elsif( $sprefix eq $rprefix ) {
-    $self->log_verbose("  no new prefix.\n");
   } elsif( $path !~ s{^\Q$sprefix\E\b}{}s ) {
     $self->log_verbose("    cannot prefixify, falling back to default.\n");
     return $self->_prefixify_default( $type, $rprefix );

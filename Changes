@@ -6,6 +6,9 @@ Revision history for Perl extension Module::Build.
  - passthrough Makefile.PL will now play nice with cpantesters' on
    exit(0) (RT#32018) [Eric Wilhelm]
 
+ Bug Fixes
+ - fix for doubling-up of --prefix (RT#19951)
+
 0.31011 - Mon Jan 12 21:57:04 PST 2009
 
  Bug Fixes
