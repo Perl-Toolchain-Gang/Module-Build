@@ -69,7 +69,8 @@ SKIP: {
 	$home );
 
     # Test when HOME is different from getpwuid(), as in sudo.
-    {
+    SKIP: {
+        skip "Win32 does not sudo anyway", 1 if($^O eq 'MSWin32');
         local $ENV{HOME} = '/wibble/whomp';
 
         is( run_sample( $p => '~' )->$p(),    "/wibble/whomp" );
