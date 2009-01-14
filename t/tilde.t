@@ -47,7 +47,7 @@ SKIP: {
 
     unless (defined $home) {
       my @info = eval { getpwuid $> };
-      skip "No home directory for tilde-expansion tests", 14 if $@;
+      skip "No home directory for tilde-expansion tests", 15 if $@;
       $home = $info[7];
     }
 
@@ -69,8 +69,7 @@ SKIP: {
 	$home );
 
     # Test when HOME is different from getpwuid(), as in sudo.
-    SKIP: {
-        skip "Win32 does not sudo anyway", 1 if($^O eq 'MSWin32');
+    {
         local $ENV{HOME} = '/wibble/whomp';
 
         is( run_sample( $p => '~' )->$p(),    "/wibble/whomp" );

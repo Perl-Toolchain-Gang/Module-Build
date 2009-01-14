@@ -9,6 +9,11 @@ Revision history for Perl extension Module::Build.
  Bug Fixes
  - fix for doubling-up of --prefix (RT#19951)
 
+0.31012 - Wed Jan 14 01:36:19 PST 2009
+
+ Bug Fixes
+ - t/tilde.t maybe actually fixed on MSWin32 now.
+
 0.31011 - Mon Jan 12 21:57:04 PST 2009
 
  Bug Fixes
