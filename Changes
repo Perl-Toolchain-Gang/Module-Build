@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+ Other
+ - tests now use File::Temp (added to build_requires); appears to fix
+   Win32 testing heisenbug on directory removal
+
 0.31_02
 
  Compat

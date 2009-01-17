@@ -3,6 +3,7 @@ package MBTest;
 use strict;
 
 use File::Spec;
+use File::Temp ();
 use File::Path ();
 
 
@@ -100,18 +101,13 @@ __PACKAGE__->export(scalar caller, @extra_exports);
 
 ########################################################################
 
-{ # Setup a temp directory if it doesn't exist
+# always return to the current directory
+{ 
   my $cwd = Cwd::cwd;
-  my $tmp = File::Spec->catdir( $cwd, 't', '_tmp' . $$);
-  mkdir $tmp, 0777 unless -d $tmp;
 
-  sub tmpdir { $tmp }
   END {
-    if(-d $tmp) {
-      # Go back to where you came from!
-      chdir $cwd or die "Couldn't chdir to $cwd";
-      File::Path::rmtree($tmp) or diag "cannot clean dir '$tmp'";
-    }
+    # Go back to where you came from!
+    chdir $cwd or die "Couldn't chdir to $cwd";
   }
 }
 ########################################################################
@@ -124,6 +120,13 @@ __PACKAGE__->export(scalar caller, @extra_exports);
   }
 }
 ########################################################################
+
+# Setup a temp directory 
+sub tmpdir { 
+  return File::Temp::tempdir( 'MB-XXXXXXXX', 
+    CLEANUP => 1, DIR => File::Spec->tmpdir 
+  );
+}
 
 sub save_handle {
   my ($handle, $subr) = @_;
