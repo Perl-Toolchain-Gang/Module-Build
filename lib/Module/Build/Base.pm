@@ -4398,12 +4398,15 @@ sub copy_if_modified {
 	     );
   $args{verbose} = !$self->quiet
     unless exists $args{verbose};
-  
+
   my $file = $args{from};
   unless (defined $file and length $file) {
     die "No 'from' parameter given to copy_if_modified";
   }
-  
+ 
+  # makes no sense to replicate an absolute path, so assume flatten 
+  $args{flatten} = 1 if File::Spec->file_name_is_absolute( $file );
+
   my $to_path;
   if (defined $args{to} and length $args{to}) {
     $to_path = $args{to};

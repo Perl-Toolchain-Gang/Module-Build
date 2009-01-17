@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 8;
+use MBTest tests => 6;
 
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
@@ -17,7 +17,6 @@ $dist->regen;
 $dist->chdir_in;
 
 my $mb = Module::Build->new_from_context;
-my @files;
 
 {
   # Make sure copy_if_modified() can handle spaces in filenames
