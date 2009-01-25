@@ -216,7 +216,10 @@ sub ensure_blib {
   local $Test::Builder::Level = $Test::Builder::Level + 1; 
  SKIP: {
     skip "no blib in core", 1 if $ENV{PERL_CORE};
-    like $INC{"$path.pm"}, qr/\bblib\b/, "Make sure $mod was loaded from blib/";
+    like $INC{"$path.pm"}, qr/\bblib\b/, "Make sure $mod was loaded from blib/"
+      or diag "PERL5LIB: " . ($ENV{PERL5LIB} || '') . "\n" .
+              "PERL5OPT: " . ($ENV{PERL5OPT} || '') . "\n" .
+              "\@INC contains:\n  " . join("\n  ", @INC) . "\n"; 
   }
 }
 
