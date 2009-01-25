@@ -212,7 +212,8 @@ sub ensure_blib {
   # Make sure the given module was loaded from blib/, not the larger system
   my $mod = shift;
   (my $path = $mod) =~ s{::}{/}g;
-  
+ 
+  local $Test::Builder::Level = $Test::Builder::Level + 1; 
  SKIP: {
     skip "no blib in core", 1 if $ENV{PERL_CORE};
     like $INC{"$path.pm"}, qr/\bblib\b/, "Make sure $mod was loaded from blib/";
