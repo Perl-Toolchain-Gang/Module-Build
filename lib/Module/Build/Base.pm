@@ -1188,7 +1188,7 @@ sub check_autofeatures {
     }
   }
 
-  $self->log_warn("\n");
+  $self->log_warn("\n") unless $self->quiet;
 }
 
 sub prereq_failures {
