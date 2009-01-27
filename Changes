@@ -2,7 +2,10 @@ Revision history for Perl extension Module::Build.
 
  Other
  - tests now use File::Temp (added to build_requires); appears to fix
-   Win32 testing heisenbug on directory removal
+   Win32 testing heisenbug on directory removal during high system loads
+ - use_tap_harness.t will skip unless a release version of TAP::Harness
+   is installed
+ - improved diagnostics to ensure_blib() tests in t/lib/MBTest.pm
 
 0.31_02
 
