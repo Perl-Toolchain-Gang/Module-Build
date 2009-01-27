@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.31_02 Tue Jan 27 09:16:43 PST 2009
+0.31_02 - Tue Jan 27 09:16:43 PST 2009
 
  Other
  - tests now use File::Temp (added to build_requires); appears to fix
