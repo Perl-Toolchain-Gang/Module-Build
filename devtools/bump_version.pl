@@ -1,17 +1,41 @@
 #!/usr/bin/env perl
+
+# NOTE: we run this immediately *after* a release so that any reports
+# against svn are obvious
+
 use strict;
 use warnings;
 
+use lib 'lib';
+use Module::Build;
+
 use Tie::File;
 
-eval { require File::Find::Rule }
-  or die "$0 requires File::Find::Rule. Please install it and try again.\n";
+eval { require File::Find::Rule } or
+  die "$0 requires File::Find::Rule. Please install and try again.\n";
 
-# Get version from command line
-my $version = shift
-  or die "Usage: $0 <version>\n";
+my $current = Module::Build->new_from_context(quiet => 1)->dist_version;
 
-# XXX check if $version is greater than existing?
+# Get version from command line or prompt
+my $version = shift;
+unless($version) {
+  my $default = $current;
+
+  # try to construct a reasonable default automatically
+  $default =~ s/(\d+)$// or
+    die "Usage: $0 VERSION\ncurrently: $current\n";
+  my $end = $1;
+  $default .= sprintf('%0'.length($end).'d', $end+1);
+
+  local $| = 1;
+  print "enter new version [$default]: ";
+  chomp(my $ans = <STDIN>);
+  $version = $ans ? $ans : $default;
+  # TODO check for garbage in?
+}
+
+die "must bump forward! ($version < $current)\n"
+  unless($version >= $current);
 
 # NEVER BUMP THESE $VERSION numbers
 my @excluded = qw(
@@ -24,12 +48,45 @@ my @pmfiles = File::Find::Rule->new->or(
   File::Find::Rule->name('*.pm'),
   File::Find::Rule->directory->name( qr/\.svn/ )->prune->discard
 )->in( 'lib' );
-my @scripts = File::Find::Rule->new()->name('*')->in( './scripts' );
+my @scripts = File::Find::Rule->new()->or(
+  File::Find::Rule->name('*'),
+  File::Find::Rule->directory->name( qr/\.svn/ )->prune->discard
+)->in( './scripts' );
+
+# first start the new Changes entry
+sub {
+  my $file = 'Changes';
+  open(my $fh, '<', $file) or die "cannot read '$file' $!";
+  my @lines = <$fh>;
+  my @head;
+  while(@lines) {
+    my $line = shift(@lines);
+    if($line =~ m/^$current - \w/) {
+      warn "Updating '$file'\n";
+      open(my $ofh, '>', $file) or die "cannot write '$file' $!";
+      print $ofh @head, "$version - \n", "\n", $line, @lines;
+      close($ofh) or die "cannot write '$file' $!";
+      return;
+    }
+    elsif($line =~ m/^$version(?: *- *)?$/) {
+      # TODO should just be checking for a general number+eol case?
+      die "$file probably needs to be reverted!";
+    }
+    elsif($line =~ m/^$current(?: *- *)?$/) {
+      die "Error parsing $file - found unreleased '$current'"; 
+    }
+    else {
+      push(@head, $line);
+    }
+  }
+  die "cannot find changes entry for current version ($current)!";
+}->();
 
 for my $file ( @pmfiles, @scripts ) {
   next if grep { $file eq $_ } @excluded;
   bump_version( $file, $version );
 }
+
 
 exit;
 
@@ -45,8 +102,9 @@ sub bump_version {
       $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
       next if $inpod || /^\s*#/;
       next unless /(?<!\\)([\$*])(([\w\:\']*)\bVERSION)\b.*\=/;
+      # TODO check that what we found matches $current?
       $_ = "\$VERSION = '$version';"; 
-      print "Updated $file\n";
+      warn "Updated $file\n";
       last;
   }
 
@@ -54,3 +112,4 @@ sub bump_version {
   return;
 }
 
+# vi:ts=2:sw=2:et:sta
