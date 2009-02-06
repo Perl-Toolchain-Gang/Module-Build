@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.31_03 - 
 
+ Enhancements
+ - added a "prereq_data" action that prints a Perl data structure of
+   all prerequisites; can be loaded by external tools using eval()
+   [David Golden]
+
 0.31_02 - Tue Jan 27 09:16:43 PST 2009
 
  Other

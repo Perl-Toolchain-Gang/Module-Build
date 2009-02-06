@@ -496,6 +496,14 @@ This uses the same mechanism as the C<dist> action to tar & zip its
 output, so you can supply C<tar> and/or C<gzip> parameters to affect
 the result.
 
+=item prereq_data
+
+[version 0.32]
+
+This action prints out a Perl data structure of all prerequsites and the versions
+required.  The output can be loaded again using C<eval()>.  This can be useful for
+external tools that wish to query a Build script for prerequisites.
+
 =item prereq_report
 
 [version 0.28]

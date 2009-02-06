@@ -2054,15 +2054,25 @@ sub ACTION_prereq_report {
   $self->log_info( $self->prereq_report );
 }
 
-sub prereq_report {
+sub ACTION_prereq_data {
+  my $self = shift;
+  $self->log_info( Module::Build::Dumper->_data_dump( $self->prereq_data ) );
+}
+
+sub prereq_data {
   my $self = shift;
   my @types = @{ $self->prereq_action_types };
-  my $info = { map { $_ => $self->$_() } @types };
+  my $info = { map { $_ => $self->$_() } grep { %{$self->$_()} } @types };
+  return $info;
+}
+
+sub prereq_report {
+  my $self = shift;
+  my $info = $self->prereq_data;
 
   my $output = '';
-  foreach my $type (@types) {
+  foreach my $type (keys %$info) {
     my $prereqs = $info->{$type};
-    next unless %$prereqs;
     $output .= "\n$type:\n";
     my $mod_len = 2;
     my $ver_len = 4;
