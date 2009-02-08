@@ -59,6 +59,13 @@ my $build = ModuleBuildBuilder->new(
 
   # overwrite the M::B that shipped in core
   installdirs   => ($] >= 5.009004 ? 'core' : 'site'),
+  
+  # Some CPANPLUS::Dist::Build versions need to allow mismatches 
+  # On logic: thanks to Module::Install, CPAN.pm must set both keys, but
+  # CPANPLUS sets only the one
+  allow_mb_mismatch => ( 
+    $ENV{PERL5_CPANPLUS_IS_RUNNING} && ! $ENV{PERL5_CPAN_IS_RUNNING} ? 1 : 0
+  ),
 
   auto_features => {
     YAML_support => {

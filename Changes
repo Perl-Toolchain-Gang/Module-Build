@@ -10,7 +10,9 @@ Revision history for Perl extension Module::Build.
  Bug-fixes
  - 'fakeinstall' action warns and skips without ExtUtils::Install 1.32+
    [David Golden, reported by Zefram]
-   
+ - allows Module::Build version mismatch when installing self; works around
+   limitations in CPANPLUS::Dist::Build [David Golden]
+
 0.31_02 - Tue Jan 27 09:16:43 PST 2009
 
  Other
