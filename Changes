@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.31_03 - 
+0.31_03 - Sun Feb  8 14:54:01 PST 2009
 
  Enhancements
  - added a "prereq_data" action that prints a Perl data structure of
