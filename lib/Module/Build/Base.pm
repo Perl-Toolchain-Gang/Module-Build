@@ -2959,6 +2959,14 @@ sub ACTION_install {
 sub ACTION_fakeinstall {
   my ($self) = @_;
   require ExtUtils::Install;
+  my $eui_version = ExtUtils::Install->VERSION;
+  if ( $eui_version < 1.32 ) {
+    $self->log_warn(
+      "The 'fakeinstall' action requires Extutils::Install 1.32 or later.\n"
+      . "(You only have version $eui_version)."
+    );
+    return;
+  }
   $self->depends_on('build');
   ExtUtils::Install::install($self->install_map, !$self->quiet, 1, $self->{args}{uninst}||0);
 }
