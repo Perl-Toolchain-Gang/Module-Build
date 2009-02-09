@@ -1,0 +1,36 @@
+This requires VCfs (on CPAN) and CPDK (not yet.)
+
+Update and make sure you have no local changes or conflicts.
+
+  $ svn up
+
+  $ svn st
+
+See what the last tag was:
+
+  $ svn_taglist | tail
+  ...
+  0.31_02
+
+Pull the logs since that tag and check the Changes file.
+
+  $ svn_logsincetag 0.31_02
+  ...
+
+  $ edit Changes
+
+If everything is good, just datestamp the version section at the top of
+Changes (I use "r! date" then "kJ" in vim.)
+
+  $ svn ci -m "Changes - prep for release"
+
+And we should now be ready for automated shipping:
+
+  $ publish-module
+
+Now the release is out and tagged.  Start a new version number
+
+  $ ./devtools/bump_version.pl
+
+  $ svn ci -m "Changes, lib/***.pm - bump version"
+
