@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.31_04 - 
 
+ Other
+ - Bumped Test::Harness prereq to 3.16 for latest PERL5LIB fixes (solves
+   test failures when installing Module::Build using CPANPLUS::Dist::Build)
+   [David Golden]
+
 0.31_03 - Sun Feb  8 14:54:01 PST 2009
 
  Enhancements
