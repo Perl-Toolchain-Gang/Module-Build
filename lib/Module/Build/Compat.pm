@@ -176,7 +176,7 @@ EOF
     
     $MM_Args{EXE_FILES} = [ sort keys %{$build->script_files} ] if $build->script_files;
     
-    $MM_Args{PL_FILES} = $build->PL_files if $build->PL_files;
+    $MM_Args{PL_FILES} = $build->PL_files || {};
     
     local $Data::Dumper::Terse = 1;
     my $args = Data::Dumper::Dumper(\%MM_Args);
@@ -501,11 +501,7 @@ ever have to install Module::Build if they use the Makefile.PL, but
 they won't get to take advantage of Module::Build's extra features
 either.
 
-If you go this route, make sure you explicitly set C<PL_FILES> in the
-call to C<WriteMakefile()> (probably to an empty hash reference), or
-else MakeMaker will mistakenly run the Build.PL and you'll get an
-error message about "Too early to run Build script" or something.  For
-good measure, of course, test both the F<Makefile.PL> and the
+For good measure, of course, test both the F<Makefile.PL> and the
 F<Build.PL> before shipping.
 
 =item 3.
