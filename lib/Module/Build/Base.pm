@@ -129,6 +129,7 @@ sub _construct {
 				   %input,
 				  },
 		    phash => {},
+                    stash => {}, # temporary caching, not stored in _build
 		   }, $package;
 
   $self->_set_defaults;
@@ -4144,13 +4145,13 @@ sub cbuilder {
   # Returns a CBuilder object
 
   my $self = shift;
-  my $p = $self->{properties};
-  return $p->{_cbuilder} if $p->{_cbuilder};
+  my $s = $self->{stash};
+  return $s->{_cbuilder} if $s->{_cbuilder};
   die "Module::Build is not configured with C_support"
 	  unless $self->_mb_feature('C_support');
 
   require ExtUtils::CBuilder;
-  return $p->{_cbuilder} = ExtUtils::CBuilder->new(
+  return $s->{_cbuilder} = ExtUtils::CBuilder->new(
     config => $self->config,
     ($self->quiet ? (quiet => 1 ) : ()),
   );

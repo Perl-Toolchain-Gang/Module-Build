@@ -6,6 +6,7 @@ Revision history for Perl extension Module::Build.
  - Module::Build::Compat had stopped adding "PL_FILES => {}" when no
    PL_files property was set in Build.PL; restored old behavior and fixed
    tests and documentation related to this issue [David Golden]
+ - Caches ExtUtils::CBuilder object in a temporary stash instead of properties 
 
 0.32 - Wed Feb 25 17:40:02 PST 2009
 
