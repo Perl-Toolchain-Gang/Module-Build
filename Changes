@@ -8,6 +8,10 @@ Revision history for Perl extension Module::Build.
    tests and documentation related to this issue [David Golden]
  - Caches ExtUtils::CBuilder object in a temporary stash instead of properties 
 
+ Other:
+ - Generated META.yml will indicate version 1.4 of the specification
+   (RT #37478) [patch from Alexandr Ciornii]
+
 0.32 - Wed Feb 25 17:40:02 PST 2009
 
  No changes since 0.31_04.

@@ -3664,8 +3664,8 @@ sub prepare_metadata {
   $add_node->('generated_by', "Module::Build version $Module::Build::VERSION");
 
   $add_node->('meta-spec', 
-	      {version => '1.2',
-	       url     => 'http://module-build.sourceforge.net/META-spec-v1.2.html',
+	      {version => '1.4',
+	       url     => 'http://module-build.sourceforge.net/META-spec-v1.4.html',
 	      });
 
   while (my($k, $v) = each %{$self->meta_add}) {
