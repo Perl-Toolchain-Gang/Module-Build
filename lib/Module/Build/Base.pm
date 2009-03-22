@@ -3618,17 +3618,19 @@ sub prepare_metadata {
 
   if (defined( my $l = $self->license )) {
     die "Unknown license string '$l'"
-      unless exists $self->valid_licenses->{ $self->license };
+      unless exists $self->valid_licenses->{ $l };
 
-    if (my $key = $self->valid_licenses->{ $self->license }) {
+    if (my $key = $self->valid_licenses->{ $l }) {
       my $class = "Software::License::$key";
       if (eval "use $class; 1") {
         # S::L requires a 'holder' key
         $node->{resources}{license} = $class->new({holder=>"nobody"})->url;
-      } else {
-        $node->{resources}{license} = $self->_license_url($key);
+      }
+      else {
+        $node->{resources}{license} = $self->_license_url($l);
       }
     }
+    # XXX we are silently omitting the url for any unknown license
   }
 
   if (exists $p->{configure_requires}) {

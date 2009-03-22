@@ -7,6 +7,7 @@ Revision history for Perl extension Module::Build.
    PL_files property was set in Build.PL; restored old behavior and fixed
    tests and documentation related to this issue [David Golden]
  - Caches ExtUtils::CBuilder object in a temporary stash instead of properties 
+ - Fixed undef resources->license in META.yml (RT #44453).
 
  Other:
  - Generated META.yml will indicate version 1.4 of the specification
