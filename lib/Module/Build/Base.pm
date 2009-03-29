@@ -3567,34 +3567,50 @@ sub do_create_metafile {
     push @INC, File::Spec->catdir($self->blib, 'lib');
   }
 
-  $self->write_metafile;
+  if ( $self->write_metafile( $self->metafile, $self->generate_metadata ) ) {
+    $self->{wrote_metadata} = 1;
+    $self->_add_to_manifest('MANIFEST', $metafile);
+  }
+
+  return 1;
 }
 
-sub write_metafile {
+sub generate_metadata {
   my $self = shift;
-  my $metafile = $self->metafile;
+  my $node = {};
 
   if ($self->_mb_feature('YAML_support')) {
     require YAML;
     require YAML::Node;
-
     # We use YAML::Node to get the order nice in the YAML file.
-    $self->prepare_metadata( my $node = YAML::Node->new({}) );
-    
-    # YAML API changed after version 0.30
-    my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
-    $self->{wrote_metadata} = $yaml_sub->($metafile, $node );
-
+    $self->prepare_metadata( $node = YAML::Node->new({}) );
   } else {
     require Module::Build::YAML;
-    my (%node, @order_keys);
-    $self->prepare_metadata(\%node, \@order_keys);
-    $node{_order} = \@order_keys;
-    &Module::Build::YAML::DumpFile($metafile, \%node);
-    $self->{wrote_metadata} = 1;
+    my @order_keys;
+    $self->prepare_metadata($node, \@order_keys);
+    $node->{_order} = \@order_keys;
   }
+  return $node;
+}
 
-  $self->_add_to_manifest('MANIFEST', $metafile);
+sub write_metafile {
+  my $self = shift;
+  my ($metafile, $node) = @_;
+
+  if ($self->_mb_feature('YAML_support')) {
+    # XXX this is probably redundant, but stick with it
+    require YAML;
+    require YAML::Node;
+    delete $node->{_order}; # XXX also probably redundant, but for safety
+    # YAML API changed after version 0.30
+    my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
+    $yaml_sub->( $metafile, $node );
+  } else {
+    # XXX probably redundant
+    require Module::Build::YAML;
+    &Module::Build::YAML::DumpFile($metafile, $node);
+  }
+  return 1;
 }
 
 sub prepare_metadata {
