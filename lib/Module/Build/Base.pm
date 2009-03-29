@@ -1538,7 +1538,8 @@ sub create_build_script {
   
   $self->make_executable($build_script);
   
-  $self->write_metafile( $self->mymetafile, $self->generate_metadata );
+  $self->write_metafile( $self->mymetafile, $self->generate_metadata )
+    and $self->add_to_cleanup( $self->mymetafile );
   
   return 1;
 }
