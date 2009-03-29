@@ -827,6 +827,7 @@ __PACKAGE__->add_property(build_bat => 0);
 __PACKAGE__->add_property(config_dir => '_build');
 __PACKAGE__->add_property(include_dirs => []);
 __PACKAGE__->add_property(metafile => 'META.yml');
+__PACKAGE__->add_property(mymetafile => 'MYMETA.yml');
 __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(use_rcfile => 1);
 __PACKAGE__->add_property(create_packlist => 1);
@@ -1536,7 +1537,9 @@ sub create_build_script {
   close $fh;
   
   $self->make_executable($build_script);
-
+  
+  $self->write_metafile( $self->mymetafile, $self->generate_metadata );
+  
   return 1;
 }
 
