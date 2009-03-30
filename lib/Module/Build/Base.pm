@@ -3326,6 +3326,8 @@ sub ACTION_distdir {
   my ($self) = @_;
 
   $self->depends_on('distmeta');
+  
+  $self->_check_mymeta_skip('MANIFEST.SKIP');
 
   my $dist_files = $self->_read_manifest('MANIFEST')
     or die "Can't create distdir without a MANIFEST file - run 'manifest' action first.\n";
