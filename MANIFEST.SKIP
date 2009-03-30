@@ -33,6 +33,7 @@ save_err$
 ^website
 /Script$
 ^META-
+^MYMETA
 Plugin
 doc_check.pl$
 ^[^/]+\.patch$
