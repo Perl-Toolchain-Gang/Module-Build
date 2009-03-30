@@ -1542,7 +1542,7 @@ sub create_build_script {
   if ( $self->delete_filetree($mymetafile) ) {
     $self->log_info("Removed previous '$mymetafile'\n");
   }
-  $self->log_info("Creating new '$mymetafile'\n");
+  $self->log_info("Creating new '$mymetafile' with configuration results\n");
   if ( $self->write_metafile( $mymetafile, $self->generate_metadata ) ) {
     $self->add_to_cleanup( $mymetafile );
   }
