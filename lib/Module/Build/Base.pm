@@ -826,6 +826,7 @@ __PACKAGE__->add_property(build_script => 'Build');
 __PACKAGE__->add_property(build_bat => 0);
 __PACKAGE__->add_property(config_dir => '_build');
 __PACKAGE__->add_property(include_dirs => []);
+__PACKAGE__->add_property(license => 'unknown');
 __PACKAGE__->add_property(metafile => 'META.yml');
 __PACKAGE__->add_property(mymetafile => 'MYMETA.yml');
 __PACKAGE__->add_property(recurse_into => []);
@@ -897,7 +898,6 @@ __PACKAGE__->add_property($_) for qw(
   has_config_data
   install_base
   libdoc_dirs
-  license
   magic_number
   mb_version
   module_name
