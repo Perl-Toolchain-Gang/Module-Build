@@ -3106,6 +3106,8 @@ sub ACTION_dist {
 sub ACTION_distcheck {
   my ($self) = @_;
 
+  $self->_check_mymeta_skip('MANIFEST.SKIP');
+
   require ExtUtils::Manifest;
   local $^W; # ExtUtils::Manifest is not warnings clean.
   my ($missing, $extra) = ExtUtils::Manifest::fullcheck();
@@ -3117,6 +3119,21 @@ sub ACTION_distcheck {
     die $msg;
   } else {
     warn $msg;
+  }
+}
+
+sub _check_mymeta_skip {
+  my $self = shift;
+  my $maniskip = shift || 'MANIFEST.SKIP';
+
+  require ExtUtils::Manifest;
+  local $^W; # ExtUtils::Manifest is not warnings clean.
+
+  my $skip_check = ExtUtils::Manifest::maniskip($maniskip);
+  my $mymetafile = $self->mymetafile;
+  if ( ! $skip_check->( $mymetafile ) ) {
+    $self->log_warn("File '$maniskip' does not include '$mymetafile'. Adding it now.\n");
+    $self->_append_maniskip("^$mymetafile\$", $maniskip);
   }
 }
 
@@ -3350,6 +3367,19 @@ sub ACTION_disttest {
       });
 }
 
+
+sub _append_maniskip {
+  my $self = shift;
+  my $skip = shift;
+  my $file = shift || 'MANIFEST.SKIP';
+  return unless defined $skip && length $skip;
+  my $fh = IO::File->new(">> $file")
+    or die "Can't open $file: $!";
+
+  print $fh "$skip\n";
+  $fh->close();
+}
+
 sub _write_default_maniskip {
   my $self = shift;
   my $file = shift || 'MANIFEST.SKIP';
@@ -3421,6 +3451,9 @@ sub ACTION_manifest {
   my ($self) = @_;
 
   my $maniskip = 'MANIFEST.SKIP';
+
+  $self->_check_mymeta_skip( $maniskip );
+
   unless ( -e 'MANIFEST' || -e $maniskip ) {
     $self->log_warn("File '$maniskip' does not exist: Creating a default '$maniskip'\n");
     $self->_write_default_maniskip($maniskip);
