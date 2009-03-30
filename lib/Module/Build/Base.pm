@@ -1527,19 +1527,25 @@ sub create_build_script {
     = map $self->$_(), qw(build_script dist_name dist_version);
   
   if ( $self->delete_filetree($build_script) ) {
-    $self->log_info("Removed previous script '$build_script'\n\n");
+    $self->log_info("Removed previous script '$build_script'\n");
   }
 
   $self->log_info("Creating new '$build_script' script for ",
-		  "'$dist_name' version '$dist_version'\n");
+		  "'$dist_name' version '$dist_version'\n\n");
   my $fh = IO::File->new(">$build_script") or die "Can't create '$build_script': $!";
   $self->print_build_script($fh);
   close $fh;
   
   $self->make_executable($build_script);
   
-  $self->write_metafile( $self->mymetafile, $self->generate_metadata )
-    and $self->add_to_cleanup( $self->mymetafile );
+  my $mymetafile = $self->mymetafile;
+  if ( $self->delete_filetree($mymetafile) ) {
+    $self->log_info("Removed previous '$mymetafile'\n");
+  }
+  $self->log_info("Creating new '$mymetafile'\n");
+  if ( $self->write_metafile( $mymetafile, $self->generate_metadata ) ) {
+    $self->add_to_cleanup( $mymetafile );
+  }
   
   return 1;
 }
@@ -3305,7 +3311,7 @@ sub ACTION_distdir {
   $self->depends_on('distmeta');
 
   my $dist_files = $self->_read_manifest('MANIFEST')
-    or die "Can't create distdir without a MANIFEST file - run 'manifest' action first";
+    or die "Can't create distdir without a MANIFEST file - run 'manifest' action first.\n";
   delete $dist_files->{SIGNATURE};  # Don't copy, create a fresh one
   die "No files found in MANIFEST - try running 'manifest' action?\n"
     unless ($dist_files and keys %$dist_files);
@@ -3360,6 +3366,9 @@ sub _write_default_maniskip {
 ,v$
 \B\.svn\b
 \B\.cvsignore$
+
+# Avoid configuration metadata files.
+^MYMETA.yml$
 
 # Avoid Makemaker generated and utility files.
 \bMakefile$
@@ -3631,7 +3640,7 @@ sub prepare_metadata {
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
     (my $name = $_) =~ s/^dist_//;
     $add_node->($name, $self->$_());
-    die "ERROR: Missing required field '$_' for META.yml\n"
+    die "ERROR: Missing required field '$_' for metafile\n"
       unless defined($node->{$name}) && length($node->{$name});
   }
   $node->{version} = '' . $node->{version}; # Stringify version objects
@@ -3674,7 +3683,7 @@ sub prepare_metadata {
   my $pkgs = eval { $self->find_dist_packages };
   if ($@) {
     $self->log_warn("$@\nWARNING: Possible missing or corrupt 'MANIFEST' file.\n" .
-		    "Nothing to enter for 'provides' field in META.yml\n");
+		    "Nothing to enter for 'provides' field in metafile.\n");
   } else {
     $node->{provides} = $pkgs if %$pkgs;
   }
@@ -3718,7 +3727,7 @@ sub find_dist_packages {
   # private stock.
 
   my $manifest = $self->_read_manifest('MANIFEST')
-    or die "Can't find dist packages without a MANIFEST file - run 'manifest' action first";
+    or die "Can't find dist packages without a MANIFEST file\nRun 'Build manifest' to generate one\n";
 
   # Localize
   my %dist_files = map { $self->localize_file_path($_) => $_ }
