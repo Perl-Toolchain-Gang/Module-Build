@@ -826,9 +826,7 @@ __PACKAGE__->add_property(build_script => 'Build');
 __PACKAGE__->add_property(build_bat => 0);
 __PACKAGE__->add_property(config_dir => '_build');
 __PACKAGE__->add_property(include_dirs => []);
-__PACKAGE__->add_property(license => 'unknown');
 __PACKAGE__->add_property(metafile => 'META.yml');
-__PACKAGE__->add_property(mymetafile => 'MYMETA.yml');
 __PACKAGE__->add_property(recurse_into => []);
 __PACKAGE__->add_property(use_rcfile => 1);
 __PACKAGE__->add_property(create_packlist => 1);
@@ -898,6 +896,7 @@ __PACKAGE__->add_property($_) for qw(
   has_config_data
   install_base
   libdoc_dirs
+  license
   magic_number
   mb_version
   module_name
@@ -1527,26 +1526,17 @@ sub create_build_script {
     = map $self->$_(), qw(build_script dist_name dist_version);
   
   if ( $self->delete_filetree($build_script) ) {
-    $self->log_info("Removed previous script '$build_script'\n");
+    $self->log_info("Removed previous script '$build_script'\n\n");
   }
 
   $self->log_info("Creating new '$build_script' script for ",
-		  "'$dist_name' version '$dist_version'\n\n");
+		  "'$dist_name' version '$dist_version'\n");
   my $fh = IO::File->new(">$build_script") or die "Can't create '$build_script': $!";
   $self->print_build_script($fh);
   close $fh;
   
   $self->make_executable($build_script);
-  
-  my $mymetafile = $self->mymetafile;
-  if ( $self->delete_filetree($mymetafile) ) {
-    $self->log_info("Removed previous '$mymetafile'\n");
-  }
-  $self->log_info("Creating new '$mymetafile' with configuration results\n");
-  if ( $self->write_metafile( $mymetafile, $self->generate_metadata ) ) {
-    $self->add_to_cleanup( $mymetafile );
-  }
-  
+
   return 1;
 }
 
@@ -3106,8 +3096,6 @@ sub ACTION_dist {
 sub ACTION_distcheck {
   my ($self) = @_;
 
-  $self->_check_mymeta_skip('MANIFEST.SKIP');
-
   require ExtUtils::Manifest;
   local $^W; # ExtUtils::Manifest is not warnings clean.
   my ($missing, $extra) = ExtUtils::Manifest::fullcheck();
@@ -3119,21 +3107,6 @@ sub ACTION_distcheck {
     die $msg;
   } else {
     warn $msg;
-  }
-}
-
-sub _check_mymeta_skip {
-  my $self = shift;
-  my $maniskip = shift || 'MANIFEST.SKIP';
-
-  require ExtUtils::Manifest;
-  local $^W; # ExtUtils::Manifest is not warnings clean.
-
-  my $skip_check = ExtUtils::Manifest::maniskip($maniskip);
-  my $mymetafile = $self->mymetafile;
-  if ( ! $skip_check->( $mymetafile ) ) {
-    $self->log_warn("File '$maniskip' does not include '$mymetafile'. Adding it now.\n");
-    $self->_append_maniskip("^$mymetafile\$", $maniskip);
   }
 }
 
@@ -3326,11 +3299,9 @@ sub ACTION_distdir {
   my ($self) = @_;
 
   $self->depends_on('distmeta');
-  
-  $self->_check_mymeta_skip('MANIFEST.SKIP');
 
   my $dist_files = $self->_read_manifest('MANIFEST')
-    or die "Can't create distdir without a MANIFEST file - run 'manifest' action first.\n";
+    or die "Can't create distdir without a MANIFEST file - run 'manifest' action first";
   delete $dist_files->{SIGNATURE};  # Don't copy, create a fresh one
   die "No files found in MANIFEST - try running 'manifest' action?\n"
     unless ($dist_files and keys %$dist_files);
@@ -3369,19 +3340,6 @@ sub ACTION_disttest {
       });
 }
 
-
-sub _append_maniskip {
-  my $self = shift;
-  my $skip = shift;
-  my $file = shift || 'MANIFEST.SKIP';
-  return unless defined $skip && length $skip;
-  my $fh = IO::File->new(">> $file")
-    or die "Can't open $file: $!";
-
-  print $fh "$skip\n";
-  $fh->close();
-}
-
 sub _write_default_maniskip {
   my $self = shift;
   my $file = shift || 'MANIFEST.SKIP';
@@ -3398,9 +3356,6 @@ sub _write_default_maniskip {
 ,v$
 \B\.svn\b
 \B\.cvsignore$
-
-# Avoid configuration metadata files.
-^MYMETA.yml$
 
 # Avoid Makemaker generated and utility files.
 \bMakefile$
@@ -3453,9 +3408,6 @@ sub ACTION_manifest {
   my ($self) = @_;
 
   my $maniskip = 'MANIFEST.SKIP';
-
-  $self->_check_mymeta_skip( $maniskip );
-
   unless ( -e 'MANIFEST' || -e $maniskip ) {
     $self->log_warn("File '$maniskip' does not exist: Creating a default '$maniskip'\n");
     $self->_write_default_maniskip($maniskip);
@@ -3675,7 +3627,7 @@ sub prepare_metadata {
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
     (my $name = $_) =~ s/^dist_//;
     $add_node->($name, $self->$_());
-    die "ERROR: Missing required field '$_' for metafile\n"
+    die "ERROR: Missing required field '$_' for META.yml\n"
       unless defined($node->{$name}) && length($node->{$name});
   }
   $node->{version} = '' . $node->{version}; # Stringify version objects
@@ -3718,7 +3670,7 @@ sub prepare_metadata {
   my $pkgs = eval { $self->find_dist_packages };
   if ($@) {
     $self->log_warn("$@\nWARNING: Possible missing or corrupt 'MANIFEST' file.\n" .
-		    "Nothing to enter for 'provides' field in metafile.\n");
+		    "Nothing to enter for 'provides' field in META.yml\n");
   } else {
     $node->{provides} = $pkgs if %$pkgs;
   }
@@ -3762,7 +3714,7 @@ sub find_dist_packages {
   # private stock.
 
   my $manifest = $self->_read_manifest('MANIFEST')
-    or die "Can't find dist packages without a MANIFEST file\nRun 'Build manifest' to generate one\n";
+    or die "Can't find dist packages without a MANIFEST file - run 'manifest' action first";
 
   # Localize
   my %dist_files = map { $self->localize_file_path($_) => $_ }

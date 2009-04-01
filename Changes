@@ -2,10 +2,6 @@ Revision history for Perl extension Module::Build.
 
 0.32_01 - 
 
- Enhancements
- - Generates MYMETA.yml during Build.PL (new standard protocol for communicating
-   configuration between toolchain components)
- 
  Bug-fixes:
  - Module::Build::Compat had stopped adding "PL_FILES => {}" when no
    PL_files property was set in Build.PL; restored old behavior and fixed
