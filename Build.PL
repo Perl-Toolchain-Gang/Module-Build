@@ -27,6 +27,7 @@ my $build = ModuleBuildBuilder->new(
   },
   requires    => {
     'perl'                  => '5.006001',
+    'Archive::Tar'          => '1.08',
     'Data::Dumper'          => 0,
     'File::Basename'        => 0,
     'File::Compare'         => 0,
@@ -45,7 +46,6 @@ my $build = ModuleBuildBuilder->new(
     'Test::Harness'         => 0,
   },
   recommends => {
-    'Archive::Tar'       => '1.08',
     'ExtUtils::CBuilder' => 0.15,
     'ExtUtils::Install'  => 0.30,
     'ExtUtils::ParseXS'  => 1.02,

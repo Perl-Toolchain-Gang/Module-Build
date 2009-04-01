@@ -9,13 +9,6 @@ use Module::Build::Base;
 use vars qw(@ISA);
 @ISA = qw(Module::Build::Base);
 
-sub make_tarball {
-  my $self = shift;
-  $self->{args}{tar}  ||= ['tar'];
-  $self->{args}{gzip} ||= ['gzip'];
-  $self->SUPER::make_tarball(@_);
-}
-
 sub is_executable {
   # We consider the owner bit to be authoritative on a file, because
   # -x will always return true if the user is root and *any*
