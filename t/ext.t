@@ -129,7 +129,7 @@ foreach my $test (@win_splits) {
 
   my @data = map values(%$_), @unix_splits, @win_splits;
   for my $d (@data) {
-    chomp(my $out = Module::Build->_backticks('perl', '-le', 'print join " ", map "{$_}", @ARGV', @$d));
+    chomp(my $out = Module::Build->_backticks($^X, '-le', 'print join " ", map "{$_}", @ARGV', @$d));
     is($out, join(' ', map "{$_}", @$d), "backticks round trip for ".join('',map "{$_}", @$d));
   }
 }
