@@ -12,7 +12,9 @@ Revision history for Perl extension Module::Build.
  Other:
  - Generated META.yml will indicate version 1.4 of the specification
    (RT #37478) [patch from Alexandr Ciornii]
-
+ - Archive::Tar now the default for generating tarballs on all platforms
+   (avoids problems with incompatible tar binaries)
+   
 0.32 - Wed Feb 25 17:40:02 PST 2009
 
  No changes since 0.31_04.
