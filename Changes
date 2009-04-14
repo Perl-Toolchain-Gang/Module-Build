@@ -15,7 +15,7 @@ Revision history for Perl extension Module::Build.
  - Archive::Tar now the default for generating tarballs on all platforms
    (avoids problems with incompatible tar binaries)
  - dist_dir() now uses dist_name() and dist_version() accessors rather
-   than using its properties directly. [brian d. foy]
+   than using its properties directly. [brian d foy] (RT #45038)
    
 0.32 - Wed Feb 25 17:40:02 PST 2009
 
