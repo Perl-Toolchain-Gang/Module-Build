@@ -3425,7 +3425,7 @@ sub file_qr {
 
 sub dist_dir {
   my ($self) = @_;
-  return "$self->{properties}{dist_name}-$self->{properties}{dist_version}";
+  return join "-", $self->dist_name, $self->dist_version;
 }
 
 sub ppm_name {
