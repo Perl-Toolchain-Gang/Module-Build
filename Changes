@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.32_01 - 
+0.32_01 - Tue Apr 14 17:14:22 PDT 2009
 
  Bug-fixes:
  - Module::Build::Compat had stopped adding "PL_FILES => {}" when no
