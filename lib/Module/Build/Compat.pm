@@ -143,7 +143,9 @@ EOF
     eval "use Module::Build::Compat 0.02; 1" or die $@;
     %s
     Module::Build::Compat->run_build_pl(args => \@ARGV);
-    exit(0) unless(-e 'Build'); # cpantesters convention
+    my $build_script = 'Build';  
+    $build_script .= '.com' if $^O eq 'VMS';
+    exit(0) unless(-e $build_script); # cpantesters convention
     require %s;
     Module::Build::Compat->write_makefile(build_class => '%s');
 EOF

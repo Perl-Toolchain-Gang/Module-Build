@@ -3,6 +3,8 @@ Revision history for Perl extension Module::Build.
 0.32_02 - 
 
  Bug-fixes:
+ - Fixed RT#45462: Compat.pm needs to reference 'Build.com' on VMS
+   [patch from John Malmberg]
  - Fixed RT#45461: ext.t on VMS [patch from John Malmberg]
  - Fixed RT#43861: Module::Build::PPMMaker has broken PPD name
    versioning for v5.10+
