@@ -3,7 +3,9 @@ Revision history for Perl extension Module::Build.
 0.32_02 - 
 
  Bug-fixes:
- - Fixed ext.t on VMS [patch from John Malmberg] (RT #45461)
+ - Fixed RT#45461: ext.t on VMS [patch from John Malmberg]
+ - Fixed RT#43861: Module::Build::PPMMaker has broken PPD name
+   versioning for v5.10+
 
 0.32_01 - Tue Apr 14 17:14:22 PDT 2009
 
