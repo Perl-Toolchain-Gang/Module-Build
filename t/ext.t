@@ -137,6 +137,12 @@ foreach my $test (@win_splits) {
 {
   # Make sure run_perl_script() propagates @INC
   my $dir = MBTest->tmpdir;
+  if ($^O eq 'VMS') {
+      # VMS can store INC paths in Unix format with out the trailing
+      # directory delimiter.
+      $dir = VMS::Filespec::unixify($dir);
+      $dir =~ s#/$##;
+  }
   local @INC = ($dir, @INC);
   my $output = stdout_of( sub { Module::Build->run_perl_script('-le', [], ['print for @INC']) } );
   like $output, qr{^\Q$dir\E}m;
