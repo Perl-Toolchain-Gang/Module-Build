@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.32_02 - 
+0.33 - Sun May  3 20:16:34 PDT 2009
 
  Bug-fixes:
  - Fixed RT#45462: Compat.pm needs to reference 'Build.com' on VMS
