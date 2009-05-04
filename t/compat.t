@@ -135,8 +135,7 @@ ok $mb, "Module::Build->new_from_context";
     $foo_builder = Foo::Builder->new_from_context;
   });
   foreach my $style ('passthrough', 'small') {
-    Module::Build::Compat->create_makefile_pl($style, $foo_builder);
-    ok -e 'Makefile.PL', "$style Makefile.PL created";
+    create_makefile_pl($style, $foo_builder);
     
     # Should fail with "can't find Foo/Builder.pm"
     my $result;
@@ -153,8 +152,7 @@ ok $mb, "Module::Build->new_from_context";
     $bar_builder = Module::Build->subclass( class => 'Bar::Builder' )->new_from_context;
   });
   foreach my $style ('passthrough', 'small') {
-    Module::Build::Compat->create_makefile_pl($style, $bar_builder);
-    ok -e 'Makefile.PL', "$style Makefile.PL created via subclass";
+    create_makefile_pl($style, $bar_builder);
     my $result;
     stdout_of( sub {
       $result = $mb->run_perl_script('Makefile.PL');
@@ -165,7 +163,7 @@ ok $mb, "Module::Build->new_from_context";
 
 {
   # Make sure various Makefile.PL arguments are supported
-  Module::Build::Compat->create_makefile_pl('passthrough', $mb);
+  create_makefile_pl('passthrough', $mb);
 
   my $libdir = File::Spec->catdir( $tmp, 'libdir' );
   my $result;
@@ -255,7 +253,7 @@ ok $mb, "Module::Build->new_from_context";
   # C<glob> on MSWin32 uses $ENV{HOME} if defined to do tilde-expansion
   local $ENV{HOME} = 'C:/' if $^O =~ /MSWin/ && !exists( $ENV{HOME} );
 
-  Module::Build::Compat->create_makefile_pl('passthrough', $mb);
+  create_makefile_pl('passthrough', $mb);
 
   stdout_of( sub {
     $mb->run_perl_script('Makefile.PL', [], ['INSTALL_BASE=~/foo']);
@@ -290,8 +288,8 @@ sub test_makefile_types {
     ok $mb, "Module::Build->new_from_context";
 
     # Create and test Makefile.PL
-    Module::Build::Compat->create_makefile_pl($type, $mb);
-    ok -e 'Makefile.PL', "$type Makefile.PL created";
+    create_makefile_pl($type, $mb);
+
     test_makefile_pl_requires_perl( $opts{requires}{perl} );
     test_makefile_creation($mb);
     test_makefile_prereq_pm( $opts{requires} );
@@ -430,3 +428,16 @@ sub extract_writemakefile_args {
   }
 }
 
+sub create_makefile_pl {
+    Module::Build::Compat->create_makefile_pl(@_);
+    my $ok = ok -e 'Makefile.PL', "$_[0] Makefile.PL created";
+
+    # Some really conservative make's, like HP/UX, assume files with the same
+    # timestamp are out of date.  Send the Makefile.PL one second into the past
+    # so its older than the Makefile it will generate.
+    # See [rt.cpan.org 45700]
+    my $mtime = (stat("Makefile.PL"))[9];
+    utime $mtime, $mtime - 1, "Makefile.PL";
+
+    return $ok;
+}
