@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.33_01 - 
 
+ Bug-fixes:
+ - Fixed RT#42724: consolidated VMS fixes [patch by CBERRY]
+
 0.33 - Sun May  3 20:16:34 PDT 2009
 
  Bug-fixes:
