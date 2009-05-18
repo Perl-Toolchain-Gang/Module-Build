@@ -5,6 +5,14 @@ Revision history for Perl extension Module::Build.
  Bug-fixes:
  - Fixed RT#42724: consolidated VMS fixes [patch by CBERRY]
 
+ Other:
+ - Adds current Module::Build to configure_requires (and build_requires) 
+   if no configure_requires is specified
+ - Always normalizes version number tuples in META.yml (e.g. 'v1.2.0')
+   (Partially addresses RT#46150) 
+ - Normalizes a generated dist_version (e.g. from a .pm file) -- 
+   dist_version set manually in Build.PL is not normalized
+
 0.33 - Sun May  3 20:16:34 PDT 2009
 
  Bug-fixes:

@@ -1040,7 +1040,7 @@ sub dist_version {
     my $version_from = File::Spec->catfile( split( qr{/}, $dist_version_from ) );
     my $pm_info = Module::Build::ModuleInfo->new_from_file( $version_from )
       or die "Can't find file $version_from to determine version";
-    $p->{dist_version} = $pm_info->version();
+    $p->{dist_version} = $self->normalize_version( $pm_info->version() );
   }
 
   die ("Can't determine distribution version, must supply either 'dist_version',\n".
@@ -3613,6 +3613,27 @@ sub write_metafile {
   return 1;
 }
 
+sub normalize_version {
+  my ($self, $version) = @_;
+  if ( $version =~ /[=<>!,]/ ) { # logic, not just version
+    # take as is without modification
+  }
+  elsif ( ref $version eq 'version' || 
+          ref $version eq 'Module::Build::Version' ) { # version objects
+    my $string = $version->stringify;
+    # normalize leading-v: "v1.2" -> "v1.2.0"
+    $version = substr($string,0,1) eq 'v' ? $version->normal : $string;
+  }
+  elsif ( $version =~ /^[^v][^.]*\.[^.]+\./ ) { # no leading v, multiple dots
+    # normalize string tuples without "v": "1.2.3" -> "v1.2.3"
+    $version = "v$version";
+  }
+  else {
+    # leave alone
+  }
+  return $version;
+}
+
 sub prepare_metadata {
   my ($self, $node, $keys) = @_;
   my $p = $self->{properties};
@@ -3630,7 +3651,7 @@ sub prepare_metadata {
     die "ERROR: Missing required field '$_' for META.yml\n"
       unless defined($node->{$name}) && length($node->{$name});
   }
-  $node->{version} = '' . $node->{version}; # Stringify version objects
+  $node->{version} = $self->normalize_version($node->{version}); 
 
   if (defined( my $l = $self->license )) {
     die "Unknown license string '$l'"
@@ -3652,16 +3673,33 @@ sub prepare_metadata {
   if (exists $p->{configure_requires}) {
     foreach my $spec (keys %{$p->{configure_requires}}) {
       warn ("Warning: $spec is listed in 'configure_requires', but ".
-	    "it is not found in any of the other prereq fields.\n")
-	unless grep exists $p->{$_}{$spec}, 
-	       grep !/conflicts$/, @{$self->prereq_action_types};
+            "it is not found in any of the other prereq fields.\n")
+        unless grep exists $p->{$_}{$spec}, 
+              grep !/conflicts$/, @{$self->prereq_action_types};
     }
   }
 
-  foreach ( 'configure_requires', @{$self->prereq_action_types} ) {
-    if (exists $p->{$_} and keys %{ $p->{$_} }) {
-      $add_node->($_, $p->{$_});
+  # copy prereq data structures so we can modify them before writing to META
+  my %prereq_types;
+  for my $type ( 'configure_requires', @{$self->prereq_action_types} ) {
+    if (exists $p->{$type}) {  
+      for my $mod ( keys %{ $p->{$type} } ) {
+        $prereq_types{$type}{$mod} = 
+          $self->normalize_version($p->{$type}{$mod});
+      }
     }
+  }
+
+  # add current Module::Build to configure_requires if there 
+  # isn't a configure_requires already specified
+  if ( ! $prereq_types{'configure_requires'} ) {
+    for my $t ('configure_requires', 'build_requires') {
+      $prereq_types{$t}{'Module::Build'} = $VERSION;
+    }
+  }
+
+  for my $t ( keys %prereq_types ) {
+      $add_node->($t, $prereq_types{$t});
   }
 
   if (exists $p->{dynamic_config}) {
@@ -3820,9 +3858,10 @@ sub find_dist_packages {
     }
   }
 
-  # Stringify versions.  Can't use exists() here because of bug in YAML::Node.
+  # Normalize versions.  Can't use exists() here because of bug in YAML::Node.
+  # XXX "bug in YAML::Node" comment seems irrelvant -- dagolden, 2009-05-18
   for (grep defined $_->{version}, values %prime) {
-    $_->{version} = '' . $_->{version};
+    $_->{version} = $self->normalize_version( $_->{version} );
   }
 
   return \%prime;
