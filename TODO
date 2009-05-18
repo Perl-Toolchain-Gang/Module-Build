@@ -1,6 +1,12 @@
 -------------------------- TO DO: --------------------------------
 
-* Finish configure_requires implementation. (add self)
+* Automatically add anything in configure_requires that is not in
+  build_requires to build_requires instead of complaining about it.
+  If we can detect the error, we can fix it.  We shouldn't make 
+  authors repeat themselves in Build.PL
+
+* Check edge cases for normalize_version -- string "v1.2" might not
+  get normalized, but it should
 
 * Dump better diagnostics if we die() while building ourself
 
