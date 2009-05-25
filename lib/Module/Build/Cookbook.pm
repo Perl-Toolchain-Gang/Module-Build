@@ -8,7 +8,6 @@ $VERSION = '0.33_01';
 
 Module::Build::Cookbook - Examples of Module::Build Usage
 
-
 =head1 DESCRIPTION
 
 C<Module::Build> isn't conceptually very complicated, but examples are
