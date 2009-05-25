@@ -319,8 +319,11 @@ sub test_makefile_types {
     ok $success, "make realclean ran without error";
 
     # Try again with some Makefile.PL arguments
-    test_makefile_creation($mb, [], 'INSTALLDIRS=vendor', 1);
+    test_makefile_creation($mb, [], 'INSTALLDIRS=vendor', 'realclean');
     
+    # Try again using distclean
+    test_makefile_creation($mb, [], '', 'distclean');
+
     1 while unlink 'Makefile.PL';
     ok ! -e 'Makefile.PL', "cleaned up Makefile";
   }
@@ -342,10 +345,12 @@ sub test_makefile_creation {
   ok -e $makefile, "$makefile exists";
   
   if ($cleanup) {
+    # default to 'realclean' unless we recognize the clean method
+    $cleanup = 'realclean' unless $cleanup =~ /^(dist|real)clean$/;
     $output = stdout_of( sub {
-      $build->do_system(@make, 'realclean');
+      $build->do_system(@make, $cleanup);
     });
-    ok ! -e '$makefile', "$makefile cleaned up";
+    ok ! -e $makefile, "$makefile cleaned up with $cleanup";
   }
   else {
     pass '(skipping cleanup)'; # keep test count constant
