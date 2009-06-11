@@ -131,7 +131,7 @@ Revision history for Perl extension Module::Build.
  - We now support a 'create_license' parameter to new() that will
    create a LICENSE file during the 'dist' phase with the full text of
    the license.  This requires Software::License on the author's
-   machine.  THIS ALSO STILL NEEDS DOCS.
+   machine.
  - Added lgpl2/lgpl3 entries to the supported licenses (RT#40532).
  - Support for validating properties with a check subref. [David
    Wheeler]
