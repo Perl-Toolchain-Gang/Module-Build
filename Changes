@@ -4,6 +4,7 @@ Revision history for Perl extension Module::Build.
 
  Bug-fixes:
  - Fixed RT#42724: consolidated VMS fixes [patch by CBERRY]
+ - Fixed RT#46338: passthrough Makefile.PL cleans Makefile during distclean
 
  Other:
  - Adds current Module::Build to configure_requires (and build_requires) 
