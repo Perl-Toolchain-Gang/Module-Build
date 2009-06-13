@@ -1,6 +1,18 @@
-This requires VCfs (on CPAN) and CPDK (not yet.)
+=head1 Release instructions for Module::Build
 
-Update and make sure you have no local changes or conflicts.
+=head2 Prerequisites
+
+Recent Module::Build releases have been packaged using the CPDK tool
+by Eric Wilhelm.  This distribution is not yet on CPAN, but can be
+installed from its repository:
+
+  $ svn co http://scratchcomputing.com/svn/CPDK/trunk/ CPDK
+  $ cd CPDK
+  $ cpan .
+
+=head2 Packaging and shipping
+
+Update Module::Build and make sure there are no local changes or conflicts.
 
   $ svn up
 
@@ -20,7 +32,7 @@ Pull the logs since that tag and check the Changes file.
   $ edit Changes
 
 If everything is good, just datestamp the version section at the top of
-Changes (I use "r! date" then "kJ" in vim.)
+Changes (e.g. use "r! date" then "kJ" in vim.)
 
   $ svn ci -m "Changes - prep for release"
 
@@ -28,9 +40,13 @@ And we should now be ready for automated shipping:
 
   $ publish-module
 
+=head2 After shipping
+
 Now the release is out and tagged.  Start a new version number
 
   $ ./devtools/bump_version.pl
 
   $ svn ci -m "Changes, lib/***.pm - bump version"
+
+=cut
 
