@@ -5,6 +5,7 @@ Revision history for Perl extension Module::Build.
  Bug-fixes:
  - Fixed RT#42724: consolidated VMS fixes [patch by CBERRY]
  - Fixed RT#46338: passthrough Makefile.PL cleans Makefile during distclean
+ - Fixed RT#45700: t/compat.t for HP/UX make
 
  Other:
  - Adds current Module::Build to configure_requires (and build_requires) 
@@ -13,6 +14,8 @@ Revision history for Perl extension Module::Build.
    (Partially addresses RT#46150) 
  - Normalizes a generated dist_version (e.g. from a .pm file) -- 
    dist_version set manually in Build.PL is not normalized
+ - Documentation update for create_license
+ - Minor POD cleanup
 
 0.33 - Sun May  3 20:16:34 PDT 2009
 
