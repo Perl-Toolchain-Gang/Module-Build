@@ -24,12 +24,12 @@ See what the last tag was:
   ...
   0.31_02
 
-Pull the logs since that tag and check the Changes file.
+Pull the logs since that tag and update the Changes file if necessary
 
-  $ svn_logsincetag 0.31_02
+  $ svn_logsincetag 0.31_02 | less
   ...
 
-  $ edit Changes
+  $ vim Changes
 
 If everything is good, just datestamp the version section at the top of
 Changes (e.g. use "r! date" then "kJ" in vim.)
