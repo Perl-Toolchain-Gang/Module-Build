@@ -347,7 +347,7 @@ sub test_makefile_creation {
   if ($cleanup) {
     # default to 'realclean' unless we recognize the clean method
     $cleanup = 'realclean' unless $cleanup =~ /^(dist|real)clean$/;
-    $output = stdout_of( sub {
+    my ($stdout, $stderr ) = stdout_stderr_of (sub {
       $build->do_system(@make, $cleanup);
     });
     ok ! -e $makefile, "$makefile cleaned up with $cleanup";
