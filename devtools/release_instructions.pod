@@ -40,6 +40,10 @@ And we should now be ready for automated shipping:
 
   $ publish-module
 
+At the moment, for anyone but Eric Wilhelm, this will fail during
+the 'scp_relay' stage, but the tarball exists and can be uploaded
+to PAUSE using other means.
+
 =head2 After shipping
 
 Now the release is out and tagged.  Start a new version number
