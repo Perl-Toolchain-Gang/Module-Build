@@ -38,6 +38,8 @@ Changes (e.g. use "r! date" then "kJ" in vim.)
 
 And we should now be ready for automated shipping:
 
+  $ perl Build.PL
+  $ Build distmeta
   $ publish-module
 
 At the moment, for anyone but Eric Wilhelm, this will fail during
