@@ -77,7 +77,7 @@ use Cwd ();
 
 # We pass everything through to Test::More
 use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS $TODO);
-$VERSION = 0.01;
+$VERSION = 0.01_01;
 @ISA = qw(Test::More); # Test::More isa Exporter
 @EXPORT = @Test::More::EXPORT;
 %EXPORT_TAGS = %Test::More::EXPORT_TAGS;
@@ -124,7 +124,7 @@ __PACKAGE__->export(scalar caller, @extra_exports);
 # Setup a temp directory 
 sub tmpdir { 
   return File::Temp::tempdir( 'MB-XXXXXXXX', 
-    CLEANUP => 1, DIR => File::Spec->tmpdir 
+    CLEANUP => 1, DIR => $ENV{PERL_CORE} ? Cwd::cwd : File::Spec->tmpdir
   );
 }
 
