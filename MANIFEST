@@ -1,6 +1,7 @@
 Build.PL
 Changes
 contrib/bash_completion.module-build
+contrib/bundle.pl
 INSTALL
 lib/Module/Build.pm
 lib/Module/Build/API.pod
@@ -35,7 +36,6 @@ Makefile.PL
 MANIFEST
 META.yml
 README
-scripts/bundle.pl
 scripts/config_data
 t/add_property.t
 t/basic.t

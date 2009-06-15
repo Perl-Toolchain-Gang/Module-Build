@@ -457,7 +457,7 @@ commit> to test your code and commit it to Subversion.
 =head2 Bundling Module::Build
 
 Note: This section probably needs an update as the technology improves
-(see scripts/bundle.pl in the distribution).
+(see contrib/bundle.pl in the distribution).
 
 Suppose you want to use some new-ish features of Module::Build,
 e.g. newer than the version of Module::Build your users are likely to
