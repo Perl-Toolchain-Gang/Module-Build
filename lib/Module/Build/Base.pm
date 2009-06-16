@@ -2617,7 +2617,8 @@ sub ACTION_testpod {
                               exclude => [ file_qr('\.bat$') ])}
     or die "Couldn't find any POD files to test\n";
 
-  { package Module::Build::PodTester;  # Don't want to pollute the main namespace
+  { package # hide from PAUSE
+      Module::Build::PodTester;  # Don't want to pollute the main namespace
     Test::Pod->import( tests => scalar @files );
     pod_file_ok($_) foreach @files;
   }
