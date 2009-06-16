@@ -1,0 +1,155 @@
+=head1 Patching Module::Build in bleadperl
+
+=head2 Prerequisites
+
+These instructions assume you have already cloned the perl git 
+repository and have checked out the blead branch.  The blead branch should
+be clean of extraneous files
+
+  $ cd ~/git
+  $ git clone git://perl5.git.perl.org/perl.git
+  $ git checkout blead
+  $ git clean -dxf
+
+The rest of the instructions assume your perl git repo is ~/git/perl
+
+=head2 Creating a perl branch with changes
+
+Start in the Module-Build directory.  This would be the distdir left
+behind right after publishing a new release, or could be an unpacked 
+tarball from CPAN.
+
+  $ cd Module-Build-0.33_02
+
+Run the add-packages.pl program from ~/git/perl/Porting to create a 
+new git branch and copy in Module::Build files.  Be sure to exclude
+files with the '-e' flag:
+
+  $ perl ~/git/perl/Porting/add-package.pl -v -r ~/git/perl \
+        -e 'par\.t|signature\.t'
+
+There may be prompts about deleting read-only files. These are the excluded
+files.  (add-packages.pl does a recursive copy, then deletes excluded files 
+from the destination.  Why it does so is a mystery.)  Say "yes" to deleting
+these files.
+
+Module::Build::ConfigData is created during build, so must be generated and
+copied by hand:
+
+  $ perl Build.PL
+  $ Build
+  $ cp blib/lib/Module/Build/ConfigData.pm ~/git/perl/lib/Module/Build/
+
+=head2 Verifying and editing the branch
+
+After add-packages.pl finishes, ~/git/perl will be on the new branch. Verify
+that and see what changes have been made:
+
+  $ git branch
+  $ git status
+
+ConfigData.pm will be marked modified, so add it to the index:
+
+  $ git add lib/Module/Build/ConfigData.pm
+
+If there are other changes made but not staged, examine them individually and
+determine if they should be staged or if an error occurred.
+
+If any files are being removed, be sure to edit Perl's MANIFEST file and stage
+it to be committed.
+
+  $ vim MANIFEST
+  $ git add MANIFEST
+
+Next, modify the Module::Build section of Porting/Maintainers.pl to indicate
+the distribution file on which the patch is based.  Note the version that 
+is being replaced -- you'll need this later when creating the commit message.
+Update any other metadata necessary, then add this file to the index.
+
+  $ vim Porting/Maintainers.pl
+  $ git add Porting/Maintainers.pl
+
+=head2 Commiting the branch
+
+Commit the branch and use the editor to create a commit message.  The
+first line should be like this: "Update Module::Build to 0.33_02".  (Use
+the correct version, of course.)  The rest of the file should contain
+an excerpt from the Changes file since the last version in blead (i.e.
+the old version number in Porting/Maintainers.pl)
+
+  $ git commit
+
+  ### In editor ###
+  Update Module::Build to 0.33_02
+
+  0.33_02 - Mon Jun 15 12:23:55 EDT 2009
+
+  Bug-fixes:
+  - Fixed tests for bleadperl
+  
+  0.33_01 - Sat Jun 13 20:24:42 EDT 2009
+
+  [... rest of Changes ...]
+
+=head2 Testing the branch
+
+Build and test Perl to confirm the changes don't break anything.  This
+takes a while, but saves embarassment posting a buggy patch to perl5-porters.
+For  example:
+
+  $ ./Configure -des -Dusedevel
+  $ make && make test
+
+=head2 Creating and sending the patch
+
+Git can automatically create the patch email for perl5-porters:
+
+  $ git format-patch origin
+
+This creates a single '0001...' email message file.  If you have
+configured your perl git repository for sending email direct to
+perl5-porters, you can send it with this command:
+
+  $ git send-email 0001-Updating-Module-Build-to-0.33_02.patch
+
+=head1 Special tips
+
+=head2 Configuring git to send email
+
+In your ~/git/perl repository, set the destination email:
+
+  $ git config sendemail.to perl5-porters@perl.org
+
+You may need to set some configuration for your particular email/ISP setup.
+For example, to set global git config to send email via a gmail account:
+
+  $ git config --global sendemail.smtpserver smtp.gmail.com
+  $ git config --global sendemail.smtpssl 1
+  $ git config --global sendemail.smtpuser YOURUSERNAME@gmail.com
+
+With this setup, you will be prompted for your gmail password when you
+run 'git send-email'.
+
+=head2 Fixing a branch and regenerating a patch
+
+DANGER -- ADVANCED GIT HERE
+
+If something breaks in the test or after committing you realize you need to
+tweak the branch, you can go ahead and make changes and commit them to the
+branch as normal.
+
+Then, before regenerating the patch, squash them into a single patch using
+interactive rebase:
+
+  $ git rebase -i origin
+
+In the editor, you will have the option to choose how commits are rebased.
+Leave the first entry as 'pick' and make all subsequent entries 'squash'.  
+After you leave the editor, a new editor window will open and you will have
+the opportunity to combine all commit messages.  Generally, you'll want to keep
+the initial Changes list and just delete the other commit messages.
+
+Afterwards, regenerate and send the patch as described above.
+
+=cut
+
