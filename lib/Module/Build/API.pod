@@ -574,8 +574,9 @@ specify explicitly.
 
 An optional parameter specifying a set of C<.PL> files in your
 distribution.  These will be run as Perl scripts prior to processing
-the rest of the files in your distribution.  They are usually used as
-templates for creating other files dynamically, so that a file like
+the rest of the files in your distribution with the name of the file
+they're generating as an argument.  They are usually used as templates
+for creating other files dynamically, so that a file like
 C<lib/Foo/Bar.pm.PL> might create the file C<lib/Foo/Bar.pm>.
 
 The files are specified with the C<.PL> files as hash keys, and the
@@ -601,6 +602,18 @@ files:
                'lib/something.PL'  => ['/lib/something', '/lib/else'],
                'lib/funny.PL'      => [],
               }
+
+Here's an example of a simple PL file.
+
+    my $output_file = shift;
+    open my $fh, ">", $output_file or die "Can't open $output_file: $!";
+
+    print $fh <<'END';
+    #!/usr/bin/perl
+
+    print "Hello, world!\n";
+    END
+
 
 =item pm_files
 
