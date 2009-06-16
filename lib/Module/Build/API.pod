@@ -614,6 +614,9 @@ Here's an example of a simple PL file.
     print "Hello, world!\n";
     END
 
+PL files are not installed by default, so its safe to put them in
+F<lib/> and F<bin/>.
+
 
 =item pm_files
 
@@ -716,7 +719,7 @@ as a string giving the name of a directory in which to find scripts,
 or as a string giving the name of a single script file.
 
 The default is to install any scripts found in a F<bin> directory at
-the top level of the distribution.
+the top level of the distribution, minus any keys of L<PL_files>.
 
 For backward compatibility, you may use the parameter C<scripts>
 instead of C<script_files>.  Please consider this usage deprecated,

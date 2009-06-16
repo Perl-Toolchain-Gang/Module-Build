@@ -59,6 +59,7 @@ t/new_from_context.t
 t/notes.t
 t/par.t
 t/parents.t
+t/PL_files.t
 t/pod_parser.t
 t/ppm.t
 t/runthrough.t

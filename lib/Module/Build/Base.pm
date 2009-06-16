@@ -3467,7 +3467,8 @@ sub script_files {
     return $_ = {$_ => 1};
   }
   
-  return $_ = { map {$_,1} $self->_files_in('bin') };
+  my $pl_files = $self->PL_files || {};
+  return $_ = { map {$_ => 1} grep !$pl_files->{$_}, $self->_files_in('bin') };
 }
 BEGIN { *scripts = \&script_files; }
 
