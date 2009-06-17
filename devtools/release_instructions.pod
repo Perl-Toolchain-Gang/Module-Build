@@ -6,7 +6,7 @@ Recent Module::Build releases have been packaged using the CPDK tool
 by Eric Wilhelm.  This distribution is not yet on CPAN, but can be
 installed from its repository:
 
-  $ svn co http://scratchcomputing.com/svn/CPDK/trunk/ CPDK
+  $ svn co http://svn.scratchcomputing.com/CPDK/trunk/ CPDK
   $ cd CPDK
   $ cpan .
 
