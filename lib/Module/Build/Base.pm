@@ -3694,7 +3694,9 @@ sub prepare_metadata {
 
   # add current Module::Build to configure_requires if there 
   # isn't a configure_requires already specified
-  if ( ! $prereq_types{'configure_requires'} ) {
+  if ( $self->dist_name ne 'Module-Build' 
+    && ! $prereq_types{'configure_requires'} 
+  ) {
     for my $t ('configure_requires', 'build_requires') {
       $prereq_types{$t}{'Module::Build'} = $VERSION;
     }

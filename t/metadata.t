@@ -2,7 +2,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 51;
+use MBTest tests => 53;
 
 use_ok 'Module::Build';
 ensure_blib('Module::Build');
@@ -64,6 +64,7 @@ my $mb = Module::Build->new_from_context;
 # Test for valid META.yml
 
 {
+  my $mb_prereq = { 'Module::Build' => $Module::Build::VERSION };
   my $node = $mb->prepare_metadata( {} );
 
   # exists() doesn't seem to work here
@@ -72,6 +73,8 @@ my $mb = Module::Build->new_from_context;
   is $node->{abstract}, $metadata{dist_abstract};
   is_deeply $node->{author}, $metadata{dist_author};
   is $node->{license}, $metadata{license};
+  is_deeply $node->{configure_requires}, $mb_prereq, 'Add M::B to configure_requires';
+  is_deeply $node->{build_requires}, $mb_prereq, 'Add M::B to build_requires';
   like $node->{generated_by}, qr{Module::Build};
   ok defined( $node->{'meta-spec'}{version} ),
       "'meta-spec' -> 'version' field present in META.yml";
