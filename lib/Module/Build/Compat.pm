@@ -4,6 +4,7 @@ use strict;
 use vars qw($VERSION);
 $VERSION = '0.33_03';
 
+use File::Basename ();
 use File::Spec;
 use IO::File;
 use Config;
@@ -178,7 +179,7 @@ EOF
     %prereq = ( %{$build->requires}, %{$build->build_requires} );
     %prereq = map {$_, $prereq{$_}} sort keys %prereq;
     
-    delete $prereq{perl};
+     delete $prereq{perl};
     $MM_Args{PREREQ_PM} = \%prereq;
     
     $MM_Args{INSTALLDIRS} = $build->installdirs eq 'core' ? 'perl' : $build->installdirs;
@@ -186,7 +187,11 @@ EOF
     $MM_Args{EXE_FILES} = [ sort keys %{$build->script_files} ] if $build->script_files;
     
     $MM_Args{PL_FILES} = $build->PL_files || {};
-    
+
+    if ($build->recursive_test_files) {
+        $MM_Args{TESTS} = join q{ }, $package->_test_globs($build);
+    }
+
     local $Data::Dumper::Terse = 1;
     my $args = Data::Dumper::Dumper(\%MM_Args);
     $args =~ s/\{(.*)\}/($1)/s;
@@ -199,6 +204,12 @@ EOF
   }
 }
 
+sub _test_globs {
+  my ($self, $build) = @_;
+
+  return map { File::Spec->catfile($_, '*.t') }
+         @{$build->rscan_dir('t', sub { -d $File::Find::name })};
+}
 
 sub subclass_dir {
   my ($self, $build) = @_;

@@ -270,6 +270,21 @@ ok $mb, "Module::Build->new_from_context";
   ok ! -e 'Makefile.PL', "Makefile.PL cleaned up";
 }
 
+{
+  $dist->add_file('t/deep/foo.t', q{});
+  $dist->regen;
+
+  my $mb;
+  stdout_of( sub {
+      $mb = Module::Build->new_from_context( recursive_test_files => 1 );
+  });
+
+  create_makefile_pl('traditional', $mb);
+  my $args = extract_writemakefile_args() || {};
+  is $args->{TESTS}, 't/*.t t/deep/*.t',
+    'Makefile.PL has correct TESTS line for recursive test files';
+}
+
 # cleanup
 $dist->remove;
 
