@@ -4,6 +4,8 @@ Revision history for Perl extension Module::Build.
 
  Bug-fixes:
  - Removes Module::Build from its own configure/build_requires
+ - ConfigData->feature() confirms that modules actually load successfully,
+   not just that they are present. (RT#43557)
 
  Other
  - On MSWin32, bumped File::Spec prereq to 3.30 for a variety of fixes
