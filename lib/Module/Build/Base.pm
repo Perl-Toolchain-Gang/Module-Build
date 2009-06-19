@@ -3203,7 +3203,7 @@ sub do_create_makefile_pl {
 
 sub do_create_license {
   my $self = shift;
-  $self->log_info("Creating LICENSE file");
+  $self->log_info("Creating LICENSE file\n");
 
   my $l = $self->license
     or die "No license specified";
