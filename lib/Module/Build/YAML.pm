@@ -40,6 +40,7 @@ sub DumpFile {
     }
     open my $OUT, "$mode $filename"
       or die "Can't open $filename for writing: $!";
+    binmode($OUT, ':utf8');
     print $OUT Dump(@_);
     close $OUT;
 }
@@ -50,9 +51,10 @@ sub LoadFile {
     my $filename = shift;
     open my $IN, $filename
       or die "Can't open $filename for reading: $!";
+    binmode($IN, ':utf8');
     return Load(do { local $/; <$IN> });
     close $IN;
-}   
+}
 
 sub _yaml_chunk {
   my ($indent, $values) = @_;
