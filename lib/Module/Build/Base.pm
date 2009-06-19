@@ -3468,7 +3468,7 @@ sub script_files {
   }
   
   my %pl_files = map { File::Spec->canonpath($_) => 1 }
-                 keys %{ $self->PL_files };
+                 keys %{ $self->PL_files || {} };
   return $_ = { map {$_ => 1} grep !$pl_files{$_}, $self->_files_in('bin') };
 }
 BEGIN { *scripts = \&script_files; }
