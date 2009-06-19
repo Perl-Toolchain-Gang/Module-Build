@@ -38,14 +38,21 @@ my %makefile_to_build =
    # Convert INSTALLVENDORLIB and friends.
    (
        map {
-           my $name = "INSTALL".$_."LIB";
+           my $name = $_;
            $name => sub {
-                 my @ret = (config => { lc $name => shift });
+                 my @ret = (config => lc($name) . "=" . shift );
                  print STDERR "# Converted to @ret\n";
 
                  return @ret;
            }
-       } keys %convert_installdirs
+       } qw(
+         INSTALLARCHLIB  INSTALLSITEARCH     INSTALLVENDORARCH
+         INSTALLPRIVLIB  INSTALLSITELIB      INSTALLVENDORLIB
+         INSTALLBIN      INSTALLSITEBIN      INSTALLVENDORBIN
+         INSTALLSCRIPT   INSTALLSITESCRIPT   INSTALLVENDORSCRIPT
+         INSTALLMAN1DIR  INSTALLSITEMAN1DIR  INSTALLVENDORMAN1DIR
+         INSTALLMAN3DIR  INSTALLSITEMAN3DIR  INSTALLVENDORMAN3DIR
+       )
    ),
 
    # Some names they have in common
@@ -242,14 +249,30 @@ sub _argvify {
 
 sub makefile_to_build_macros {
   my @out;
+  my %config; # must accumulate and return as a hashref
   while (my ($macro, $trans) = each %macro_to_build) {
     # On some platforms (e.g. Cygwin with 'make'), the mere presence
     # of "EXPORT: FOO" in the Makefile will make $ENV{FOO} defined.
     # Therefore we check length() too.
     next unless exists $ENV{$macro} && length $ENV{$macro};
     my $val = $ENV{$macro};
-    push @out, ref($trans) ? $trans->($val) : ($trans => $val);
+    my @args = ref($trans) ? $trans->($val) : ($trans => $val);
+    while (@args) {
+      my ($k, $v) = splice(@args, 0, 2);
+      if ( $k eq 'config' ) {
+        if ( $v =~ /^([^=]+)=(.*)$/ ) {
+          $config{$1} = $2;
+        }
+        else {
+          warn "Couldn't parse config '$v'\n";
+        }
+      }
+      else {
+        push @out, ($k => $v);
+      }
+    }
   }
+  push @out, (config => \%config) if %config; 
   return @out;
 }
 
