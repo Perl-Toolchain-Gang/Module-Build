@@ -8,6 +8,7 @@ Revision history for Perl extension Module::Build.
    not just that they are present. (RT#43557)
  - Module::Build::Compat handling of INSTALL*LIB (RT#43827)
  - Module::Build::Compat and recursive test files (RT#39171)
+ - Fixed bug linking non-standard XS names on Windows (RT#38065)
 
  Other
  - On MSWin32, bumped File::Spec prereq to 3.30 for a variety of fixes
