@@ -4251,10 +4251,8 @@ sub compile_c {
 }
 
 sub link_c {
-  my ($self, $to, $file_base) = @_;
+  my ($self, $spec) = @_;
   my $p = $self->{properties}; # For convenience
-
-  my $spec = $self->_infer_xs_spec($file_base);
 
   $self->add_to_cleanup($spec->{lib_file});
 
@@ -4264,8 +4262,7 @@ sub link_c {
     if $self->up_to_date([$spec->{obj_file}, @$objects],
 			 $spec->{lib_file});
 
-  my $module_name = $self->module_name;
-  $module_name  ||= $spec->{module_name};
+  my $module_name = $spec->{module_name} || $self->module_name;
 
   $self->cbuilder->link(
     module_name => $module_name,
@@ -4445,7 +4442,7 @@ sub process_xs {
   }
 
   # .o -> .(a|bundle)
-  $self->link_c($spec->{archdir}, $file_base);
+  $self->link_c($spec);
 }
 
 sub do_system {
