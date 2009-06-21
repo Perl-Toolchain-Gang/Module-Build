@@ -2870,7 +2870,8 @@ sub htmlify_pods {
 
     $self->log_info("HTMLifying $infile -> $outfile\n");
     $self->log_verbose("pod2html @opts\n");
-    Pod::Html::pod2html(@opts);	# or warn "pod2html @opts failed: $!";
+    eval { Pod::Html::pod2html(@opts); 1 } 
+      or $self->log_warn("pod2html @opts failed: $@");
   }
 
 }

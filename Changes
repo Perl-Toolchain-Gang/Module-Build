@@ -10,6 +10,7 @@ Revision history for Perl extension Module::Build.
  - Module::Build::Compat and recursive test files (RT#39171)
  - Fixed bug linking non-standard XS names on Windows (RT#38065)
  - Run PL files that don't generate any file (RT#39365)
+ - HTML generation failure no longer fatal (RT#36660)
 
  Other
  - On MSWin32, bumped File::Spec prereq to 3.30 for a variety of fixes
