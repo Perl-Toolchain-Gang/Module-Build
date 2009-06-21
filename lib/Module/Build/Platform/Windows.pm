@@ -37,8 +37,9 @@ sub ACTION_realclean {
   my $basename = basename($0);
   $basename =~ s/(?:\.bat)?$//i;
 
-  if ( $basename eq $self->build_script ) {
+  if ( lc $basename eq lc $self->build_script ) {
     if ( $self->build_bat ) {
+      $self->log_info("Deleting $basename.bat\n");
       my $full_progname = $0;
       $full_progname =~ s/(?:\.bat)?$/.bat/i;
 
