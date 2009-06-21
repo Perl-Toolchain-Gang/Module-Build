@@ -4527,7 +4527,8 @@ sub up_to_date {
   $source  = [$source]  unless ref $source;
   $derived = [$derived] unless ref $derived;
 
-  return 0 if grep {not -e} @$derived;
+  # empty $derived means $source should always run
+  return 0 if @$source && !@$derived || grep {not -e} @$derived;
 
   my $most_recent_source = time / (24*60*60);
   foreach my $file (@$source) {
