@@ -111,7 +111,7 @@ The sole purpose of this module is to inherit from
 C<Module::Build::Base> and override a few methods.  Please see
 L<Module::Build> for the docs.
 
-=head2 Overriden Methods
+=head2 Overridden Methods
 
 =over 4
 

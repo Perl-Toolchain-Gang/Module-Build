@@ -20,7 +20,7 @@
 --square-bracket-tightness=2
 --brace-tightness=2
 
-# who uses space before the peterbuilt?
+# who uses space before the peterbilt?
 --nohanging-side-comments
 --nospace-for-semicolon
 --indent-block-comments

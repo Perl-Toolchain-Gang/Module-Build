@@ -2,6 +2,7 @@
 
 Module::Build::API - API Reference for Module Authors
 
+=for :stopwords apache bsd distdir distsign gpl installdirs lgpl mit mozilla packlists
 
 =head1 DESCRIPTION
 
@@ -151,7 +152,7 @@ for the details of how requirements can be specified.
 [version 0.28]
 
 If true, this parameter tells Module::Build to create a F<.packlist>
-file during the C<install> action, just like ExtUtils::MakeMaker does.
+file during the C<install> action, just like C<ExtUtils::MakeMaker> does.
 The file is created in a subdirectory of the C<arch> installation
 location.  It is used by some other tools (CPAN, CPANPLUS, etc.) for
 determining what files are part of an install.
@@ -196,9 +197,9 @@ that the C<license> parameter specifies a license that it knows about.
 
 [version 0.19]
 
-This parameter lets you use Module::Build::Compat during the
+This parameter lets you use C<Module::Build::Compat> during the
 C<distdir> (or C<dist>) action to automatically create a Makefile.PL
-for compatibility with ExtUtils::MakeMaker.  The parameter's value
+for compatibility with C<ExtUtils::MakeMaker>.  The parameter's value
 should be one of the styles named in the L<Module::Build::Compat>
 documentation.
 
@@ -211,7 +212,7 @@ file at the top level of your distribution.  Currently it will simply
 use C<Pod::Text> (or C<Pod::Readme> if it's installed) on the file
 indicated by C<dist_version_from> and put the result in the F<README>
 file.  This is by no means the only recommended style for writing a
-README, but it seems to be one common one used on the CPAN.
+F<README>, but it seems to be one common one used on the CPAN.
 
 If you generate a F<README> in this way, it's probably a good idea to
 create a separate F<INSTALL> file if that information isn't in the
@@ -629,7 +630,7 @@ locations based on their package name, i.e. where they would be found
 in a "normal" Module::Build-style distribution.  This parameter is
 mainly intended to support alternative layouts of files.
 
-For instance, if you have an old-style MakeMaker distribution for a
+For instance, if you have an old-style C<MakeMaker> distribution for a
 module called C<Foo::Bar> and a F<Bar.pm> file at the top level of the
 distribution, you could specify your layout in your C<Build.PL> like
 this:
@@ -876,7 +877,7 @@ get or set on the build object.
   print $build->pedantic, $/;
   $build->pedantic(0);
 
-If the default value is a hash reference, this generetes a special-case
+If the default value is a hash reference, this generates a special-case
 accessor method, wherein individual key/value pairs may be set or fetched:
 
   print "stuff{foo} is: ", $build->stuff( 'foo' ), $/;
@@ -1171,7 +1172,7 @@ when the C<realclean> action is performed.
 Among the files created in C<_build/> is a F<_build/prereqs> file
 containing the set of prerequisites for this distribution, as a hash
 of hashes.  This file may be C<eval()>-ed to obtain the authoritative
-set of prereqs, which might be different from the contents of
+set of prerequisites, which might be different from the contents of
 F<META.yml> (because F<Build.PL> might have set them dynamically).
 But fancy developers take heed: do not put any fancy custom runtime
 code in the F<_build/prereqs> file, leave it as a static declaration
@@ -1282,7 +1283,7 @@ Perl's C<system()>.  It returns true or false to indicate success or
 failure (the opposite of how C<system()> works, but more intuitive).
 
 Note that if you supply a single argument to C<do_system()>, it
-will/may be processed by the systems's shell, and any special
+will/may be processed by the system's shell, and any special
 characters will do their special things.  If you supply multiple
 arguments, no shell will get involved and the command will be executed
 directly.
@@ -1346,14 +1347,14 @@ want to set the relative install path for custom build elements.
 
 With no argument, it returns a reference to a hash containing all
 elements and their respective values. This hash should not be modified
-directly; use the multi-argument below form to change values.
+directly; use the multiple argument below form to change values.
 
 The single argument form returns the value associated with the
 element C<$type>.
 
-The multi-argument form allows you to set the paths for element types.
-C<$value> must be a relative path using unix-like paths.  (A series of
-directories seperated by slashes.  Eg 'foo/bar'.)  The return value is a
+The multiple argument form allows you to set the paths for element types.
+C<$value> must be a relative path using Unix-like paths.  (A series of
+directories separated by slashes, e.g. C<foo/bar>.)  The return value is a
 localized path based on C<$value>.
 
 Assigning the value C<undef> to an element causes it to be removed.
@@ -1384,12 +1385,12 @@ like C<install_base()>.
 
 With no argument, it returns a reference to a hash containing all
 elements and their respective values. This hash should not be modified
-directly; use the multi-argument below form to change values.
+directly; use the multiple argument below form to change values.
 
 The single argument form returns the value associated with the
 element C<$type>.
 
-The multi-argument form allows you to set the paths for element types.
+The multiple argument form allows you to set the paths for element types.
 The supplied C<$path> should be an absolute path to install elements
 of C<$type>.  The return value is C<$path>.
 
@@ -1412,7 +1413,7 @@ exist.
 
 This is the name of the original action invoked by the user.  This
 value is set when the user invokes F<Build.PL>, the F<Build> script,
-or programatically through the L<dispatch()|/"dispatch($action, %args)">
+or programmatically through the L<dispatch()|/"dispatch($action, %args)">
 method.  It does not change as sub-actions are executed as
 dependencies are evaluated.
 
@@ -1432,7 +1433,7 @@ information about the build, and to share that information among
 different entities involved in the build.  See the example in the
 C<current()> method.
 
-The C<notes()> method is essentally a glorified hash access.  With no
+The C<notes()> method is essentially a glorified hash access.  With no
 arguments, C<notes()> returns the entire hash of notes.  With one argument,
 C<notes($key)> returns the value associated with the given key.  With two
 arguments, C<notes($key, $value)> sets the value associated with the given key
@@ -1506,9 +1507,9 @@ use the three-argument below form to change values.
 The two argument form returns the value associated with the
 element C<$type>.
 
-The multi-argument form allows you to set the paths for element types.
-C<$value> must be a relative path using unix-like paths.  (A series of
-directories seperated by slashes.  Eg 'foo/bar'.)  The return value is a
+The multiple argument form allows you to set the paths for element types.
+C<$value> must be a relative path using Unix-like paths.  (A series of
+directories separated by slashes, e.g. C<foo/bar>.)  The return value is a
 localized path based on C<$value>.
 
 Assigning the value C<undef> to an element causes it to be removed.
@@ -1678,7 +1679,7 @@ call to C<new()>.  This allows you to programmatically tell if C<perl Build.PL>
 or any execution of C<./Build> had command line options specified that
 override valid properties.
 
-The C<runtime_params()> method is essentally a glorified read-only hash.  With
+The C<runtime_params()> method is essentially a glorified read-only hash.  With
 no arguments, C<runtime_params()> returns the entire hash of properties
 specified on the command line.  With one argument, C<runtime_params($key)>
 returns the value associated with the given key.
@@ -1772,7 +1773,7 @@ See L<http://module-build.sourceforge.net/META-spec-current.html#keywords>.
 
 A list of additional resources available for users of the
 distribution. This can include links to a homepage on the web, a
-bugtracker, the repository location, a even subscription page for the
+bug tracker, the repository location, a even subscription page for the
 distribution mailing list.
 
 See L<http://module-build.sourceforge.net/META-spec-current.html#resources>.

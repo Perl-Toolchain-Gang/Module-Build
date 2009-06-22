@@ -278,8 +278,8 @@ sub regen {
   if ( $opts{clean} ) {
     $self->clean() if -d $dist_dirname;
   } else {
-    # TODO: This might leave dangling directories. Eg if the removed file
-    # is 'lib/Simple/Simon.pm', The directory 'lib/Simple' will be left
+    # TODO: This might leave dangling directories; e.g. if the removed file
+    # is 'lib/Simple/Simon.pm', the directory 'lib/Simple' will be left
     # even if there are no files left in it. However, clean() will remove it.
     my @files = keys %{$self->{pending}{remove}};
     foreach my $file ( @files ) {
@@ -598,7 +598,7 @@ Removes the entire distribution directory.
 =head2 Editing Files
 
 Note that C<$filename> should always be specified with unix-style paths,
-and are relative to the distribution root directory. Eg 'lib/Module.pm'
+and are relative to the distribution root directory, e.g. C<lib/Module.pm>.
 
 No filesystem action is performed until the distribution is regenerated.
 

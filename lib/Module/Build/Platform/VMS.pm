@@ -357,7 +357,7 @@ sub _detildefy {
         # Remove the tilde
         $spec =~ s/^~//;
 
-        # Remove any slash folloing the tilde if present.
+        # Remove any slash following the tilde if present.
         $spec =~ s#^/##;
 
         # break up the paths for the merge

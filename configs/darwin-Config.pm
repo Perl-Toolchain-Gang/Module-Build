@@ -891,7 +891,7 @@ sub FETCH {
     } else {
 	$marker = "$_[1]=";
 	# return undef unless (($value) = $config_sh =~ m/^$_[1]='(.*)'\s*$/m);
-	# Check for the common case, ' delimeted
+	# Check for the common case, ' delimited
 	$start = index($config_sh, "\n$marker$quote_type");
 	# If that failed, check for " delimited
 	if ($start == -1) {
@@ -1340,7 +1340,7 @@ the value is reset to a plain C<byacc> and is not useful.
 From F<byteorder.U>:
 
 This variable holds the byte order. In the following, larger digits
-indicate more significance.  The variable byteorder is either 4321
+indicate more significance.  The variable C<byteorder> is either 4321
 on a big-endian machine, or 1234 on a little-endian, or 87654321
 on a Cray ... or 3412 with weird order !
 

@@ -414,7 +414,7 @@ sub _perl_is_same {
   }
 }
 
-# Returns the absolute path of the perl interperter used to invoke
+# Returns the absolute path of the perl interpreter used to invoke
 # this process. The path is derived from $^X or $Config{perlpath}. On
 # some platforms $^X contains the complete absolute path of the
 # interpreter, on other it may contain a relative path, or simply
@@ -1075,11 +1075,11 @@ sub _pod_parse {
   return $p->{$member} = $parser->$method();
 }
 
-sub version_from_file { # Method provided for backwards compatability
+sub version_from_file { # Method provided for backwards compatibility
   return Module::Build::ModuleInfo->new_from_file($_[1])->version();
 }
 
-sub find_module_by_name { # Method provided for backwards compatability
+sub find_module_by_name { # Method provided for backwards compatibility
   return Module::Build::ModuleInfo->find_module_by_name(@_[1,2]);
 }
 
@@ -1701,7 +1701,7 @@ sub _read_arg {
   }
 }
 
-# decide whether or not an option requires/has an opterand
+# decide whether or not an option requires/has an operand
 sub _optional_arg {
   my $self = shift;
   my $opt  = shift;
@@ -1801,7 +1801,7 @@ sub read_args {
     for my $subkey (keys %{$args{$key}}) {
       next if !defined $args{$key}{$subkey};
       my $subkey_ext = $self->_detildefy($args{$key}{$subkey});
-      if ( $subkey eq 'html' ) { # translate for compatability
+      if ( $subkey eq 'html' ) { # translate for compatibility
 	$args{$key}{binhtml} = $subkey_ext;
 	$args{$key}{libhtml} = $subkey_ext;
       } else {
@@ -3374,7 +3374,7 @@ sub _write_default_maniskip {
 \B\.svn\b
 \B\.cvsignore$
 
-# Avoid Makemaker generated and utility files.
+# Avoid MakeMaker generated and utility files.
 \bMakefile$
 \bblib
 \bMakeMaker-\d
@@ -3382,7 +3382,7 @@ sub _write_default_maniskip {
 \bblibdirs$
 ^MANIFEST\.SKIP$
 
-# Avoid VMS specific Makmaker generated files
+# Avoid VMS specific MakeMaker generated files
 \bDescrip.MMS$
 \bDESCRIP.MMS$
 \bdescrip.mms$
@@ -3435,7 +3435,7 @@ sub ACTION_manifest {
   ExtUtils::Manifest::mkmanifest();
 }
 
-# Case insenstive regex for files
+# Case insensitive regex for files
 sub file_qr {
     return File::Spec->case_tolerant ? qr($_[0])i : qr($_[0]);
 }
@@ -3782,7 +3782,7 @@ sub find_dist_packages {
   my @pm_files = grep {exists $dist_files{$_}} keys %{ $self->find_pm_files };
 
   # First, we enumerate all packages & versions,
-  # seperating into primary & alternative candidates
+  # separating into primary & alternative candidates
   my( %prime, %alt );
   foreach my $file (@pm_files) {
     next if $dist_files{$file} =~ m{^t/};  # Skip things in t/
@@ -3825,7 +3825,7 @@ sub find_dist_packages {
 
       if ( $result->{err} ) {
 	# Use the selected primary package, but there are conflicting
-	# errors amoung multiple alternative packages that need to be
+	# errors among multiple alternative packages that need to be
 	# reported
         $self->log_warn(
 	  "Found conflicting versions for package '$package'\n" .
@@ -3888,7 +3888,7 @@ sub find_dist_packages {
   return \%prime;
 }
 
-# seperate out some of the conflict resolution logic from
+# separate out some of the conflict resolution logic from
 # $self->find_dist_packages(), above, into a helper function.
 #
 sub _resolve_module_versions {

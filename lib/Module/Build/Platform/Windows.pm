@@ -43,7 +43,7 @@ sub ACTION_realclean {
       my $full_progname = $0;
       $full_progname =~ s/(?:\.bat)?$/.bat/i;
 
-      # Vodoo required to have a batch file delete itself without error;
+      # Voodoo required to have a batch file delete itself without error;
       # Syntax differs between 9x & NT: the later requires a null arg (???)
       require Win32;
       my $null_arg = (Win32::IsWinNT()) ? '""' : '';
@@ -90,7 +90,7 @@ sub make_executable {
 }
 
 # This routine was copied almost verbatim from the 'pl2bat' utility
-# distributed with perl. It requires too much vodoo with shell quoting
+# distributed with perl. It requires too much voodoo with shell quoting
 # differences and shortcomings between the various flavors of Windows
 # to reliably shell out
 sub pl2bat {

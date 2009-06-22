@@ -14,6 +14,7 @@ Revision history for Perl extension Module::Build.
  - realclean might not delete Build.bat on Windows (RT#43863)
  - include_dirs parameter now works correctly when given a single
    string argument (RT#40177)
+ - Lots of spelling fixes in the POD (RT#45528)
 
  Other
  - On MSWin32, bumped File::Spec prereq to 3.30 for a variety of fixes

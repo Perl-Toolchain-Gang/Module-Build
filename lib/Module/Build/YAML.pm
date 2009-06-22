@@ -141,7 +141,7 @@ Module::Build::YAML - Provides just enough YAML support so that Module::Build wo
 
 Provides just enough YAML support so that Module::Build works even if YAML.pm is not installed.
 
-Currently, this amounts to the ability to write META.yml files when "perl Build distmeta"
+Currently, this amounts to the ability to write META.yml files when C<perl Build distmeta>
 is executed via the Dump() and DumpFile() functions/methods.
 
 =head1 AUTHOR
