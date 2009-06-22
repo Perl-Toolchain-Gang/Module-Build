@@ -165,9 +165,14 @@ sub _construct {
   $p->{requires} = delete $p->{prereq} if defined $p->{prereq};
   $p->{script_files} = delete $p->{scripts} if defined $p->{scripts};
 
-  # Convert to arrays
+  # Convert to from shell strings to arrays
   for ('extra_compiler_flags', 'extra_linker_flags') {
     $p->{$_} = [ $self->split_like_shell($p->{$_}) ] if exists $p->{$_};
+  }
+
+  # Convert to arrays
+  for ('include_dirs') {
+    $p->{$_} = [ $p->{$_} ] if exists $p->{$_} && !ref $p->{$_}
   }
 
   $self->add_to_cleanup( @{delete $p->{add_to_cleanup}} )
@@ -1758,6 +1763,11 @@ sub read_args {
 
   for ('extra_compiler_flags', 'extra_linker_flags') {
     $args{$_} = [ $self->split_like_shell($args{$_}) ] if exists $args{$_};
+  }
+
+  # Convert to arrays
+  for ('include_dirs') {
+    $args{$_} = [ $args{$_} ] if exists $args{$_} && !ref $args{$_}
   }
 
   # Hashify these parameters

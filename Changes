@@ -12,6 +12,8 @@ Revision history for Perl extension Module::Build.
  - Run PL files that don't generate any file (RT#39365)
  - HTML generation failure no longer fatal (RT#36660)
  - realclean might not delete Build.bat on Windows (RT#43863)
+ - include_dirs parameter now works correctly when given a single
+   string argument (RT#40177)
 
  Other
  - On MSWin32, bumped File::Spec prereq to 3.30 for a variety of fixes
