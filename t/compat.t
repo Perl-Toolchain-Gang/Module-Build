@@ -281,7 +281,11 @@ ok $mb, "Module::Build->new_from_context";
 
   create_makefile_pl('traditional', $mb);
   my $args = extract_writemakefile_args() || {};
-  is $args->{TESTS}, 't/*.t t/deep/*.t',
+  is $args->{TESTS}, 
+    join( q{ }, 
+      File::Spec->catfile(qw(t *.t)),
+      File::Spec->catfile(qw(t deep *.t))
+    ),
     'Makefile.PL has correct TESTS line for recursive test files';
 }
 
