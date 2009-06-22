@@ -15,6 +15,8 @@ Revision history for Perl extension Module::Build.
  - include_dirs parameter now works correctly when given a single
    string argument (RT#40177)
  - Lots of spelling fixes in the POD (RT#45528)
+ - On Unix-like systems, tilde expansion is more liberal in username
+   characters accepted (RT#33492)
 
  Other
  - On MSWin32, bumped File::Spec prereq to 3.30 for a variety of fixes

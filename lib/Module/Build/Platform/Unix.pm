@@ -35,9 +35,13 @@ sub _construct {
   return $self;
 }
 
+# Open group says username should be portable filename characters,
+# but some Unix OS working with ActiveDirectory wind up with user-names
+# with back-slashes in the name.  The new code below is very liberal
+# in what it accepts.
 sub _detildefy {
   my ($self, $value) = @_;
-  $value =~ s[^~(\w[-\w]*)?(?=/|$)]   # tilde with optional username
+  $value =~ s[^~([^/]+)?(?=/|$)]   # tilde with optional username
     [$1 ?
      ((getpwnam $1)[7] || "~$1") :
      ($ENV{HOME} || (getpwuid $>)[7])
