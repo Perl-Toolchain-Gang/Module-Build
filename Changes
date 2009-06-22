@@ -20,6 +20,8 @@ Revision history for Perl extension Module::Build.
  - On MSWin32, bumped File::Spec prereq to 3.30 for a variety of fixes
  - Add support for VMS in Unix compatibility mode (RT#42157)
  - Added a can_action($name) method (RT#45172)
+ - Documented that subclass methods should not permanently change
+   current directory (RT#46919)
 
 0.33_02 - Mon Jun 15 12:23:55 EDT 2009
 
