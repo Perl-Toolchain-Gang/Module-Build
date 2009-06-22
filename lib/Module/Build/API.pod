@@ -985,6 +985,13 @@ soon as it begins execution.
 Returns a hash reference indicating the C<build_requires>
 prerequisites that were passed to the C<new()> method.
 
+=item can_action( $action )
+
+Returns a reference to the method that defines C<$action>, or false
+otherwise. This is handy for actions defined (or maybe not!) in subclasses.
+
+[version 0.32_xx]
+
 =item cbuilder()
 
 [version 0.2809]

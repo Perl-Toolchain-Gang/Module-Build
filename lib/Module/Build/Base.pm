@@ -1590,9 +1590,14 @@ sub _call_action {
   return if $self->{_completed_actions}{$action}++;
 
   local $self->{action} = $action;
-  my $method = "ACTION_$action";
-  die "No action '$action' defined, try running the 'help' action.\n" unless $self->can($method);
+  my $method = $self->can_action( $action );
+  die "No action '$action' defined, try running the 'help' action.\n" unless $method;
   return $self->$method();
+}
+
+sub can_action {
+  my ($self, $action) = @_;
+  return $self->can( "ACTION_$action" );
 }
 
 # cuts the user-specified options out of the command-line args
