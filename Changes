@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.33_04 - 
 
+ Other
+ - skips xs.t and ppm.t when perl was not compiled with dynamic loading
+   since Module::Buld does not support static linking (RT#46178)
+
 0.33_03 - Mon Jun 22 17:22:56 EDT 2009
 
  Bug-fixes:
