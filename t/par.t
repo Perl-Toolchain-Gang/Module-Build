@@ -73,12 +73,27 @@ ok( -f $filename, '.par distributions exists' );
 my $distname = $dist->name;
 ok( $filename =~ /^\Q$distname\E/, 'Distribution name seems correct' );
 
-my $meta;
-eval { $meta = PAR::Dist::get_meta($filename) };
+#--------------------------------------------------------------------------#
+# must work around broken Archive::Zip (1.28) which breaks PAR::Dist
+#--------------------------------------------------------------------------#
 
-ok(
-  (not $@ and defined $meta and not $meta eq ''),
-  'Distribution contains META.yml'
-);
+SKIP: {
+  my $zip = Archive::Zip->new;
+  my $tmp2 = MBTest->tmpdir;
+  local %SIG;
+  $SIG{__WARN__} = sub { print STDERR $_[0] unless $_[0] =~ /\bstat\b/ };
+  skip "broken Archive::Zip", 1 
+    unless $zip->read($filename) == Archive::Zip::AZ_OK()
+    && $zip->extractTree('', "$tmp2/") == Archive::Zip::AZ_OK()
+    && -r File::Spec->catfile( $tmp2, 'blib', 'META.yml' );
+
+  my $meta;
+  eval { $meta = PAR::Dist::get_meta($filename) };
+
+  ok(
+    (not $@ and defined $meta and not $meta eq ''),
+    'Distribution contains META.yml'
+  );
+}
 
 $dist->remove;
