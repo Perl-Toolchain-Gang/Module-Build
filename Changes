@@ -3,12 +3,13 @@ Revision history for Perl extension Module::Build.
 0.33_04 - 
 
  Bug-fixes:
- - Don't try utf8 YAML I/O on Perl 5.6
+ - Don't try utf8 YAML I/O on Perl 5.6 [David Golden]
 
  Other
  - skips xs.t and ppm.t when perl was not compiled with dynamic loading
    since Module::Buld does not support static linking (RT#46178) 
    [David Golden]
+ - skip failing test in par.t if Archive::Zip is broken [David Golden]
  - Added YAML utf8 patch in 0.33_03 changes list
  - Added attribution for patches in 0.33_03 changes list
 
