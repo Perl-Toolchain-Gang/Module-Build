@@ -2,10 +2,14 @@ Revision history for Perl extension Module::Build.
 
 0.33_04 - 
 
+ Bug-fixes:
+ - Don't try utf8 YAML I/O on Perl 5.6
+
  Other
  - skips xs.t and ppm.t when perl was not compiled with dynamic loading
    since Module::Buld does not support static linking (RT#46178) 
    [David Golden]
+ - Added YAML utf8 patch in 0.33_03 changes list
  - Added attribution for patches in 0.33_03 changes list
 
 0.33_03 - Mon Jun 22 17:22:56 EDT 2009
@@ -37,6 +41,7 @@ Revision history for Perl extension Module::Build.
  - Added a can_action($name) method (RT#45172) [brian d foy] 
  - Documented that subclass methods should not permanently change
    current directory (RT#46919) [David Wheeler]
+ - META.yml encoded in UTF-8 (RT#43765) [Olivier Mengue]
 
 0.33_02 - Mon Jun 15 12:23:55 EDT 2009
 
