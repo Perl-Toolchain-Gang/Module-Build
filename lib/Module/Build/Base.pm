@@ -2077,7 +2077,7 @@ sub ACTION_prereq_data {
 
 sub prereq_data {
   my $self = shift;
-  my @types = @{ $self->prereq_action_types };
+  my @types = ('configure_requires', @{ $self->prereq_action_types } );
   my $info = { map { $_ => $self->$_() } grep { %{$self->$_()} } @types };
   return $info;
 }

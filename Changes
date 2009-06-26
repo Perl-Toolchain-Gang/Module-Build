@@ -6,6 +6,9 @@ Revision history for Perl extension Module::Build.
  - Don't try utf8 YAML I/O on Perl 5.6 [David Golden]
 
  Other
+ - configure_requires added to prereq report (RT#47254) [Curtis Jewell]
+ - updated Module::Build::Version to match forthcoming version.pm 0.77
+   (RT#47256) [John Peacock]
  - skips xs.t and ppm.t when perl was not compiled with dynamic loading
    since Module::Buld does not support static linking (RT#46178) 
    [David Golden]
