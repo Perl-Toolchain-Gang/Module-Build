@@ -72,6 +72,14 @@ An array reference of files to be cleaned up when the C<clean> action
 is performed. See also the L<add_to_cleanup()|/"add_to_cleanup(@files)">
 method.
 
+=item auto_configure_requires
+
+[version 0.34]
+
+This parameter determines whether Module::Build will add itself
+automatically to configure_requires (and build_requires) if Module::Build
+is not already there.  The default value is true.
+
 =item auto_features
 
 [version 0.26]

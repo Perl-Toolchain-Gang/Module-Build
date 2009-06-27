@@ -74,7 +74,6 @@ my $mb = Module::Build->new_from_context;
   is_deeply $node->{author}, $metadata{dist_author};
   is $node->{license}, $metadata{license};
   is_deeply $node->{configure_requires}, $mb_prereq, 'Add M::B to configure_requires';
-  is_deeply $node->{build_requires}, $mb_prereq, 'Add M::B to build_requires';
   like $node->{generated_by}, qr{Module::Build};
   ok defined( $node->{'meta-spec'}{version} ),
       "'meta-spec' -> 'version' field present in META.yml";
@@ -82,6 +81,16 @@ my $mb = Module::Build->new_from_context;
       "'meta-spec' -> 'url' field present in META.yml";
   is_deeply $node->{keywords}, $metadata{meta_add}{keywords};
   is_deeply $node->{resources}, $metadata{meta_add}{resources};
+}
+
+{
+  my $mb_prereq = { 'Module::Build' => 0 };
+  $mb->configure_requires( $mb_prereq );
+  my $node = $mb->prepare_metadata( {} );
+
+
+  # exists() doesn't seem to work here
+  is_deeply $node->{configure_requires}, $mb_prereq, 'Add M::B to configure_requires';
 }
 
 $dist->clean;

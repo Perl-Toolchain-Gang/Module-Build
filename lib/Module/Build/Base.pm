@@ -824,6 +824,7 @@ sub _make_accessor {
 ########################################################################
 
 # Add the default properties.
+__PACKAGE__->add_property(auto_configure_requires => 1);
 __PACKAGE__->add_property(blib => 'blib');
 __PACKAGE__->add_property(build_class => 'Module::Build');
 __PACKAGE__->add_property(build_elements => [qw(PL support pm xs pod script)]);
@@ -3687,15 +3688,6 @@ sub prepare_metadata {
     # XXX we are silently omitting the url for any unknown license
   }
 
-  if (exists $p->{configure_requires}) {
-    foreach my $spec (keys %{$p->{configure_requires}}) {
-      warn ("Warning: $spec is listed in 'configure_requires', but ".
-            "it is not found in any of the other prereq fields.\n")
-        unless grep exists $p->{$_}{$spec}, 
-              grep !/conflicts$/, @{$self->prereq_action_types};
-    }
-  }
-
   # copy prereq data structures so we can modify them before writing to META
   my %prereq_types;
   for my $type ( 'configure_requires', @{$self->prereq_action_types} ) {
@@ -3708,13 +3700,12 @@ sub prepare_metadata {
   }
 
   # add current Module::Build to configure_requires if there 
-  # isn't a configure_requires already specified
+  # isn't one already specified (but not ourself, so we're not circular)
   if ( $self->dist_name ne 'Module-Build' 
-    && ! $prereq_types{'configure_requires'} 
+    && $self->auto_configure_requires
+    && ! exists $prereq_types{'configure_requires'}{'Module::Build'}
   ) {
-    for my $t ('configure_requires', 'build_requires') {
-      $prereq_types{$t}{'Module::Build'} = $VERSION;
-    }
+    $prereq_types{configure_requires}{'Module::Build'} = $VERSION;
   }
 
   for my $t ( keys %prereq_types ) {

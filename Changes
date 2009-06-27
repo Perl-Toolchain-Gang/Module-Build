@@ -2,12 +2,22 @@ Revision history for Perl extension Module::Build.
 
 0.33_05 - 
 
+ Enhancements:
+ - New 'auto_configure_requires' parameter (default 1) controls
+   whether Module::Build should add itself to configure_requires
+   in META.yml if not specified in Build.PL [David Golden]
+
+ Other:
+ - configure_requires do not necessarily need to be in requires
+   or build_requires; warning to that effect has been removed
+   [David Golden]
+
 0.33_04 - Fri Jun 26 07:09:06 EDT 2009
 
  Bug-fixes:
  - Don't try utf8 YAML I/O on Perl 5.6 [David Golden]
 
- Other
+ Other:
  - configure_requires added to prereq report (RT#47254) [Curtis Jewell]
  - updated Module::Build::Version to match forthcoming version.pm 0.77
    (RT#47256) [John Peacock]
