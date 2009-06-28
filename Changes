@@ -7,6 +7,12 @@ Revision history for Perl extension Module::Build.
    whether Module::Build should add itself to configure_requires
    in META.yml if not specified in Build.PL [David Golden]
 
+ Bug-fixes:
+ - The default MANIFEST.SKIP created by the "manifest" action
+   was out of date.  It will now use the installed MANIFEST.SKIP
+   and add some Module::Build and distribution specific items
+   to it.
+
  Other:
  - configure_requires do not necessarily need to be in requires
    or build_requires; warning to that effect has been removed
