@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use lib 't/lib';
+use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest 'no_plan';
 
 use_ok 'Module::Build';
