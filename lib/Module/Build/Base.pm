@@ -3358,35 +3358,81 @@ sub ACTION_disttest {
       });
 }
 
+
+=begin private
+
+  my $has_include = $build->_eumanifest_has_include;
+
+Returns true if the installed version of ExtUtils::Manifest supports
+#include and #include_default directives.  False otherwise.
+
+=end private
+
+=cut
+
+# #!include and #!include_default were added in 1.50
+sub _eumanifest_has_include {
+    my $self = shift;
+
+    require ExtUtils::Manifest;
+    return ExtUtils::Manifest->VERSION >= 1.50 ? 1 : 0;
+    return 0;
+}
+
+
+=begin private
+
+  my $maniskip_file = $build->_default_maniskip;
+
+Returns the location of the installed MANIFEST.SKIP file used by
+default.
+
+=end private
+
+=cut
+
+sub _default_maniskip {
+    my $self = shift;
+
+    my $default_maniskip;
+    for my $dir (@INC) {
+        $default_maniskip = File::Spec->catfile($dir, "ExtUtils", "MANIFEST.SKIP");
+        last if -r $default_maniskip;
+    }
+
+    return $default_maniskip;
+}
+
+
+=begin private
+
+  my $content = $build->_slurp($file);
+
+Reads $file and returns the $content.
+
+=end private
+
+=cut
+
+sub _slurp {
+    my $self = shift;
+    my $file = shift;
+    open my $fh, "<", $file or croak "Can't open $file: $!";
+    local $/;
+    return <$fh>;
+}
+
+
 sub _write_default_maniskip {
   my $self = shift;
   my $file = shift || 'MANIFEST.SKIP';
   my $fh = IO::File->new("> $file")
     or die "Can't open $file: $!";
 
-  # This is derived from MakeMaker's default MANIFEST.SKIP file with
-  # some new entries
+  my $content = $self->_eumanifest_has_include ? "#!include_default\n"
+                                               : $self->_slurp( $self->_default_maniskip );
 
-  print $fh <<'EOF';
-# Avoid version control files.
-\bRCS\b
-\bCVS\b
-,v$
-\B\.svn\b
-\B\.cvsignore$
-
-# Avoid MakeMaker generated and utility files.
-\bMakefile$
-\bblib
-\bMakeMaker-\d
-\bpm_to_blib$
-\bblibdirs$
-^MANIFEST\.SKIP$
-
-# Avoid VMS specific MakeMaker generated files
-\bDescrip.MMS$
-\bDESCRIP.MMS$
-\bdescrip.mms$
+  $content .= <<'EOF';
 
 # Avoid Module::Build generated and utility files.
 \bBuild$
@@ -3396,30 +3442,15 @@ sub _write_default_maniskip {
 \bBUILD.COM$
 \bbuild.com$
 
-# Avoid Devel::Cover generated files
-\bcover_db
-
-# Avoid temp and backup files.
-~$
-\.tmp$
-\.old$
-\.bak$
-\#$
-\.#
-\.rej$
-
-# Avoid OS-specific files/dirs
-#   Mac OSX metadata
-\B\.DS_Store
-#   Mac OSX SMB mount metadata files
-\B\._
 # Avoid archives of this distribution
 EOF
 
   # Skip, for example, 'Module-Build-0.27.tar.gz'
-  print $fh '\b'.$self->dist_name.'-[\d\.\_]+'."\n";
+  $content .= '\b'.$self->dist_name.'-[\d\.\_]+'."\n";
 
-  $fh->close();
+  print $fh $content;
+
+  return;
 }
 
 sub ACTION_manifest {

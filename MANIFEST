@@ -71,4 +71,5 @@ t/test_types.t
 t/tilde.t
 t/use_tap_harness.t
 t/versions.t
+t/write_default_maniskip.t
 t/xs.t
