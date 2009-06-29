@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.33_05 - 
+0.33_05 - Sun Jun 28 22:06:49 EDT 2009
 
  Enhancements:
  - New 'auto_configure_requires' parameter (default 1) controls
@@ -11,7 +11,7 @@ Revision history for Perl extension Module::Build.
  - The default MANIFEST.SKIP created by the "manifest" action
    was out of date.  It will now use the installed MANIFEST.SKIP
    and add some Module::Build and distribution specific items
-   to it.
+   to it. [Michael Schwern]
 
  Other:
  - configure_requires do not necessarily need to be in requires
