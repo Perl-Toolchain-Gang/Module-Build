@@ -61,6 +61,7 @@ if ($] > 5.009001 && $] <= 5.010000) {
     no strict 'refs';
     *{'version::stringify'} = \*version::vpp::stringify;
     *{'version::(""'} = \*version::vpp::stringify;
+    *{'version::new'} = \*version::vpp::new;
 }
 
 # Preloaded methods go here.

@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.33_06 - 
 
+ Bug-fixes:
+ - Bundled version code will use pure Perl on 5.10.0 to work around
+   a corner case involving eval and locale [John Peacock]
+
 0.33_05 - Sun Jun 28 22:06:49 EDT 2009
 
  Enhancements:
