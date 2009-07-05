@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.33_06 -
+0.33_06 - Sun Jul  5 10:11:40 EDT 2009
 
  Bug-fixes:
  - Bundled version code will use pure Perl on 5.10.0 to work around
