@@ -48,7 +48,7 @@ use strict;
 
 use vars qw(@ISA $VERSION $CLASS *declare *qv);
 
-$VERSION = 0;
+$VERSION = 0.77;
 
 $CLASS = 'version';
 
@@ -122,6 +122,7 @@ use POSIX qw/locale_h/;
 use locale;
 use vars qw ($VERSION @ISA @REGEXS);
 $VERSION = '0.77';
+$VERSION = eval $VERSION;
 
 push @REGEXS, qr/
 	^v?	# optional leading 'v'
