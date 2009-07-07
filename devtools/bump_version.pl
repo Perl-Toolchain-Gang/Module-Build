@@ -35,7 +35,7 @@ unless($version) {
 }
 
 die "must bump forward! ($version < $current)\n"
-  unless($version >= $current);
+  unless(eval $version >= eval $current);
 
 # NEVER BUMP THESE $VERSION numbers
 my @excluded = qw(
@@ -61,19 +61,34 @@ sub {
   my @head;
   while(@lines) {
     my $line = shift(@lines);
-    if($line =~ m/^$current - \w/) {
-      warn "Updating '$file'\n";
-      open(my $ofh, '>', $file) or die "cannot write '$file' $!";
-      print $ofh @head, "$version - \n", "\n", $line, @lines;
-      close($ofh) or die "cannot write '$file' $!";
-      return;
-    }
-    elsif($line =~ m/^$version(?: *- *)?$/) {
-      # TODO should just be checking for a general number+eol case?
-      die "$file probably needs to be reverted!";
-    }
-    elsif($line =~ m/^$current(?: *- *)?$/) {
-      die "Error parsing $file - found unreleased '$current'"; 
+    if($line =~ m/^$current/ ) {
+      # unreleased case -- re-bumping
+      if($line =~ m/^$current(?: *- *)?$/) {
+        print "Error parsing $file - found unreleased '$current'\n"; 
+        local $| = 1;
+        print "Are you sure you want to change the version number (y/n)? [n]:";
+        chomp(my $ans = <STDIN>);
+        if ( $ans !~ /^y/i ) {
+          print "Aborting!\n";
+          exit 1;
+        }
+        warn "Updating '$file'\n";
+        open(my $ofh, '>', $file) or die "cannot write '$file' $!";
+        print $ofh @head, "$version - \n", @lines;
+        close($ofh) or die "cannot write '$file' $!";
+        return;
+      }
+      if($line =~ m/^$current - \w/) {
+        warn "Updating '$file'\n";
+        open(my $ofh, '>', $file) or die "cannot write '$file' $!";
+        print $ofh @head, "$version - \n", "\n", $line, @lines;
+        close($ofh) or die "cannot write '$file' $!";
+        return;
+      }
+      elsif($line =~ m/^$version(?: *- *)?$/) {
+        # TODO should just be checking for a general number+eol case?
+        die "$file probably needs to be reverted!";
+      }
     }
     else {
       push(@head, $line);
