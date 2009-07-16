@@ -729,6 +729,11 @@ we're now running under is the same version that was initially invoked
 when building the distribution (i.e. when the C<Build.PL> script was
 first run).  Use with caution.
 
+=item debug
+
+Prints Module::Build debugging information to STDOUT, such as a trace of
+executed build actions.
+
 =back
 
 
