@@ -42,6 +42,7 @@ t/basic.t
 t/bundled/Tie/CPHash.pm
 t/compat.t
 t/compat/exit.t
+t/debug.t
 t/destinations.t
 t/ext.t
 t/extend.t
