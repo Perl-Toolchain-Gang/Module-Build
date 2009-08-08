@@ -6,6 +6,7 @@ Revision history for Perl extension Module::Build.
  - Fixed failing xs.t if /tmp is mounted noexec (RT#47331) [David Golden]
  - Fixed failing debug.t on VMS (RT#48362) [Craig Berry]
  - Prevent par.t from dying on error in .zip extraction [David Golden]
+ - Fixed potential runthrough.t failure on 5.6.2 [David Golden]
 
  Other:
  - Archive::Tar changed from 'requires' to 'recommends' so non-authors
