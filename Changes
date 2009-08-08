@@ -7,6 +7,11 @@ Revision history for Perl extension Module::Build.
  - Fixed failing debug.t on VMS (RT#48362) [Craig Berry]
  - Prevent par.t from dying on error in .zip extraction [David Golden]
 
+ Other:
+ - Archive::Tar changed from 'requires' to 'recommends' so non-authors
+   without IO::Zlib can still use Module::Build to install modules
+   [reported by Matt Trout, fix by David Golden]
+
 0.34_02 - Sun Jul 26 22:50:40 EDT 2009
 
  Bug-fixes:

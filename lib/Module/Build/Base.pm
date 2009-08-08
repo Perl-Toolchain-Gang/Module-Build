@@ -3976,7 +3976,10 @@ sub make_tarball {
     $self->do_system($self->split_like_shell($self->{args}{tar}), $tar_flags, "$file.tar", $dir);
     $self->do_system($self->split_like_shell($self->{args}{gzip}), "$file.tar") if $self->{args}{gzip};
   } else {
-    require Archive::Tar;
+    eval { require Archive::Tar && Archive::Tar->VERSION(1.08); 1 }
+      or die "You must install Archive::Tar to make a distribution tarball\n".
+             "or specify a binary tar program with the '--tar' option.\n".
+             "See the documentation for the 'dist' action.\n";
 
     # Archive::Tar versions >= 1.09 use the following to enable a compatibility
     # hack so that the resulting archive is compatible with older clients.

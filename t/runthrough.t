@@ -150,10 +150,8 @@ SKIP: {
   cmp_ok $1, '==', $mb->VERSION, "Check version used to create META.yml: $1 == " . $mb->VERSION;
 
   SKIP: {
-    skip( "not sure if we can create a tarball on this platform", 1 )
-      unless $mb->check_installed_version('Archive::Tar', 0) ||
-	     $mb->isa('Module::Build::Platform::Unix');
-
+    skip( "Archive::Tar 1.08+ not installed", 1 )
+      unless eval { require Archive::Tar && Archive::Tar->VERSION(1.08); 1 };
     $mb->add_to_cleanup($mb->dist_dir . ".tar.gz");
     eval {$mb->dispatch('dist')};
     is $@, '';
