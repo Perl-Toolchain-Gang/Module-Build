@@ -83,8 +83,8 @@ SKIP: {
   local %SIG;
   $SIG{__WARN__} = sub { print STDERR $_[0] unless $_[0] =~ /\bstat\b/ };
   skip "broken Archive::Zip", 1 
-    unless $zip->read($filename) == Archive::Zip::AZ_OK()
-    && $zip->extractTree('', "$tmp2/") == Archive::Zip::AZ_OK()
+    unless eval { $zip->read($filename) == Archive::Zip::AZ_OK() }
+    && eval { $zip->extractTree('', "$tmp2/") == Archive::Zip::AZ_OK() }
     && -r File::Spec->catfile( $tmp2, 'blib', 'META.yml' );
 
   my $meta;
