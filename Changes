@@ -4,6 +4,7 @@ Revision history for Perl extension Module::Build.
 
  Bug fixes:
  - Fixed failing xs.t if /tmp is mounted noexec (RT#47331) [David Golden]
+ - Fixed failing debug.t on VMS (RT#48362) [Craig Berry]
 
 0.34_02 - Sun Jul 26 22:50:40 EDT 2009
 
