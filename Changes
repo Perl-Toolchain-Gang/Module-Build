@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.34_04 - 
 
+ Other:
+ - Added documentation warning that 'get_options' should be capitalized
+   to avoid conflicting with future Module::Build options and changed
+   the examples accordingly.
+
 0.34_03 - Sat Aug  8 07:39:16 EDT 2009
 
  Bug fixes:
