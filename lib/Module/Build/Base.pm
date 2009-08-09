@@ -3754,7 +3754,8 @@ sub prepare_metadata {
     && $self->auto_configure_requires
     && ! exists $prereq_types{'configure_requires'}{'Module::Build'}
   ) {
-    $prereq_types{configure_requires}{'Module::Build'} = $VERSION;
+    (my $ver = $VERSION) =~ s/^(\d+\.\d\d).*$/$1/; # last major release only
+    $prereq_types{configure_requires}{'Module::Build'} = $ver;
   }
 
   for my $t ( keys %prereq_types ) {

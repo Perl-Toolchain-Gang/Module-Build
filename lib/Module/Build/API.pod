@@ -78,7 +78,9 @@ method.
 
 This parameter determines whether Module::Build will add itself
 automatically to configure_requires (and build_requires) if Module::Build
-is not already there.  The default value is true.
+is not already there.  The required version will be the last 'major' release,
+as defined by the decimal version truncated to two decimal places (e.g. 0.34,
+instead of 0.3402).  The default value is true.
 
 =item auto_features
 

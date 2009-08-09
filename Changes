@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.34_05 - 
 
+ Bug fixes:
+ - When auto_configure_requires is true (the default), Module::Build will 
+   only add last 'major' version of Module:Build (e.g. 0.XX) to
+   configure_requires to avoid specifying a minor development release not
+   available on CPAN [David Golden]
+
 0.34_04 - Sat Aug  8 11:02:24 EDT 2009
 
  Other:
