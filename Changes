@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.34_06 - 
 
+ Bug fixes:
+ - Multiple test fixes for OS2 [Ilya Zakharevich]
+
 0.34_05 - Sun Aug  9 22:31:37 EDT 2009
 
  Bug fixes:

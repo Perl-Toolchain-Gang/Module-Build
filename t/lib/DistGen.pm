@@ -62,6 +62,13 @@ sub undent {
 
   return($string);
 }
+
+sub chdir_all ($) {
+  # OS/2 has "current directory per disk", undeletable; 
+  # doing chdir() to another disk won't change cur-dir of initial disk...
+  chdir('/') if $^O eq 'os2';
+  chdir shift;
+}
 ########################################################################
 
 sub new {
@@ -388,7 +395,7 @@ sub clean {
     }
   }, ($^O eq 'VMS' ? './' : File::Spec->curdir) );
 
-  chdir( $here );
+  chdir_all( $here );
 }
 
 sub remove {
@@ -478,7 +485,7 @@ sub chdir_original {
 
   croak("never called chdir_in()") unless($self->{original_dir});
   my $dir = $self->{original_dir};
-  chdir($dir) or die "Can't chdir to '$dir': $!";
+  chdir_all($dir) or die "Can't chdir to '$dir': $!";
 }
 ########################################################################
 
