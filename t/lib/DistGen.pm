@@ -293,7 +293,7 @@ sub regen {
       my $real_filename = $self->_real_filename( $file );
       my $fullname = File::Spec->catfile( $dist_dirname, $real_filename );
       if ( -e $fullname ) {
-	1 while unlink( $fullname );
+        1 while unlink( $fullname );
       }
       print "Unlinking pending file '$file'\n" if $VERBOSE;
       delete( $self->{pending}{remove}{$file} );
@@ -304,8 +304,8 @@ sub regen {
     my $real_filename = $self->_real_filename( $file );
     my $fullname = File::Spec->catfile( $dist_dirname, $real_filename );
 
-    if ( ! -e $fullname ||
-	 ( -e $fullname && $self->{pending}{change}{$file} ) ) {
+    if  ( ! -e $fullname ||
+        (   -e $fullname && $self->{pending}{change}{$file} ) ) {
 
       print "Changed file '$file'.\n" if $VERBOSE;
 
