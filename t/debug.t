@@ -21,13 +21,8 @@ $dist->chdir_in;
 # Test debug output
 {
   my $output;
-  $output = stdout_of sub {
-    Module::Build->run_perl_script('Build.PL', [], [])
-  };
-  my $build_script = $^O eq 'VMS' ? 'Build.com' : 'Build';
-  $output = stdout_of sub {
-    Module::Build->run_perl_script($build_script, [], ['--debug'])
-  };
+  $output = stdout_of sub { $dist->run_build_pl };
+  $output = stdout_of sub { $dist->run_build('--debug') };
   like($output, '/Starting ACTION_build.*?Starting ACTION_code.*?Finished ACTION_code.*?Finished ACTION_build/ms',
     "found nested ACTION_* debug statements"
   );

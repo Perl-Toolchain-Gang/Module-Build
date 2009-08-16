@@ -489,6 +489,19 @@ sub chdir_original {
 }
 ########################################################################
 
+sub run_build_pl {
+  my (@args) = @_;
+  require Module::Build;
+  Module::Build->run_perl_script('Build.PL', [], [@args])
+}
+
+sub run_build {
+  my (@args) = @_;
+  require Module::Build;
+  my $build_script = $^O eq 'VMS' ? 'Build.com' : 'Build';
+  Module::Build->run_perl_script($build_script, [], [@args])
+}
+
 1;
 
 __END__
@@ -515,6 +528,10 @@ DistGen - Creates simple distributions for testing.
 
   # clean up extraneous files
   $dist->clean;
+
+  # exercise the command-line interface
+  $dist->run_build_pl();
+  $dist->run_build('test');
 
   # finish testing and clean up
   $dist->chdir_original;
@@ -545,6 +562,11 @@ most important are ones that manage the current directory:
 
   chdir_in
   chdir_original
+
+Additional methods portably encapsulate running Build.PL and Build:
+
+  run_build_pl
+  run_build
 
 =head1 API
 
@@ -698,6 +720,27 @@ Returns to whatever directory you were in before chdir_in() (regardless
 of the cwd.)
 
   $dist->chdir_original;
+
+=head2 Command-line helpers
+
+These use Module::Build->run_perl_script() to ensure that Build.PL or Build are
+run in a separate process using the current perl interpreter.  (Module::Build
+is loaded on demand).  They also ensure appropriate naming for operating
+systems that require a suffix for Build.
+
+=head3 run_build_pl
+
+Runs Build.PL using the current perl interpreter.  Any arguments are
+passed on the command line.
+
+  $dist->run_build_pl('--quiet');
+
+=head3 run_build
+
+Runs Build using the current perl interpreter.  Any arguments are
+passed on the command line.
+
+  $dist->run_build(qw/test --verbose/);
 
 =head2 Properties
 
