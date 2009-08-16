@@ -490,13 +490,13 @@ sub chdir_original {
 ########################################################################
 
 sub run_build_pl {
-  my (@args) = @_;
+  my ($self, @args) = @_;
   require Module::Build;
   Module::Build->run_perl_script('Build.PL', [], [@args])
 }
 
 sub run_build {
-  my (@args) = @_;
+  my ($self, @args) = @_;
   require Module::Build;
   my $build_script = $^O eq 'VMS' ? 'Build.com' : 'Build';
   Module::Build->run_perl_script($build_script, [], [@args])
