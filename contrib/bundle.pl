@@ -7,7 +7,7 @@
 This installs from a fresh Module::Build to your inc/inc_Module-Build
 directory.  Use it from within your dist:
 
-  perl /path/to/Module-Build/scripts/bundle.pl
+  perl /path/to/Module-Build/contrib/bundle.pl
 
 You still need to manually add the following to your Build.PL
 
