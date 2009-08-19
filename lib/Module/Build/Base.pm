@@ -2739,7 +2739,8 @@ sub manify_bin_pods {
     my $outfile = File::Spec->catfile($mandir, $manpage);
     next if $self->up_to_date( $file, $outfile );
     $self->log_info("Manifying $file -> $outfile\n");
-    $parser->parse_from_file( $file, $outfile );
+    eval { $parser->parse_from_file( $file, $outfile ); 1 }
+      or $self->log_warn("Error creating '$outfile': $@\n"); 
     $files->{$file} = $outfile;
   }
 }
@@ -2763,7 +2764,8 @@ sub manify_lib_pods {
     my $outfile = File::Spec->catfile( $mandir, $manpage);
     next if $self->up_to_date( $file, $outfile );
     $self->log_info("Manifying $file -> $outfile\n");
-    $parser->parse_from_file( $file, $outfile );
+    eval { $parser->parse_from_file( $file, $outfile ); 1 }
+      or $self->log_warn("Error creating '$outfile': $@\n"); 
     $files->{$file} = $outfile;
   }
 }
