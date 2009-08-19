@@ -6,6 +6,7 @@ Revision history for Perl extension Module::Build.
  - Multiple test fixes for OS2 [Ilya Zakharevich]
  - Generated.ppd files use :utf8 if possible (RT#48827) [Olivier Mengue]
  - Fixed preservation of custom install_paths on resume (RT#41166)
+   [David Golden]
  - Warn instead of crashing when Pod::Man tries to create files with
    colons on vfat partitions on unix (RT#45544) [David Golden]
 
