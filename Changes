@@ -5,6 +5,7 @@ Revision history for Perl extension Module::Build.
  Bug fixes:
  - Multiple test fixes for OS2 [Ilya Zakharevich]
  - Generated.ppd files use :utf8 if possible (RT#48827) [Olivier Mengue]
+ - Fixed preservation of custom install_paths on resume (RT#41166)
 
 0.34_05 - Sun Aug  9 22:31:37 EDT 2009
 

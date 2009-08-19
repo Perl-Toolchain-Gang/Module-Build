@@ -128,13 +128,10 @@ diag "OUTPUT:\n$output" if $error;
 
 $output = stdout_of sub { $dist->run_build('install') };
 
-TODO: {
-  local $TODO = "RT#4116 not fixed";
-  $error = 0;
-  $error++ unless ok(-e "$installdest/etc/simple/config", "installed etc/config");
-  $error++ unless ok(-e "$installdest/share/simple/data", "installed share/data");
-  $error++ unless ok(-e "$installdest/share/simple/html/index.html", "installed share/html");
-  diag "OUTPUT:\n$output" if $error;
-}
+$error = 0;
+$error++ unless ok(-e "$installdest/etc/simple/config", "installed etc/config");
+$error++ unless ok(-e "$installdest/share/simple/data", "installed share/data");
+$error++ unless ok(-e "$installdest/share/simple/html/index.html", "installed share/html");
+diag "OUTPUT:\n$output" if $error;
 
 $dist->remove();

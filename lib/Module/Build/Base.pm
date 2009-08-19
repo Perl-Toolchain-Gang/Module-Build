@@ -42,7 +42,6 @@ sub new {
   $self->dist_name;
   $self->dist_version;
 
-  $self->_set_install_paths;
   $self->_find_nested_builds;
 
   return $self;
@@ -86,8 +85,6 @@ sub resume {
   
   $self->{invoked_action} = $self->{action} ||= 'build';
 
-  $self->_set_install_paths;
-  
   return $self;
 }
 
@@ -208,10 +205,12 @@ sub log_warn {
 }
 
 
-sub _set_install_paths {
+# install paths must be generated when requested to be sure all changes
+# to config (from various sources) are included
+sub _default_install_paths {
   my $self = shift;
   my $c = $self->{config};
-  my $p = $self->{properties};
+  my $p = {};
 
   my @libstyle = $c->get('installstyle') ?
       File::Spec->splitdir($c->get('installstyle')) : qw(lib perl5);
@@ -318,7 +317,7 @@ sub _set_install_paths {
 	      libhtml    => ['html'],
 	     },
     };
-
+    return $p
 }
 
 sub _find_nested_builds {
@@ -1839,6 +1838,8 @@ sub _detildefy {}
 sub _merge_arglist {
   my( $self, $opts1, $opts2 ) = @_;
 
+  $opts1 ||= {};
+  $opts2 ||= {};
   my %new_opts = %$opts1;
   while (my ($key, $val) = each %$opts2) {
     if ( exists( $opts1->{$key} ) ) {
@@ -4022,15 +4023,105 @@ sub install_path {
   return $map->{$type} = $value;
 }
 
+sub install_sets {
+  # Usage: install_sets('site'), install_sets('site', 'lib'),
+  #   or install_sets('site', 'lib' => $value);
+  my ($self, $dirs, $key, $value) = @_;
+  $dirs = $self->installdirs unless defined $dirs;
+  # update property before merging with defaults
+  if ( @_ == 4 && defined $dirs && defined $key) {
+    # $value can be undef; will mask default
+    $self->{properties}{install_sets}{$dirs}{$key} = $value;
+  }
+  my $map = { $self->_merge_arglist(
+    $self->{properties}{install_sets},
+    $self->_default_install_paths->{install_sets}
+  )};
+  if ( defined $dirs && defined $key ) {
+    return $map->{$dirs}{$key};
+  }
+  elsif ( defined $dirs ) {
+    return $map->{$dirs};
+  }
+  else {
+    croak "Can't determine installdirs for install_sets()";
+  }
+}
+
+sub original_prefix {
+  # Usage: original_prefix(), original_prefix('lib'),
+  #   or original_prefix('lib' => $value);
+  my ($self, $key, $value) = @_;
+  # update property before merging with defaults
+  if ( @_ == 3 && defined $key) { 
+    # $value can be undef; will mask default
+    $self->{properties}{original_prefix}{$key} = $value;
+  }
+  my $map = { $self->_merge_arglist(
+    $self->{properties}{original_prefix},
+    $self->_default_install_paths->{original_prefix}
+  )};
+  return $map unless defined $key;
+  return $map->{$key}
+}
+
 sub install_base_relpaths {
   # Usage: install_base_relpaths(), install_base_relpaths('lib'),
   #   or install_base_relpaths('lib' => $value);
   my $self = shift;
-  my $map = $self->{properties}{install_base_relpaths};
+  if ( @_ > 1 ) { # change values before merge
+    $self->_set_relpaths($self->{properties}{install_base_relpaths}, @_);
+  }
+  my $map = { $self->_merge_arglist(
+    $self->{properties}{install_base_relpaths},
+    $self->_default_install_paths->{install_base_relpaths}
+  )};
   return $map unless @_;
-  return $self->_relpaths($map, @_);
+  my $relpath = $map->{$_[0]};
+  return defined $relpath ? File::Spec->catdir( @$relpath ) : undef;
 }
 
+# Defaults to use in case the config install paths cannot be prefixified.
+sub prefix_relpaths {
+  # Usage: prefix_relpaths('site'), prefix_relpaths('site', 'lib'),
+  #   or prefix_relpaths('site', 'lib' => $value);
+  my $self = shift;
+  my $installdirs = shift || $self->installdirs
+    or croak "Can't determine installdirs for prefix_relpaths()";
+  if ( @_ > 1 ) { # change values before merge
+    $self->{properties}{prefix_relpaths}{$installdirs} ||= {};
+    $self->_set_relpaths($self->{properties}{prefix_relpaths}{$installdirs}, @_);
+  }
+  my $map = {$self->_merge_arglist(
+    $self->{properties}{prefix_relpaths}{$installdirs},
+    $self->_default_install_paths->{prefix_relpaths}{$installdirs}
+  )};
+  return $map unless @_;
+  my $relpath = $map->{$_[0]};
+  return defined $relpath ? File::Spec->catdir( @$relpath ) : undef;
+}
+
+sub _set_relpaths {
+  my $self = shift;
+  my( $map, $type, $value ) = @_;
+
+  Carp::croak( 'Type argument missing' )
+    unless defined( $type );
+
+  # set undef if $value is literal undef()
+  if ( ! defined( $value ) ) {
+    $map->{$type} = undef;
+    return;
+  }
+  # set value if $value is a valid relative path
+  else {
+    Carp::croak( "Value must be a relative path" )
+      if File::Spec::Unix->file_name_is_absolute($value);
+
+    my @value = split( /\//, $value );
+    $map->{$type} = \@value;
+  }
+}
 
 # Translated from ExtUtils::MM_Any::init_INSTALL_from_PREFIX
 sub prefix_relative {
@@ -4044,51 +4135,6 @@ sub prefix_relative {
 			   $type,
 			  );
 }
-
-sub _relpaths {
-  my $self = shift;
-  my( $map, $type, $value ) = ( @_, '<empty>' );
-
-  Carp::croak( 'Type argument missing' )
-    unless defined( $type );
-
-  my @value = ();
-
-  # delete existing value if $value is literal undef()
-  unless ( defined( $value ) ) {
-    delete( $map->{$type} );
-    return undef;
-  }
-
-  # return existing value if no new $value is given
-  elsif ( $value eq '<empty>' ) {
-    return undef unless exists $map->{$type};
-    @value = @{ $map->{$type} };
-  }
-
-  # set value if $value is a valid relative path
-  else {
-    Carp::croak( "Value must be a relative path" )
-      if File::Spec::Unix->file_name_is_absolute($value);
-
-    @value = split( /\//, $value );
-    $map->{$type} = \@value;
-  }
-
-  return File::Spec->catdir( @value );
-}
-
-# Defaults to use in case the config install paths cannot be prefixified.
-sub prefix_relpaths {
-  # Usage: prefix_relpaths('site'), prefix_relpaths('site', 'lib'),
-  #   or prefix_relpaths('site', 'lib' => $value);
-  my $self = shift;
-  my $installdirs = shift || $self->installdirs;
-  my $map = $self->{properties}{prefix_relpaths}{$installdirs};
-  return $map unless @_;
-  return $self->_relpaths($map, @_);
-}
-
 
 # Translated from ExtUtils::MM_Unix::prefixify()
 sub _prefixify {
