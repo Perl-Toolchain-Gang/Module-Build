@@ -113,6 +113,7 @@ EOF
   my $ppd_file = "$dist{name}.ppd";
   my $fh = IO::File->new(">$ppd_file")
     or die "Cannot write to $ppd_file: $!";
+  $fh->binmode(":utf8") if $fh->can("binmode");
   print $fh $ppd;
   close $fh;
 
