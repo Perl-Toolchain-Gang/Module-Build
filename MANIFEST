@@ -49,6 +49,7 @@ t/extend.t
 t/files.t
 t/help.t
 t/install.t
+t/install_extra_target.t
 t/lib/DistGen.pm
 t/lib/MBTest.pm
 t/manifypods.t
