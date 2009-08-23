@@ -2,7 +2,7 @@ package Module::Build::Platform::darwin;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.34_06';
+$VERSION = '0.34_07';
 $VERSION = eval $VERSION;
 use Module::Build::Platform::Unix;
 
