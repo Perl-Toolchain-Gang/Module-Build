@@ -39,6 +39,7 @@ Changes (e.g. use "r! date" then "kJ" in vim.)
 And we should now be ready for automated shipping:
 
   $ perl Build.PL
+  $ Build distcheck
   $ Build distmeta
   $ publish-module
 
