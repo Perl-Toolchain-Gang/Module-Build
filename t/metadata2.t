@@ -26,7 +26,8 @@ SKIP: {
 
   ok ! -e 'MANIFEST';
 
-  my $mb = Module::Build->new_from_context;
+  my $mb;
+  stderr_of( sub { $mb = Module::Build->new_from_context } );
 
   my $out;
   $out = eval { stderr_of(sub{$mb->dispatch('distmeta')}) };

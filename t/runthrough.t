@@ -24,6 +24,9 @@ $dist->change_build_pl
   requires    => { 'File::Spec' => 0 },
 });
 
+$dist->add_file( 'MANIFEST.SKIP', <<'---' );
+^MYMETA.yml$
+---
 $dist->add_file( 'script', <<'---' );
 #!perl -w
 print "Hello, World!\n";

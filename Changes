@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.35_01 - 
 
+ Enhancements
+ - Generates MYMETA.yml during Build.PL (new standard protocol for 
+   communicating configuration results between toolchain components)
+ 
 0.35 - Thu Aug 27 09:12:02 EDT 2009
 
  Bug fixes:

@@ -366,7 +366,7 @@ package Simple;
 $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build();
+stderr_of( sub { $mb = new_build(); } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Simple' => { file => $simple_file,
@@ -470,7 +470,7 @@ package Foo;
 $VERSION = '2.34';
 ---
 $dist->regen( clean => 1 );
-$mb = new_build();
+stderr_of( sub { $mb = new_build(); } );
 $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 # XXX Should 'Foo' exist ??? Can't predict values for file & version
 ok( exists( $provides->{Foo} ) );
