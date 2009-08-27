@@ -489,6 +489,12 @@ sub chdir_original {
 }
 ########################################################################
 
+sub new_from_context {
+  my ($self, @args) = @_;
+  require Module::Build;
+  return Module::Build->new_from_context( quiet => 1, @args );
+}
+
 sub run_build_pl {
   my ($self, @args) = @_;
   require Module::Build;
