@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.34_07 - 
+0.35 - 
 
  Bug fixes:
  - Fix t/destinations.t segfault on 5.6.2
