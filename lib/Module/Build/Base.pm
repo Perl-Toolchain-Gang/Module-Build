@@ -922,6 +922,7 @@ __PACKAGE__->add_property($_) for qw(
   recursive_test_files
   script_files
   scripts
+  share_dir
   sign
   test_files
   verbose
@@ -3559,6 +3560,63 @@ sub _files_in {
     push @files, $full_path;
   }
   return @files;
+}
+
+sub share_dir {
+  my $self = shift;
+  my $p = $self->{properties};
+  
+  $p->{share_dir} = shift if @_;
+
+  # Always coerce to proper hash form
+  if    ( ! defined $p->{share_dir} ) {
+    # not set -- use default 'share' dir if exists
+    $p->{share_dir} = { dist => [ 'share' ] } if -d 'share';
+  }
+  elsif ( ! ref $p->{share_dir}  ) {
+    # scalar -- treat as a single 'dist' directory
+    $p->{share_dir} = { dist => [ $p->{share_dir} ] };
+  }
+  elsif ( ref $p->{share_dir} eq 'ARRAY' ) {
+    # array -- treat as a list of 'dist' directories
+    $p->{share_dir} = { dist => $p->{share_dir} };
+  }
+  elsif ( ref $p->{share_dir} eq 'HASH' ) {
+    # hash -- check structure
+    my $share_dir = $p->{share_dir};
+    # check dist key
+    if ( defined $share_dir->{dist} ) {
+      if ( ! ref $share_dir->{dist} ) {
+        # scalar, so upgrade to arrayref
+        $share_dir->{dist} = [ $share_dir->{dist} ];
+      }
+      elsif ( ref $share_dir->{dist} ne 'ARRAY' ) {
+        die "'dist' key in 'share_dir' must be scalar or arrayref";
+      }
+    }
+    # check module key
+    if ( defined $share_dir->{module} ) {
+      my $mod_hash = $share_dir->{module};
+      if ( ref $mod_hash eq 'HASH' ) {
+        for my $k ( keys %$mod_hash ) {
+          if ( ! ref $mod_hash->{$k} ) {
+            $mod_hash->{$k} = [ $mod_hash->{$k} ];
+          }
+          elsif( ref $mod_hash->{$k} ne 'ARRAY' ) {
+            die "modules in 'module' key of 'share_dir' must be scalar or arrayref";
+          }
+        }
+      }
+      else {
+          die "'module' key in 'share_dir' must be hashref";
+      }
+    }
+  }
+  else {
+    die "'share_dir' must be hashref, arrayref or string";
+  }
+
+  return $p->{share_dir};
 }
 
 sub script_files {
