@@ -9,7 +9,7 @@ use File::Spec::Functions qw/catdir catfile/;
 # Begin testing
 #--------------------------------------------------------------------------#
 
-plan tests => 12;
+plan tests => 19;
 
 require_ok('Module::Build');
 ensure_blib('Module::Build');
@@ -21,7 +21,7 @@ ensure_blib('Module::Build');
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
-my $dist = DistGen->new( dir => $tmp );
+my $dist = DistGen->new( dir => $tmp, name => 'Simple::Share' );
 
 $dist->regen;
 END{ $dist->remove }
@@ -44,11 +44,12 @@ is( $mb->share_dir, undef,
 $dist->add_file('share/foo.txt',<< '---');
 This is foo.txt
 ---
-$dist->add_file('other/bar.txt',<< '---');
+$dist->add_file('other/share/bar.txt',<< '---');
 This is bar.txt
 ---
 $dist->regen;
 ok( -e catfile(qw/share foo.txt/), "Created 'share' directory" );
+ok( -e catfile(qw/other share bar.txt/), "Created 'other/share' directory" );
 
 # Check default when share_dir is not given
 $mb = $dist->new_from_context;
@@ -119,7 +120,7 @@ $dist->change_build_pl(
     license             => 'perl',
     share_dir           => { 
       dist => 'share',
-      module => { $dist->name =>  'other'  },
+      module => { $dist->name =>  'other/share'  },
     },
   }
 );
@@ -127,7 +128,7 @@ $dist->regen;
 $mb = $dist->new_from_context;
 is_deeply( $mb->share_dir, 
   { dist => [ 'share' ], 
-    module => { $dist->name => ['other']  },
+    module => { $dist->name => ['other/share']  },
   },
   "Hashref share_dir w/ both dist and module shares (scalar-form)"
 );
@@ -139,7 +140,7 @@ $dist->change_build_pl(
     license             => 'perl',
     share_dir           => { 
       dist => [ 'share' ],
-      module => { $dist->name =>  ['other']  },
+      module => { $dist->name =>  ['other/share']  },
     },
   }
 );
@@ -147,11 +148,63 @@ $dist->regen;
 $mb = $dist->new_from_context;
 is_deeply( $mb->share_dir, 
   { dist => [ 'share' ], 
-    module => { $dist->name => ['other']  },
+    module => { $dist->name => ['other/share']  },
   },
   "Hashref share_dir w/ both dist and module shares (array-form)"
 );
 
+#--------------------------------------------------------------------------#
+# test constructing to/from mapping
+#--------------------------------------------------------------------------#
 
+is_deeply( $mb->_find_share_dir_files, 
+  {
+    'share/foo.txt' => 'dist/Simple-Share/foo.txt',
+    'other/share/bar.txt' => 'module/Simple-Share/bar.txt',
+  },
+  "share_dir filemap for copying to lib complete"
+);
+
+#--------------------------------------------------------------------------#
+# test moving files to blib
+#--------------------------------------------------------------------------#
+
+$mb->dispatch('build');
+
+ok( -d 'blib', "Build ran and blib exists" );
+ok( -d 'blib/lib/auto/share', "blib/lib/auto/share exists" );
+
+my $share_list = Module::Build->rscan_dir('blib/lib/auto/share', sub {-f});
+
+is_deeply( 
+  $share_list, [ 
+    'blib/lib/auto/share/dist/Simple-Share/foo.txt',
+    'blib/lib/auto/share/module/Simple-Share/bar.txt',
+  ], 
+  "share_dir files copied to blib"
+);
+
+#--------------------------------------------------------------------------#
+# test installing
+#--------------------------------------------------------------------------#
+
+my $temp_install = 'temp_install';
+mkdir $temp_install;
+ok( -d $temp_install, "temp install dir created" );
+
+$mb->install_base($temp_install);
+stdout_of( sub { $mb->dispatch('install') } );
+
+$share_list = Module::Build->rscan_dir(
+  "$temp_install/lib/perl5/auto/share", sub {-f}
+);
+
+is_deeply( 
+  $share_list, [ 
+    "$temp_install/lib/perl5/auto/share/dist/Simple-Share/foo.txt",
+    "$temp_install/lib/perl5/auto/share/module/Simple-Share/bar.txt",
+  ], 
+  "share_dir files correctly installed"
+);
 
 

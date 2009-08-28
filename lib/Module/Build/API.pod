@@ -737,6 +737,32 @@ For backward compatibility, you may use the parameter C<scripts>
 instead of C<script_files>.  Please consider this usage deprecated,
 though it will continue to exist for several version releases.
 
+=item share_dir
+
+[version 0.36]
+
+An optional parameter specifying directories of static data files to
+be installed as read-only files for use with L<File::ShareDir>.  The
+C<share_dir> property supports both distribution-level and
+module-level share files.
+
+The default when C<share_dir> is not set is for any files in a F<share>
+directory at the top level of the distribution to be installed in
+distribution-level share directory.  Alternatively, C<share_dir> can be set to
+a directory name or an arrayref of directory names containing files to be
+installed in the distribution-level share directory.
+
+If C<share_dir> is a hashref, it may have C<dist> or C<module> keys 
+providing full flexibility in defining share directories to install.
+
+  share_dir => {
+    dist => [ 'examples', 'more_examples' ],
+    module => {
+      Foo::Templates => ['share/html', 'share/text'],
+      Foo::Config    => 'share/config',
+    }
+  }
+
 =item sign
 
 [version 0.16]

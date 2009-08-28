@@ -831,7 +831,7 @@ sub _make_accessor {
 __PACKAGE__->add_property(auto_configure_requires => 1);
 __PACKAGE__->add_property(blib => 'blib');
 __PACKAGE__->add_property(build_class => 'Module::Build');
-__PACKAGE__->add_property(build_elements => [qw(PL support pm xs pod script)]);
+__PACKAGE__->add_property(build_elements => [qw(PL support pm xs share_dir pod script)]);
 __PACKAGE__->add_property(build_script => 'Build');
 __PACKAGE__->add_property(build_bat => 0);
 __PACKAGE__->add_property(config_dir => '_build');
@@ -2457,6 +2457,59 @@ sub process_support_files {
   foreach my $file (@$files) {
     push @{$p->{objects}}, $self->compile_c($file);
   }
+}
+
+sub process_share_dir_files {
+  my $self = shift;
+  my $files = $self->_find_share_dir_files;
+  return unless $files;
+
+  # XXX need to add File::ShareDir as 'requires'
+  
+  # root for all File::ShareDir paths
+  my $share_prefix = File::Spec->catdir($self->blib, qw/lib auto share/);
+
+  # copy all share files to blib
+  while (my ($file, $dest) = each %$files) {
+    $self->copy_if_modified( 
+      from => $file, to => File::Spec->catfile( $share_prefix, $dest )
+    );
+  }
+}
+
+sub _find_share_dir_files {
+  my $self = shift;
+  my $share_dir = $self->share_dir;
+  return unless $share_dir;
+  
+  my @file_map;
+  if ( $share_dir->{dist} ) {
+    my $prefix = "dist/" . $self->dist_name;
+    push @file_map, $self->_share_dir_map( $prefix, $share_dir->{dist} );
+  }
+
+  if ( $share_dir->{module} ) {
+    for my $mod ( keys %{ $share_dir->{module} } ) {
+      (my $altmod = $mod) =~ s{::}{-}g;
+      my $prefix = "module/$altmod";
+      push @file_map, $self->_share_dir_map($prefix, $share_dir->{module}{$mod});
+    }
+  }
+
+  return { @file_map };
+}
+
+sub _share_dir_map {
+  my ($self, $prefix, $list) = @_;
+  my %files;
+  for my $dir ( @$list ) { 
+    for my $f ( @{ $self->rscan_dir( $dir, sub {-f} )} ) {
+      $files{$f} = File::Spec->catfile(
+        $prefix, File::Spec->abs2rel( $f, $dir )
+      );
+    }
+  }
+  return %files;  
 }
 
 sub process_PL_files {
