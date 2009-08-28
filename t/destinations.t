@@ -248,7 +248,8 @@ $mb->prefix(undef);
     }
 
     # Poke at the innards of MB to change the default install locations.
-    my $old =  $mb->install_sets->{site} = \%test_config;
+    my $old =  $mb->install_sets->{site};
+    $mb->install_sets->{site} = \%test_config;
     $mb->config(siteprefixexp => catdir(File::Spec->rootdir, 
 					'wierd', 'prefix'));
 
