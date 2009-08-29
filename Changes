@@ -6,7 +6,7 @@ Revision history for Perl extension Module::Build.
  - Generates MYMETA.yml during Build.PL (new standard protocol for 
    communicating configuration results between toolchain components)
    [David Golden]
- - Added 'share_dir' property top provide File::ShareDir support;
+ - Added 'share_dir' property to provide File::ShareDir support;
    set automatically if a directory called 'share' exists
    [David Golden]
 
