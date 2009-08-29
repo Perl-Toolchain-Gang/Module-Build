@@ -9,7 +9,7 @@ use File::Spec::Functions qw/catdir catfile/;
 # Begin testing
 #--------------------------------------------------------------------------#
 
-plan tests => 19;
+plan tests => 21;
 
 require_ok('Module::Build');
 ensure_blib('Module::Build');
@@ -207,4 +207,20 @@ is_deeply(
   "share_dir files correctly installed"
 );
 
+#--------------------------------------------------------------------------#
+# test with File::ShareDir
+#--------------------------------------------------------------------------#
 
+SKIP: {
+  eval { require File::ShareDir; File::ShareDir->VERSION(1.00) };
+  skip "needs File::ShareDir 1.00", 2 if $@;
+  
+  unshift @INC, File::Spec->catdir($temp_install, qw/lib perl5/);
+  require Simple::Share;
+
+  eval {File::ShareDir::dist_file('Simple-Share','foo.txt') };
+  is( $@, q{}, "Found shared dist file" );
+
+  eval {File::ShareDir::module_file('Simple::Share','bar.txt') };
+  is( $@, q{}, "Found shared module file" );
+}
