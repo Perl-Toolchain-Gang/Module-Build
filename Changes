@@ -12,6 +12,7 @@ Revision history for Perl extension Module::Build.
 
  Bug fixes:
  - Fix the t/destinations.t fix. [David Golden, with thanks to Eric Wilhelm]
+ - Fix recursive test files in generated Makefile.PL (RT#49254) [Sawyer X]
 
 0.35 - Thu Aug 27 09:12:02 EDT 2009
 

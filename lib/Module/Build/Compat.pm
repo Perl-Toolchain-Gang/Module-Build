@@ -189,7 +189,7 @@ EOF
     $MM_Args{PL_FILES} = $build->PL_files || {};
 
     if ($build->recursive_test_files) {
-        $MM_Args{TESTS} = join q{ }, $package->_test_globs($build);
+        $MM_Args{test} = { TESTS => join q{ }, $package->_test_globs($build) };
     }
 
     local $Data::Dumper::Terse = 1;

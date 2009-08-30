@@ -299,12 +299,18 @@ ok $mb, "Module::Build->new_from_context";
 
   create_makefile_pl('traditional', $mb);
   my $args = extract_writemakefile_args() || {};
-  is $args->{TESTS}, 
-    join( q{ }, 
-      File::Spec->catfile(qw(t *.t)),
-      File::Spec->catfile(qw(t deep *.t))
-    ),
-    'Makefile.PL has correct TESTS line for recursive test files';
+
+  if ( exists $args->{test}->{TESTS} ) {
+    is $args->{test}->{TESTS},
+      join( q{ },
+        File::Spec->catfile(qw(t *.t)),
+        File::Spec->catfile(qw(t deep *.t))
+      ),
+      'Makefile.PL has correct TESTS line for recursive test files';
+  } else {
+    ok( ! exists $args->{TESTS}, 'Not using incorrect recursive tests key' );
+  }
+
 }
 
 # cleanup
