@@ -477,7 +477,8 @@ sub extract_writemakefile_args {
 }
 
 sub create_makefile_pl {
-    Module::Build::Compat->create_makefile_pl(@_);
+    my @args = @_;
+    stdout_of( sub { Module::Build::Compat->create_makefile_pl(@args) } );
     my $ok = ok -e 'Makefile.PL', "$_[0] Makefile.PL created";
 
     # Some really conservative make's, like HP/UX, assume files with the same

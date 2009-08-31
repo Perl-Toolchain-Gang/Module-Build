@@ -71,6 +71,17 @@ sub create_makefile_pl {
   die "Don't know how to build Makefile.PL of type '$type'"
     unless $type =~ /^(small|passthrough|traditional)$/;
 
+  if ($type eq 'passthrough') {
+    $build->log_info(<<"HERE");
+    
+IMPORTANT NOTE: The '$type' style of Makefile.PL is deprecated and 
+may be removed in a future version of Module::Build in favor of the
+'configure_requires' property.  See Module::Build::Compat
+documentation for details.
+
+HERE
+  }
+
   my $fh;
   if ($args{fh}) {
     $fh = $args{fh};
@@ -414,7 +425,7 @@ Module::Build::Compat - Compatibility with ExtUtils::MakeMaker
   my $build = Module::Build->new
     ( module_name => 'Foo::Bar',
       license     => 'perl',
-      create_makefile_pl => 'passthrough' );
+      create_makefile_pl => 'traditional' );
   ...
 
 
@@ -448,20 +459,6 @@ The currently supported styles are:
 
 =over 4
 
-=item small
-
-A small F<Makefile.PL> will be created that passes all functionality
-through to the F<Build.PL> script in the same directory.  The user must
-already have C<Module::Build> installed in order to use this, or else
-they'll get a module-not-found error.
-
-=item passthrough
-
-This is just like the C<small> option above, but if C<Module::Build> is
-not already installed on the user's system, the script will offer to
-use C<CPAN.pm> to download it and install it before continuing with
-the build.
-
 =item traditional
 
 A F<Makefile.PL> will be created in the "traditional" style, i.e. it will
@@ -473,6 +470,30 @@ You don't want to use this style if during the C<perl Build.PL> stage
 you ask the user questions, or do some auto-sensing about the user's
 environment, or if you subclass C<Module::Build> to do some
 customization, because the vanilla F<Makefile.PL> won't do any of that.
+
+=item small
+
+A small F<Makefile.PL> will be created that passes all functionality
+through to the F<Build.PL> script in the same directory.  The user must
+already have C<Module::Build> installed in order to use this, or else
+they'll get a module-not-found error.
+
+=item passthrough (DEPRECATED)
+
+This is just like the C<small> option above, but if C<Module::Build> is
+not already installed on the user's system, the script will offer to
+use C<CPAN.pm> to download it and install it before continuing with
+the build.
+
+This option has been deprecated and may be removed in a future version
+of Module::Build.  Modern CPAN.pm and CPANPLUS will recognize the
+C<configure_requires> metadata property and install Module::Build before
+running Build.PL if Module::Build is listed and Module::Build now
+adds itself to configure_requires by default.
+
+Perl 5.10.1 includes C<configure_requires> support.  In the future, when
+C<configure_requires> support is deemed sufficiently widespread, the
+C<passthrough> style will be removed.
 
 =back
 
