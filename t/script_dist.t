@@ -8,7 +8,8 @@ use MBTest 'no_plan';
 
 use DistGen qw(undent);
 
-use Module::Build;
+blib_load('Module::Build');
+blib_load('Module::Build::ConfigData');
 
 # XXX DistGen shouldn't be assuming module-ness?
 my $dist = DistGen->new(dir => MBTest->tmpdir);
@@ -69,7 +70,6 @@ is_deeply($mb->dist_author,
   ['A. U. Thor, a.u.thor@a.galaxy.far.far.away']);
 ok $mb->dispatch('distmeta');
 
-use Module::Build::ConfigData;
 SKIP: {
   skip( 'YAML_support feature is not enabled', 1 )
       unless Module::Build::ConfigData->feature('YAML_support');

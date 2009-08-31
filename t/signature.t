@@ -6,7 +6,7 @@ use MBTest;
 
 if ( $ENV{TEST_SIGNATURE} ) {
   if ( have_module( 'Module::Signature' ) ) {
-    plan tests => 15;
+    plan tests => 14;
   } else {
     plan skip_all => '$ENV{TEST_SIGNATURE} is set, but Module::Signature not found';
   }
@@ -14,8 +14,7 @@ if ( $ENV{TEST_SIGNATURE} ) {
   plan skip_all => '$ENV{TEST_SIGNATURE} is not set';
 }
 
-use_ok 'Module::Build';
-ensure_blib('Module::Build');
+blib_load('Module::Build');
 
 #########################
 

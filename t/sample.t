@@ -2,17 +2,15 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 4; # or 'no_plan'
+use MBTest tests => 2; # or 'no_plan'
 use DistGen;
 
-# TESTS BEGIN HERE
-
-require_ok('Module::Build');
-ensure_blib('Module::Build');
+# Ensure any Module::Build modules are loaded from correct directory
+blib_load('Module::Build');
 
 # create dist object in a temp directory
 # MBTest uses different dirs for Perl core vs CPAN testing 
-my $dist = DistGen->new( dir => MBTest->tmpdir );
+my $dist = DistGen->new;
 
 # generate the skeleton files and also schedule cleanup
 $dist->regen;
@@ -26,3 +24,4 @@ my $mb = $dist->new_from_context( quiet => 1 );
 isa_ok( $mb, "Module::Build" );
 is( $mb->dist_name, "Simple", "dist_name is 'Simple'" );
 
+# vim:ts=2:sw=2:et:sta:sts=2

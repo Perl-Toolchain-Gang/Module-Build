@@ -3,10 +3,11 @@
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest;
-use Module::Build;
 use Config;
 
 my $tmp;
+
+blib_load('Module::Build');
 
 {
   my ($have_c_compiler, $C_support_feature, $tmp_exec) = check_compiler();
@@ -20,13 +21,12 @@ my $tmp;
   } elsif ( !$Config{usedl} ) {
     plan skip_all => 'Perl not compiled for dynamic loading'
   } else {
-    plan tests => 23;
+    plan tests => 22;
   }
   require Cwd;
   $tmp = MBTest->tmpdir( $tmp_exec ? undef : Cwd::cwd );
 }
 
-ensure_blib('Module::Build');
 
 
 #########################

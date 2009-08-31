@@ -4,7 +4,7 @@ use strict;
 use Test::More;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 if (eval { require TAP::Harness } && TAP::Harness->VERSION >= 3) {
-    plan tests => 11;
+    plan tests => 9;
 } else {
     plan skip_all => 'TAP::Harness 3+ not installed'
 }
@@ -12,8 +12,7 @@ if (eval { require TAP::Harness } && TAP::Harness->VERSION >= 3) {
 use MBTest;
 use DistGen;
 
-use_ok 'Module::Build';
-ensure_blib('Module::Build');
+blib_load('Module::Build');
 my $tmp = MBTest->tmpdir;
 my $dist = DistGen->new( dir => $tmp );
 $dist->regen;
@@ -86,7 +85,7 @@ $dist->regen;
 ok $mb = $dist->new_from_context, 
     'Construct build object after setting tests to fail'; 
 # Use uc() so we don't confuse the current test output
-my $out = stdout_stderr_of( sub { $dist->run_build('test')} );
+$out = stdout_stderr_of( sub { $dist->run_build('test')} );
 ok( $?, "'Build test' had non-zero exit code" );
 like( $out, qr{Failed 1/1 test programs. 1/1 subtests failed\.}, 
     "Saw emulated Test::Harness die() message" 

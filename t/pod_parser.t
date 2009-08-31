@@ -2,10 +2,9 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 8;
+use MBTest tests => 6;
 
-use_ok 'Module::Build::PodParser';
-ensure_blib('Module::Build::PodParser');
+blib_load('Module::Build::PodParser');
 
 #########################
 

@@ -2,12 +2,10 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 32;
+use MBTest tests => 30;
 
-use_ok 'Module::Build';
-ensure_blib('Module::Build');
-
-use Module::Build::ConfigData;
+blib_load('Module::Build');
+blib_load('Module::Build::ConfigData');
 my $have_yaml = Module::Build::ConfigData->feature('YAML_support');
 
 #########################

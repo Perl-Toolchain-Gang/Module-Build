@@ -4,10 +4,9 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 82;
+use MBTest tests => 80;
 
-use_ok 'Module::Build::ModuleInfo';
-ensure_blib('Module::Build::ModuleInfo');
+blib_load('Module::Build::ModuleInfo');
 
 my $tmp = MBTest->tmpdir;
 

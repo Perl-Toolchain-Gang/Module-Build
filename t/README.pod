@@ -2,8 +2,8 @@
 
 This document provides tips on writing new tests for Module::Build.  Please
 note that many existing tests were written prior to these guidelines and
-have many different styles.  Please don't copy/paste old tests by rote without 
-considering better ways to test. See C<sample.t> for a starter test file. 
+have many different styles.  Please don't copy/paste old tests by rote without
+considering better ways to test. See C<sample.t> for a starter test file.
 
 =head1 TEST FILE PREAMBLE
 
@@ -15,31 +15,28 @@ and that the correct version of Module::Build is being tested.
   use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
   use MBTest tests => 2; # or 'no_plan'
 
-  # TESTS BEGIN HERE
-
-  require_ok('Module::Build');
-  ensure_blib('Module::Build');
+  blib_load('Module::Build');
 
 The C<MBTest> module is in C<t/lib/> and subclasses Test::More.  When loaded
-it cleans up several environment variables that could cause problems, 
+it cleans up several environment variables that could cause problems,
 tweaks C<@INC> and exports several helper functions.  See that module for
 details.
 
 =head1 CREATING A TEST DISTRIBUTION
 
-The C<DistGen> module in C<t/lib/> should be used to create sample 
-distributions for testing.  It provides numerous helpful methods to 
-create a skeleton distribution, add files, change files, and so on.  
+The C<DistGen> module in C<t/lib/> should be used to create sample
+distributions for testing.  It provides numerous helpful methods to
+create a skeleton distribution, add files, change files, and so on.
 Run C<perldoc> on C<t/lib/DistGen.pm> to see the documentation.
 
   # CREATE A TEST DISTRIBUTION
-  
+
   use DistGen;
 
   # create dist object in a temp directory
-  # MBTest uses different dirs for Perl core vs CPAN testing 
+  # MBTest uses different dirs for Perl core vs CPAN testing
   my $dist = DistGen->new( dir => MBTest->tmpdir );
-  
+
   # generate the skeleton files and also schedule cleanup
   $dist->regen;
   END{ $dist->remove }

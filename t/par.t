@@ -3,8 +3,8 @@
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest;
-use Module::Build;
-use Module::Build::ConfigData;
+blib_load('Module::Build');
+blib_load('Module::Build::ConfigData');
 
 {
   my ($have_c_compiler, $C_support_feature) = check_compiler();
@@ -17,10 +17,9 @@ use Module::Build::ConfigData;
   } elsif ( ! eval {require Archive::Zip} ) {
     plan skip_all => "Archive::Zip required.";
   } else {
-    plan tests => 4;
+    plan tests => 3;
   }
 }
-ensure_blib('Module::Build');
 
 
 my $tmp = MBTest->tmpdir;
@@ -58,7 +57,6 @@ $dist->chdir_in;
 
 use File::Spec::Functions qw(catdir);
 
-use Module::Build;
 my @installstyle = qw(lib perl5);
 my $mb = Module::Build->new_from_context(
   verbose => 0,

@@ -3,10 +3,9 @@
 use strict;
 
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 5;
+use MBTest tests => 3;
 
-use_ok 'Module::Build';
-ensure_blib('Module::Build');
+blib_load('Module::Build');
 
 #########################
 
@@ -24,7 +23,7 @@ $dist->chdir_in;
 
 my $mb; stdout_of(sub{ $mb = Module::Build->new_from_context});
 
-use Module::Build::Compat;
+blib_load('Module::Build::Compat');
 
 $dist->regen;
 

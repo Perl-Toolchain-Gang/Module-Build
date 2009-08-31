@@ -18,6 +18,10 @@ Revision history for Perl extension Module::Build.
    option and tests fail, matching the behavior under Test::Harness. 
    (RT#49080) [initial patch from David Wheeler; revised by David Golden]
 
+ Other:
+ - Added t/README.pod and t/sample.t to guide developers writing new tests
+   [David Golden, with some code from Eric Wilhelm]
+
 0.35 - Thu Aug 27 09:12:02 EDT 2009
 
  Bug fixes:

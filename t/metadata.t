@@ -2,14 +2,12 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 53;
+use MBTest tests => 51;
 
-use_ok 'Module::Build';
-ensure_blib('Module::Build');
+blib_load('Module::Build');
+blib_load('Module::Build::ConfigData');
 
 my $tmp = MBTest->tmpdir;
-
-use Module::Build::ConfigData;
 
 my %metadata = 
   (
@@ -56,7 +54,6 @@ my $simple2_file = 'lib/Simple2.pm';
 
 $dist->chdir_in;
 
-use Module::Build;
 my $mb = Module::Build->new_from_context;
 
 ##################################################

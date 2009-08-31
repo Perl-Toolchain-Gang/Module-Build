@@ -25,8 +25,7 @@ if ( $Config{make} && $^O ne 'VMS' ? find_in_path($Config{make}) : 1 ) {
 
 my $is_vms_mms = ($^O eq 'VMS') && ($Config{make} =~ /MM[SK]/i);
 
-use_ok 'Module::Build';
-ensure_blib('Module::Build');
+blib_load('Module::Build');
 
 
 #########################
@@ -43,8 +42,8 @@ $dist->chdir_in;
 
 #########################
 
-use Module::Build;
-use Module::Build::Compat;
+blib_load('Module::Build');
+blib_load('Module::Build::Compat');
 
 use Carp;  $SIG{__WARN__} = \&Carp::cluck;
 

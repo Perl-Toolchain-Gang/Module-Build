@@ -3,15 +3,14 @@
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest;
-use Module::Build;
-use Module::Build::ConfigData;
+blib_load('Module::Build');
+blib_load('Module::Build::ConfigData');
 
 if ( Module::Build::ConfigData->feature('manpage_support') ) {
-  plan tests => 22;
+  plan tests => 21;
 } else {
   plan skip_all => 'manpage_support feature is not enabled';
 }
-ensure_blib('Module::Build');
 
 
 #########################

@@ -9,10 +9,9 @@ use File::Spec::Functions qw/catdir catfile/;
 # Begin testing
 #--------------------------------------------------------------------------#
 
-plan tests => 21;
+plan tests => 19;
 
-require_ok('Module::Build');
-ensure_blib('Module::Build');
+blib_load('Module::Build');
 
 #--------------------------------------------------------------------------#
 # Create test distribution
