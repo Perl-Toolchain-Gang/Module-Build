@@ -14,6 +14,9 @@ Revision history for Perl extension Module::Build.
  - Fix the t/destinations.t fix. [David Golden, with thanks to Eric Wilhelm]
  - Fix recursive test files in generated Makefile.PL (RT#49254) [Sawyer X]
  - Guard against trying :utf8 when :utf8 isn't available
+ - The "test" action now dies when using the 'use_tap_harness'
+   option and tests fail, matching the behavior under Test::Harness. 
+   (RT#49080) [initial patch from David Wheeler; revised by David Golden]
 
 0.35 - Thu Aug 27 09:12:02 EDT 2009
 

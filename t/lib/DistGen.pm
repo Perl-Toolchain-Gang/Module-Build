@@ -428,7 +428,9 @@ sub remove_file {
 }
 
 sub change_build_pl {
-  my ($self, $opts) = @_;
+  my ($self, @opts) = @_;
+
+  my $opts = ref $opts[0] eq 'HASH' ? $opts[0] : { @opts };
 
   local $Data::Dumper::Terse = 1;
   (my $args = Dumper($opts)) =~ s/^\s*\{|\}\s*$//g;

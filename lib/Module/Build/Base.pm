@@ -2276,6 +2276,8 @@ sub generic_test {
   $self->do_tests;
 }
 
+# Test::Harness dies on failure but TAP::Harness does not, so we must
+# die if running under TAP::Harness
 sub do_tests {
   my $self = shift;
 
@@ -2284,7 +2286,8 @@ sub do_tests {
   if(@$tests) {
     my $args = $self->tap_harness_args;
     if($self->use_tap_harness or ($args and %$args)) {
-      $self->run_tap_harness($tests);
+      my $aggregate = $self->run_tap_harness($tests);
+      $self->_tap_harness_exit($aggregate) if $aggregate->has_errors;
     }
     else {
       $self->run_test_harness($tests);
@@ -2304,12 +2307,36 @@ sub run_tap_harness {
 
   # TODO allow the test @INC to be set via our API?
 
-  TAP::Harness->new({
+  my $aggregate = TAP::Harness->new({
     lib => [@INC],
     verbosity => $self->{properties}{verbose},
     switches  => [ $self->harness_switches ],
     %{ $self->tap_harness_args },
   })->runtests(@$tests);
+
+  return $aggregate;
+}
+
+# Emulate death on failure behavior of Test::Harness
+sub _tap_harness_exit {
+  my ($self, $aggregate) = @_;
+
+  my $total  = $aggregate->total;
+  my $passed = $aggregate->passed;
+  my $failed = $aggregate->failed;
+
+  my @parsers = $aggregate->parsers;
+
+  my $num_bad = 0;
+  for my $parser (@parsers) {
+    $num_bad++ if $parser->has_problems;
+  }
+
+  die(sprintf(
+      "Failed %d/%d test programs. %d/%d subtests failed.\n",
+      $num_bad, scalar @parsers, $failed, $total
+    )
+  ) if $num_bad;
 }
 
 sub run_test_harness {
