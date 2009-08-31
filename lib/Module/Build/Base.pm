@@ -36,6 +36,7 @@ sub new {
     if $self->{action} && $self->{action} ne 'Build_PL';
 
   $self->check_manifest;
+  $self->auto_require;
   $self->check_prereq;
   $self->check_autofeatures;
 
@@ -911,6 +912,7 @@ __PACKAGE__->add_property($_) for qw(
   magic_number
   mb_version
   module_name
+  needs_compiler
   orig_dir
   perl
   pm_files
@@ -1205,6 +1207,41 @@ sub check_autofeatures {
   $self->log_warn("\n") unless $self->quiet;
 }
 
+# Automatically detect and add prerequisites based on configuration
+sub auto_require {
+  my ($self) = @_;
+  my $p = $self->{properties};
+
+  # add current Module::Build to configure_requires if there 
+  # isn't one already specified (but not ourself, so we're not circular)
+  if ( $self->dist_name ne 'Module-Build' 
+    && $self->auto_configure_requires
+    && ! exists $p->{configure_requires}{'Module::Build'}
+  ) {
+    (my $ver = $VERSION) =~ s/^(\d+\.\d\d).*$/$1/; # last major release only
+    $self->_add_prereq('configure_requires', 'Module::Build', $ver);
+  }
+
+  # If needs_compiler is not explictly set, automatically set it
+  # If set, we need ExtUtils::CBuilder (and a compiler)
+  my $xs_files = $self->find_xs_files;
+  if ( ! defined $p->{needs_compiler} ) {
+    $self->needs_compiler( keys %$xs_files || defined $self->c_source );
+  }
+  if ($self->needs_compiler) {
+    $self->_add_prereq('build_requires', 'ExtUtils::CBuilder', 0);
+    # XXX check have_compiler here
+  }
+
+  return;
+}
+
+sub _add_prereq {
+  my ($self, $prereq_type, $module, $version) = @_;
+  $self->log_info("Adding to $prereq_type\: $module => $version\n");
+  $self->{properties}{$prereq_type}{$module} = $version;
+}
+  
 sub prereq_failures {
   my ($self, $info) = @_;
 
@@ -1254,14 +1291,6 @@ sub _enum_prereqs {
 
 sub check_prereq {
   my $self = shift;
-
-  # If we have XS files, make sure we can process them.
-  my $xs_files = $self->find_xs_files;
-  if (keys %$xs_files && !$self->_mb_feature('C_support')) {
-    $self->log_warn("Warning: this distribution contains XS files, ".
-		    "but Module::Build is not configured with C_support.  ".
-		    "Please install ExtUtils::CBuilder to enable C_support.\n");
-  }
 
   # Check to see if there are any prereqs to check
   my $info = $self->_enum_prereqs;
@@ -3937,16 +3966,6 @@ sub prepare_metadata {
           $self->normalize_version($p->{$type}{$mod});
       }
     }
-  }
-
-  # add current Module::Build to configure_requires if there 
-  # isn't one already specified (but not ourself, so we're not circular)
-  if ( $self->dist_name ne 'Module-Build' 
-    && $self->auto_configure_requires
-    && ! exists $prereq_types{'configure_requires'}{'Module::Build'}
-  ) {
-    (my $ver = $VERSION) =~ s/^(\d+\.\d\d).*$/$1/; # last major release only
-    $prereq_types{configure_requires}{'Module::Build'} = $ver;
   }
 
   for my $t ( keys %prereq_types ) {
