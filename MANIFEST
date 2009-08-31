@@ -57,6 +57,7 @@ t/mbyaml.t
 t/metadata.t
 t/metadata2.t
 t/moduleinfo.t
+t/mymeta.t
 t/new_from_context.t
 t/notes.t
 t/par.t
@@ -64,8 +65,11 @@ t/parents.t
 t/PL_files.t
 t/pod_parser.t
 t/ppm.t
+t/README.pod
 t/runthrough.t
+t/sample.t
 t/script_dist.t
+t/share_dir.t
 t/signature.t
 t/test_file_exts.t
 t/test_type.t
