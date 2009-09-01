@@ -580,6 +580,18 @@ used to set C<dist_version>.
 Setting C<module_name> won't override a C<dist_*> parameter you
 specify explicitly.
 
+=item needs_compiler
+
+[version 0.36]
+
+The C<needs_compiler> parameter indicates whether a compiler is required to
+build the distsribution.  The default is false, unless XS files are found or
+the C<c_source> parameter is set, in which case it is true.  If true,
+L<ExtUtils::CBuilder> is automatically added to C<build_requires> if needed.
+
+For a distribution where a compiler is I<optional>, e.g. a dual XS/pure-Perl
+distribution, C<needs_compiler> should explicitly be set to a false value.
+
 =item PL_files
 
 [version 0.06]
