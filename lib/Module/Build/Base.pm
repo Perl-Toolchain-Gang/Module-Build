@@ -682,10 +682,10 @@ sub ACTION_config_data {
 
   sub valid_properties_defaults {
     my %out;
-    for (reverse shift->_mb_classes) {
-      @out{ keys %{ $valid_properties{$_} } } = map {
+    for my $class (reverse shift->_mb_classes) {
+      @out{ keys %{ $valid_properties{$class} } } = map {
         $_->()
-      } values %{ $valid_properties{$_} };
+      } values %{ $valid_properties{$class} };
     }
     return \%out;
   }
@@ -711,9 +711,11 @@ sub ACTION_config_data {
     my %p = @_ == 1 ? ( default => shift ) : @_;
 
     my $type = ref $p{default};
-    $valid_properties{$class}{$property} = $type eq 'CODE'
-      ? $p{default}
-      : sub { $p{default} };
+    $valid_properties{$class}{$property} = 
+      $type eq 'CODE' ? $p{default}                           :
+      $type eq 'HASH' ? sub { return { %{ $p{default} } }   } :
+      $type eq 'ARRAY'? sub { return [ @{ $p{default} } ]   } :
+                        sub { return $p{default}            } ;
 
     push @{$additive_properties{$class}->{$type}}, $property
       if $type;
