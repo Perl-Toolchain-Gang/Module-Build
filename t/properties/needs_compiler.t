@@ -5,7 +5,7 @@ use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest;
 use DistGen;
 
-plan tests => 16;
+plan tests => 19;
 
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');
@@ -101,5 +101,22 @@ ok( $mb->needs_compiler, "needs_compiler is true" );
 is( $mb->build_requires->{'ExtUtils::CBuilder'}, 0.2,
   "build_requires for ExtUtils::CBuilder is correct version" 
 );
+
+#--------------------------------------------------------------------------#
+# falsify compiler and test error handling
+#--------------------------------------------------------------------------#
+
+my $err = stderr_of( sub { 
+    $mb = $dist->new_from_context( config => { cc => "adfasdfadjdjk" } )
+});
+ok( $mb, "Build.PL while hiding compiler" );
+like( $err, qr/no compiler detected/,
+  "hidden compiler resulted in warning message during Build.PL"
+);
+eval { $mb->dispatch('build') };
+like( $@, qr/no compiler detected/,
+  "hidden compiler resulted in fatal message during Build"
+);
+
 
 # vim:ts=2:sw=2:et:sta:sts=2

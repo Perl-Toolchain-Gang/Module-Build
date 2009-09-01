@@ -1233,7 +1233,13 @@ sub auto_require {
   }
   if ($self->needs_compiler) {
     $self->_add_prereq('build_requires', 'ExtUtils::CBuilder', 0);
-    # XXX check have_compiler here
+    if ( ! $self->have_c_compiler ) {
+      $self->log_warn(<<'EOM');
+Warning: ExtUtils::CBuilder not installed or no compiler detected
+Proceeding with configuration, but compilation may fail during Build
+
+EOM
+    }
   }
 
   return;
@@ -4545,19 +4551,23 @@ sub have_c_compiler {
   my ($self) = @_;
   
   my $p = $self->{properties};
-  return $p->{have_compiler} if defined $p->{have_compiler};
+  return $p->{_have_c_compiler} if defined $p->{_have_c_compiler};
   
   $self->log_verbose("Checking if compiler tools configured... ");
   my $b = eval { $self->cbuilder };
-  my $have = $b && $b->have_compiler;
+  my $have = $b && eval { $b->have_compiler };
   $self->log_verbose($have ? "ok.\n" : "failed.\n");
-  return $p->{have_compiler} = $have;
+  return $p->{_have_c_compiler} = $have;
 }
 
 sub compile_c {
   my ($self, $file, %args) = @_;
-  my $b = $self->cbuilder;
 
+  if ( ! $self->have_c_compiler ) {
+    die "Error: no compiler detected to compile '$file'.  Aborting\n";
+  }
+
+  my $b = $self->cbuilder;
   my $obj_file = $b->object_file($file);
   $self->add_to_cleanup($obj_file);
   return $obj_file if $self->up_to_date($file, $obj_file);

@@ -7,6 +7,11 @@ Revision history for Perl extension Module::Build.
    exist.  If true, ExtUtils::CBuilder is also added to build_requires.
    [David Golden]
 
+ Bug fixes:
+ - Failure to detect a compiler will now warn during Build.PL and be a
+   fatal error when trying to compile during Build. (RT#48918) [David
+   Golden]
+
 0.35_01 - Mon Aug 31 12:11:10 EDT 2009
 
  Enhancements:
