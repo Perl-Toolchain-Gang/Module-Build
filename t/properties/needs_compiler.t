@@ -5,7 +5,7 @@ use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest;
 use DistGen;
 
-plan tests => 13;
+plan tests => 16;
 
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');
@@ -81,6 +81,25 @@ ok( $mb = $dist->new_from_context ,
 is( $mb->needs_compiler, 0, "needs_compiler is false" );
 ok( ! exists $mb->{properties}{build_requires}{'ExtUtils::CBuilder'}, 
   "ExtUtils::CBuilder is not in build_requires" 
+);
+
+#--------------------------------------------------------------------------#
+# don't override specific EU::CBuilder build_requires
+#--------------------------------------------------------------------------#
+
+$dist->change_build_pl({
+    module_name => $dist->name,
+    license => 'perl',
+    build_requires => { 'ExtUtils::CBuilder' => 0.2 },
+});
+$dist->regen;
+
+ok( $mb = $dist->new_from_context ,
+  "Build.PL with xs files, build_requires EU::CB 0.2"
+);
+ok( $mb->needs_compiler, "needs_compiler is true" );
+is( $mb->build_requires->{'ExtUtils::CBuilder'}, 0.2,
+  "build_requires for ExtUtils::CBuilder is correct version" 
 );
 
 # vim:ts=2:sw=2:et:sta:sts=2

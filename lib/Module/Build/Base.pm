@@ -23,6 +23,7 @@ use Text::ParseWords ();
 use Module::Build::ModuleInfo;
 use Module::Build::Notes;
 use Module::Build::Config;
+use Module::Build::Version;
 
 
 #################### Constructors ###########################
@@ -1239,9 +1240,15 @@ sub auto_require {
 }
 
 sub _add_prereq {
-  my ($self, $prereq_type, $module, $version) = @_;
-  $self->log_info("Adding to $prereq_type\: $module => $version\n");
-  $self->{properties}{$prereq_type}{$module} = $version;
+  my ($self, $type, $module, $version) = @_;
+  my $p = $self->{properties};
+  $version = 0 unless defined $version;
+  if ( exists $p->{$type}{$module} ) {
+    return if $self->compare_versions( $version, '<=', $p->{$type}{$module} );
+  }
+  $self->log_info("Adding to $type\: $module => $version\n");
+  $p->{$type}{$module} = $version;
+  return 1;
 }
   
 sub prereq_failures {
