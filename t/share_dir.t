@@ -176,7 +176,7 @@ ok( -d 'blib/lib/auto/share', "blib/lib/auto/share exists" );
 my $share_list = Module::Build->rscan_dir('blib/lib/auto/share', sub {-f});
 
 is_deeply( 
-  $share_list, [ 
+  [ sort @$share_list ], [ 
     'blib/lib/auto/share/dist/Simple-Share/foo.txt',
     'blib/lib/auto/share/module/Simple-Share/bar.txt',
   ], 
@@ -199,7 +199,7 @@ $share_list = Module::Build->rscan_dir(
 );
 
 is_deeply( 
-  $share_list, [ 
+  [ sort @$share_list ], [ 
     "$temp_install/lib/perl5/auto/share/dist/Simple-Share/foo.txt",
     "$temp_install/lib/perl5/auto/share/module/Simple-Share/bar.txt",
   ], 
