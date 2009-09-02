@@ -850,6 +850,7 @@ __PACKAGE__->add_property(allow_mb_mismatch => 0);
 __PACKAGE__->add_property(config => undef);
 __PACKAGE__->add_property(test_file_exts => ['.t']);
 __PACKAGE__->add_property(use_tap_harness => 0);
+__PACKAGE__->add_property(cpan_client => 'cpan');
 __PACKAGE__->add_property(tap_harness_args => {});
 __PACKAGE__->add_property(
   'installdirs',
@@ -1752,6 +1753,7 @@ sub _translate_option {
     use_rcfile
     use_tap_harness
     tap_harness_args
+    cpan_client
   ); # normalize only selected option names
 
   return $opt;
@@ -3152,6 +3154,33 @@ sub ACTION_versioninstall {
   my %onlyargs = map {exists($self->{args}{$_}) ? ($_ => $self->{args}{$_}) : ()}
     qw(version versionlib);
   only::install::install(%onlyargs);
+}
+
+sub ACTION_installdeps {
+  my ($self) = @_;
+
+  my $info = $self->_enum_prereqs or return;
+
+  my $failures = $self->prereq_failures($info) or return;
+
+  my @install;
+  while (my ($type, $prereqs) = each %$failures) {
+    warn $type;
+    if($type =~ m/_requires$/) {
+      push(@install, keys %$prereqs);
+      next;
+    }
+    while (my ($module, $status) = each %$prereqs) {
+      warn "$type $module $status->{message}\n";
+      push(@install, $module) if($self->y_n("install $module?", 'y'));
+    }
+  }
+
+  
+  my ($command, @opts) = $self->split_like_shell($self->cpan_client);
+  # TODO possibly check whether $command is a perl script (search the
+  # PATH) and use run_perl_command().
+  $self->do_system($command, @opts, @install);
 }
 
 sub ACTION_clean {
