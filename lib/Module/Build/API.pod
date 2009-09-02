@@ -843,25 +843,23 @@ files in your distribution.
 
 [version 0.28]
 
-When called from a directory containing a F<Build.PL> script and a
-F<META.yml> file (in other words, the base directory of a
-distribution), this method will run the F<Build.PL> and return the
-resulting C<Module::Build> object to the caller.  Any key-value
-arguments given to C<new_from_context()> are essentially like
-command line arguments given to the F<Build.PL> script, so for example
-you could pass C<< verbose => 1 >> to this method to turn on
-verbosity.
+When called from a directory containing a F<Build.PL> script (in other words,
+the base directory of a distribution), this method will run the F<Build.PL> and
+call C<resume()> to return the resulting C<Module::Build> object to the caller.
+Any key-value arguments given to C<new_from_context()> are essentially like
+command line arguments given to the F<Build.PL> script, so for example you
+could pass C<< verbose => 1 >> to this method to turn on verbosity.
 
 =item resume()
 
 [version 0.03]
 
-You'll probably never call this method directly, it's only called from
-the auto-generated C<Build> script.  The C<new()> method is only
-called once, when the user runs C<perl Build.PL>.  Thereafter, when
-the user runs C<Build test> or another action, the C<Module::Build>
-object is created using the C<resume()> method to re-instantiate with
-the settings given earlier to C<new()>.
+You'll probably never call this method directly, it's only called from the
+auto-generated C<Build> script (and the C<new_from_context> method).  The
+C<new()> method is only called once, when the user runs C<perl Build.PL>.
+Thereafter, when the user runs C<Build test> or another action, the
+C<Module::Build> object is created using the C<resume()> method to
+re-instantiate with the settings given earlier to C<new()>.
 
 =item subclass()
 
