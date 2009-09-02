@@ -3165,14 +3165,13 @@ sub ACTION_installdeps {
 
   my @install;
   while (my ($type, $prereqs) = each %$failures) {
-    warn $type;
-    if($type =~ m/_requires$/) {
+    if($type =~ m/^(?:\w+_)?requires$/) {
       push(@install, keys %$prereqs);
       next;
     }
     while (my ($module, $status) = each %$prereqs) {
-      warn "$type $module $status->{message}\n";
-      push(@install, $module) if($self->y_n("install $module?", 'y'));
+      $self->log_info("$status->{message}\n");
+      push(@install, $module) if($self->y_n("Install $module?", 'y'));
     }
   }
 
