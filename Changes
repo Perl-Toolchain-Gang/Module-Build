@@ -6,6 +6,8 @@ Revision history for Perl extension Module::Build.
  - Added 'needs_compiler' property.  Defaults to true if XS or c_source
    exist.  If true, ExtUtils::CBuilder is also added to build_requires.
    [David Golden]
+ - File::ShareDir automatically added to 'requires' if 'share_dir' is set
+   [David Golden]
 
  Bug fixes:
  - Failure to detect a compiler will now warn during Build.PL and be a

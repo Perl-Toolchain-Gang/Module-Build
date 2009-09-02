@@ -1242,6 +1242,11 @@ EOM
     }
   }
 
+  # If using share_dir, require File::ShareDir
+  if ( $self->share_dir ) {
+    $self->_add_prereq( 'requires', 'File::ShareDir', '1.00' );
+  }
+
   return;
 }
 
@@ -2535,8 +2540,6 @@ sub process_share_dir_files {
   my $files = $self->_find_share_dir_files;
   return unless $files;
 
-  # XXX need to add File::ShareDir as 'requires'
-  
   # root for all File::ShareDir paths
   my $share_prefix = File::Spec->catdir($self->blib, qw/lib auto share/);
 

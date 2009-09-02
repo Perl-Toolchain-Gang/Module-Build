@@ -775,6 +775,9 @@ providing full flexibility in defining share directories to install.
     }
   }
 
+If C<share_dir> is set (manually or automatically), then File::ShareDir
+will automatically be added to the C<requires> hash.
+
 =item sign
 
 [version 0.16]

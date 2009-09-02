@@ -9,7 +9,7 @@ use File::Spec::Functions qw/catdir catfile/;
 # Begin testing
 #--------------------------------------------------------------------------#
 
-plan tests => 19;
+plan tests => 21;
 
 blib_load('Module::Build');
 
@@ -38,6 +38,9 @@ ok( $mb, "Created Module::Build object" );
 is( $mb->share_dir, undef,
   "default share undef if no 'share' dir exists"
 );
+ok( ! exists $mb->{properties}{requires}{'File::ShareDir'},
+  "File::ShareDir not added to 'requires'"
+);
 
 # Add 'share' dir and an 'other' dir and content
 $dist->add_file('share/foo.txt',<< '---');
@@ -54,6 +57,9 @@ ok( -e catfile(qw/other share bar.txt/), "Created 'other/share' directory" );
 $mb = $dist->new_from_context;
 is_deeply( $mb->share_dir, { dist => [ 'share' ] },
   "Default share_dir set as dist-type share"
+);
+is( $mb->{properties}{requires}{'File::ShareDir'}, '1.00', 
+  "File::ShareDir 1.00 added to 'requires'"
 );
 
 # share_dir set to scalar
