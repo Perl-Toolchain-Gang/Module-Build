@@ -34,15 +34,14 @@ Run C<perldoc> on C<t/lib/DistGen.pm> to see the documentation.
   use DistGen;
 
   # create dist object in a temp directory
-  # MBTest uses different dirs for Perl core vs CPAN testing
-  my $dist = DistGen->new( dir => MBTest->tmpdir );
-
-  # generate the skeleton files and also schedule cleanup
-  $dist->regen;
-  END{ $dist->remove }
+  my $dist = DistGen->new;
 
   # enter the test distribution directory before further testing
   $dist->chdir_in;
+
+  # generate the skeleton files
+  $dist->regen;
+
 
 =head1 GETTING A MODULE::BUILD OBJECT
 
@@ -82,7 +81,7 @@ result.)
   );
   $dist->regen;
 
-  # Regenerate the distribution and test it
+  # Get a new build object and test it
 
   $mb = $dist->new_from_context;
   is( $mb->license, "artistic", "saw 'artistic' license" );

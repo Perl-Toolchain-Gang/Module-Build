@@ -9,18 +9,11 @@ use DistGen;
 blib_load('Module::Build');
 
 # create dist object in a temp directory
-# MBTest uses different dirs for Perl core vs CPAN testing 
-my $dist = DistGen->new;
-
-# generate the skeleton files and also schedule cleanup
-$dist->regen;
-END{ $dist->remove }
-
-# enter the test distribution directory before further testing
-$dist->chdir_in;
+# enter the directory and generate the skeleton files
+my $dist = DistGen->new->chdir_in->regen;
 
 # get a Module::Build object and test with it
-my $mb = $dist->new_from_context( quiet => 1 );
+my $mb = $dist->new_from_context(); # quiet by default
 isa_ok( $mb, "Module::Build" );
 is( $mb->dist_name, "Simple", "dist_name is 'Simple'" );
 

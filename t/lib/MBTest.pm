@@ -105,6 +105,8 @@ __PACKAGE__->export(scalar caller, @extra_exports);
 { 
   my $cwd = Cwd::cwd;
 
+  sub original_cwd { return $cwd }
+
   END {
     # Go back to where you came from!
     chdir $cwd or die "Couldn't chdir to $cwd";
@@ -123,11 +125,9 @@ __PACKAGE__->export(scalar caller, @extra_exports);
 
 # Setup a temp directory 
 sub tmpdir { 
-  my ($self, $usr_tmp) = @_;
-  return File::Temp::tempdir( 'MB-XXXXXXXX', 
-    CLEANUP => 1, DIR => $ENV{PERL_CORE} ? Cwd::cwd : 
-                         $usr_tmp        ? $usr_tmp : File::Spec->tmpdir 
-  );
+  my ($self, @args) = @_;
+  my $dir = $ENV{PERL_CORE} ? Cwd::cwd : File::Spec->tmpdir;
+  return File::Temp::tempdir('MB-XXXXXXXX', CLEANUP => 1, DIR => $dir, @args);
 }
 
 sub save_handle {
