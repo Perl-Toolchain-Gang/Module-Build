@@ -72,52 +72,43 @@ sub chdir_all ($) {
 
 ########################################################################
 
-{
-  my @CLEANUP_DIRS;
+END { chdir_all(MBTest->original_cwd); }
 
-  END {
-    chdir_all(MBTest->original_cwd);
-    File::Path::rmtree($_) for @CLEANUP_DIRS;
+sub new {
+  my $self = bless {}, shift;
+  $self->reset(@_);
+}
+
+sub reset {
+  my $self = shift;
+  my %options = @_;
+
+  $options{name} ||= 'Simple';
+  $options{dir} = File::Spec->rel2abs(
+    defined $options{dir} ? $options{dir} : MBTest->tmpdir
+  );
+
+  my %data = (
+    no_manifest   => 0,
+    xs            => 0,
+    %options,
+  );
+  %$self = %data;
+
+  tie %{$self->{filedata}}, 'Tie::CPHash';
+
+  tie %{$self->{pending}{change}}, 'Tie::CPHash';
+
+  # start with a fresh, empty directory
+  if ( -d $self->dirname ) {
+    warn "Warning: Removing existing directory '@{[$self->dirname]}'\n";
+    File::Path::rmtree( $self->dirname );
   }
+  File::Path::mkpath( $self->dirname );
 
-  sub new {
-    my $self = bless {}, shift;
-    $self->reset(@_);
-  }
+  $self->_gen_default_filedata();
 
-  sub reset {
-    my $self = shift;
-    my %options = @_;
-
-    $options{name} ||= 'Simple';
-    $options{dir}  ||= MBTest->tmpdir( CLEANUP => 0 );
-
-    my %data = (
-      no_manifest   => 0,
-      xs            => 0,
-      %options,
-    );
-    %$self = %data;
-
-    # So we can clean up later even if the caller chdir()s
-    $self->{dir} = File::Spec->rel2abs($self->{dir});
-    push @CLEANUP_DIRS, $self->{dir};
-
-    tie %{$self->{filedata}}, 'Tie::CPHash';
-
-    tie %{$self->{pending}{change}}, 'Tie::CPHash';
-
-    # start with a fresh, empty directory
-    if ( -d $self->dirname ) {
-      warn "Warning: Removing existing directory '@{[$self->dirname]}'\n";
-      File::Path::rmtree( $self->dirname );
-    }
-    File::Path::mkpath( $self->dirname );
-
-    $self->_gen_default_filedata();
-
-    return $self;
-  }
+  return $self;
 }
 
 sub remove {

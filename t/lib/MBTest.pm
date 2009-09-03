@@ -103,7 +103,7 @@ __PACKAGE__->export(scalar caller, @extra_exports);
 
 # always return to the current directory
 { 
-  my $cwd = Cwd::cwd;
+  my $cwd = File::Spec->rel2abs(Cwd::cwd);
 
   sub original_cwd { return $cwd }
 
@@ -123,10 +123,10 @@ __PACKAGE__->export(scalar caller, @extra_exports);
 }
 ########################################################################
 
-# Setup a temp directory 
-sub tmpdir { 
+# Setup a temp directory
+sub tmpdir {
   my ($self, @args) = @_;
-  my $dir = $ENV{PERL_CORE} ? Cwd::cwd : File::Spec->tmpdir;
+  my $dir = $ENV{PERL_CORE} ? MBTest->original_cwd : File::Spec->tmpdir;
   return File::Temp::tempdir('MB-XXXXXXXX', CLEANUP => 1, DIR => $dir, @args);
 }
 
