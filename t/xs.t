@@ -21,7 +21,7 @@ blib_load('Module::Build');
   } elsif ( !$Config{usedl} ) {
     plan skip_all => 'Perl not compiled for dynamic loading'
   } else {
-    plan tests => 22;
+    plan tests => 20;
   }
   require Cwd;
   $tmp = MBTest->tmpdir( $tmp_exec ? undef : Cwd::cwd );
@@ -111,16 +111,15 @@ ok ! -e 'blib';
 $dist->reset( name => 'Simple::With::Deep::Name', dir => $tmp, xs => 1 );
 $dist->chdir_in->regen;
 
-$mb = Module::Build->new_from_context;
+$mb = $dist->new_from_context;
+
+eval { $mb->dispatch('build') };
 is $@, '';
 
-$mb->dispatch('build');
+eval { $mb->dispatch('test') };
 is $@, '';
 
-$mb->dispatch('test');
-is $@, '';
-
-$mb->dispatch('realclean');
+eval { $mb->dispatch('realclean') };
 is $@, '';
 
 ########################################
@@ -200,14 +199,13 @@ ok( Simple::okay() eq 'ok' );
 $dist->regen;
 
 $mb = $dist->new_from_context;
+
+eval { $mb->dispatch('build') };
 is $@, '';
 
-$mb->dispatch('build');
+stdout_of( sub { eval { $mb->dispatch('test') } } );
 is $@, '';
 
-$mb->dispatch('test');
-is $@, '';
-
-$mb->dispatch('realclean');
+eval { $mb->dispatch('realclean') };
 is $@, '';
 
