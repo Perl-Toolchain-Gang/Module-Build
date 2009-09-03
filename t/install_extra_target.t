@@ -133,4 +133,3 @@ $error++ unless ok(-e "$installdest/share/simple/data", "installed share/data");
 $error++ unless ok(-e "$installdest/share/simple/html/index.html", "installed share/html");
 diag "OUTPUT:\n$output" if $error;
 
-$dist->remove();

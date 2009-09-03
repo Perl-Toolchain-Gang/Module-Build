@@ -274,5 +274,3 @@ print "Hello, World!\n";
 
 }
 
-# cleanup
-$dist->remove;

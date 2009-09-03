@@ -91,7 +91,4 @@ like( $out, qr{Failed 1/1 test programs. 1/1 subtests failed\.},
     "Saw emulated Test::Harness die() message" 
 );
 
-
-$dist->remove;
-
 # vim:ts=4:sw=4:et:sta

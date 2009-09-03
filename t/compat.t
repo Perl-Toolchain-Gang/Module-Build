@@ -312,9 +312,6 @@ ok $mb, "Module::Build->new_from_context";
 
 }
 
-# cleanup
-$dist->remove;
-
 #########################################################
 
 sub test_makefile_types {

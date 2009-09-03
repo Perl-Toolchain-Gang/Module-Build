@@ -321,5 +321,3 @@ sub test_install_destinations {
     }
 }
 
-
-$dist->remove;

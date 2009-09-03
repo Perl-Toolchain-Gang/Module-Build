@@ -94,4 +94,3 @@ SKIP: {
   );
 }
 
-$dist->remove;

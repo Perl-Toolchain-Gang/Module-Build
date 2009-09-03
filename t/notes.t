@@ -64,6 +64,3 @@ $mb = Module::Build->resume;
 ok $mb;
 is $mb->notes('foo'), 'bar';
 
-
-# cleanup
-$dist->remove;

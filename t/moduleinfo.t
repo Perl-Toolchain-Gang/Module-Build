@@ -198,11 +198,7 @@ foreach my $module ( @modules ) {
 }
 
 # revert to pristine state
-$dist->remove;
-$dist = DistGen->new( dir => $tmp );
-$dist->regen;
-$dist->chdir_in;
-
+$dist->regen( clean => 1 );
 
 # Find each package only once
 $dist->change_file( 'lib/Simple.pm', <<'---' );
@@ -256,11 +252,7 @@ is( $pm_info->version, '1.23_01', 'alpha version reported');
 ok( $pm_info->version > 1.23, 'alpha version greater than non');
 
 # revert to pristine state
-$dist->remove;
-$dist = DistGen->new( dir => $tmp );
-$dist->regen;
-$dist->chdir_in;
-
+$dist->regen( clean => 1 );
 
 # parse $VERSION lines scripts for package main
 my @scripts = (
@@ -422,6 +414,3 @@ $VERSION = version->new('0.61.' . (qw$Revision: 129 $)[1]);
   is( $pm_info->version('Simple::Simon'), '0.61.129', 'version for embedded package' );
 }
 
-
-# cleanup
-$dist->remove;

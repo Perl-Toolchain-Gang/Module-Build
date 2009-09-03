@@ -224,10 +224,7 @@ Simple Man <simple@example.com>
   is keys %$pms, 0;
 
   # revert to pristine state
-  $dist->remove;
-  $dist = DistGen->new( dir => $tmp );
-  $dist->regen;
-  $dist->chdir_in;
+  $dist->regen( clean => 1 );
 }
 
 sub strip_volume {
@@ -242,6 +239,3 @@ sub file_exists {
   ok -e $file or diag("Expected $file to exist, but it doesn't");
 }
 
-
-# cleanup
-$dist->remove;

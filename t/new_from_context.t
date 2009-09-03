@@ -24,7 +24,4 @@ my $mb = eval { Module::Build->new_from_context};
 ok(! $@, 'dodged the bullet') or die;
 ok($mb);
 
-# cleanup
-$dist->remove;
-
 # vim:ts=2:sw=2:et:sta

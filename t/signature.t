@@ -6,7 +6,7 @@ use MBTest;
 
 if ( $ENV{TEST_SIGNATURE} ) {
   if ( have_module( 'Module::Signature' ) ) {
-    plan tests => 14;
+    plan tests => 13;
   } else {
     plan skip_all => '$ENV{TEST_SIGNATURE} is set, but Module::Signature not found';
   }
@@ -98,5 +98,3 @@ $dist->chdir_in;
     ok -e 'SIGNATURE', 'Build.PL --sign=1 signs';
 }
 
-# cleanup
-$dist->remove;

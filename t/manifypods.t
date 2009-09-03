@@ -138,11 +138,7 @@ $mb->dispatch('realclean');
 
 
 # revert to a pristine state
-$dist->remove;
-$dist = DistGen->new( dir => $tmp );
-$dist->regen;
-$dist->chdir_in;
-
+$dist->regen( clean => 1 );
 
 my $mb2 = Module::Build->new(
   module_name => $dist->name,
@@ -162,6 +158,3 @@ foreach ('testcover', 'disttest') {
   unlike $docs, qr/\n=/, $docs;
 }
 
-
-# cleanup
-$dist->remove;

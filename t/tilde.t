@@ -110,6 +110,3 @@ SKIP: {
     like( run_sample( $p => "~$me/foo")->$p(),  qr($expected)i );
 }
 
-
-# cleanup
-$dist->remove;

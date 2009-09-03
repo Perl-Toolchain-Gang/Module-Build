@@ -38,7 +38,4 @@ my $out = uc(stdout_of(
 like $out, qr/^OK 1 - FIRST MYTEST[.]S/m, 'Should see first test output';
 like $out, qr/^OK 2 - SECOND MYTEST[.]S/m, 'Should see second test output';
 
-# Cleanup.
-$dist->remove;
-
 # vim:ts=4:sw=4:et:sta

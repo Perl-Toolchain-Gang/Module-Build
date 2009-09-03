@@ -162,10 +162,7 @@ $dist->chdir_in;
   is $args{foo}, 1;
 
   # revert test distribution to pristine state because we modified a file
-  $dist->remove;
-  $dist = DistGen->new( dir => $tmp );
-  $dist->regen;
-  $dist->chdir_in;
+  $dist->regen( clean => 1 );
 }
 
 # Test author stuff
@@ -235,5 +232,3 @@ $dist->chdir_in;
   is_deeply $mb->include_dirs, ['/foo'], 'Should have single include dir';
 }
 
-# cleanup
-$dist->remove;

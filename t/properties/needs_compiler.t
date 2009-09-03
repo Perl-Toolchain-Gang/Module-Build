@@ -10,16 +10,7 @@ plan tests => 19;
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');
 
-# create dist object in a temp directory
-# MBTest uses different dirs for Perl core vs CPAN testing 
-my $dist = DistGen->new( dir => MBTest->tmpdir );
-
-# generate the skeleton files and also schedule cleanup
-$dist->regen;
-END{ $dist->remove }
-
-# enter the test distribution directory before further testing
-$dist->chdir_in;
+my $dist = DistGen->new->regen->chdir_in;
 
 # get a Module::Build object and test with it
 my $mb;

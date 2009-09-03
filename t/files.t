@@ -45,5 +45,3 @@ my $mb = Module::Build->new_from_context;
   ok( Module::Build->dir_contains($first, $second) );
 }
 
-# cleanup
-$dist->remove;

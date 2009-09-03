@@ -7,9 +7,9 @@ use vars qw( $VERSION $VERBOSE @EXPORT_OK);
 $VERSION = '0.01';
 $VERBOSE = 0;
 
-
 use Carp;
 
+use MBTest ();
 use Cwd ();
 use File::Basename ();
 use File::Find ();
@@ -18,7 +18,6 @@ use File::Spec ();
 use IO::File ();
 use Tie::CPHash;
 use Data::Dumper;
-require MBTest; # for tmpdir
 
 my $vms_mode;
 my $vms_lower_case;
@@ -70,46 +69,77 @@ sub chdir_all ($) {
   chdir('/') if $^O eq 'os2';
   chdir shift;
 }
+
 ########################################################################
 
-sub new {
-  my $package = shift;
-  my %options = @_;
+{
+  my @CLEANUP_DIRS;
 
-  $options{name} ||= 'Simple';
-  $options{dir}  ||= MBTest->tmpdir( CLEANUP => 0 );
-
-  my %data = (
-    no_manifest   => 0,
-    xs            => 0,
-    %options,
-  );
-  my $self = bless( \%data, $package );
-
-  # So we can clean up later even if the caller chdir()s
-  $self->{dir} = File::Spec->rel2abs($self->{dir});
-  $self->{original_dir} = Cwd::cwd; # only once
-
-  tie %{$self->{filedata}}, 'Tie::CPHash';
-
-  tie %{$self->{pending}{change}}, 'Tie::CPHash';
-
-  # start with a fresh, empty directory
-  if ( -d $self->dirname ) {
-    warn "Warning: Removing existing directory '@{[$self->dirname]}'\n";
-    $self->remove;
+  END {
+    chdir_all(MBTest->original_cwd);
+    File::Path::rmtree($_) for @CLEANUP_DIRS;
   }
-  File::Path::mkpath( $self->dirname );
 
-  $self->_gen_default_filedata();
+  sub new {
+    my $self = bless {}, shift;
+    $self->reset(@_);
+  }
 
+  sub reset {
+    my $self = shift;
+    my %options = @_;
+
+    $options{name} ||= 'Simple';
+    $options{dir}  ||= MBTest->tmpdir( CLEANUP => 0 );
+
+    my %data = (
+      no_manifest   => 0,
+      xs            => 0,
+      %options,
+    );
+    %$self = %data;
+
+    # So we can clean up later even if the caller chdir()s
+    $self->{dir} = File::Spec->rel2abs($self->{dir});
+    push @CLEANUP_DIRS, $self->{dir};
+
+    tie %{$self->{filedata}}, 'Tie::CPHash';
+
+    tie %{$self->{pending}{change}}, 'Tie::CPHash';
+
+    # start with a fresh, empty directory
+    if ( -d $self->dirname ) {
+      warn "Warning: Removing existing directory '@{[$self->dirname]}'\n";
+      File::Path::rmtree( $self->dirname );
+    }
+    File::Path::mkpath( $self->dirname );
+
+    $self->_gen_default_filedata();
+
+    return $self;
+  }
+}
+
+sub remove {
+  my $self = shift;
+  $self->chdir_original if($self->did_chdir);
+  File::Path::rmtree( $self->dirname );
   return $self;
 }
 
-sub DESTROY {
-  my ($self) = @_;
-  $self->chdir_original;
-  $self->remove;
+sub revert {
+  my ($self, $file) = @_;
+  if ( defined $file ) {
+    delete $self->{filedata}{$file};
+    delete $self->{pending}{$_}{$file} for qw/change remove/;
+  }
+  else {
+    delete $self->{filedata}{$_} for keys %{ $self->{filedata} };
+    for my $pend ( qw/change remove/ ) {
+      delete $self->{pending}{$pend}{$_} for keys %{ $self->{pending}{$pend} }; 
+    }
+  }
+  $self->_gen_default_filedata;
 }
 
 sub _gen_default_filedata {
@@ -259,7 +289,6 @@ sub _gen_manifest {
   my $manifest = shift;
 
   my $fh = IO::File->new( ">$manifest" ) or do {
-    $self->remove();
     die "Can't write '$manifest'\n";
   };
 
@@ -322,7 +351,6 @@ sub regen {
       my $dirname = File::Basename::dirname( $fullname );
       unless ( -d $dirname ) {
         File::Path::mkpath( $dirname ) or do {
-          $self->remove();
           die "Can't create '$dirname'\n";
         };
       }
@@ -332,7 +360,6 @@ sub regen {
       }
 
       my $fh = IO::File->new(">$fullname") or do {
-        $self->remove();
         die "Can't write '$fullname'\n";
       };
       print $fh $self->{filedata}{$file};
@@ -410,21 +437,6 @@ sub clean {
   return $self;
 }
 
-sub remove {
-  my $self = shift;
-  croak("invalid usage -- remove()") if(@_);
-  $self->chdir_original if($self->did_chdir);
-  File::Path::rmtree( $self->dirname );
-  # might as well check
-  croak("\nthis test should have used chdir_in()") unless(Cwd::getcwd);
-  return $self;
-}
-
-sub revert {
-  my $self = shift;
-  die "Unimplemented.\n";
-}
-
 sub add_file {
   my $self = shift;
   $self->change_file( @_ );
@@ -484,21 +496,21 @@ sub get_file {
 
 sub chdir_in {
   my $self = shift;
-  $self->{did_chdir} = 1;
+  $self->{original_dir} ||= Cwd::cwd; # only once!
   my $dir = $self->dirname;
   chdir($dir) or die "Can't chdir to '$dir': $!";
   return $self;
 }
 ########################################################################
 
-sub did_chdir { shift()->{did_chdir} }
+sub did_chdir { exists shift()->{original_dir} }
 
 ########################################################################
 
 sub chdir_original {
   my $self = shift;
 
-  my $dir = $self->{original_dir};
+  my $dir = delete $self->{original_dir};
   chdir_all($dir) or die "Can't chdir to '$dir': $!";
   return $self;
 }
@@ -546,15 +558,17 @@ DistGen - Creates simple distributions for testing.
   $dist->remove_file('t/some_test.t');
   $dist->regen;
 
-  # clean up extraneous files
+  # undo changes and clean up extraneous files
+  $dist->revert;
   $dist->clean;
 
   # exercise the command-line interface
   $dist->run_build_pl();
   $dist->run_build('test');
 
-  # destructor returns to original dir and removes $dist dir
-  undef $dist
+  # start over as a new distribution
+  $dist->reset( name => 'Foo::Bar', xs => 1 );
+  $dist->chdir_in;
 
 =head1 USAGE
 
@@ -562,7 +576,9 @@ A DistGen object manages a set of files in a distribution directory.
 
 The C<new()> constructor initializes the object and creates an empty
 directory for the distribution. It does not create files or chdir into
-the directory.
+the directory.  The C<reset()> method re-initializes the object in a
+new directory with new parameters.  It also does not create files or change
+the current directory.
 
 Some methods only define the target state of the distribution.  They do B<not>
 make any changes to the filesystem:
@@ -571,12 +587,13 @@ make any changes to the filesystem:
   change_file
   change_build_pl
   remove_file
+  revert
 
 Other methods then change the filesystem to match the target state of
-the distribution (or to remove it entirely):
+the distribution:
 
-  regen
   clean
+  regen
   remove
 
 Other methods are provided for a convenience during testing. The
@@ -591,7 +608,7 @@ Additional methods portably encapsulate running Build.PL and Build:
 
 =head1 API
 
-=head2 Constructor
+=head2 Constructors
 
 =head3 new()
 
@@ -601,10 +618,9 @@ a different temp directory for Perl core testing and CPAN testing.
 
 The C<new> method does not write any files -- see L</regen()> below.
 
-  my $tmp = MBTest->tmpdir;
   my $dist = DistGen->new(
     name        => 'Foo::Bar',
-    dir         => $tmp,
+    dir         => MBTest->tmpdir,
     xs          => 1,
     no_manifest => 0,
   );
@@ -651,6 +667,13 @@ the following files are also added:
 
   typemap
   lib/Simple.xs # based on name parameter
+
+=head3 reset()
+
+The C<reset> method re-initializes the object as if it were generated
+from a fresh call to C<new>.  It takes the same optional parameters as C<new>.
+
+  $dist->reset( name => 'Foo::Bar', xs => 0 );
 
 =head2 Adding and editing files
 
@@ -699,6 +722,14 @@ Removes C<$filename> from the distribution.
 
   $dist->remove_file( $filename );
 
+=head3 revert()
+
+Returns the object to its initial state, or given a $filename it returns that
+file to its initial state if it is one of the built-in files.
+
+  $dist->revert;
+  $dist->revert($filename);
+
 =head2 Changing the distribution directory
 
 These methods immediately affect the filesystem.
@@ -710,8 +741,10 @@ flagged for removal with remove_file().
 
   $dist->regen(clean => 1);
 
-If the optional C<clean> argument is given, it also removes any
-extraneous files that do not belong to the distribution.
+If the optional C<clean> argument is given, it also calls C<clean>.  These
+can also be chained like this, instead:
+
+  $dist->clean->regen;
 
 =head3 clean()
 
@@ -719,22 +752,19 @@ Removes any files that are not part of the distribution.
 
   $dist->clean;
 
-=begin TODO
-
-=head3 revert()
-
-[Unimplemented] Returns the object to its initial state, or given a
-$filename it returns that file to it's initial state if it is one of
-the built-in files.
-
-  $dist->revert;
-  $dist->revert($filename);
-
-=end TODO
-
 =head3 remove()
 
-Removes the entire distribution directory.
+Changes back to the original directory and removes the distribution
+directory (but not the temporary directory set during C<new()>).  
+
+  $dist = DistGen->new->chdir->regen;
+  # ... do some testing ...
+  
+  $dist->remove->chdir_in->regen;
+  # ... do more testing ...
+
+This is like a more aggressive form of C<clean>.  Generally, calling C<clean>
+and C<regen> should be sufficient.
 
 =head2 Changing directories
 

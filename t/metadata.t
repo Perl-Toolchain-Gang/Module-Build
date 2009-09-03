@@ -601,6 +601,3 @@ $dist->regen( clean => 1 );
 $mb = new_build();
 is_deeply($mb->find_dist_packages, {});
 
-############################################################
-# cleanup
-$dist->remove;

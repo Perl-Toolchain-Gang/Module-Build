@@ -21,10 +21,7 @@ my $tmp = MBTest->tmpdir;
 
 use DistGen;
 my $dist = DistGen->new( dir => $tmp, name => 'Simple::Share' );
-
 $dist->regen;
-END{ $dist->remove }
-
 $dist->chdir_in;
 
 #--------------------------------------------------------------------------#

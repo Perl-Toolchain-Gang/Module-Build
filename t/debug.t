@@ -11,8 +11,6 @@ my $tmp = MBTest->tmpdir;
 use DistGen;
 my $dist = DistGen->new( dir => $tmp );
 $dist->regen;
-END{ $dist->remove }
-
 $dist->chdir_in;
 
 #########################
@@ -27,6 +25,3 @@ $dist->chdir_in;
   );
 }
 
-#########################
-
-# cleanup

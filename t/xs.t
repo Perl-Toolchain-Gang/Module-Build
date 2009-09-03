@@ -32,12 +32,9 @@ blib_load('Module::Build');
 #########################
 
 use DistGen;
-my $dist = DistGen->new( dir => $tmp, xs => 1 );
-$dist->regen;
+my $dist = DistGen->new( dir => $tmp, xs => 1 )->chdir_in->regen;
 
-$dist->chdir_in;
-my $mb = Module::Build->new_from_context;
-
+my $mb = $dist->new_from_context;
 
 eval {$mb->dispatch('clean')};
 is $@, '';
@@ -106,19 +103,13 @@ is $@, '';
 # Make sure blib/ is gone after 'realclean'
 ok ! -e 'blib';
 
-
-# cleanup
-$dist->remove;
-
-
 ########################################
 
 # Try a XS distro with a deep namespace
 
-$dist = DistGen->new( name => 'Simple::With::Deep::Name',
-		      dir => $tmp, xs => 1 );
-$dist->regen;
-$dist->chdir_in;
+
+$dist->reset( name => 'Simple::With::Deep::Name', dir => $tmp, xs => 1 );
+$dist->chdir_in->regen;
 
 $mb = Module::Build->new_from_context;
 is $@, '';
@@ -132,16 +123,12 @@ is $@, '';
 $mb->dispatch('realclean');
 is $@, '';
 
-# cleanup
-$dist->remove;
-
-
 ########################################
 
 # Try a XS distro using a flat directory structure
 # and a 'dist_name' instead of a 'module_name'
 
-$dist = DistGen->new( name => 'Dist-Name', dir => $tmp, xs => 1 );
+$dist->reset( name => 'Dist-Name', dir => $tmp, xs => 1 )->chdir_in;
 
 $dist->remove_file('lib/Dist-Name.pm');
 $dist->remove_file('lib/Dist-Name.xs');
@@ -211,10 +198,8 @@ ok( Simple::okay() eq 'ok' );
 ---
 
 $dist->regen;
-$dist->chdir_in;
 
-
-$mb = Module::Build->new_from_context;
+$mb = $dist->new_from_context;
 is $@, '';
 
 $mb->dispatch('build');
@@ -226,5 +211,3 @@ is $@, '';
 $mb->dispatch('realclean');
 is $@, '';
 
-# cleanup
-$dist->remove;

@@ -190,8 +190,6 @@ ok ! -e $mb->build_script;
 ok ! -e $mb->config_dir;
 ok ! -e $mb->dist_dir;
 
-$dist->remove;
-
 SKIP: {
   skip( 'Windows-only test', 4 ) unless $^O =~ /^MSWin/;
 
@@ -224,8 +222,5 @@ echo Hello, World!
   my $out = slurp( $script_file );
   is $out, $script_data, '  unmodified by pl2bat';
 
-  $dist->remove;
 }
 
-# cleanup
-$dist->remove;
