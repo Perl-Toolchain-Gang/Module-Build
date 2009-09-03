@@ -4800,7 +4800,7 @@ sub process_xs {
 
 sub do_system {
   my ($self, @cmd) = @_;
-  $self->log_info("@cmd\n");
+  $self->log_verbose("@cmd\n");
 
   # Some systems proliferate huge PERL5LIBs, try to ameliorate:
   my %seen;
