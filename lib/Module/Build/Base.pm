@@ -1326,6 +1326,13 @@ ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions
 of the modules indicated above before proceeding with this installation
 
 EOF
+    unless ( $ENV{PERL5_CPANPLUS_IS_RUNNING} || $ENV{PERL5_CPAN_IS_RUNNING} ) {
+      my $client = $self->cpan_client;
+      $self->log_info(
+        "Run 'Build installdeps' to install missing prerequisites.\n\n"
+      );
+    }
+
     return 0;
 
   } else {
@@ -3149,9 +3156,19 @@ sub ACTION_versioninstall {
 sub ACTION_installdeps {
   my ($self) = @_;
 
-  my $info = $self->_enum_prereqs or return;
+  # XXX include feature prerequisites as optional prereqs?
 
-  my $failures = $self->prereq_failures($info) or return;
+  my $info = $self->_enum_prereqs;
+  if (! $info ) {
+    $self->log_info( "No prerequisites detected\n" );
+    return;
+  }
+
+  my $failures = $self->prereq_failures($info);
+  if ( ! $failures ) {
+    $self->log_info( "All prerequisites satisfied\n" );
+    return;
+  }
 
   my @install;
   while (my ($type, $prereqs) = each %$failures) {
@@ -3159,11 +3176,13 @@ sub ACTION_installdeps {
       push(@install, keys %$prereqs);
       next;
     }
+    $self->log_info("Checking optional dependencies:\n");
     while (my ($module, $status) = each %$prereqs) {
-      $self->log_info("$status->{message}\n");
       push(@install, $module) if($self->y_n("Install $module?", 'y'));
     }
   }
+
+  return unless @install;
 
   my ($command, @opts) = $self->split_like_shell($self->cpan_client);
 
