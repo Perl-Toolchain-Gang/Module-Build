@@ -3165,10 +3165,22 @@ sub ACTION_installdeps {
     }
   }
 
-  
   my ($command, @opts) = $self->split_like_shell($self->cpan_client);
-  # TODO possibly check whether $command is a perl script (search the
-  # PATH) and use run_perl_command().
+
+  # relative command should be relative to our active Perl
+  # so we need to locate that command
+  if ( ! File::Spec->file_name_is_absolute( $command ) ) {
+    my @bindirs = File::Basename::dirname($self->perl);
+    push @bindirs, map {$self->config->{"install${_}bin"}} '','site','vendor';
+    for my $d ( @bindirs ) {
+      my $abs_cmd = File::Spec->catfile( $d, $command );
+      if ( -x $abs_cmd ) {
+        $command = $abs_cmd;
+        last;
+      }
+    }
+  }
+
   $self->do_system($command, @opts, @install);
 }
 
