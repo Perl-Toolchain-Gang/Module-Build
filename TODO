@@ -5,6 +5,10 @@
   If we can detect the error, we can fix it.  We shouldn't make 
   authors repeat themselves in Build.PL
 
+  - I'm not sure this is correct.  Prereqs shouldn't need to be listed
+    multiple times in META.yml.  Hold off until this is clarified in
+    the META.yml spec.
+
 * Check edge cases for normalize_version -- string "v1.2" might not
   get normalized, but it should
 
@@ -20,6 +24,8 @@
   "requires vs. recommends vs. conflicts" orthogonal to "build-time
   vs. run-time", recording which dependencies the user chooses to
   fulfill at install time, and so on.  
+
+  - Defer until after META spec revisions
 
 * Think about how to allow "local policy" configuration, as well as
 "local enhancements" for frequent developers or frequent installers.
