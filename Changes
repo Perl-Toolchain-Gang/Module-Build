@@ -8,17 +8,28 @@ Revision history for Perl extension Module::Build.
    [David Golden]
  - File::ShareDir automatically added to 'requires' if 'share_dir' is set
    [David Golden]
+ - Added 'Build installdeps' action to install needed dependencies via
+   a user-configurable command line program.  (Defaults to 'cpan'.)
+   [Eric Wilhelm]
 
  Bug fixes:
  - Failure to detect a compiler will now warn during Build.PL and be a
    fatal error when trying to compile during Build. (RT#48918) [David
    Golden]
+ - Fixed directory sorting failure in share_dir.t [David Golden]
+ - Property defaults that are data structures were being assigned as
+   references to new objects. Changed so that defaults are cloned instead.
+   (This mostly affects testing, which often creates multiple objects in the
+   same process) [David Golden]
 
  Other:
  - Replaced guts of new_from_context().  Build.PL is now executed in a
    separate process before resume() is called.  (This is generally only of
    interest to Module::Build or toolchain developers) (RT#49350) [David
    Golden, Eric Wilhelm, Ken Williams]
+ - Revised test helper classes to fix potential bugs and add new features
+   to make writing tests simpler and easier.  Changes incorporated into
+   t/README.pod and t/sample.t as examples for new testing. [David Golden]
 
 0.35_01 - Mon Aug 31 12:11:10 EDT 2009
 
