@@ -37,6 +37,7 @@ MANIFEST
 META.yml
 README
 scripts/config_data
+t/actions/installdeps.t
 t/add_property.t
 t/basic.t
 t/bundled/Tie/CPHash.pm
