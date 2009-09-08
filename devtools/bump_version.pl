@@ -7,14 +7,15 @@ use strict;
 use warnings;
 
 use lib 'lib';
-use Module::Build;
+use lib 'inc';
+use ModuleBuildBuilder;
 
 use Tie::File;
 
 eval { require File::Find::Rule } or
   die "$0 requires File::Find::Rule. Please install and try again.\n";
 
-my $current = Module::Build->new_from_context(quiet => 1)->dist_version;
+my $current = ModuleBuildBuilder->new_from_context(quiet => 1)->dist_version;
 
 # Get version from command line or prompt
 my $version = shift;
