@@ -1327,7 +1327,6 @@ of the modules indicated above before proceeding with this installation
 
 EOF
     unless ( $ENV{PERL5_CPANPLUS_IS_RUNNING} || $ENV{PERL5_CPAN_IS_RUNNING} ) {
-      my $client = $self->cpan_client;
       $self->log_info(
         "Run 'Build installdeps' to install missing prerequisites.\n\n"
       );
@@ -3178,6 +3177,10 @@ sub ACTION_installdeps {
         last;
       }
     }
+  }
+
+  if ( ! -x $command ) {
+    die "cpan_client '$command' is not executable\n";
   }
 
   $self->do_system($command, @opts, @install);
