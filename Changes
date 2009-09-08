@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.35_02 - 
+0.35_02 - Mon Sep  7 22:37:42 EDT 2009
 
  Enhancements:
  - Added 'needs_compiler' property.  Defaults to true if XS or c_source
