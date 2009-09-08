@@ -87,7 +87,7 @@ ok $mb = $dist->new_from_context,
 # Use uc() so we don't confuse the current test output
 $out = stdout_stderr_of( sub { $dist->run_build('test')} );
 ok( $?, "'Build test' had non-zero exit code" );
-like( $out, qr{Failed 1/1 test programs. 1/1 subtests failed\.}, 
+like( $out, qr{Errors in testing\.  Cannot continue\.}, 
     "Saw emulated Test::Harness die() message" 
 );
 

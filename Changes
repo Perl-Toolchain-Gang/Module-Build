@@ -21,6 +21,8 @@ Revision history for Perl extension Module::Build.
    references to new objects. Changed so that defaults are cloned instead.
    (This mostly affects testing, which often creates multiple objects in the
    same process) [David Golden]
+ - Simplified error message on exit under use_tap_harness [suggested by
+   David Wheeler]
 
  Other:
  - Replaced guts of new_from_context().  Build.PL is now executed in a

@@ -2335,7 +2335,9 @@ sub do_tests {
     my $args = $self->tap_harness_args;
     if($self->use_tap_harness or ($args and %$args)) {
       my $aggregate = $self->run_tap_harness($tests);
-      $self->_tap_harness_exit($aggregate) if $aggregate->has_errors;
+      if ( $aggregate->has_errors ) {
+        die "Errors in testing.  Cannot continue.\n";
+      }
     }
     else {
       $self->run_test_harness($tests);
@@ -2363,28 +2365,6 @@ sub run_tap_harness {
   })->runtests(@$tests);
 
   return $aggregate;
-}
-
-# Emulate death on failure behavior of Test::Harness
-sub _tap_harness_exit {
-  my ($self, $aggregate) = @_;
-
-  my $total  = $aggregate->total;
-  my $passed = $aggregate->passed;
-  my $failed = $aggregate->failed;
-
-  my @parsers = $aggregate->parsers;
-
-  my $num_bad = 0;
-  for my $parser (@parsers) {
-    $num_bad++ if $parser->has_problems;
-  }
-
-  die(sprintf(
-      "Failed %d/%d test programs. %d/%d subtests failed.\n",
-      $num_bad, scalar @parsers, $failed, $total
-    )
-  ) if $num_bad;
 }
 
 sub run_test_harness {
