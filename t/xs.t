@@ -80,7 +80,7 @@ is $@, '';
 
 # We can't be verbose in the sub-test, because Test::Harness will
 # think that the output is for the top-level test.
-eval {$mb->dispatch('test')};
+stdout_stderr_of( sub { eval {$mb->dispatch('test')} });
 is $@, '';
 
 eval {$mb->dispatch('clean')};
@@ -116,7 +116,7 @@ $mb = $dist->new_from_context;
 eval { $mb->dispatch('build') };
 is $@, '';
 
-eval { $mb->dispatch('test') };
+stdout_stderr_of( sub { eval { $mb->dispatch('test') } } );
 is $@, '';
 
 eval { $mb->dispatch('realclean') };

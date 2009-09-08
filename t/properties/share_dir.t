@@ -51,7 +51,7 @@ ok( -e catfile(qw/share foo.txt/), "Created 'share' directory" );
 ok( -e catfile(qw/other share bar.txt/), "Created 'other/share' directory" );
 
 # Check default when share_dir is not given
-$mb = $dist->new_from_context;
+stdout_stderr_of( sub { $mb = $dist->new_from_context });
 is_deeply( $mb->share_dir, { dist => [ 'share' ] },
   "Default share_dir set as dist-type share"
 );
@@ -68,7 +68,7 @@ $dist->change_build_pl(
   }
 );
 $dist->regen;
-$mb = $dist->new_from_context;
+stdout_stderr_of( sub { $mb = $dist->new_from_context });
 is_deeply( $mb->share_dir, { dist => [ 'share' ] },
   "Scalar share_dir set as dist-type share"
 );
@@ -82,7 +82,7 @@ $dist->change_build_pl(
   }
 );
 $dist->regen;
-$mb = $dist->new_from_context;
+stdout_stderr_of( sub { $mb = $dist->new_from_context });
 is_deeply( $mb->share_dir, { dist => [ 'share' ] },
   "Arrayref share_dir set as dist-type share"
 );
@@ -96,7 +96,7 @@ $dist->change_build_pl(
   }
 );
 $dist->regen;
-$mb = $dist->new_from_context;
+stdout_stderr_of( sub { $mb = $dist->new_from_context });
 is_deeply( $mb->share_dir, { dist => [ 'share' ] },
   "Hashref share_dir w/ scalar dist set as dist-type share"
 );
@@ -110,7 +110,7 @@ $dist->change_build_pl(
   }
 );
 $dist->regen;
-$mb = $dist->new_from_context;
+stdout_stderr_of( sub { $mb = $dist->new_from_context });
 is_deeply( $mb->share_dir, { dist => [ 'share' ] },
   "Hashref share_dir w/ arrayref dist set as dist-type share"
 );
@@ -127,7 +127,7 @@ $dist->change_build_pl(
   }
 );
 $dist->regen;
-$mb = $dist->new_from_context;
+stdout_stderr_of( sub { $mb = $dist->new_from_context });
 is_deeply( $mb->share_dir, 
   { dist => [ 'share' ], 
     module => { $dist->name => ['other/share']  },
@@ -147,7 +147,7 @@ $dist->change_build_pl(
   }
 );
 $dist->regen;
-$mb = $dist->new_from_context;
+stdout_stderr_of( sub { $mb = $dist->new_from_context });
 is_deeply( $mb->share_dir, 
   { dist => [ 'share' ], 
     module => { $dist->name => ['other/share']  },
