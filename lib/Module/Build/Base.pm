@@ -4663,7 +4663,7 @@ sub compile_xs {
         'ExtUtils::typemap', \@INC
     );
     my $lib_typemap = Module::Build::ModuleInfo->find_module_by_name(
-        'typemap', [File::Basename::dirname($file)]
+        'typemap', [File::Basename::dirname($file), File::Spec->rel2abs('.')]
     );
     push @typemaps, $lib_typemap if $lib_typemap;
     @typemaps = map {+'-typemap', $_} @typemaps;

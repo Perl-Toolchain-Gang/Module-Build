@@ -23,6 +23,9 @@ Revision history for Perl extension Module::Build.
    same process) [David Golden]
  - Simplified error message on exit under use_tap_harness [suggested by
    David Wheeler]
+ - Fixed typemap search to use a dist-level typemap if a typemap is not
+   found in the directory with the *.xs file; (was manifesting as warnings
+   in Perl 5.6 tests) [David Golden]
 
  Other:
  - Replaced guts of new_from_context().  Build.PL is now executed in a
