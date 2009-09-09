@@ -3168,11 +3168,12 @@ sub ACTION_installdeps {
   # relative command should be relative to our active Perl
   # so we need to locate that command
   if ( ! File::Spec->file_name_is_absolute( $command ) ) {
+    require IPC::Cmd;
     my @bindirs = File::Basename::dirname($self->perl);
     push @bindirs, map {$self->config->{"install${_}bin"}} '','site','vendor';
     for my $d ( @bindirs ) {
-      my $abs_cmd = File::Spec->catfile( $d, $command );
-      if ( -x $abs_cmd ) {
+      my $abs_cmd = IPC::Cmd::can_run(File::Spec->catfile( $d, $command ));
+      if ( defined $abs_cmd ) {
         $command = $abs_cmd;
         last;
       }

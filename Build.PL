@@ -38,6 +38,7 @@ my $build = ModuleBuildBuilder->new(
     'ExtUtils::Manifest'    => 0,
     'ExtUtils::Mkbootstrap' => 0,
     'IO::File'              => 0,
+    'IPC::Cmd'              => 0,
     'Cwd'                   => 0,
     'Text::Abbrev'          => 0,
     'Text::ParseWords'      => 0,

@@ -2,6 +2,7 @@ use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest;
 use DistGen;
+use IPC::Cmd ();
 
 plan tests => 7; 
 
@@ -33,7 +34,8 @@ my $out = stdout_of( sub {
     $dist->run_build('installdeps')
 });
 ok( length($out), "ran mocked Build installdeps");
-like( $out, qr/$^X/, "relative cpan_client resolved relative to \$^X" );
+my $expected = quotemeta(IPC::Cmd::can_run($^X));
+like( $out, qr/$expected/i, "relative cpan_client resolved relative to \$^X" );
 like( $out, qr/File::Spec/, "saw File::Spec prereq" );
 like( $out, qr/Getopt::Long/, "saw Getopt::Long prereq" );
 
