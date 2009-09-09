@@ -2536,14 +2536,14 @@ sub _find_share_dir_files {
   
   my @file_map;
   if ( $share_dir->{dist} ) {
-    my $prefix = "dist/" . $self->dist_name;
+    my $prefix = File::Spec->catdir( "dist", $self->dist_name );
     push @file_map, $self->_share_dir_map( $prefix, $share_dir->{dist} );
   }
 
   if ( $share_dir->{module} ) {
     for my $mod ( keys %{ $share_dir->{module} } ) {
       (my $altmod = $mod) =~ s{::}{-}g;
-      my $prefix = "module/$altmod";
+      my $prefix = File::Spec->catdir("module", $altmod);
       push @file_map, $self->_share_dir_map($prefix, $share_dir->{module}{$mod});
     }
   }
@@ -2556,7 +2556,7 @@ sub _share_dir_map {
   my %files;
   for my $dir ( @$list ) { 
     for my $f ( @{ $self->rscan_dir( $dir, sub {-f} )} ) {
-      $files{$f} = File::Spec->catfile(
+      $files{File::Spec->canonpath($f)} = File::Spec->catfile(
         $prefix, File::Spec->abs2rel( $f, $dir )
       );
     }
