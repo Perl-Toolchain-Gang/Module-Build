@@ -1566,21 +1566,24 @@ Assigning the value C<undef> to an element causes it to be removed.
 
 =item prepare_metadata()
 
-[version 0.28]
+[version 0.36]
 
-This method is provided for authors to override to customize the
-fields of F<META.yml>.  It is passed a YAML::Node node object which can
-be modified as desired and then returned.  E.g.
+This method returns a hash reference of metadata that can be used to create a
+YAML datastream. It is provided for authors to override or customize the fields
+of F<META.yml>.   E.g.
 
   package My::Builder;
   use base 'Module::Build';
 
   sub prepare_metadata {
     my $self = shift;
-    my $node = $self->SUPER::prepare_metadata( shift );
-    $node->{custom_field} = 'foo';
-    return $node;
+    my $data = $self->SUPER::prepare_metadata();
+    $data->{custom_field} = 'foo';
+    return $data;
   }
+
+Prior to version 0.36, this method took a YAML::Node as an argument to hold
+assembled metadata.
 
 =item prereq_failures()
 
@@ -1847,7 +1850,7 @@ modify it under the same terms as Perl itself.
 =head1 SEE ALSO
 
 perl(1), L<Module::Build>(3), L<Module::Build::Authoring>(3),
-L<Module::Build::Cookbook>(3), L<ExtUtils::MakeMaker>(3), L<YAML>(3)
+L<Module::Build::Cookbook>(3), L<ExtUtils::MakeMaker>(3), L<YAML::Tiny>(3)
 
 F<META.yml> Specification:
 L<http://module-build.sourceforge.net/META-spec-current.html>

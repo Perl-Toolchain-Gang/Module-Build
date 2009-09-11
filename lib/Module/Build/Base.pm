@@ -1601,7 +1601,7 @@ sub create_build_script {
     $self->log_info("Removed previous '$mymetafile'\n");
   }
   $self->log_info("Creating new '$mymetafile' with configuration results\n");
-  if ( $self->write_metafile( $mymetafile, $self->generate_metadata ) ) {
+  if ( $self->write_metafile( $mymetafile, $self->prepare_metadata ) ) {
     $self->add_to_cleanup( $mymetafile );
   }
   
@@ -3907,7 +3907,7 @@ sub do_create_metafile {
     push @INC, File::Spec->catdir($self->blib, 'lib');
   }
 
-  if ( $self->write_metafile( $self->metafile, $self->generate_metadata ) ) {
+  if ( $self->write_metafile( $self->metafile, $self->prepare_metadata ) ) {
     $self->{wrote_metadata} = 1;
     $self->_add_to_manifest('MANIFEST', $metafile);
   }
@@ -3915,42 +3915,22 @@ sub do_create_metafile {
   return 1;
 }
 
-sub generate_metadata {
-  my $self = shift;
-  my $node = {};
-
-  if ($self->_mb_feature('YAML_support')) {
-    require YAML;
-    require YAML::Node;
-    # We use YAML::Node to get the order nice in the YAML file.
-    $self->prepare_metadata( $node = YAML::Node->new({}) );
-  } else {
-    require Module::Build::YAML;
-    my @order_keys;
-    $self->prepare_metadata($node, \@order_keys);
-    $node->{_order} = \@order_keys;
-  }
-  return $node;
-}
-
 sub write_metafile {
   my $self = shift;
   my ($metafile, $node) = @_;
+  my $yaml;
 
   if ($self->_mb_feature('YAML_support')) {
     # XXX this is probably redundant, but stick with it
-    require YAML;
-    require YAML::Node;
-    delete $node->{_order}; # XXX also probably redundant, but for safety
-    # YAML API changed after version 0.30
-    my $yaml_sub = $YAML::VERSION le '0.30' ? \&YAML::StoreFile : \&YAML::DumpFile;
-    $yaml_sub->( $metafile, $node );
+    require YAML::Tiny;
+    $yaml = YAML::Tiny->new($node);
   } else {
-    # XXX probably redundant
     require Module::Build::YAML;
-    &Module::Build::YAML::DumpFile($metafile, $node);
+    $yaml = Module::Build::YAML->new($node);
   }
-  return 1;
+  my $result = $yaml->write($metafile) 
+    or $self->log_warn( "Error writing '$metafile': " . $yaml->errstr . "\n");
+  return $result;
 }
 
 sub normalize_version {
@@ -3973,14 +3953,14 @@ sub normalize_version {
 }
 
 sub prepare_metadata {
-  my ($self, $node, $keys) = @_;
+  my ($self) = @_;
   my $p = $self->{properties};
+  my $node = {};
 
   # A little helper sub
   my $add_node = sub {
     my ($name, $val) = @_;
     $node->{$name} = $val;
-    push @$keys, $name if $keys;
   };
 
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {

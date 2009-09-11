@@ -71,8 +71,8 @@ my $build = ModuleBuildBuilder->new(
 
   auto_features => {
     YAML_support => {
-      description => "Use YAML.pm to write META.yml files",
-      requires    => {YAML => ' >= 0.35, != 0.49_01 '},
+      description => "Use YAML::Tiny to write META.yml files",
+      requires    => {'YAML::Tiny' => 1.38},
     },
     C_support => {
       description => "Compile/link C & XS code",

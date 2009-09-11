@@ -337,8 +337,8 @@ F<META.yml> is a file containing various bits of I<metadata> about the
 distribution.  The metadata includes the distribution name, version,
 abstract, prerequisites, license, and various other data about the
 distribution.  This file is created as F<META.yml> in YAML format.
-It is recommended that the C<YAML> module be installed to create it.
-If the C<YAML> module is not installed, an internal module supplied
+It is recommended that the C<YAML::Tiny> module be installed to create it.
+If the C<YAML::Tiny> module is not installed, an internal module supplied
 with Module::Build will be used to write the META.yml file, and this
 will most likely be fine.
 
@@ -1097,7 +1097,7 @@ modify it under the same terms as Perl itself.
 =head1 SEE ALSO
 
 perl(1), L<Module::Build::Cookbook>, L<Module::Build::Authoring>,
-L<Module::Build::API>, L<ExtUtils::MakeMaker>, L<YAML>
+L<Module::Build::API>, L<ExtUtils::MakeMaker>, L<YAML::Tiny>
 
 F<META.yml> Specification:
 L<http://module-build.sourceforge.net/META-spec-current.html>

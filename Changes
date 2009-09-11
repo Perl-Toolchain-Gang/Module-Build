@@ -2,6 +2,15 @@ Revision history for Perl extension Module::Build.
 
 0.35_03 - 
 
+ *** API CHANGE *** 
+ - The prepare_metadata() method used to take a YAML::Node object as an
+   argument for modification.  The method now takes no arguments and just
+   returns a hash reference of metadata. [David Golden]
+
+ Other:
+ - Replaced use of YAML.pm with YAML::Tiny; Module::Build::YAML is now
+   based on YAML::Tiny as well [David Golden]
+
 0.35_02 - Mon Sep  7 22:37:42 EDT 2009
 
  Enhancements:
