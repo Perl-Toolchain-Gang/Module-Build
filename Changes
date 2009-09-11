@@ -9,6 +9,8 @@ Revision history for Perl extension Module::Build.
 
  Bug fixes:
  - Updated PPM generation to PPM v4 (RT#49600) [Olivier Mengue]
+ - When c_source is specified, the directory scan will include additional,
+   less-common C++ extensions (RT49298) [David Golden]
 
  Other:
  - Replaced use of YAML.pm with YAML::Tiny; Module::Build::YAML is now
