@@ -7,6 +7,9 @@ Revision history for Perl extension Module::Build.
    argument for modification.  The method now takes no arguments and just
    returns a hash reference of metadata. [David Golden]
 
+ Bug fixes:
+ - Updated PPM generation to PPM v4 (RT#49600) [Olivier Mengue]
+
  Other:
  - Replaced use of YAML.pm with YAML::Tiny; Module::Build::YAML is now
    based on YAML::Tiny as well [David Golden]

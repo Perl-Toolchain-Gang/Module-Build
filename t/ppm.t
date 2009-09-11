@@ -94,13 +94,10 @@ my $varchname = Module::Build::PPMMaker->_varchname($mb->config);
 # do a strict string comparison, but absent an XML parser it's the
 # best we can do.
 is $ppd, <<"---";
-<SOFTPKG NAME="$dist_filename" VERSION="0,01,0,0">
-    <TITLE>@{[$dist->name]}</TITLE>
+<SOFTPKG NAME="$dist_filename" VERSION="0.01">
     <ABSTRACT>Perl extension for blah blah blah</ABSTRACT>
     <AUTHOR>A. U. Thor, a.u.thor\@a.galaxy.far.far.away</AUTHOR>
     <IMPLEMENTATION>
-        <PERLCORE VERSION="$perl_version" />
-        <OS NAME="$^O" />
         <ARCHITECTURE NAME="$varchname" />
         <CODEBASE HREF="/path/to/codebase-xs" />
     </IMPLEMENTATION>

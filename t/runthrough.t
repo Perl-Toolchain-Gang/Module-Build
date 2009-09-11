@@ -170,12 +170,11 @@ SKIP: {
   # do a strict string comparison, but absent an XML parser it's the
   # best we can do.
   is $ppd, <<'EOF';
-<SOFTPKG NAME="Simple" VERSION="0,01,0,0">
-    <TITLE>Simple</TITLE>
+<SOFTPKG NAME="Simple" VERSION="0.01">
     <ABSTRACT>Perl extension for blah blah blah</ABSTRACT>
     <AUTHOR>A. U. Thor, a.u.thor@a.galaxy.far.far.away</AUTHOR>
     <IMPLEMENTATION>
-        <DEPENDENCY NAME="File-Spec" VERSION="0,0,0,0" />
+        <REQUIRE NAME="File::Spec" VERSION="0" />
         <CODEBASE HREF="/path/to/codebase" />
     </IMPLEMENTATION>
 </SOFTPKG>
