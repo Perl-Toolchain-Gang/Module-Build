@@ -107,7 +107,7 @@ $dist->regen;
 
 # Create M::B instance but don't pollute STDOUT
 my $mb;
-stdout_of( sub {
+stdout_stderr_of( sub {
     $mb = Module::Build->new_from_context;
 });
 ok $mb, "Module::Build->new_from_context";
@@ -130,7 +130,7 @@ ok $mb, "Module::Build->new_from_context";
   # Makefile.PL - make sure it fails in the right way here.
   local @Foo::Builder::ISA = qw(Module::Build);
   my $foo_builder;
-  stdout_of( sub {
+  stdout_stderr_of( sub {
     $foo_builder = Foo::Builder->new_from_context;
   });
   foreach my $style ('passthrough', 'small') {
@@ -147,13 +147,13 @@ ok $mb, "Module::Build->new_from_context";
   
   # Now make sure it can actually work.
   my $bar_builder;
-  stdout_of( sub {
+  stdout_stderr_of( sub {
     $bar_builder = Module::Build->subclass( class => 'Bar::Builder' )->new_from_context;
   });
   foreach my $style ('passthrough', 'small') {
     create_makefile_pl($style, $bar_builder);
     my $result;
-    stdout_of( sub {
+    stdout_stderr_of( sub {
       $result = $mb->run_perl_script('Makefile.PL');
     });
     ok $result, "Makefile.PL ran without error";
@@ -166,7 +166,7 @@ ok $mb, "Module::Build->new_from_context";
 
   my $libdir = File::Spec->catdir( $tmp, 'libdir' );
   my $result;
-  stdout_of( sub {
+  stdout_stderr_of( sub {
     $result = $mb->run_perl_script('Makefile.PL', [],
       [
       "LIB=$libdir",
@@ -187,7 +187,7 @@ ok $mb, "Module::Build->new_from_context";
 
   # Make sure those switches actually had an effect
   my ($ran_ok, $output);
-  $output = stdout_of( sub { $ran_ok = $new_build->do_system(@make, 'test') } );
+  $output = stdout_stderr_of( sub { $ran_ok = $new_build->do_system(@make, 'test') } );
   ok $ran_ok, "make test ran without error";
   $output =~ s/^/# /gm;  # Don't confuse our own test output
   like $output, qr/(?:# ok \d+\s+)+/, 'Should be verbose';
@@ -200,7 +200,7 @@ ok $mb, "Module::Build->new_from_context";
     $make_macro = '/macro=("' . $make_macro . '")';
   }
 
-  $output = stdout_of( sub {
+  $output = stdout_stderr_of( sub {
     local $ENV{HARNESS_TIMER}; # RT#39635 - timer messes with output
     $ran_ok = $mb->do_system(@make, 'test', $make_macro)
   } );
@@ -257,7 +257,7 @@ ok $mb, "Module::Build->new_from_context";
     }
   }
 
-  stdout_of( sub { $mb->do_system(@make, 'realclean'); } );
+  stdout_stderr_of( sub { $mb->do_system(@make, 'realclean'); } );
   ok ! -e $makefile, "$makefile shouldn't exist";
 
   1 while unlink 'Makefile.PL';
@@ -273,14 +273,14 @@ ok $mb, "Module::Build->new_from_context";
 
   create_makefile_pl('passthrough', $mb);
 
-  stdout_of( sub {
+  stdout_stderr_of( sub {
     $mb->run_perl_script('Makefile.PL', [], ['INSTALL_BASE=~/foo']);
   });
   my $b2 = Module::Build->current;
   ok $b2->install_base, "install_base set";
   unlike $b2->install_base, qr/^~/, "Tildes should be expanded";
   
-  stdout_of( sub { $mb->do_system(@make, 'realclean'); } );
+  stdout_stderr_of( sub { $mb->do_system(@make, 'realclean'); } );
   ok ! -e $makefile, "$makefile shouldn't exist";
 
   1 while unlink 'Makefile.PL';
@@ -292,7 +292,7 @@ ok $mb, "Module::Build->new_from_context";
   $dist->regen;
 
   my $mb;
-  stdout_of( sub {
+  stdout_stderr_of( sub {
       $mb = Module::Build->new_from_context( recursive_test_files => 1 );
   });
 
@@ -322,7 +322,7 @@ sub test_makefile_types {
   foreach my $type (@makefile_types) {
     # Create M::B instance 
     my $mb;
-    stdout_of( sub {
+    stdout_stderr_of( sub {
         $mb = Module::Build->new_from_context;
     });
     ok $mb, "Module::Build->new_from_context";
@@ -337,7 +337,7 @@ sub test_makefile_types {
       
     my ($output,$success);
     # Capture output to keep our STDOUT clean
-    $output = stdout_of( sub {
+    $output = stdout_stderr_of( sub {
       $success = $mb->do_system(@make);
     });
     ok $success, "make ran without error";
@@ -347,13 +347,13 @@ sub test_makefile_types {
     }
 
     # Can't let 'test' STDOUT go to our STDOUT, or it'll confuse Test::Harness.
-    $output = stdout_of( sub {
+    $output = stdout_stderr_of( sub {
       $success = $mb->do_system(@make, 'test');
     });
     ok $success, "make test ran without error";
     like uc $output, qr{DONE\.|SUCCESS}, "make test output indicated success";
     
-    $output = stdout_of( sub {
+    $output = stdout_stderr_of( sub {
       $success = $mb->do_system(@make, 'realclean');
     });
     ok $success, "make realclean ran without error";
@@ -374,7 +374,7 @@ sub test_makefile_creation {
   
   my ($output, $result);
   # capture output to avoid polluting our test output
-  $output = stdout_of( sub {
+  $output = stdout_stderr_of( sub {
       $result = $build->run_perl_script('Makefile.PL', $preargs, $postargs);
   });
   my $label = "Makefile.PL ran without error";
@@ -475,7 +475,7 @@ sub extract_writemakefile_args {
 
 sub create_makefile_pl {
     my @args = @_;
-    stdout_of( sub { Module::Build::Compat->create_makefile_pl(@args) } );
+    stdout_stderr_of( sub { Module::Build::Compat->create_makefile_pl(@args) } );
     my $ok = ok -e 'Makefile.PL', "$_[0] Makefile.PL created";
 
     # Some really conservative make's, like HP/UX, assume files with the same
