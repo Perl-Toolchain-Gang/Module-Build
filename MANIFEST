@@ -54,7 +54,6 @@ t/install_extra_target.t
 t/lib/DistGen.pm
 t/lib/MBTest.pm
 t/manifypods.t
-t/mbyaml.t
 t/metadata.t
 t/metadata2.t
 t/moduleinfo.t
