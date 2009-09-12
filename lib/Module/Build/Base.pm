@@ -38,8 +38,19 @@ sub new {
 
   $self->check_manifest;
   $self->auto_require;
-  $self->check_prereq;
-  $self->check_autofeatures;
+  if ( $self->check_prereq + $self->check_autofeatures != 2) {
+    $self->log_warn(<<EOF);
+
+ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions
+of the modules indicated above before proceeding with this installation
+
+EOF
+    unless ( $ENV{PERL5_CPANPLUS_IS_RUNNING} || $ENV{PERL5_CPAN_IS_RUNNING} ) {
+      $self->log_warn(
+        "Run 'Build installdeps' to install missing prerequisites.\n\n"
+      );
+    }
+  }
 
   $self->dist_name;
   $self->dist_version;
@@ -638,7 +649,7 @@ sub ACTION_config_data {
 			       $self->config_file('features')
 			      ], $notes_pm);
 
-  $self->log_info("Writing config notes to $notes_pm\n");
+  $self->log_verbose("Writing config notes to $notes_pm\n");
   File::Path::mkpath(File::Basename::dirname($notes_pm));
 
   Module::Build::Notes->write_config_data
@@ -994,7 +1005,7 @@ sub subclass {
   
   my $filename = File::Spec->catfile($build_dir, 'lib', split '::', $opts{class}) . '.pm';
   my $filedir  = File::Basename::dirname($filename);
-  $pack->log_info("Creating custom builder $filename in $filedir\n");
+  $pack->log_verbose("Creating custom builder $filename in $filedir\n");
   
   File::Path::mkpath($filedir);
   die "Can't create directory $filedir: $!" unless -d $filedir;
@@ -1157,9 +1168,7 @@ sub check_autofeatures {
   my ($self) = @_;
   my $features = $self->auto_features;
   
-  return unless %$features;
-
-  $self->log_info("Checking features:\n");
+  return 1 unless %$features;
 
   # TODO refactor into ::Util
   my $longest = sub {
@@ -1175,30 +1184,40 @@ sub check_autofeatures {
   };
   my $max_name_len = length($longest->(keys %$features));
 
+  my ($num_disabled, $log_text) = (0, "\nChecking optional features...\n");
   while (my ($name, $info) = each %$features) {
-    $self->log_info("  $name" . '.' x ($max_name_len - length($name) + 4));
+    my $feature_text = "  $name" . '.' x ($max_name_len - length($name) + 4);
 
+    my $disabled;
     if ( my $failures = $self->prereq_failures($info) ) {
-      my $disabled = grep( /^(?:\w+_)?(?:requires|conflicts)$/,
+      $disabled = grep( /^(?:\w+_)?(?:requires|conflicts)$/,
 			   keys %$failures ) ? 1 : 0;
-      $self->log_info( $disabled ? "disabled\n" : "enabled\n" );
+      $feature_text .= $disabled ? "disabled\n" : "enabled\n";
+      $num_disabled++ if $disabled;
 
-      my $log_text;
       while (my ($type, $prereqs) = each %$failures) {
 	while (my ($module, $status) = each %$prereqs) {
 	  my $required =
 	    ($type =~ /^(?:\w+_)?(?:requires|conflicts)$/) ? 1 : 0;
 	  my $prefix = ($required) ? '-' : '*';
-	  $log_text .= "    $prefix $status->{message}\n";
+	  $feature_text .= "    $prefix $status->{message}\n";
 	}
       }
-      $self->log_warn("$log_text") unless $self->quiet;
     } else {
-      $self->log_info("enabled\n");
+      $feature_text .= "enabled\n";
     }
+    $log_text .= $feature_text if $disabled || $self->verbose;
   }
 
-  $self->log_warn("\n") unless $self->quiet;
+  # warn user if features disabled
+  if ( $num_disabled ) {
+    $self->log_warn( $log_text );
+    return 0;
+  }
+  else {
+    $self->log_verbose( $log_text );
+    return 1;
+  }
 }
 
 # Automatically detect and add prerequisites based on configuration
@@ -1248,7 +1267,7 @@ sub _add_prereq {
   if ( exists $p->{$type}{$module} ) {
     return if $self->compare_versions( $version, '<=', $p->{$type}{$module} );
   }
-  $self->log_info("Adding to $type\: $module => $version\n");
+  $self->log_verbose("Adding to $type\: $module => $version\n");
   $p->{$type}{$module} = $version;
   return 1;
 }
@@ -1274,7 +1293,7 @@ sub prereq_failures {
       } elsif ($type =~ /^(?:\w+_)?recommends$/) {
 	next if $status->{ok};
 	$status->{message} = (!ref($status->{have}) && $status->{have} eq '<none>'
-			      ? "Optional prerequisite $modname is not installed"
+			      ? "$modname is not installed"
 			      : "$modname ($status->{have}) is installed, but we prefer to have $spec");
       } else {
 	next if $status->{ok};
@@ -1307,36 +1326,26 @@ sub check_prereq {
   my $info = $self->_enum_prereqs;
   return 1 unless $info;
 
-  $self->log_info("Checking prerequisites...\n");
+  my $log_text = "Checking prerequisites...\n";
 
   my $failures = $self->prereq_failures($info);
 
   if ( $failures ) {
-
-    while (my ($type, $prereqs) = each %$failures) {
-      while (my ($module, $status) = each %$prereqs) {
-	my $prefix = ($type =~ /^(?:\w+_)?recommends$/) ? '*' : '- ERROR:';
-	$self->log_warn(" $prefix $status->{message}\n");
+    for my $type ( @{ $self->prereq_action_types } ) {
+      my $prereqs = $failures->{$type};
+      for my $module ( sort keys %$prereqs ) {
+        my $status = $prereqs->{$module};
+        my $prefix = ($type =~ /^(?:\w+_)?recommends$/) ? "* $type:" : "! $type:";
+        $log_text .= "$prefix $status->{message}\n";
       }
     }
 
-    $self->log_warn(<<EOF);
-
-ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions
-of the modules indicated above before proceeding with this installation
-
-EOF
-    unless ( $ENV{PERL5_CPANPLUS_IS_RUNNING} || $ENV{PERL5_CPAN_IS_RUNNING} ) {
-      $self->log_info(
-        "Run 'Build installdeps' to install missing prerequisites.\n\n"
-      );
-    }
-
+    $self->log_warn( $log_text );
     return 0;
 
   } else {
 
-    $self->log_info("Looks good\n\n");
+    $self->log_verbose($log_text . "Looks good\n\n");
     return 1;
 
   }
@@ -1585,11 +1594,11 @@ sub create_build_script {
     = map $self->$_(), qw(build_script dist_name dist_version);
   
   if ( $self->delete_filetree($build_script) ) {
-    $self->log_info("Removed previous script '$build_script'\n");
+    $self->log_verbose("Removed previous script '$build_script'\n");
   }
 
   $self->log_info("Creating new '$build_script' script for ",
-		  "'$dist_name' version '$dist_version'\n\n");
+		  "'$dist_name' version '$dist_version'\n");
   my $fh = IO::File->new(">$build_script") or die "Can't create '$build_script': $!";
   $self->print_build_script($fh);
   close $fh;
@@ -1598,7 +1607,7 @@ sub create_build_script {
   
   my $mymetafile = $self->mymetafile;
   if ( $self->delete_filetree($mymetafile) ) {
-    $self->log_info("Removed previous '$mymetafile'\n");
+    $self->log_verbose("Removed previous '$mymetafile'\n");
   }
   $self->log_info("Creating new '$mymetafile' with configuration results\n");
   if ( $self->write_metafile( $mymetafile, $self->prepare_metadata ) ) {
@@ -1618,13 +1627,13 @@ sub check_manifest {
   require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
   local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
   
-  $self->log_info("Checking whether your kit is complete...\n");
+  $self->log_verbose("Checking whether your kit is complete...\n");
   if (my @missed = ExtUtils::Manifest::manicheck()) {
     $self->log_warn("WARNING: the following files are missing in your kit:\n",
 		    "\t", join("\n\t", @missed), "\n",
 		    "Please inform the author.\n\n");
   } else {
-    $self->log_info("Looks good\n\n");
+    $self->log_verbose("Looks good\n\n");
   }
 }
 
@@ -2854,7 +2863,7 @@ sub manify_bin_pods {
 	          $self->config( 'man1ext' );
     my $outfile = File::Spec->catfile($mandir, $manpage);
     next if $self->up_to_date( $file, $outfile );
-    $self->log_info("Manifying $file -> $outfile\n");
+    $self->log_verbose("Manifying $file -> $outfile\n");
     eval { $parser->parse_from_file( $file, $outfile ); 1 }
       or $self->log_warn("Error creating '$outfile': $@\n"); 
     $files->{$file} = $outfile;
@@ -2879,7 +2888,7 @@ sub manify_lib_pods {
 	          $self->config( 'man3ext' );
     my $outfile = File::Spec->catfile( $mandir, $manpage);
     next if $self->up_to_date( $file, $outfile );
-    $self->log_info("Manifying $file -> $outfile\n");
+    $self->log_verbose("Manifying $file -> $outfile\n");
     eval { $parser->parse_from_file( $file, $outfile ); 1 }
       or $self->log_warn("Error creating '$outfile': $@\n"); 
     $files->{$file} = $outfile;
@@ -3013,7 +3022,7 @@ sub htmlify_pods {
       push( @opts, "--css=$path2root/" . $self->html_css) if $self->html_css;
     }
 
-    $self->log_info("HTMLifying $infile -> $outfile\n");
+    $self->log_verbose("HTMLifying $infile -> $outfile\n");
     $self->log_verbose("pod2html @opts\n");
     eval { Pod::Html::pod2html(@opts); 1 } 
       or $self->log_warn("pod2html @opts failed: $@");
@@ -3353,7 +3362,7 @@ sub _add_to_manifest {
   close $fh;
   chmod($mode, $manifest);
 
-  $self->log_info(map "Added to $manifest: $_\n", @$lines);
+  $self->log_verbose(map "Added to $manifest: $_\n", @$lines);
 }
 
 sub _sign_dir {
@@ -4532,7 +4541,7 @@ sub delete_filetree {
   my $deleted = 0;
   foreach (@_) {
     next unless -e $_;
-    $self->log_info("Deleting $_\n");
+    $self->log_verbose("Deleting $_\n");
     File::Path::rmtree($_, 0, 0);
     die "Couldn't remove '$_': $!\n" if -e $_;
     $deleted++;
@@ -4624,7 +4633,7 @@ sub link_c {
 sub compile_xs {
   my ($self, $file, %args) = @_;
   
-  $self->log_info("$file -> $args{outfile}\n");
+  $self->log_verbose("$file -> $args{outfile}\n");
 
   if (eval {require ExtUtils::ParseXS; 1}) {
     
@@ -4854,7 +4863,7 @@ sub copy_if_modified {
   # Create parent directories
   File::Path::mkpath(File::Basename::dirname($to_path), 0, oct(777));
   
-  $self->log_info("Copying $file -> $to_path\n") if $args{verbose};
+  $self->log_verbose("Copying $file -> $to_path\n");
   
   if ($^O eq 'os2') {# copy will not overwrite; 0x1 = overwrite
     chmod 0666, $to_path;

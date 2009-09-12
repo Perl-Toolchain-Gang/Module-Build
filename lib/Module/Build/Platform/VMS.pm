@@ -182,7 +182,7 @@ Override to ensure that we quote the arguments but not the command.
 sub do_system {
   # The command must not be quoted but the arguments to it must be.
   my ($self, @cmd) = @_;
-  $self->log_info("@cmd\n");
+  $self->log_verbose("@cmd\n");
   my $cmd = shift @cmd;
   my $args = $self->_quote_args(@cmd);
   return !system("$cmd $args");

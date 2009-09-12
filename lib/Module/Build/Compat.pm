@@ -72,7 +72,7 @@ sub create_makefile_pl {
     unless $type =~ /^(small|passthrough|traditional)$/;
 
   if ($type eq 'passthrough') {
-    $build->log_info(<<"HERE");
+    $build->log_warn(<<"HERE");
     
 IMPORTANT NOTE: The '$type' style of Makefile.PL is deprecated and 
 may be removed in a future version of Module::Build in favor of the
