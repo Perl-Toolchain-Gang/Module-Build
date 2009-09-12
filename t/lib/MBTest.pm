@@ -155,7 +155,7 @@ sub stdout_stderr_of {
   $stdout = stdout_of ( sub {
       $stderr = stderr_of( $subr )
   });
-  return ($stdout, $stderr);
+  return wantarray ? ($stdout, $stderr) : $stdout . $stderr;
 }
 
 sub slurp {
