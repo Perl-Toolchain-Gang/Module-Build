@@ -1589,31 +1589,31 @@ EOF
 sub create_build_script {
   my ($self) = @_;
   $self->write_config;
-  
-  my ($build_script, $dist_name, $dist_version)
-    = map $self->$_(), qw(build_script dist_name dist_version);
-  
-  if ( $self->delete_filetree($build_script) ) {
-    $self->log_verbose("Removed previous script '$build_script'\n");
-  }
 
-  $self->log_info("Creating new '$build_script' script for ",
-		  "'$dist_name' version '$dist_version'\n");
-  my $fh = IO::File->new(">$build_script") or die "Can't create '$build_script': $!";
-  $self->print_build_script($fh);
-  close $fh;
-  
-  $self->make_executable($build_script);
-  
+  # Create MYMETA.yml
   my $mymetafile = $self->mymetafile;
   if ( $self->delete_filetree($mymetafile) ) {
     $self->log_verbose("Removed previous '$mymetafile'\n");
   }
   $self->log_info("Creating new '$mymetafile' with configuration results\n");
-  if ( $self->write_metafile( $mymetafile, $self->prepare_metadata ) ) {
-    $self->add_to_cleanup( $mymetafile );
+  $self->write_metafile( $mymetafile, $self->prepare_metadata );
+
+  # Create Build
+  my ($build_script, $dist_name, $dist_version)
+    = map $self->$_(), qw(build_script dist_name dist_version);
+
+  if ( $self->delete_filetree($build_script) ) {
+    $self->log_verbose("Removed previous script '$build_script'\n");
   }
-  
+
+  $self->log_info("Creating new '$build_script' script for ",
+                  "'$dist_name' version '$dist_version'\n");
+  my $fh = IO::File->new(">$build_script") or die "Can't create '$build_script': $!";
+  $self->print_build_script($fh);
+  close $fh;
+
+  $self->make_executable($build_script);
+
   return 1;
 }
 
@@ -3206,7 +3206,9 @@ sub ACTION_clean {
 sub ACTION_realclean {
   my ($self) = @_;
   $self->depends_on('clean');
-  $self->delete_filetree($self->config_dir, $self->build_script);
+  $self->delete_filetree(
+    $self->config_dir, $self->mymetafile, $self->build_script
+  );
 }
 
 sub ACTION_ppd {
