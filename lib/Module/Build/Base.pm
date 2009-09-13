@@ -1171,7 +1171,8 @@ sub write_config {
   # packfile map -- keys are guts of regular expressions;  If they match,
   # values are module names corresponding to the packlist
   my %packlist_map = (
-    '^File::Spec' => 'Cwd'
+    '^File::Spec'         => 'Cwd',
+    '^Devel::AssertOS'    => 'Devel::CheckOS',
   );
 
   sub check_bundling {
