@@ -46,11 +46,15 @@ sub write {
   my $package = shift;
   my ($where) = @_;
 
-  my $dir = dirname( $where );
-  warn "should really be writing in inc/" unless $dir =~ /inc$/;
-  mkpath $dir;
-  my $fh = IO::File->new( $where, "w" );
+  warn "should really be writing in inc/" unless $where =~ /inc$/;
+  mkpath $where;
+  my $fh = IO::File->new( File::Spec->catfile($where,'latest.pm'), "w" );
   print {$fh} do {local $/; <DATA>};
+}
+
+sub bundle_module {
+  my ($package, $module, $where) = @_;
+
 }
 
 1;

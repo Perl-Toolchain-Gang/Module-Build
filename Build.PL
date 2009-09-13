@@ -35,6 +35,7 @@ my $build = ModuleBuildBuilder->new(
     'File::Path'            => 0,
     'File::Spec'            => ($^O eq 'MSWin32' ? 3.30 : '0.82'), # rel2abs()
     'ExtUtils::Install'     => 0,
+    'ExtUtils::Installed'   => 0,
     'ExtUtils::Manifest'    => 0,
     'ExtUtils::Mkbootstrap' => 0,
     'IO::File'              => 0,

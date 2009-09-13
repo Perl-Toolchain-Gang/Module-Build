@@ -52,6 +52,8 @@ EOF
     }
   }
 
+  $self->check_bundling;
+
   $self->dist_name;
   $self->dist_version;
 
@@ -839,6 +841,7 @@ __PACKAGE__->add_property(build_class => 'Module::Build');
 __PACKAGE__->add_property(build_elements => [qw(PL support pm xs share_dir pod script)]);
 __PACKAGE__->add_property(build_script => 'Build');
 __PACKAGE__->add_property(build_bat => 0);
+__PACKAGE__->add_property(bundle_inc => []);
 __PACKAGE__->add_property(config_dir => '_build');
 __PACKAGE__->add_property(include_dirs => []);
 __PACKAGE__->add_property(license => 'unknown');
@@ -1162,6 +1165,45 @@ sub write_config {
   $self->_write_data('magicnum', $self->magic_number(int rand 1_000_000));
 
   $self->{phash}{$_}->write() foreach qw(notes cleanup features auto_features config_data runtime_params);
+}
+
+{
+  # packfile map -- keys are guts of regular expressions;  If they match,
+  # values are module names corresponding to the packlist
+  my %packlist_map = (
+    '^File::Spec' => 'Cwd'
+  );
+
+  sub check_bundling {
+    my $self = shift;
+    my $bundle_inc = $self->{properties}{bundle_inc};
+    # We're in author mode if inc::latest is loaded, but not from cwd
+    return unless $INC{'inc/latest.pm'} && ! -e 'inc/latest.pm';
+    require ExtUtils::Installed;
+    my $inst = ExtUtils::Installed->new;
+    for my $mod ( inc::latest->loaded_modules ) {
+      my $lookup = $mod;
+      my $packlist = eval { $inst->packlist($lookup) };
+      if ( ! $packlist ) {
+        # try from packlist_map
+        while ( my ($re, $new_mod) = each %packlist_map ) {
+          if ( $mod =~ qr/$re/ ) {
+            $lookup = $new_mod;
+            $packlist = eval { $inst->packlist($lookup) };
+            last;
+          }
+        }
+      }
+      if ( ! $packlist ) {
+        # XXX Really needs a more helpful error message here
+        die << "NO_PACKLIST";
+Could not find a packlist for '$mod'.  If it's a core module, try
+force installing it from CPAN.
+NO_PACKLIST
+      }
+      push @$bundle_inc, $lookup;
+    }
+  } # sub check_bundling
 }
 
 sub check_autofeatures {
@@ -3525,6 +3567,15 @@ sub _main_docfile {
   }
 }
 
+sub do_create_bundle_inc {
+  my $self = shift;
+  my $dist_inc = File::Spec->catdir( $self->dist_dir, 'inc' );
+  require inc::latest;
+  inc::latest->write($dist_inc);
+  inc::latest->bundle_module($_, $dist_inc) for @{$self->bundle_inc};
+  return 1;
+}
+
 sub ACTION_distdir {
   my ($self) = @_;
 
@@ -3551,6 +3602,8 @@ sub ACTION_distdir {
     my $new = $self->copy_if_modified(from => $file, to_dir => $dist_dir, verbose => 0);
   }
   
+  $self->do_create_bundle_inc if $self->bundle_inc;
+
   $self->_sign_dir($dist_dir) if $self->{properties}{sign};
 }
 
