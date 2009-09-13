@@ -3602,7 +3602,7 @@ sub ACTION_distdir {
     my $new = $self->copy_if_modified(from => $file, to_dir => $dist_dir, verbose => 0);
   }
   
-  $self->do_create_bundle_inc if $self->bundle_inc;
+  $self->do_create_bundle_inc if @{$self->bundle_inc};
 
   $self->_sign_dir($dist_dir) if $self->{properties}{sign};
 }
