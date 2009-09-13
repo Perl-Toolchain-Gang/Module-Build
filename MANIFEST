@@ -1,7 +1,6 @@
 Build.PL
 Changes
 contrib/bash_completion.module-build
-contrib/bundle.pl
 INSTALL
 lib/Module/Build.pm
 lib/Module/Build/API.pod
