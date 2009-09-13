@@ -52,7 +52,7 @@ EOF
     }
   }
 
-  $self->check_bundling;
+  $self->set_bundle_inc;
 
   $self->dist_name;
   $self->dist_version;
@@ -1175,7 +1175,7 @@ sub write_config {
     '^Devel::AssertOS'    => 'Devel::CheckOS',
   );
 
-  sub check_bundling {
+  sub set_bundle_inc {
     my $self = shift;
     my $bundle_inc = $self->{properties}{bundle_inc};
     # We're in author mode if inc::latest is loaded, but not from cwd
@@ -1276,6 +1276,17 @@ sub auto_require {
   ) {
     (my $ver = $VERSION) =~ s/^(\d+\.\d\d).*$/$1/; # last major release only
     $self->_add_prereq('configure_requires', 'Module::Build', $ver);
+  }
+
+  # if we're in author mode, add inc::latest modules to 
+  # configure_requires if not already set.  If we're not in author mode
+  # then configure_requires will have been satisfied, or we'll just
+  # live with what we've bundled
+  if ( $INC{'inc/latest.pm'} && ! -e 'inc/latest.pm' ) {
+    for my $mod ( inc::latest->loaded_modules ) {
+      next if exists $p->{configure_requires}{$mod};
+      $self->_add_prereq('configure_requires', $mod, $mod->VERSION);
+    }
   }
 
   # If needs_compiler is not explictly set, automatically set it
