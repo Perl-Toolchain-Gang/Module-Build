@@ -4,9 +4,10 @@ use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest; # or 'no_plan'
 use DistGen;
+use IO::File;
 use File::Spec;
 
-plan tests => 7;
+plan tests => 8;
 
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');
@@ -31,15 +32,37 @@ ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ),
 );
 
 ok( -d File::Spec->catdir( $dist_inc, 'inc_Module-Build' ),
-  "./inc/inc_Module_Build created"
+  "dist_dir/inc/inc_Module_Build created"
 );
 
-ok( -e File::Spec->catfile( $dist_inc, qw/inc_Module-Build Module Build.pm/ ),
-  "./inc/inc_Module_Build/Module/Build.pm created"
+my $mb_file = 
+  File::Spec->catfile( $dist_inc, qw/inc_Module-Build Module Build.pm/ );
+
+ok( -e $mb_file,
+  "dist_dir/inc/inc_Module_Build/Module/Build.pm created"
 );
 
 ok( -e File::Spec->catfile( $dist_inc, qw/inc_Module-Build Module Build Base.pm/ ),
-  "./inc/inc_Module_Build/Module/Build/Base.pm created"
+  "dist_dir/inc/inc_Module_Build/Module/Build/Base.pm created"
+);
+
+# Force bundled M::B to a higher version so it gets loaded
+
+my $fh = IO::File->new($mb_file, "+<");
+my $mb_code = do { local $/; <$fh> };
+$mb_code =~ s{\$VERSION\s+=\s+\S+}{\$VERSION = 9999;};
+$fh->seek(0,0);
+print {$fh} $mb_code;
+$fh->close;
+
+# test the bundling in dist_dir
+chdir $mb->dist_dir;
+
+stdout_of( sub { Module::Build->run_perl_script('Build.PL',[],[]) } );
+
+my $meta = IO::File->new('MYMETA.yml');
+ok( scalar( grep { /generated_by:.*9999/ } <$meta> ),
+  "dist_dir Build.PL loaded bundled Module::Build"
 );
 
 
