@@ -1179,7 +1179,7 @@ sub write_config {
     my $self = shift;
     my $bundle_inc = $self->{properties}{bundle_inc};
     # We're in author mode if inc::latest is loaded, but not from cwd
-    return unless $INC{'inc/latest.pm'} && ! -e 'inc/latest.pm';
+    return unless $INC{'inc/latest.pm'} && inc::latest->can('loaded_modules');
     require ExtUtils::Installed;
     my $inst = ExtUtils::Installed->new;
     for my $mod ( inc::latest->loaded_modules ) {
@@ -1282,7 +1282,7 @@ sub auto_require {
   # configure_requires if not already set.  If we're not in author mode
   # then configure_requires will have been satisfied, or we'll just
   # live with what we've bundled
-  if ( $INC{'inc/latest.pm'} && ! -e 'inc/latest.pm' ) {
+  if ( $INC{'inc/latest.pm'} && inc::latest->can('loaded_module') ) {
     for my $mod ( inc::latest->loaded_modules ) {
       next if exists $p->{configure_requires}{$mod};
       $self->_add_prereq('configure_requires', $mod, $mod->VERSION);
