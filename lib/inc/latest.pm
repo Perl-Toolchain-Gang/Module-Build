@@ -120,7 +120,7 @@ sub import {
     return $pack->_load($mod, @args);
   }
 
-  if (_version($from_inc) > _version($bundled)) {
+  if (_version($from_inc) >= _version($bundled)) {
     # Ignore the bundled copy
     return $pack->_load($mod, @args);
   }
