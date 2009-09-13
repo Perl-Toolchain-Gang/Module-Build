@@ -6,7 +6,7 @@ use MBTest; # or 'no_plan'
 use DistGen;
 use File::Spec;
 
-plan tests => 5;
+plan tests => 7;
 
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');
@@ -33,5 +33,14 @@ ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ),
 ok( -d File::Spec->catdir( $dist_inc, 'inc_Module-Build' ),
   "./inc/inc_Module_Build created"
 );
+
+ok( -e File::Spec->catfile( $dist_inc, qw/inc_Module-Build Module Build.pm/ ),
+  "./inc/inc_Module_Build/Module/Build.pm created"
+);
+
+ok( -e File::Spec->catfile( $dist_inc, qw/inc_Module-Build Module Build Base.pm/ ),
+  "./inc/inc_Module_Build/Module/Build/Base.pm created"
+);
+
 
 # vim:ts=2:sw=2:et:sta:sts=2

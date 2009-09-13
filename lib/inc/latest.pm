@@ -3,10 +3,11 @@ use strict;
 use warnings;
 
 use Carp;
-use File::Spec;
-use File::Basename;
-use File::Path;
-use IO::File;
+use File::Basename  ();
+use File::Spec      ();
+use File::Path      ();
+use IO::File        ();
+use File::Copy      ();
 
 sub import {
   my ($package, $mod, @args) = @_;
@@ -47,14 +48,47 @@ sub write {
   my ($where) = @_;
 
   warn "should really be writing in inc/" unless $where =~ /inc$/;
-  mkpath $where;
+  File::Path::mkpath $where;
   my $fh = IO::File->new( File::Spec->catfile($where,'latest.pm'), "w" );
   print {$fh} do {local $/; <DATA>};
 }
 
 sub bundle_module {
   my ($package, $module, $where) = @_;
+  
+  # create inc/inc_$foo
+  (my $dist = $module) =~ s{::}{-}g;
+  my $inc_lib = File::Spec->catdir($where,"inc_$dist");
+  File::Path::mkpath $inc_lib;
 
+  # get list of files to copy
+  require ExtUtils::Installed;
+  my $inst = ExtUtils::Installed->new;
+  my @files = $inst->files( $module, 'prog' );
+
+  # figure out prefix
+  my $mod_path = quotemeta $package->_mod2path( $module );
+  my ($prefix) = grep { /$mod_path$/ } @files;
+  $prefix =~ s{$mod_path$}{};
+
+  # copy files
+  for my $from ( @files ) {
+    next unless $from =~ /\.pm$/;
+    (my $mod_path = $from) =~ s{^\Q$prefix\E}{};
+    my $to = File::Spec->catfile( $inc_lib, $mod_path );
+    File::Path::mkpath(File::Basename::dirname($to));
+    File::Copy::copy( $from, $to ) or die "Couldn't copy '$from' to '$to': $!";
+  }
+  return 1;
+}
+
+# Translate a module name into a directory/file.pm to search for in @INC
+sub _mod2path {
+  my ($self, $mod) = @_;
+  my @parts = split /::/, $mod;
+  $parts[-1] .= '.pm';
+  return $parts[0] if @parts == 1;
+  return File::Spec->catfile(@parts);
 }
 
 1;
