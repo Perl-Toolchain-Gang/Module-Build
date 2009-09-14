@@ -3110,7 +3110,7 @@ sub ACTION_install {
   my ($self) = @_;
   require ExtUtils::Install;
   $self->depends_on('build');
-  ExtUtils::Install::install($self->install_map, !$self->quiet, 0, $self->{args}{uninst}||0);
+  ExtUtils::Install::install($self->install_map, $self->verbose, 0, $self->{args}{uninst}||0);
 }
 
 sub ACTION_fakeinstall {
