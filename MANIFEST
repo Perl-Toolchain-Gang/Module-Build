@@ -65,6 +65,7 @@ t/parents.t
 t/PL_files.t
 t/pod_parser.t
 t/ppm.t
+t/properties/module_name.t
 t/properties/needs_compiler.t
 t/properties/share_dir.t
 t/README.pod

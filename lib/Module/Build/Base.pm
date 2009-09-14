@@ -54,7 +54,8 @@ EOF
 
   $self->dist_name;
   $self->dist_version;
-
+  $self->_guess_module_name unless $self->module_name;
+  
   $self->_find_nested_builds;
 
   return $self;
@@ -1025,6 +1026,33 @@ EOF
   die $@ if $@;
 
   return $opts{class};
+}
+
+sub _guess_module_name {
+  my $self = shift;
+  my $p = $self->{properties};
+  return if $p->{module_name};
+  if ( $p->{dist_version_from} && -e $p->{dist_version_from} ) {
+    my $mi = Module::Build::ModuleInfo->new_from_file($self->dist_version_from);
+    $p->{module_name} = $mi->name;
+  }
+  else {
+    my $mod_path = my $mod_name = File::Basename::basename($self->base_dir);
+    $mod_name =~ s{-}{::}g;
+    $mod_path =~ s{-}{/}g;
+    $mod_path .= ".pm";
+    if ( -e $mod_path || -e File::Spec->catfile('lib', $mod_path) ) {
+      $p->{module_name} = $mod_name;
+    }
+    else {
+      $self->log_warn( << 'END_WARN' );
+No 'module_name' was provided and it could not be inferred
+from other properties.  This will prevent a packlist from
+being written for this file.  Please set either 'module_name'
+or 'dist_version_from' in Build.PL.
+END_WARN
+    }
+  }
 }
 
 sub dist_name {
