@@ -173,6 +173,62 @@ sub _backticks {
   return `$cmd $args`;
 }
 
+=item find_command
+
+Local an executable program
+
+=cut
+
+sub find_command {
+    my ($self, $command) = @_;
+
+    # a lot of VMS executables have a symbol defined
+    # check those first
+    if ( $^O eq 'VMS' ) {
+        require VMS::DCLsym;
+        my $syms = VMS::DCLsym->new;
+        return $command if scalar $syms->getsym( uc $command );
+    }
+
+    $self->SUPER::find_command($command);
+}
+
+# _maybe_command copied from ExtUtils::MM_VMS::maybe_command
+
+=item _maybe_command (override)
+
+Follows VMS naming conventions for executable files.
+If the name passed in doesn't exactly match an executable file,
+appends F<.Exe> (or equivalent) to check for executable image, and F<.Com>
+to check for DCL procedure.  If this fails, checks directories in DCL$PATH
+and finally F<Sys$System:> for an executable file having the name specified,
+with or without the F<.Exe>-equivalent suffix.
+
+=cut
+
+sub _maybe_command {
+    my($self,$file) = @_;
+    return $file if -x $file && ! -d _;
+    my(@dirs) = ('');
+    my(@exts) = ('',$Config{'exe_ext'},'.exe','.com');
+
+    if ($file !~ m![/:>\]]!) {
+        for (my $i = 0; defined $ENV{"DCL\$PATH;$i"}; $i++) {
+            my $dir = $ENV{"DCL\$PATH;$i"};
+            $dir .= ':' unless $dir =~ m%[\]:]$%;
+            push(@dirs,$dir);
+        }
+        push(@dirs,'Sys$System:');
+        foreach my $dir (@dirs) {
+            my $sysfile = "$dir$file";
+            foreach my $ext (@exts) {
+                return $file if -x "$sysfile$ext" && ! -d _;
+            }
+        }
+    }
+    return;
+}
+
 =item do_system
 
 Override to ensure that we quote the arguments but not the command.

@@ -501,6 +501,28 @@ sub _discover_perl_interpreter {
       "in (@paths)\n";
 }
 
+# Adapted from IPC::Cmd::can_run()
+sub find_command {
+    my ($self, $command) = @_;
+
+    if( File::Spec->file_name_is_absolute($command) ) {
+        return $self->_maybe_command($command);
+
+    } else {
+        for my $dir ( File::Spec->path ) {
+            my $abs = File::Spec->catfile($dir, $command);
+            return $abs if $abs = $self->_maybe_command($abs);
+        }
+    }
+}
+
+# Copied from ExtUtils::MM_Unix::maybe_command
+sub _maybe_command {
+    my($self,$file) = @_;
+    return $file if -x $file && ! -d $file;
+    return;
+}
+
 sub _is_interactive {
   return -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT)) ;   # Pipe?
 }
@@ -3205,11 +3227,10 @@ sub ACTION_installdeps {
   # relative command should be relative to our active Perl
   # so we need to locate that command
   if ( ! File::Spec->file_name_is_absolute( $command ) ) {
-    require IPC::Cmd;
     my @bindirs = File::Basename::dirname($self->perl);
     push @bindirs, map {$self->config->{"install${_}bin"}} '','site','vendor';
     for my $d ( @bindirs ) {
-      my $abs_cmd = IPC::Cmd::can_run(File::Spec->catfile( $d, $command ));
+      my $abs_cmd = $self->find_command(File::Spec->catfile( $d, $command ));
       if ( defined $abs_cmd ) {
         $command = $abs_cmd;
         last;

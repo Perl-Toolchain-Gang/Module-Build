@@ -13,6 +13,27 @@ sub manpage_separator {
    '.'
 }
 
+# Copied from ExtUtils::MM_Cygwin::maybe_command()
+
+=item _maybe_command
+
+If our path begins with F</cygdrive/> then we use C<ExtUtils::MM_Win32>
+to determine if it may be a command.  Otherwise we use the tests
+from C<ExtUtils::MM_Unix>.
+
+=cut
+
+sub _maybe_command {
+    my ($self, $file) = @_;
+
+    if ($file =~ m{^/cygdrive/}i) {
+        require Module::Build::Platform::Win32;
+        return Module::Build::Platform::Win32->_maybe_command($file);
+    }
+
+    return $self->SUPER::_maybe_command($file);
+}
+
 1;
 __END__
 

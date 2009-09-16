@@ -273,6 +273,27 @@ sub do_system {
   return !$status;
 }
 
+# Copied from ExtUtils::MM_Win32
+sub _maybe_command {
+    my($self,$file) = @_;
+    my @e = exists($ENV{'PATHEXT'})
+          ? split(/;/, $ENV{PATHEXT})
+	  : qw(.com .exe .bat .cmd);
+    my $e = '';
+    for (@e) { $e .= "\Q$_\E|" }
+    chop $e;
+    # see if file ends in one of the known extensions
+    if ($file =~ /($e)$/i) {
+	return $file if -e $file;
+    }
+    else {
+	for (@e) {
+	    return "$file$_" if -e "$file$_";
+	}
+    }
+    return;
+}
+
 
 1;
 
