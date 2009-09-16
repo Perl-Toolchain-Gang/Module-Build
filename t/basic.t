@@ -27,7 +27,7 @@ $dist->chdir_in;
 
   $mb = Module::Build->new( dist_name => $dist->name, dist_version => 7 );
   ok $mb;
-  ok ! $mb->module_name;  # Make sure it's defined
+  ok $mb->module_name;  # Set via heuristics
   is $mb->dist_name, $dist->name;
 }
 
