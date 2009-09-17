@@ -1,6 +1,8 @@
 package inc::latest;
 use strict;
-use warnings;
+use vars qw($VERSION);
+$VERSION = '0.35_03';
+$VERSION = eval $VERSION;
 
 use Carp;
 use File::Basename  ();
@@ -46,6 +48,7 @@ sub write {
   # write inc/latest.pm
   File::Path::mkpath( $where );
   my $fh = IO::File->new( File::Spec->catfile($where,'latest.pm'), "w" );
+  print {$fh} "# This stub created by inc::latest $VERSION\n";
   print {$fh} do {local $/; <DATA>};
   close $fh;
 
@@ -230,7 +233,8 @@ L<Module::Build>
 __DATA__
 package inc::latest;
 use strict;
+use vars '@ISA';
 require inc::latest::private;
-our @ISA = qw/inc::latest::private/;
+@ISA = qw/inc::latest::private/;
 1;
 
