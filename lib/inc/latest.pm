@@ -155,19 +155,48 @@ optional arguments to pass to that module's own import method.
 
 =head2 Author-mode
 
+You are in author-mode inc::latest if any of the Author-mode methods are
+available.  For example:
+
+  if ( inc::latest->can('write') ) {
+    inc::latest->write('inc');
+  }
+
 =over 4
 
 =item loaded_modules()
 
-DOCUMENT THIS
+  my @list = inc::latest->loaded_modules;
+
+This takes no arguments and always returns a list of module names requested for
+loading via "use inc::latest 'MODULE'", regardless of wether the load was
+successful or not.
 
 =item write()
 
-DOCUMENT THIS
+  inc::latest->write( 'inc' );
+
+This writes the bundled version of inc::latest to the directory name given as an
+argument.  It almost all cases, it should be 'C<inc>'.
 
 =item bundle_module()
 
-DOCUMENT THIS
+  for my $mod ( inc::latest->loaded_modules ) {
+    inc::latest->bundle_module($mod, $dir);
+  }
+
+If $mod corresponds to a packlist, then this function creates a specially-named
+directory in $dir and copies all .pm files from the modlist to the new
+directory (which almost always should just be 'inc').  For example, if Foo::Bar
+is the name of the module, and $dir is 'inc', then the directory would be
+'inc/inc_Foo-Bar' and contain files like this:
+
+  inc/inc_Foo-Bar/Foo/Bar.pm
+
+Currently, $mod B<must> have a packlist.  If this is not the case (e.g. for a
+dual-core module), then the bundling will fail.  You may be able to create a
+packlist by forced installing the module on top of the version that came with
+core Perl.
 
 =back
 
