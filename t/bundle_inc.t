@@ -4,10 +4,13 @@ use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest; # or 'no_plan'
 use DistGen;
+use Config;
 use IO::File;
 use File::Spec;
+use ExtUtils::Packlist;
+use File::Path;
 
-plan tests => 8;
+plan tests => 16;
 
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');
@@ -66,5 +69,102 @@ ok( scalar( grep { /generated_by:.*9999/ } <$meta> ),
   "dist_dir Build.PL loaded bundled Module::Build"
 );
 
+#--------------------------------------------------------------------------#
+# test identification of dependencies
+#--------------------------------------------------------------------------#
+
+$dist->chdir_in;
+
+$dist->add_file( 'mylib/Foo.pm', << 'HERE' );
+package Foo;
+our $VERSION = 1;
+1;
+HERE
+
+$dist->add_file( 'mylib/Bar.pm', << 'HERE' );
+package Bar;
+use Foo;
+our $VERSION = 42;
+1;
+HERE
+
+$dist->change_file( 'Build.PL', << "HERE" );
+use inc::latest 'Module::Build';
+use inc::latest 'Foo';
+
+Module::Build->new(
+  module_name => '$dist->{name}',
+  license => 'perl',
+)->create_build_script;
+HERE
+
+$dist->regen( clean => 1 );
+
+make_packlist($_,'mylib') for qw/Foo Bar/;
+
+# get a Module::Build object and test with it
+my $abs_mylib = File::Spec->rel2abs('mylib');
+
+
+unshift @INC, $abs_mylib;
+$mb = $dist->new_from_context(); # quiet by default
+isa_ok( $mb, "Module::Build" );
+is_deeply( [sort @{$mb->bundle_inc}], [ 'Foo', 'Module::Build' ],
+  "Module::Build and Foo are flagged for bundling"
+);
+
+my $output = stdout_stderr_of( sub { $mb->dispatch('distdir') } );
+
+ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ), 
+  "./inc/latest.pm created"
+);
+
+ok( -d File::Spec->catdir( $dist_inc, 'inc_Foo' ),
+  "dist_dir/inc/inc_Foo created"
+);
+
+$dist->change_file( 'Build.PL', << "HERE" );
+use inc::latest 'Module::Build';
+use inc::latest 'Bar';
+
+Module::Build->new(
+  module_name => '$dist->{name}',
+  license => 'perl',
+)->create_build_script;
+HERE
+
+$dist->regen( clean => 1 );
+make_packlist($_,'mylib') for qw/Foo Bar/;
+
+$mb = $dist->new_from_context(); # quiet by default
+isa_ok( $mb, "Module::Build" );
+is_deeply( [sort @{$mb->bundle_inc}], [ 'Bar', 'Module::Build' ],
+  "Module::Build and Bar are flagged for bundling"
+);
+
+$output = stdout_stderr_of( sub { $mb->dispatch('distdir') } );
+
+ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ), 
+  "./inc/latest.pm created"
+);
+
+ok( -d File::Spec->catdir( $dist_inc, 'inc_Bar' ),
+  "dist_dir/inc/inc_Bar created"
+);
+
+
+
+sub make_packlist {
+  my ($mod, $lib) = @_;
+  my $arch = $Config{archname};
+  (my $mod_path = $mod) =~ s{::}{/}g;
+  my $mod_file = File::Spec->catfile( $lib, "$mod_path\.pm" );
+  my $abs = File::Spec->rel2abs($mod_file);
+  my $packlist_path = File::Spec->catdir($lib, $arch, 'auto', $mod_path);
+  mkpath $packlist_path;
+  my $packlist = ExtUtils::Packlist->new;
+  $packlist->{$abs}++;
+  $packlist->write( File::Spec->catfile( $packlist_path, '.packlist' ));
+}
 
 # vim:ts=2:sw=2:et:sta:sts=2

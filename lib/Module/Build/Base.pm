@@ -1181,7 +1181,8 @@ sub write_config {
     # We're in author mode if inc::latest is loaded, but not from cwd
     return unless inc::latest->can('loaded_modules');
     require ExtUtils::Installed;
-    my $inst = ExtUtils::Installed->new;
+    # ExtUtils::Installed is buggy about finding additions to default @INC
+    my $inst = ExtUtils::Installed->new(extra_libs => [$self->_added_to_INC]);
     for my $mod ( inc::latest->loaded_modules ) {
       my $lookup = $mod;
       my $packlist = eval { $inst->packlist($lookup) };
@@ -1202,7 +1203,9 @@ Could not find a packlist for '$mod'.  If it's a core module, try
 force installing it from CPAN.
 NO_PACKLIST
       }
-      push @$bundle_inc, $lookup;
+      else {
+        push @$bundle_inc, $lookup;
+      }
     }
   } # sub check_bundling
 }
