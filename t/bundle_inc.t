@@ -25,8 +25,9 @@ is_deeply( $mb->bundle_inc, [ 'Module::Build' ],
 );
 
 # see what gets bundled
-my $dist_inc = File::Spec->catdir($mb->dist_dir, 'inc');
 stdout_stderr_of( sub { $mb->dispatch('distdir') } );
+
+my $dist_inc = File::Spec->catdir($mb->dist_dir, 'inc');
 ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ), 
   "./inc/latest.pm created"
 );
@@ -48,7 +49,7 @@ ok( -e File::Spec->catfile( $dist_inc, qw/inc_Module-Build Module Build Base.pm/
 
 # Force bundled M::B to a higher version so it gets loaded
 
-my $fh = IO::File->new($mb_file, "+<");
+my $fh = IO::File->new($mb_file, "+<") or die "Could not open $mb_file: $!";
 my $mb_code = do { local $/; <$fh> };
 $mb_code =~ s{\$VERSION\s+=\s+\S+}{\$VERSION = 9999;};
 $fh->seek(0,0);
