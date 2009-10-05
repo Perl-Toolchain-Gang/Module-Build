@@ -41,7 +41,7 @@ sub import {
 
 sub write {
   my $package = shift;
-  my ($where) = @_;
+  my ($where, @preload) = @_;
 
   warn "should really be writing in inc/" unless $where =~ /inc$/;
 
@@ -49,7 +49,20 @@ sub write {
   File::Path::mkpath( $where );
   my $fh = IO::File->new( File::Spec->catfile($where,'latest.pm'), "w" );
   print {$fh} "# This stub created by inc::latest $VERSION\n";
-  print {$fh} do {local $/; <DATA>};
+  print {$fh} <<'HERE';
+package inc::latest;
+use strict;
+use vars '@ISA';
+require inc::latest::private;
+@ISA = qw/inc::latest::private/;
+HERE
+  if (@preload) {
+    print {$fh} "\npackage inc::latest::preload;\n";
+    for my $mod (@preload) {
+      print {$fh} "inc::latest->import('$mod');\n";
+    }
+  }
+  print {$fh} "\n1;\n";
   close $fh;
 
   # write inc/latest/private;
@@ -229,12 +242,4 @@ modify it under the same terms as Perl itself.
 L<Module::Build>
 
 =cut
-
-__DATA__
-package inc::latest;
-use strict;
-use vars '@ISA';
-require inc::latest::private;
-@ISA = qw/inc::latest::private/;
-1;
 
