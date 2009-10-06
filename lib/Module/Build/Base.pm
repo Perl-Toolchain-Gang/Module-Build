@@ -1175,6 +1175,23 @@ sub write_config {
     '^Devel::AssertOS'    => 'Devel::CheckOS',
   );
 
+  sub _find_packlist {
+    my ($self, $inst, $mod) = @_;
+    my $lookup = $mod;
+    my $packlist = eval { $inst->packlist($lookup) };
+    if ( ! $packlist ) {
+      # try from packlist_map
+      while ( my ($re, $new_mod) = each %packlist_map ) {
+        if ( $mod =~ qr/$re/ ) {
+          $lookup = $new_mod;
+          $packlist = eval { $inst->packlist($lookup) };
+          last;
+        }
+      }
+    }
+    return $packlist ? $lookup : undef;
+  }
+
   sub set_bundle_inc {
     my $self = shift;
     my $bundle_inc = $self->{properties}{bundle_inc};
@@ -1184,19 +1201,8 @@ sub write_config {
     # ExtUtils::Installed is buggy about finding additions to default @INC
     my $inst = ExtUtils::Installed->new(extra_libs => [$self->_added_to_INC]);
     for my $mod ( inc::latest->loaded_modules ) {
-      my $lookup = $mod;
-      my $packlist = eval { $inst->packlist($lookup) };
-      if ( ! $packlist ) {
-        # try from packlist_map
-        while ( my ($re, $new_mod) = each %packlist_map ) {
-          if ( $mod =~ qr/$re/ ) {
-            $lookup = $new_mod;
-            $packlist = eval { $inst->packlist($lookup) };
-            last;
-          }
-        }
-      }
-      if ( ! $packlist ) {
+      my $lookup = $self->_find_packlist($inst,$mod);
+      if ( ! $lookup ) {
         # XXX Really needs a more helpful error message here
         die << "NO_PACKLIST";
 Could not find a packlist for '$mod'.  If it's a core module, try
