@@ -759,7 +759,6 @@ executed build actions.
 
 =back
 
-
 =head2 Default Options File (F<.modulebuildrc>)
 
 [version 0.28]
@@ -797,6 +796,25 @@ If you wish to locate your resource file in a different location, you
 can set the environment variable C<MODULEBUILDRC> to the complete
 absolute path of the file containing your options.
 
+=head2 Environment variables
+
+=over
+
+=item MODULEBUILDRC
+
+[version 0.28]
+
+Specifies an alternate location for a default options file as described above.
+
+=item PERL_MB_OPT
+
+[version 0.36]
+
+Command line options that are applied to Build.PL or any Build action.  The
+string is split as the shell would (e.g. whitespace) and the result is
+prepended to any actual command-line arguments.
+
+=back
 
 =head1 INSTALL PATHS
 

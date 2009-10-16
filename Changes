@@ -7,6 +7,10 @@ Revision history for Perl extension Module::Build.
    argument for modification.  The method now takes no arguments and just
    returns a hash reference of metadata. [David Golden]
 
+ Enhancements
+ - Command line options may be set via the PERL_MB_OPT environment
+   variable (similar to PERL_MM_OPT in ExtUtils::MakeMaker)
+
  Bug fixes:
  - Updated PPM generation to PPM v4 (RT#49600) [Olivier Mengue]
  - When c_source is specified, the directory scan will include additional,

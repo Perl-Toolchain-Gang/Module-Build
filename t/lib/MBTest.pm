@@ -13,6 +13,7 @@ BEGIN {
     my @delete_env_keys = qw(
         DEVEL_COVER_OPTIONS
         MODULEBUILDRC
+        PERL_MB_OPT
         HARNESS_TIMER
         HARNESS_OPTIONS
         HARNESS_VERBOSE

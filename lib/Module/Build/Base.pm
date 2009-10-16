@@ -2094,7 +2094,10 @@ sub merge_args {
 
 sub cull_args {
   my $self = shift;
-  my ($args, $action) = $self->read_args(@_);
+  my @arg_list = @_;
+  unshift @arg_list, $self->split_like_shell($ENV{PERL_MB_OPT})
+    if $ENV{PERL_MB_OPT};
+  my ($args, $action) = $self->read_args(@arg_list);
   $self->merge_args($action, %$args);
   $self->merge_modulebuildrc( $action, %$args );
 }
