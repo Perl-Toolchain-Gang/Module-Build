@@ -18,6 +18,8 @@ Revision history for Perl extension Module::Build.
  - When module_name is not supplied, no packlist was being written; fixed
    by guessing module_name from dist_version_from or the directory name
    (just like ExtUtils::Manifest does without NAME) [David Golden]
+ - Bumped IO::File prereq to fix binmode failures in PPMMaker on Perl
+   prior to 5.8.8 [David Golden]
 
  Other:
  - Replaced use of YAML.pm with YAML::Tiny; Module::Build::YAML is now
