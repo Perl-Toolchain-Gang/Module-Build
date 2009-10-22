@@ -27,7 +27,9 @@ blib_load('Module::Build::Compat');
 
 $dist->regen;
 
-Module::Build::Compat->create_makefile_pl('passthrough', $mb);
+stdout_stderr_of(
+  sub{ Module::Build::Compat->create_makefile_pl('passthrough', $mb); }
+);
 
 # as silly as all of this exit(0) business is, that is what the cpan
 # testers have instructed everybody to do so...

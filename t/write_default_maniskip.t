@@ -15,6 +15,7 @@ blib_load('Module::Build');
     chdir MBTest->tmpdir();
 
     my $build = Module::Build->new(
+        module_name     => "Foo::Bar",
         dist_name       => "Foo-Bar",
         dist_version    => '1.23',
     );
