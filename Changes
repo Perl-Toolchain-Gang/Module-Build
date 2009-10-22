@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.35_04 - 
 
+ Bug fixes:
+ - Fix test failure if IPC::Cmd isn't installed [David Golden]
+
+ Other:
+ - Suppressed warning messages from various tests [David Golden]
+
 0.35_03 - Wed Oct 21 21:20:59 EDT 2009
 
  *** API CHANGE *** 
@@ -27,7 +33,7 @@ Revision history for Perl extension Module::Build.
  - Replaced use of YAML.pm with YAML::Tiny; Module::Build::YAML is now
    based on YAML::Tiny as well [David Golden]
  - Reduced amount of console output under normal operation (use --verbose
-   to see all output)
+   to see all output) [David Golden]
 
 0.35_02 - Mon Sep  7 22:37:42 EDT 2009
 
