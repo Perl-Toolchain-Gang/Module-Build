@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.35_03 - 
+0.35_03 - Wed Oct 21 21:20:59 EDT 2009
 
  *** API CHANGE *** 
  - The prepare_metadata() method used to take a YAML::Node object as an

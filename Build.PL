@@ -46,9 +46,9 @@ my $build = ModuleBuildBuilder->new(
   },
   recommends => {
     'Archive::Tar'       => 1.08,
-    'ExtUtils::CBuilder' => 0.15,
+    'ExtUtils::CBuilder' => 0.260301, # numerous bug fixes
     'ExtUtils::Install'  => 0.30,
-    'ExtUtils::ParseXS'  => 1.02,
+    'ExtUtils::ParseXS'  => 2.21,
     'Pod::Readme'        => 0.04,
     'Module::Signature'  => 0.21,
     'version'            => 0.74,
@@ -75,8 +75,8 @@ my $build = ModuleBuildBuilder->new(
     },
     C_support => {
       description => "Compile/link C & XS code",
-      requires    => {'ExtUtils::CBuilder' => 0.15,},
-      recommends  => {'ExtUtils::ParseXS' => 1.02,},
+      requires    => {'ExtUtils::CBuilder' => 0.260301,},
+      recommends  => {'ExtUtils::ParseXS' => 2.21,},
     },
     manpage_support => {
       description => "Create Unix man pages",
