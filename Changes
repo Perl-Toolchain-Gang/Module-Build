@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.35_04 - 
+0.35_04 - Fri Oct 23 11:20:41 EDT 2009
 
  Bug fixes:
  - Fix test failure if IPC::Cmd isn't installed [David Golden]
