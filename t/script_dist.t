@@ -73,8 +73,8 @@ ok $mb->dispatch('distmeta');
 SKIP: {
   skip( 'YAML_support feature is not enabled', 1 )
       unless Module::Build::ConfigData->feature('YAML_support');
-  require YAML;
-  my $yml = YAML::LoadFile('META.yml');
+  require YAML::Tiny;
+  my $yml = YAML::Tiny::LoadFile('META.yml');
   is_deeply($yml->{provides}, \%meta_provides);
 }
 $dist->chdir_original if $dist->did_chdir;
