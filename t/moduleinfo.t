@@ -4,7 +4,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 80;
+use MBTest tests => 82;
 
 blib_load('Module::Build::ModuleInfo');
 
@@ -174,13 +174,18 @@ our $VERSION = "1.23";
   $Simple::VERSION = '1.230';
   $Simple::VERSION = eval $Simple::VERSION;
 ---
+  <<'---', # package NAME VERSION
+  package Simple 1.23;
+---
 );
 
 my( $i, $n ) = ( 1, scalar( @modules ) );
 foreach my $module ( @modules ) {
  SKIP: {
     skip( "No our() support until perl 5.6", 2 )
-	if $] < 5.006 && $module =~ /\bour\b/;
+        if $] < 5.006 && $module =~ /\bour\b/;
+    skip( "No package NAME VERSION support until perl 5.11.1", 2 )
+        if $] < 5.011001 && $module =~ /package\s+[\w\:\']+\s+v?[0-9._]+/;
 
     $dist->change_file( 'lib/Simple.pm', $module );
     $dist->regen;
@@ -190,9 +195,11 @@ foreach my $module ( @modules ) {
     my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
 
     # Test::Builder will prematurely numify objects, so use this form
+    my $errs;
     ok( $pm_info->version eq '1.23',
-	"correct module version ($i of $n)" );
-    is( $warnings, '', 'no warnings from parsing' );
+        "correct module version ($i of $n)" ) or $errs++;
+    is( $warnings, '', 'no warnings from parsing' ) or $errs++;
+    diag "Module contents:\n$module" if $errs;
     $i++;
   }
 }
@@ -393,7 +400,7 @@ __DATA__
   is( $pm_info->name, 'Simple', 'found default package' );
   is( $pm_info->version, '0.01', 'version for default package' );
   my @packages = $pm_info->packages_inside;
-  is_deeply(\@packages, ['Simple']);
+  is_deeply(\@packages, ['Simple'], 'packages inside');
 }
 
 {
@@ -410,7 +417,7 @@ $VERSION = version->new('0.61.' . (qw$Revision: 129 $)[1]);
   is( $pm_info->name, 'Simple', 'found default package' );
   is( $pm_info->version, '0.60.128', 'version for default package' );
   my @packages = $pm_info->packages_inside;
-  is_deeply([sort @packages], ['Simple', 'Simple::Simon']);
+  is_deeply([sort @packages], ['Simple', 'Simple::Simon'], 'packages inside');
   is( $pm_info->version('Simple::Simon'), '0.61.129', 'version for embedded package' );
 }
 

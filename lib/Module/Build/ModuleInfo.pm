@@ -15,6 +15,7 @@ use File::Spec;
 use IO::File;
 use Module::Build::Version;
 
+my $V_NUM_REGEXP = qr{v?[0-9._]+};  # crudely, a v-string or decimal
 
 my $PKG_REGEXP  = qr{   # match a package declaration
   ^[\s\{;]*             # intro chars on a line
@@ -22,6 +23,8 @@ my $PKG_REGEXP  = qr{   # match a package declaration
   \s+                   # whitespace
   ([\w:]+)              # a package name
   \s*                   # optional whitespace
+  ($V_NUM_REGEXP)?        # optional version number 
+  \s*                   # optional whitesapce
   ;                     # semicolon line terminator
 }x;
 
@@ -221,10 +224,10 @@ sub _parse_fh {
 	  $self->_parse_version_expression( $line );
 
       if ( $line =~ $PKG_REGEXP ) {
-	$pkg = $1;
-	push( @pkgs, $pkg ) unless grep( $pkg eq $_, @pkgs );
-	$vers{$pkg} = undef unless exists( $vers{$pkg} );
-	$need_vers = 1;
+        $pkg = $1;
+        push( @pkgs, $pkg ) unless grep( $pkg eq $_, @pkgs );
+        $vers{$pkg} = (defined $2 ? $2 : undef)  unless exists( $vers{$pkg} );
+        $need_vers = defined $2 ? 0 : 1;
 
       # VERSION defined with full package spec, i.e. $Module::VERSION
       } elsif ( $vers_fullname && $vers_pkg ) {
