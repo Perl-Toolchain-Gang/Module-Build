@@ -179,13 +179,20 @@ sub exe_exts {
 
 sub find_in_path {
   my $thing = shift;
-  
-  my @path = split $Config{path_sep}, $ENV{PATH};
+
   my @exe_ext = exe_exts();
-  foreach (@path) {
-    my $fullpath = File::Spec->catfile($_, $thing);
+  if ( File::Spec->file_name_is_absolute( $thing ) ) {
     foreach my $ext ( '', @exe_ext ) {
-      return "$fullpath$ext" if -e "$fullpath$ext";
+      return "$thing$ext" if -e "$thing$ext";
+    }
+  }
+  else {
+    my @path = split $Config{path_sep}, $ENV{PATH};
+    foreach (@path) {
+      my $fullpath = File::Spec->catfile($_, $thing);
+      foreach my $ext ( '', @exe_ext ) {
+        return "$fullpath$ext" if -e "$fullpath$ext";
+      }
     }
   }
   return;
