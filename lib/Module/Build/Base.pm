@@ -3642,8 +3642,7 @@ sub _eumanifest_has_include {
     my $self = shift;
 
     require ExtUtils::Manifest;
-    return ExtUtils::Manifest->VERSION >= 1.50 ? 1 : 0;
-    return 0;
+    return eval { ExtUtils::Manifest->VERSION(1.50); 1 };
 }
 
 
