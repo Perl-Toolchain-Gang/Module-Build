@@ -3361,7 +3361,7 @@ sub ACTION_dist {
 sub ACTION_distcheck {
   my ($self) = @_;
 
-  $self->_check_mymeta_skip('MANIFEST.SKIP');
+  $self->_check_manifest_skip;
 
   require ExtUtils::Manifest;
   local $^W; # ExtUtils::Manifest is not warnings clean.
@@ -3734,7 +3734,7 @@ EOF
   return;
 }
 
-sub ACTION_manifest {
+sub _check_manifest_skip {
   my ($self) = @_;
 
   my $maniskip = 'MANIFEST.SKIP';
@@ -3747,6 +3747,14 @@ sub ACTION_manifest {
     # MYMETA must not be added to MANIFEST, so always confirm the skip
     $self->_check_mymeta_skip( $maniskip );
   }
+
+  return;
+}
+
+sub ACTION_manifest {
+  my ($self) = @_;
+
+  $self->_check_manifest_skip;
 
   require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
   local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
