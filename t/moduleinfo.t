@@ -4,48 +4,7 @@
 
 use strict;
 use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
-use MBTest tests => 82;
-
-blib_load('Module::Build::ModuleInfo');
-
-my $tmp = MBTest->tmpdir;
-
-use DistGen;
-my $dist = DistGen->new( dir => $tmp );
-$dist->regen;
-
-$dist->chdir_in;
-
-#########################
-
-# class method C<find_module_by_name>
-my $module = Module::Build::ModuleInfo->find_module_by_name(
-               'Module::Build::ModuleInfo' );
-ok( -e $module, 'find_module_by_name() succeeds' );
-
-
-# fail on invalid module name
-my $pm_info = Module::Build::ModuleInfo->new_from_module(
-		'Foo::Bar', inc => [] );
-ok( !defined( $pm_info ), 'fail if can\'t find module by module name' );
-
-
-# fail on invalid filename
-my $file = File::Spec->catfile( 'Foo', 'Bar.pm' );
-$pm_info = Module::Build::ModuleInfo->new_from_file( $file, inc => [] );
-ok( !defined( $pm_info ), 'fail if can\'t find module by file name' );
-
-
-# construct from module filename
-$file = File::Spec->catfile( 'lib', split( /::/, $dist->name ) ) . '.pm';
-$pm_info = Module::Build::ModuleInfo->new_from_file( $file );
-ok( defined( $pm_info ), 'new_from_file() succeeds' );
-
-# construct from module name, using custom include path
-$pm_info = Module::Build::ModuleInfo->new_from_module(
-	     $dist->name, inc => [ 'lib', @INC ] );
-ok( defined( $pm_info ), 'new_from_module() succeeds' );
-
+use MBTest;
 
 # parse various module $VERSION lines
 my @modules = (
@@ -177,7 +136,54 @@ our $VERSION = "1.23";
   <<'---', # package NAME VERSION
   package Simple 1.23;
 ---
+  <<'---', # declared & defined on same line with 'our'
+package Simple;
+our $VERSION = '1.23_00_00';
+---
 );
+
+plan tests => 2 * @modules + 36;
+
+blib_load('Module::Build::ModuleInfo');
+
+my $tmp = MBTest->tmpdir;
+
+use DistGen;
+my $dist = DistGen->new( dir => $tmp );
+$dist->regen;
+
+$dist->chdir_in;
+
+#########################
+
+# class method C<find_module_by_name>
+my $module = Module::Build::ModuleInfo->find_module_by_name(
+               'Module::Build::ModuleInfo' );
+ok( -e $module, 'find_module_by_name() succeeds' );
+
+
+# fail on invalid module name
+my $pm_info = Module::Build::ModuleInfo->new_from_module(
+		'Foo::Bar', inc => [] );
+ok( !defined( $pm_info ), 'fail if can\'t find module by module name' );
+
+
+# fail on invalid filename
+my $file = File::Spec->catfile( 'Foo', 'Bar.pm' );
+$pm_info = Module::Build::ModuleInfo->new_from_file( $file, inc => [] );
+ok( !defined( $pm_info ), 'fail if can\'t find module by file name' );
+
+
+# construct from module filename
+$file = File::Spec->catfile( 'lib', split( /::/, $dist->name ) ) . '.pm';
+$pm_info = Module::Build::ModuleInfo->new_from_file( $file );
+ok( defined( $pm_info ), 'new_from_file() succeeds' );
+
+# construct from module name, using custom include path
+$pm_info = Module::Build::ModuleInfo->new_from_module(
+	     $dist->name, inc => [ 'lib', @INC ] );
+ok( defined( $pm_info ), 'new_from_module() succeeds' );
+
 
 my( $i, $n ) = ( 1, scalar( @modules ) );
 foreach my $module ( @modules ) {
