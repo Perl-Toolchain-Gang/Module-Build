@@ -5,9 +5,13 @@ Revision history for Perl extension Module::Build.
  Bug fixes:
  - Fix test failure in t/actions/installdeps.t when $^X is not the default
    perl [David Golden]
+ - Work around $VERSION numbers in ActiveState with multiple underscores
+   that prevent Module::Build from installing on Win32 [David Golden]
 
  Other:
  - Suppressed more warnings from tests [David Golden]
+ - Add provisional support for 'package NAME VERSION' syntax added in
+   Perl 5.11.1 [David Golden]
 
 0.35_04 - Fri Oct 23 11:20:41 EDT 2009
 
@@ -19,7 +23,7 @@ Revision history for Perl extension Module::Build.
 
 0.35_03 - Wed Oct 21 21:20:59 EDT 2009
 
- *** API CHANGE *** 
+ *** API CHANGE ***
  - The prepare_metadata() method used to take a YAML::Node object as an
    argument for modification.  The method now takes no arguments and just
    returns a hash reference of metadata. [David Golden]
