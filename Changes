@@ -7,6 +7,8 @@ Revision history for Perl extension Module::Build.
    perl [David Golden]
  - Work around $VERSION numbers in ActiveState with multiple underscores
    that prevent Module::Build from installing on Win32 [David Golden]
+ - Fix bug cleaning compatibility Makefile when older ExtUtils::Manifest is
+   installed [David Golden with help from David Cantrell]
 
  Other:
  - Suppressed more warnings from tests [David Golden]
