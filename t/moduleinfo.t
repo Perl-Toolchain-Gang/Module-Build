@@ -7,54 +7,55 @@ use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
 use MBTest;
 
 # parse various module $VERSION lines
+# these will be reversed later to create %modules
 my @modules = (
-  <<'---', # declared & defined on same line with 'our'
+  '1.23' => <<'---', # declared & defined on same line with 'our'
 package Simple;
 our $VERSION = '1.23';
 ---
-  <<'---', # declared & defined on separate lines with 'our'
+  '1.23' => <<'---', # declared & defined on separate lines with 'our'
 package Simple;
 our $VERSION;
 $VERSION = '1.23';
 ---
-  <<'---', # use vars
+  '1.23' => <<'---', # use vars
 package Simple;
 use vars qw( $VERSION );
 $VERSION = '1.23';
 ---
-  <<'---', # choose the right default package based on package/file name
+  '1.23' => <<'---', # choose the right default package based on package/file name
 package Simple::_private;
 $VERSION = '0';
 package Simple;
 $VERSION = '1.23'; # this should be chosen for version
 ---
-  <<'---', # just read the first $VERSION line
+  '1.23' => <<'---', # just read the first $VERSION line
 package Simple;
 $VERSION = '1.23'; # we should see this line
 $VERSION = eval $VERSION; # and ignore this one
 ---
-  <<'---', # just read the first $VERSION line in reopened package (1)
+  '1.23' => <<'---', # just read the first $VERSION line in reopened package (1)
 package Simple;
 $VERSION = '1.23';
 package Error::Simple;
 $VERSION = '2.34';
 package Simple;
 ---
-  <<'---', # just read the first $VERSION line in reopened package (2)
+  '1.23' => <<'---', # just read the first $VERSION line in reopened package (2)
 package Simple;
 package Error::Simple;
 $VERSION = '2.34';
 package Simple;
 $VERSION = '1.23';
 ---
-  <<'---', # mentions another module's $VERSION
+  '1.23' => <<'---', # mentions another module's $VERSION
 package Simple;
 $VERSION = '1.23';
 if ( $Other::VERSION ) {
     # whatever
 }
 ---
-  <<'---', # mentions another module's $VERSION in a different package
+  '1.23' => <<'---', # mentions another module's $VERSION in a different package
 package Simple;
 $VERSION = '1.23';
 package Simple2;
@@ -62,21 +63,21 @@ if ( $Simple::VERSION ) {
     # whatever
 }
 ---
-  <<'---', # $VERSION checked only in assignments, not regexp ops
+  '1.23' => <<'---', # $VERSION checked only in assignments, not regexp ops
 package Simple;
 $VERSION = '1.23';
 if ( $VERSION =~ /1\.23/ ) {
     # whatever
 }
 ---
-  <<'---', # $VERSION checked only in assignments, not relational ops
+  '1.23' => <<'---', # $VERSION checked only in assignments, not relational ops
 package Simple;
 $VERSION = '1.23';
 if ( $VERSION == 3.45 ) {
     # whatever
 }
 ---
-  <<'---', # $VERSION checked only in assignments, not relational ops
+  '1.23' => <<'---', # $VERSION checked only in assignments, not relational ops
 package Simple;
 $VERSION = '1.23';
 package Simple2;
@@ -84,36 +85,36 @@ if ( $Simple::VERSION == 3.45 ) {
     # whatever
 }
 ---
-  <<'---', # Fully qualified $VERSION declared in package
+  '1.23' => <<'---', # Fully qualified $VERSION declared in package
 package Simple;
 $Simple::VERSION = 1.23;
 ---
-  <<'---', # Differentiate fully qualified $VERSION in a package
+  '1.23' => <<'---', # Differentiate fully qualified $VERSION in a package
 package Simple;
 $Simple2::VERSION = '999';
 $Simple::VERSION = 1.23;
 ---
-  <<'---', # Differentiate fully qualified $VERSION and unqualified
+  '1.23' => <<'---', # Differentiate fully qualified $VERSION and unqualified
 package Simple;
 $Simple2::VERSION = '999';
 $VERSION = 1.23;
 ---
-  <<'---', # $VERSION declared as package variable from within 'main' package
+  '1.23' => <<'---', # $VERSION declared as package variable from within 'main' package
 $Simple::VERSION = '1.23';
 {
   package Simple;
   $x = $y, $cats = $dogs;
 }
 ---
-  <<'---', # $VERSION wrapped in parens - space inside
+  '1.23' => <<'---', # $VERSION wrapped in parens - space inside
 package Simple;
 ( $VERSION ) = '1.23';
 ---
-  <<'---', # $VERSION wrapped in parens - no space inside
+  '1.23' => <<'---', # $VERSION wrapped in parens - no space inside
 package Simple;
 ($VERSION) = '1.23';
 ---
-  <<'---', # $VERSION follows a spurious 'package' in a quoted construct
+  '1.23' => <<'---', # $VERSION follows a spurious 'package' in a quoted construct
 package Simple;
 __PACKAGE__->mk_accessors(qw(
     program socket proc
@@ -121,28 +122,38 @@ __PACKAGE__->mk_accessors(qw(
 
 our $VERSION = "1.23";
 ---
-  <<'---', # $VERSION using version.pm
+  '1.23' => <<'---', # $VERSION using version.pm
   package Simple;
   use version; our $VERSION = version->new('1.23');
 ---
-  <<'---', # $VERSION using version.pm and qv()
+  '1.23' => <<'---', # $VERSION using version.pm and qv()
   package Simple;
   use version; our $VERSION = qv('1.230');
 ---
-  <<'---', # Two version assignments, should ignore second one
+  '1.23' => <<'---', # Two version assignments, should ignore second one
   $Simple::VERSION = '1.230';
   $Simple::VERSION = eval $Simple::VERSION;
 ---
-  <<'---', # package NAME VERSION
-  package Simple 1.23;
----
-  <<'---', # declared & defined on same line with 'our'
+  '1.23' => <<'---', # declared & defined on same line with 'our'
 package Simple;
 our $VERSION = '1.23_00_00';
 ---
+  '1.23' => <<'---', # package NAME VERSION
+  package Simple 1.23;
+---
+  '1.23_01' => <<'---', # package NAME VERSION
+  package Simple 1.23_01;
+---
+  'v1.2.3' => <<'---', # package NAME VERSION
+  package Simple v1.2.3;
+---
+  'v1.2_3' => <<'---', # package NAME VERSION
+  package Simple v1.2_3;
+---
 );
+my %modules = reverse @modules;
 
-plan tests => 2 * @modules + 36;
+plan tests => 36 + 2 * keys( %modules );
 
 blib_load('Module::Build::ModuleInfo');
 
@@ -185,8 +196,8 @@ $pm_info = Module::Build::ModuleInfo->new_from_module(
 ok( defined( $pm_info ), 'new_from_module() succeeds' );
 
 
-my( $i, $n ) = ( 1, scalar( @modules ) );
-foreach my $module ( @modules ) {
+foreach my $module ( sort keys %modules ) {
+    my $expected = $modules{$module};
  SKIP: {
     skip( "No our() support until perl 5.6", 2 )
         if $] < 5.006 && $module =~ /\bour\b/;
@@ -202,11 +213,11 @@ foreach my $module ( @modules ) {
 
     # Test::Builder will prematurely numify objects, so use this form
     my $errs;
-    ok( $pm_info->version eq '1.23',
-        "correct module version ($i of $n)" ) or $errs++;
+    ok( $pm_info->version eq $expected,
+        "correct module version (expected '$expected')" ) 
+        or $errs++;
     is( $warnings, '', 'no warnings from parsing' ) or $errs++;
-    diag "Module contents:\n$module" if $errs;
-    $i++;
+    diag "Got: '@{[$pm_info->version]}'\nModule contents:\n$module" if $errs;
   }
 }
 
@@ -317,7 +328,7 @@ $::VERSION = 0.01;
 ---
 );
 
-( $i, $n ) = ( 1, scalar( @scripts ) );
+my ( $i, $n ) = ( 1, scalar( @scripts ) );
 foreach my $script ( @scripts ) {
   $dist->change_file( 'bin/simple.plx', $script );
   $dist->regen;
