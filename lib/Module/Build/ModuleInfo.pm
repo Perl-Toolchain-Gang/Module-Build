@@ -326,11 +326,22 @@ sub _evaluate_version_line {
   (ref($vsub) eq 'CODE') or
     die "failed to build version sub for $self->{filename}";
   my $result = eval { $vsub->() };
+  die "Could not get version from $self->{filename} by executing:\n$eval\n\nThe fatal error was: $@\n" 
+    if $@;
 
-  die "Could not get version from $self->{filename} by executing:\n$eval\n\nThe fatal error was: $@\n" if $@;
+  # Activestate apparently creates custom versions like '1.23_45_01', which
+  # cause M::B::Version to think it's an invalid alpha.  So check for that
+  # and strip them
+  my $num_dots = () = $result =~ m{\.}g;
+  my $num_unders = () = $result =~ m{_}g;
+  if ( substr($result,0,1) ne 'v' && $num_dots < 2 && $num_unders > 1 ) {
+    $result =~ s{_}{}g;
+  }
 
   # Bless it into our own version class
-  $result = Module::Build::Version->new($result);
+  eval { $result = Module::Build::Version->new($result) };
+  die "Version '$result' from $self->{filename} does not appear to be valid:\n$eval\n\nThe fatal error was: $@\n" 
+    if $@;
 
   return $result;
 }
