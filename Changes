@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.35_05 - 
+0.35_05 - Wed Oct 28 17:20:59 EDT 2009
 
  Bug fixes:
  - Fix test failure in t/actions/installdeps.t when $^X is not the default
