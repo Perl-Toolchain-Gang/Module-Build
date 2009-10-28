@@ -48,6 +48,7 @@ my $build = ModuleBuildBuilder->new(
     'Archive::Tar'       => 1.08,
     'ExtUtils::CBuilder' => 0.260301, # numerous bug fixes
     'ExtUtils::Install'  => 0.30,
+    'ExtUtils::Manifest' => 1.54, # public maniskip()
     'ExtUtils::ParseXS'  => 2.21,
     'Pod::Readme'        => 0.04,
     'Module::Signature'  => 0.21,

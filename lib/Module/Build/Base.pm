@@ -3384,9 +3384,13 @@ sub _check_mymeta_skip {
   require ExtUtils::Manifest;
   local $^W; # ExtUtils::Manifest is not warnings clean.
 
-  my $skip_check = ExtUtils::Manifest::maniskip($maniskip);
+  # older ExtUtils::Manifest had a private _maniskip
+  my $skip_factory = ExtUtils::Manifest->can('maniskip')
+                  || ExtUtils::Manifest->can('_maniskip');
+
   my $mymetafile = $self->mymetafile;
-  if ( ! $skip_check->( $mymetafile ) ) {
+  # we can't check it, just add it anyway to be safe
+  unless ( $skip_factory && $skip_factory->($maniskip)->($mymetafile) ) {
     $self->log_warn("File '$maniskip' does not include '$mymetafile'. Adding it now.\n");
     $self->_append_maniskip("^$mymetafile\$", $maniskip);
   }
@@ -3713,7 +3717,7 @@ sub _write_default_maniskip {
 
   $content .= <<'EOF';
 # Avoid configuration metadata file
-^MYMETA.yml$
+^MYMETA\.$
 
 # Avoid Module::Build generated and utility files.
 \bBuild$
