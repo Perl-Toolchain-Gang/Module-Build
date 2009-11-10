@@ -65,7 +65,7 @@ my $mb = Module::Build->new_from_context;
   my $mb_config_req = { 
     'Module::Build' => int($Module::Build::VERSION * 100)/100 
   };
-  my $node = $mb->prepare_metadata( {} );
+  my $node = $mb->prepare_metadata( );
 
   # exists() doesn't seem to work here
   is $node->{name}, $metadata{module_name};
@@ -86,7 +86,7 @@ my $mb = Module::Build->new_from_context;
 {
   my $mb_prereq = { 'Module::Build' => 0 };
   $mb->configure_requires( $mb_prereq );
-  my $node = $mb->prepare_metadata( {} );
+  my $node = $mb->prepare_metadata( );
 
 
   # exists() doesn't seem to work here
