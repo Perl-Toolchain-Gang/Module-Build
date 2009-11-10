@@ -4041,25 +4041,27 @@ sub prepare_metadata {
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
     (my $name = $_) =~ s/^dist_//;
     $add_node->($name, $self->$_());
-    my $err = "ERROR: Missing required field '$_' for metafile\n"
-      unless defined($node->{$name}) && length($node->{$name});
-    if ( $fatal ) {
-      die $err;
-    }
-    else {
-      $self->log_warn($msg);
+    unless ( defined($node->{$name}) && length($node->{$name}) ) {
+      my $err = "ERROR: Missing required field '$_' for metafile\n";
+      if ( $fatal ) {
+        die $err;
+      }
+      else {
+        $self->log_warn($err);
+      }
     }
   }
-  $node->{version} = $self->normalize_version($node->{version}); 
+  $node->{version} = $self->normalize_version($node->{version});
 
   if (defined( my $l = $self->license )) {
-    my $err = "Unknown license string '$l'"
-      unless exists $self->valid_licenses->{ $l };
-    if ( $fatal ) {
-      die $err;
-    }
-    else {
-      $self->log_warn($msg);
+    unless ( exists $self->valid_licenses->{ $l } ) {
+      my $err = "Unknown license string '$l'";
+      if ( $fatal ) {
+        die $err;
+      }
+      else {
+        $self->log_warn($err);
+      }
     }
 
     if (my $key = $self->valid_licenses->{ $l }) {
