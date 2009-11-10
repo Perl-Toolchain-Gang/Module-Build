@@ -1646,7 +1646,7 @@ sub create_build_script {
     $self->log_verbose("Removed previous '$mymetafile'\n");
   }
   $self->log_info("Creating new '$mymetafile' with configuration results\n");
-  $self->write_metafile( $mymetafile, $self->prepare_metadata );
+  $self->write_metafile( $mymetafile, $self->prepare_metadata( fatal => 0 ) );
 
   # Create Build
   my ($build_script, $dist_name, $dist_version)
@@ -3981,7 +3981,7 @@ sub do_create_metafile {
     push @INC, File::Spec->catdir($self->blib, 'lib');
   }
 
-  if ( $self->write_metafile( $self->metafile, $self->prepare_metadata ) ) {
+  if ( $self->write_metafile( $self->metafile, $self->prepare_metadata( fatal => 1 ) ) ) {
     $self->{wrote_metadata} = 1;
     $self->_add_to_manifest('MANIFEST', $metafile);
   }
@@ -4027,7 +4027,8 @@ sub normalize_version {
 }
 
 sub prepare_metadata {
-  my ($self) = @_;
+  my ($self, %args) = @_;
+  my $fatal = $args{fatal} || 0;
   my $p = $self->{properties};
   my $node = {};
 
@@ -4040,14 +4041,26 @@ sub prepare_metadata {
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
     (my $name = $_) =~ s/^dist_//;
     $add_node->($name, $self->$_());
-    die "ERROR: Missing required field '$_' for metafile\n"
+    my $err = "ERROR: Missing required field '$_' for metafile\n"
       unless defined($node->{$name}) && length($node->{$name});
+    if ( $fatal ) {
+      die $err;
+    }
+    else {
+      $self->log_warn($msg);
+    }
   }
   $node->{version} = $self->normalize_version($node->{version}); 
 
   if (defined( my $l = $self->license )) {
-    die "Unknown license string '$l'"
+    my $err = "Unknown license string '$l'"
       unless exists $self->valid_licenses->{ $l };
+    if ( $fatal ) {
+      die $err;
+    }
+    else {
+      $self->log_warn($msg);
+    }
 
     if (my $key = $self->valid_licenses->{ $l }) {
       my $class = "Software::License::$key";
