@@ -3525,7 +3525,9 @@ EOF
     return;
   }
 
-  if ( eval {require Pod::Readme; 1} ) {
+  # work around some odd Pod::Readme->new() failures in test reports by 
+  # confirming that new() is available
+  if ( eval {require Pod::Readme; Pod::Readme->can('new') } ) {
     $self->log_info("Creating README using Pod::Readme\n");
 
     my $parser = Pod::Readme->new;
