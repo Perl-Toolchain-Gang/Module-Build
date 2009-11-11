@@ -2,6 +2,16 @@ Revision history for Perl extension Module::Build.
 
 0.35_06 - 
 
+ Bug fixes:
+
+ - Made MYMETA generation non-fatal if fields required for META.yml 
+   are missing 
+
+ - Won't die if installed Pod::Readme is broken
+ 
+ Other:
+ - Fixed Module::Build::Notes POD
+
 0.35_05 - Wed Oct 28 17:20:59 EDT 2009
 
  Bug fixes:
