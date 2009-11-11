@@ -152,7 +152,9 @@ that determines which module to load.
 The C<inc::latest> module creates bundled directories based on the packlist
 file of an installed distribution.  Even though C<inc::latest> takes module
 name arguments, it is better to think of it as bundling and making available
-entire I<distributions>.
+entire I<distributions>.  When a module is loaded through C<inc::latest>,
+it looks in all bundled distributions in C<inc/> for a newer module than
+can be found in the existing C<@INC> array.
 
 Thus, the module-name provided should usually be the "top-level" module name of
 a distribution, though this is not strictly required.  For example,
