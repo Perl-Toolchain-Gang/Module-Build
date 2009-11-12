@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
+use lib 't/lib';
 use MBTest 'no_plan';
 use DistGen;
 use Cwd;

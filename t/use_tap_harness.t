@@ -2,7 +2,7 @@
 
 use strict;
 use Test::More;
-use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
+use lib 't/lib';
 if (eval { require TAP::Harness } && TAP::Harness->VERSION >= 3) {
     plan tests => 9;
 } else {

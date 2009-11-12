@@ -27,6 +27,9 @@ Revision history for Perl extension Module::Build.
 
  - Cleaned up Changes file formatting [David Golden]
 
+ - Removed most PERL_CORE customizations from test files due to
+   reorganization of dual-life modules in core (RT#49522) [David Golden]
+
 0.35_05 - Wed Oct 28 17:20:59 EDT 2009
 
  Bug fixes:

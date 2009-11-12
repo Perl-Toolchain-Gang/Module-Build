@@ -1,7 +1,7 @@
 # sample.t -- a sample test file for Module::Build
 
 use strict;
-use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
+use lib 't/lib';
 use MBTest;
 use DistGen;
 

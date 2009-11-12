@@ -3,7 +3,7 @@
 # vim:ts=8:sw=2:et:sta:sts=2
 
 use strict;
-use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
+use lib 't/lib';
 use MBTest 'no_plan';
 
 use DistGen qw(undent);

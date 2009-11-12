@@ -51,23 +51,13 @@ BEGIN {
   # In case the test wants to use our other bundled
   # modules, make sure they can be loaded.
   my $t_lib = File::Spec->catdir('t', 'bundled');
+  push @INC, $t_lib; # Let user's installed version override
 
-  unless ($ENV{PERL_CORE}) {
-    push @INC, $t_lib; # Let user's installed version override
-  } else {
+  if ($ENV{PERL_CORE}) {
     # We change directories, so expand @INC and $^X to absolute paths
     # Also add .
     @INC = (map(File::Spec->rel2abs($_), @INC), ".");
     $^X = File::Spec->rel2abs($^X);
-
-    # we are in 't', go up a level so we don't create t/t/_tmp
-    chdir '..' or die "Couldn't chdir to ..";
-
-    push @INC, File::Spec->catdir(qw/lib Module Build/, $t_lib);
-
-    # make sure children get @INC pointing to uninstalled files
-    require Cwd;
-    $ENV{PERL5LIB} = File::Spec->catdir(Cwd::cwd(), 'lib');
   }
 }
 

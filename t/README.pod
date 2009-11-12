@@ -7,12 +7,12 @@ considering better ways to test. See C<sample.t> for a starter test file.
 
 =head1 TEST FILE PREAMBLE
 
-Every Module::Build test should begin with the same preamble to ensure
-that the test library is set properly if tested as part of the Perl core
-and that the correct version of Module::Build is being tested.
+Every Module::Build test should begin with the same preamble to ensure that the
+test library is set properly and that the correct version of Module::Build is
+being tested.
 
   use strict;
-  use lib $ENV{PERL_CORE} ? '../lib/Module/Build/t/lib' : 't/lib';
+  use lib 't/lib';
   use MBTest tests => 2; # or 'no_plan'
 
   blib_load('Module::Build');
