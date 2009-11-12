@@ -82,7 +82,7 @@ my $build = ModuleBuildBuilder->new(
     },
     manpage_support => {
       description => "Create Unix man pages",
-      requires    => {'Pod::Man' => 0},
+      requires    => {'Pod::Man' => 0, 'Pod::Simple' => 0},
     },
     HTML_support => {
       description => "Create HTML documentation",
