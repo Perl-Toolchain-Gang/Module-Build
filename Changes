@@ -24,6 +24,10 @@ Revision history for Perl extension Module::Build.
  - Made MYMETA generation non-fatal if fields required for META.yml 
    are missing [David Golden]
 
+ - Added Pod::Simple to requirements for manpage support; avoids
+   problems if a user has a broken Pod::Man/Pod::Simple.  (RT#50081)
+   [David Golden]
+
  - Won't die if installed Pod::Readme is broken [David Golden]
  
  Other:
