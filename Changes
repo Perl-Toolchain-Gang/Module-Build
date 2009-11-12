@@ -7,6 +7,10 @@ Revision history for Perl extension Module::Build.
  - Added experimental inc/ bundling; see Module::Build::Bundling for
    details.  [David Golden and Eric Wilhelm]
 
+ - Clarified that 'apache' in the license attribute indicates the Apache
+   License 2.0 and added 'apache_1_1' for the older version of the license
+   (RT#50614) [David Golden]
+
  Bug fixes:
 
  - Made MYMETA generation non-fatal if fields required for META.yml 
