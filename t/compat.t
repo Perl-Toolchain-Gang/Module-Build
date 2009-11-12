@@ -26,6 +26,7 @@ if ( $Config{make} && $^O ne 'VMS' ? find_in_path($Config{make}) : 1 ) {
 my $is_vms_mms = ($^O eq 'VMS') && ($Config{make} =~ /MM[SK]/i);
 
 blib_load('Module::Build');
+blib_load('Module::Build::Version');
 
 
 #########################
@@ -71,10 +72,11 @@ $dist->change_build_pl({
   license             => 'perl',
   requires            => {
     'perl'        => $],
-    'File::Spec'  => 0,
+    'File::Spec'  => 0.2,
   },
-  build_requires      => {
-    'Test::More'  => 0,
+  build_requires => {
+      'Test::More' => 0,
+      'File::Spec' => 0,
   },
   PL_files            => { 'foo.PL' => 'foo' },
 });
@@ -89,8 +91,11 @@ $dist->regen;
 test_makefile_types(
     requires => {
         'perl' => $],
-        'File::Spec' => 0,
+        'File::Spec' => 0.2,
+    },
+    build_requires => {
         'Test::More' => 0,
+        'File::Spec' => 0,
     },
     PL_files => {
         'foo.PL' => 'foo',
@@ -314,9 +319,25 @@ ok $mb, "Module::Build->new_from_context";
 
 #########################################################
 
+sub _merge_prereqs {
+  my ($first, $second) = @_;
+  my $new = { %$first };
+  for my $k (keys %$second) {
+    if ( exists $new->{$k} ) {
+      my ($v1,$v2) = ($new->{$k},$second->{$k});
+      $new->{$k} = ($v1 > $v2 ? $v1 : $v2);
+    }
+    else {
+      $new->{$k} = $second->{$k};
+    }
+  }
+  return $new;
+}
+
 sub test_makefile_types {
   my %opts = @_;
   $opts{requires} ||= {};
+  $opts{build_requires} ||= {};
   $opts{PL_files} ||= {};
 
   foreach my $type (@makefile_types) {
@@ -332,7 +353,7 @@ sub test_makefile_types {
 
     test_makefile_pl_requires_perl( $opts{requires}{perl} );
     test_makefile_creation($mb);
-    test_makefile_prereq_pm( $opts{requires} );
+    test_makefile_prereq_pm( _merge_prereqs($opts{requires}, $opts{build_requires}) );
     test_makefile_pl_files( $opts{PL_files} ) if $type eq 'traditional';
       
     my ($output,$success);

@@ -64,7 +64,33 @@ my %macro_to_build = %makefile_to_build;
 # "LIB=foo make" is not the same as "perl Makefile.PL LIB=foo"
 delete $macro_to_build{LIB};
 
+sub _simple_prereq {
+  return $_[0] =~ /^[0-9_]+\.?[0-9_]*$/; # crudly, a decimal literal
+}
 
+sub _merge_prereq {
+  my ($req, $breq) = @_;
+  $req ||= {};
+  $breq ||= {};
+
+  # validate formats
+  for my $p ( $req, $breq ) {
+    for my $k (keys %$p) {
+      die "Prereq '$p->{$k}' for '$k' is not supported by Module::Build::Compat\n"
+        unless _simple_prereq($p->{$k});
+    }
+  }
+  # merge
+  my $merge = { %$req };
+  for my $k ( keys %$breq ) {
+    my $v1 = $merge->{$k} || 0;
+    my $v2 = $breq->{$k};
+    $merge->{$k} = $v1 > $v2 ? $v1 : $v2;
+  }
+  return %$merge;
+}
+    
+    
 sub create_makefile_pl {
   my ($package, $type, $build, %args) = @_;
   
@@ -187,7 +213,7 @@ EOF
 		  );
     %MM_Args = (%name, %version);
     
-    %prereq = ( %{$build->requires}, %{$build->build_requires} );
+    %prereq = _merge_prereq( $build->requires, $build->build_requires );
     %prereq = map {$_, $prereq{$_}} sort keys %prereq;
     
      delete $prereq{perl};

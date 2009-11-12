@@ -13,6 +13,14 @@ Revision history for Perl extension Module::Build.
 
  Bug fixes:
 
+ - Merging 'requires' and 'build_requires' in Module::Build::Compat could
+   lead to duplicate PREREQ_PM entries; now the highest version is used
+   for PREREQ_PM. (RT#50948) [David Golden]
+
+ - Module::Build::Compat will now die with an error if advanced,
+   non-numeric prerequisites are given, as these are not supported by
+   ExtUtils::MakeMaker in PREREQ_PM [David Golden]
+   
  - Made MYMETA generation non-fatal if fields required for META.yml 
    are missing [David Golden]
 
