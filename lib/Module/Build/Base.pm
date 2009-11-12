@@ -2624,6 +2624,7 @@ sub ACTION_code {
 
 sub ACTION_build {
   my $self = shift;
+  $self->log_info("Building " . $self->dist_name . "\n");
   $self->depends_on('code');
   $self->depends_on('docs');
 }
@@ -3327,6 +3328,7 @@ sub ACTION_installdeps {
 
 sub ACTION_clean {
   my ($self) = @_;
+  $self->log_info("Cleaning up build files\n");
   foreach my $item (map glob($_), $self->cleanup) {
     $self->delete_filetree($item);
   }
@@ -3335,6 +3337,7 @@ sub ACTION_clean {
 sub ACTION_realclean {
   my ($self) = @_;
   $self->depends_on('clean');
+  $self->log_info("Cleaning up configuration files\n");
   $self->delete_filetree(
     $self->config_dir, $self->mymetafile, $self->build_script
   );
