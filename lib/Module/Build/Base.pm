@@ -52,6 +52,8 @@ EOF
     }
   }
 
+  $self->set_bundle_inc;
+
   $self->dist_name;
   $self->dist_version;
   $self->_guess_module_name unless $self->module_name;
@@ -862,6 +864,8 @@ __PACKAGE__->add_property(build_class => 'Module::Build');
 __PACKAGE__->add_property(build_elements => [qw(PL support pm xs share_dir pod script)]);
 __PACKAGE__->add_property(build_script => 'Build');
 __PACKAGE__->add_property(build_bat => 0);
+__PACKAGE__->add_property(bundle_inc => []);
+__PACKAGE__->add_property(bundle_inc_preload => []);
 __PACKAGE__->add_property(config_dir => '_build');
 __PACKAGE__->add_property(include_dirs => []);
 __PACKAGE__->add_property(license => 'unknown');
@@ -1214,6 +1218,68 @@ sub write_config {
   $self->{phash}{$_}->write() foreach qw(notes cleanup features auto_features config_data runtime_params);
 }
 
+{
+  # packfile map -- keys are guts of regular expressions;  If they match,
+  # values are module names corresponding to the packlist
+  my %packlist_map = (
+    '^File::Spec'         => 'Cwd',
+    '^Devel::AssertOS'    => 'Devel::CheckOS',
+  );
+
+  sub _find_packlist {
+    my ($self, $inst, $mod) = @_;
+    my $lookup = $mod;
+    my $packlist = eval { $inst->packlist($lookup) };
+    if ( ! $packlist ) {
+      # try from packlist_map
+      while ( my ($re, $new_mod) = each %packlist_map ) {
+        if ( $mod =~ qr/$re/ ) {
+          $lookup = $new_mod;
+          $packlist = eval { $inst->packlist($lookup) };
+          last;
+        }
+      }
+    }
+    return $packlist ? $lookup : undef;
+  }
+
+  sub set_bundle_inc {
+    my $self = shift;
+    my $bundle_inc = $self->{properties}{bundle_inc};
+    my $bundle_inc_preload = $self->{properties}{bundle_inc_preload};
+    # We're in author mode if inc::latest is loaded, but not from cwd
+    return unless inc::latest->can('loaded_modules');
+    require ExtUtils::Installed;
+    # ExtUtils::Installed is buggy about finding additions to default @INC
+    my $inst = ExtUtils::Installed->new(extra_libs => [$self->_added_to_INC]);
+    my @bundle_list = map { [ $_, 0 ] } inc::latest->loaded_modules;
+
+    # XXX TODO: Need to get ordering of prerequisites correct so they are
+    # are loaded in the right order. Use an actual tree?!
+
+    while( @bundle_list ) {
+      my ($mod, $prereq) = @{ shift @bundle_list };
+
+      # XXX TODO: Append prereqs to list
+      # skip if core or already in bundle or preload lists
+      # push @bundle_list, [$_, 1] for prereqs()
+
+      # Locate packlist for bundling
+      my $lookup = $self->_find_packlist($inst,$mod);
+      if ( ! $lookup ) {
+        # XXX Really needs a more helpful error message here
+        die << "NO_PACKLIST";
+Could not find a packlist for '$mod'.  If it's a core module, try
+force installing it from CPAN.
+NO_PACKLIST
+      }
+      else {
+        push @{ $prereq ? $bundle_inc_preload : $bundle_inc }, $lookup;
+      }
+    }
+  } # sub check_bundling
+}
+
 sub check_autofeatures {
   my ($self) = @_;
   my $features = $self->auto_features;
@@ -1283,6 +1349,17 @@ sub auto_require {
   ) {
     (my $ver = $VERSION) =~ s/^(\d+\.\d\d).*$/$1/; # last major release only
     $self->_add_prereq('configure_requires', 'Module::Build', $ver);
+  }
+
+  # if we're in author mode, add inc::latest modules to 
+  # configure_requires if not already set.  If we're not in author mode
+  # then configure_requires will have been satisfied, or we'll just
+  # live with what we've bundled
+  if ( inc::latest->can('loaded_module') ) {
+    for my $mod ( inc::latest->loaded_modules ) {
+      next if exists $p->{configure_requires}{$mod};
+      $self->_add_prereq('configure_requires', $mod, $mod->VERSION);
+    }
   }
 
   # If needs_compiler is not explictly set, automatically set it
@@ -3583,6 +3660,15 @@ sub _main_docfile {
   }
 }
 
+sub do_create_bundle_inc {
+  my $self = shift;
+  my $dist_inc = File::Spec->catdir( $self->dist_dir, 'inc' );
+  require inc::latest;
+  inc::latest->write($dist_inc, @{$self->bundle_inc_preload});
+  inc::latest->bundle_module($_, $dist_inc) for @{$self->bundle_inc};
+  return 1;
+}
+
 sub ACTION_distdir {
   my ($self) = @_;
 
@@ -3609,6 +3695,8 @@ sub ACTION_distdir {
     my $new = $self->copy_if_modified(from => $file, to_dir => $dist_dir, verbose => 0);
   }
   
+  $self->do_create_bundle_inc if @{$self->bundle_inc};
+
   $self->_sign_dir($dist_dir) if $self->{properties}{sign};
 }
 

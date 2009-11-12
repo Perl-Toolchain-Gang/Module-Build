@@ -91,6 +91,7 @@ sub reset {
   my %data = (
     no_manifest   => 0,
     xs            => 0,
+    inc           => 0,
     %options,
   );
   %$self = %data;
@@ -143,17 +144,32 @@ sub _gen_default_filedata {
     $self->add_file($member, $data) unless($self->{filedata}{$member});
   };
 
-  $self->$add_unless('Build.PL', undent(<<"    ---"));
-    use strict;
-    use Module::Build;
+  if ( ! $self->{inc} ) {
+    $self->$add_unless('Build.PL', undent(<<"      ---"));
+      use strict;
+      use Module::Build;
 
-    my \$builder = Module::Build->new(
-        module_name         => '$self->{name}',
-        license             => 'perl',
-    );
+      my \$builder = Module::Build->new(
+          module_name         => '$self->{name}',
+          license             => 'perl',
+      );
 
-    \$builder->create_build_script();
-    ---
+      \$builder->create_build_script();
+      ---
+  }
+  else {
+    $self->$add_unless('Build.PL', undent(<<"      ---"));
+      use strict;
+      use inc::latest 'Module::Build';
+
+      my \$builder = Module::Build->new(
+          module_name         => '$self->{name}',
+          license             => 'perl',
+      );
+
+      \$builder->create_build_script();
+      ---
+  }
 
   my $module_filename =
     join( '/', ('lib', split(/::/, $self->{name})) ) . '.pm';

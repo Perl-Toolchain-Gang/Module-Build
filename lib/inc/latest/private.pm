@@ -1,66 +1,64 @@
-package latest;
-
+package inc::latest::private;
 use strict;
+use vars qw($VERSION);
+$VERSION = '0.35_03';
+$VERSION = eval $VERSION;
+
 use File::Spec;
 use IO::File;
 
-my $mypath;
-
-
+# must ultimately "goto" the import routine of the module to be loaded
+# so that the calling package is correct when $mod->import() runs.
 sub import {
-  my ($pack, $mod, @args) = @_;
-  my $file = $pack->_mod2path($mod);
+  my ($package, $mod, @args) = @_;
+  my $file = $package->_mod2path($mod);
 
   if ($INC{$file}) {
-    # Already loaded
-    return $pack->_load($mod, @args);
+    # Already loaded, but let _load_module handle import args
+    goto \&_load_module;
   }
 
   # A bundled copy must be present
-  my ($bundled, $bundled_dir) = $pack->_search_bundled($file)
+  my ($bundled, $bundled_dir) = $package->_search_bundled($file)
     or die "No bundled copy of $mod found";
   
-  my $from_inc = $pack->_search_INC($file);
+  my $from_inc = $package->_search_INC($file);
   unless ($from_inc) {
     # Only bundled is available
     unshift(@INC, $bundled_dir);
-    return $pack->_load($mod, @args);
+    goto \&_load_module;
   }
 
-  if (_version($from_inc) > _version($bundled)) {
+  if (_version($from_inc) >= _version($bundled)) {
     # Ignore the bundled copy
-    return $pack->_load($mod, @args);
+    goto \&_load_module;
   }
 
   # Load the bundled copy
   unshift(@INC, $bundled_dir);
-  return $pack->_load($mod, @args);
+  goto \&_load_module;
 }
 
 sub _version {
-  # TODO: So far this only handles the extremely easy cases
-  my ($file) = @_;
-  my $fh = IO::File->new($file) or die "Can't read $file: $!";
-  while (<$fh>) {
-    # This regex has been tested to work against all versions of M::B
-    # up through at least 0.2808.  No guarantees for other modules.
-    return (eval $2) if /^\s*\$VERSION\s*=\s*(['"]?)([\d._]+)\1/;
-  }
-  return;
+  require ExtUtils::MakeMaker;
+  return ExtUtils::MM->parse_version(shift);
 }
 
-sub _load {
-  my ($self, $mod, @args) = @_;
-  eval "require $mod";
-  die $@ if $@;
-  $mod->import(@args);
-  return;
+# use "goto" for import to preserve caller
+sub _load_module {
+  my $package = shift; # remaining @_ is ready for goto
+  my ($mod, @args) = @_;
+  eval "require $mod; 1" or die $@;
+  if ( my $import = $mod->can('import') ) {
+    goto $import;
+  }
+  return 1;
 }
 
 sub _search_bundled {
   my ($self, $file) = @_;
 
-  $mypath ||= (File::Spec->splitpath( $INC{ __PACKAGE__ . '.pm' } ))[1];
+  my $mypath = 'inc';
 
   local *DH;   # Maintain 5.005 compatibility
   opendir DH, $mypath or die "Can't open directory $mypath: $!";
@@ -99,3 +97,5 @@ sub _mod2path {
 }
 
 1;
+
+

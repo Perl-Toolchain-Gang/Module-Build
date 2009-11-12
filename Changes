@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.35_06 - 
 
+ Enhancements:
+
+ - Added experimental inc/ bundling; see Module::Build::Bundling for
+   details.  [David Golden and Eric Wilhelm]
+
  Bug fixes:
 
  - Made MYMETA generation non-fatal if fields required for META.yml 
