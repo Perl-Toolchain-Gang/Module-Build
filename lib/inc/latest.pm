@@ -85,8 +85,11 @@ sub bundle_module {
 
   # get list of files to copy
   require ExtUtils::Installed;
-  my $inst = ExtUtils::Installed->new;
-  my @files = $inst->files( $module, 'prog' );
+  # workaround buggy EU::Installed check of @INC
+  my $inst = ExtUtils::Installed->new(extra_libs => [@INC]);
+  my $packlist = $inst->packlist( $module ) or die "Couldn't find packlist";
+  my @files = grep { /\.pm$/ } keys %$packlist;
+
 
   # figure out prefix
   my $mod_path = quotemeta $package->_mod2path( $module );

@@ -10,10 +10,27 @@ use File::Spec;
 use ExtUtils::Packlist;
 use File::Path;
 
-plan tests => 16;
+plan tests => 17;
 
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');
+
+# need to do a temp install of M::B being tested to ensure a packlist
+# is available for bundling
+
+my $current_mb = Module::Build->resume();
+my $temp_install = MBTest->tmpdir();
+my $arch = $Config{archname};
+my $lib_path = File::Spec->catdir($temp_install,qw/lib perl5/);
+my $arch_path = File::Spec->catdir( $lib_path, $arch );
+mkpath ( $arch_path );
+
+unshift @INC, $lib_path, $arch_path;
+local $ENV{PERL5LIB} = join( $Config{path_sep}, 
+  $lib_path, $arch_path, ($ENV{PERL5LIB} ? $ENV{PERL5LIB} : () )
+);
+
+stdout_of( sub { $current_mb->dispatch('install', install_base => $temp_install) } );
 
 # create dist object in a temp directory
 # enter the directory and generate the skeleton files
@@ -65,6 +82,7 @@ chdir $mb->dist_dir;
 stdout_of( sub { Module::Build->run_perl_script('Build.PL',[],[]) } );
 
 my $meta = IO::File->new('MYMETA.yml');
+ok( $meta, "found MYMETA.yml" );
 ok( scalar( grep { /generated_by:.*9999/ } <$meta> ),
   "dist_dir Build.PL loaded bundled Module::Build"
 );
