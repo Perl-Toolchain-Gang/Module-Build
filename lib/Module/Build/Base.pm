@@ -4248,15 +4248,22 @@ sub find_dist_packages {
   my %dist_files = map { $self->localize_file_path($_) => $_ }
                        keys %$manifest;
 
-  my @pm_files = grep {exists $dist_files{$_}} keys %{ $self->find_pm_files };
+  my @pm_files = grep { $_ !~ m{^t} } # skip things in t/
+                   grep {exists $dist_files{$_}}
+                     keys %{ $self->find_pm_files };
+
+  return $self->find_packages_in_files(\@pm_files, \%dist_files);
+}
+
+sub find_packages_in_files {
+  my ($self, $file_list, $filename_map) = @_;
 
   # First, we enumerate all packages & versions,
   # separating into primary & alternative candidates
   my( %prime, %alt );
-  foreach my $file (@pm_files) {
-    next if $dist_files{$file} =~ m{^t/};  # Skip things in t/
-
-    my @path = split( /\//, $dist_files{$file} );
+  foreach my $file (@{$file_list}) {
+    my $mapped_filename = $filename_map->{$file};
+    my @path = split( /\//, $mapped_filename );
     (my $prime_package = join( '::', @path[1..$#path] )) =~ s/\.pm$//;
 
     my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
@@ -4268,18 +4275,18 @@ sub find_dist_packages {
       my $version = $pm_info->version( $package );
 
       if ( $package eq $prime_package ) {
-	if ( exists( $prime{$package} ) ) {
-	  # M::B::ModuleInfo will handle this conflict
-	  die "Unexpected conflict in '$package'; multiple versions found.\n";
-	} else {
-	  $prime{$package}{file} = $dist_files{$file};
+        if ( exists( $prime{$package} ) ) {
+          # M::B::ModuleInfo will handle this conflict
+          die "Unexpected conflict in '$package'; multiple versions found.\n";
+        } else {
+          $prime{$package}{file} = $mapped_filename;
           $prime{$package}{version} = $version if defined( $version );
         }
       } else {
-	push( @{$alt{$package}}, {
-				  file    => $dist_files{$file},
-				  version => $version,
-			         } );
+        push( @{$alt{$package}}, {
+                                  file    => $mapped_filename,
+                                  version => $version,
+                                 } );
       }
     }
   }
