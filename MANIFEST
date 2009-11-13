@@ -2,10 +2,13 @@ Build.PL
 Changes
 contrib/bash_completion.module-build
 INSTALL
+lib/inc/latest.pm
+lib/inc/latest/private.pm
 lib/Module/Build.pm
 lib/Module/Build/API.pod
 lib/Module/Build/Authoring.pod
 lib/Module/Build/Base.pm
+lib/Module/Build/Bundling.pod
 lib/Module/Build/Compat.pm
 lib/Module/Build/Config.pm
 lib/Module/Build/Cookbook.pm
@@ -39,6 +42,7 @@ scripts/config_data
 t/actions/installdeps.t
 t/add_property.t
 t/basic.t
+t/bundle_inc.t
 t/bundled/Tie/CPHash.pm
 t/compat.t
 t/compat/exit.t
