@@ -1,7 +1,7 @@
 package inc::latest;
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.35_03';
+$VERSION = '0.35_07';
 $VERSION = eval $VERSION;
 
 use Carp;
