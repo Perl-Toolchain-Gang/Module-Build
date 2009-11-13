@@ -52,12 +52,15 @@ EOF
     }
   }
 
+  # record for later use in resume;
+  $self->{properties}{_added_to_INC} = [ $self->_added_to_INC ];
+
   $self->set_bundle_inc;
 
   $self->dist_name;
   $self->dist_version;
   $self->_guess_module_name unless $self->module_name;
-  
+
   $self->_find_nested_builds;
 
   return $self;
@@ -67,6 +70,8 @@ sub resume {
   my $package = shift;
   my $self = $package->_construct(@_);
   $self->read_config;
+
+  unshift @INC, @{ $self->{properties}{_added_to_INC} || [] };
 
   # If someone called Module::Build->current() or
   # Module::Build->new_from_context() and the correct class to use is
