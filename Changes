@@ -28,6 +28,9 @@ Revision history for Perl extension Module::Build.
    problems if a user has a broken Pod::Man/Pod::Simple.  (RT#50081)
    [David Golden]
 
+ - When tarball paths are less than 100 characters, disables 'prefix'
+   mode of Archive::Tar for maximum compatibility (RT#50571) [David Golden]
+   
  - Won't die if installed Pod::Readme is broken [David Golden]
  
  Other:

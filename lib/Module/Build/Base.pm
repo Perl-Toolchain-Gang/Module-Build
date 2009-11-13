@@ -4402,16 +4402,21 @@ sub make_tarball {
     $self->do_system($self->split_like_shell($self->{args}{tar}), $tar_flags, "$file.tar", $dir);
     $self->do_system($self->split_like_shell($self->{args}{gzip}), "$file.tar") if $self->{args}{gzip};
   } else {
-    eval { require Archive::Tar && Archive::Tar->VERSION(1.08); 1 }
-      or die "You must install Archive::Tar to make a distribution tarball\n".
+    eval { require Archive::Tar && Archive::Tar->VERSION(1.09); 1 }
+      or die "You must install Archive::Tar 1.09+ to make a distribution tarball\n".
              "or specify a binary tar program with the '--tar' option.\n".
              "See the documentation for the 'dist' action.\n";
 
+    my $files = $self->rscan_dir($dir);
+
     # Archive::Tar versions >= 1.09 use the following to enable a compatibility
     # hack so that the resulting archive is compatible with older clients.
-    $Archive::Tar::DO_NOT_USE_PREFIX = 0;
+    # If no file path is 100 chars or longer, we disable the prefix field
+    # for maximum compatibility.  If there are any long file paths then we 
+    # need the prefix field after all.
+    $Archive::Tar::DO_NOT_USE_PREFIX = 
+      (grep { length($_) >= 100 } @$files) ? 0 : 1;
 
-    my $files = $self->rscan_dir($dir);
     my $tar   = Archive::Tar->new;
     $tar->add_files(@$files);
     for my $f ($tar->get_files) {
