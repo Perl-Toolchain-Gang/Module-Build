@@ -42,7 +42,7 @@ sub _myparse_from_filehandle {
   
   my @author;
   while (<$fh>) {
-    next unless /^=head1\s+AUTHORS?/ ... /^=/;
+    next unless /^=head1\s+AUTHORS?/i ... /^=/;
     next if /^=/;
     push @author, $_ if /\@/;
   }
@@ -92,10 +92,10 @@ sub textblock {
   my ($self, $text) = @_;
   $text =~ s/^\s+//;
   $text =~ s/\s+$//;
-  if ($self->{_head} eq 'NAME') {
+  if (uc $self->{_head} eq 'NAME') {
     my ($name, $abstract) = split( /\s+-\s+/, $text, 2 );
     $self->{abstract} = $abstract;
-  } elsif ($self->{_head} =~ /^AUTHORS?$/) {
+  } elsif ($self->{_head} =~ /^AUTHORS?$/i) {
     push @{$self->{author}}, $text if $text =~ /\@/;
   }
 }
