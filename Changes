@@ -1,6 +1,17 @@
 Revision history for Perl extension Module::Build.
 
-0.35_07 - 
+0.35_07 - Sat Nov 14 17:14:39 EST 2009
+
+ Bug fixes:
+
+ - Auto-detection of abstract and author fixed for mixed-case POD headers
+   (RT#51117) [David Wheeler]
+
+ - resume() was not restoring additions to @INC added in Build.PL
+   (RT#50145) [David Golden]
+
+ - When tarball paths are less than 100 characters, disables 'prefix'
+   mode of Archive::Tar for maximum compatibility (RT#50571) [David Golden]
 
 0.35_06 - Fri Nov 13 14:51:28 EST 2009
 
@@ -14,12 +25,6 @@ Revision history for Perl extension Module::Build.
    (RT#50614) [David Golden]
 
  Bug fixes:
-
- - Auto-detection of abstract and author fixed for mixed-case POD headers
-   (RT#51117) [David Wheeler]
-
- - resume() was not restoring additions to @INC added in Build.PL
-   (RT#50145) [David Golden]
 
  - Merging 'requires' and 'build_requires' in Module::Build::Compat could
    lead to duplicate PREREQ_PM entries; now the highest version is used
@@ -35,9 +40,6 @@ Revision history for Perl extension Module::Build.
  - Added Pod::Simple to requirements for manpage support; avoids
    problems if a user has a broken Pod::Man/Pod::Simple.  (RT#50081)
    [David Golden]
-
- - When tarball paths are less than 100 characters, disables 'prefix'
-   mode of Archive::Tar for maximum compatibility (RT#50571) [David Golden]
 
  - Won't die if installed Pod::Readme is broken [David Golden]
 
