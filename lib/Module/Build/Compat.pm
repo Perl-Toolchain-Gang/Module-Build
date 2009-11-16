@@ -400,15 +400,13 @@ sub fake_prereqs {
   my $fh = IO::File->new("< $file") or die "Can't read $file: $!";
   my $prereqs = eval do {local $/; <$fh>};
   close $fh;
-  
-  my @prereq;
-  foreach my $section (qw/build_requires requires/) {
-    foreach (keys %{$prereqs->{$section}}) {
-      next if $_ eq 'perl';
-      push @prereq, "$_=>q[$prereqs->{$section}{$_}]";
-    }
-  }
 
+  my %merged = _merge_prereq( $prereqs->{requires}, $prereqs->{build_requires} );
+  my @prereq;
+  foreach (sort keys %merged) {
+    next if $_ eq 'perl';
+    push @prereq, "$_=>q[$merged{$_}]";
+  }
   return unless @prereq;
   return "#     PREREQ_PM => { " . join(", ", @prereq) . " }\n\n";
 }
