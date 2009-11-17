@@ -2,6 +2,13 @@ Revision history for Perl extension Module::Build.
 
 0.35_08 - 
 
+ Bug fixes:
+
+ - Multiple tests were failing due to dependency problems.  Author
+   dependencies have been largely removed from core 'requires' into
+   optional features.  Feature prereq detection and messaging have been
+   expanded and bugs on older Perls have been removed.
+
 0.35_07 - Sat Nov 14 17:14:39 EST 2009
 
  Bug fixes:

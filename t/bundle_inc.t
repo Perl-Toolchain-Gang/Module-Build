@@ -10,10 +10,15 @@ use File::Spec;
 use ExtUtils::Packlist;
 use File::Path;
 
-plan tests => 17;
-
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');
+blib_load('Module::Build::ConfigData');
+
+if ( Module::Build::ConfigData->feature('inc_bundling_support') ) {
+  plan tests => 18;
+} else {
+  plan skip_all => 'inc_bundling_support feature is not enabled';
+}
 
 # need to do a temp install of M::B being tested to ensure a packlist
 # is available for bundling
@@ -24,6 +29,7 @@ my $arch = $Config{archname};
 my $lib_path = File::Spec->catdir($temp_install,qw/lib perl5/);
 my $arch_path = File::Spec->catdir( $lib_path, $arch );
 mkpath ( $arch_path );
+ok( -d $arch_path, "created temporary M::B pseudo-install directory");
 
 unshift @INC, $lib_path, $arch_path;
 local $ENV{PERL5LIB} = join( $Config{path_sep}, 

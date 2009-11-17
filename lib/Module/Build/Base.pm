@@ -45,7 +45,10 @@ ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions
 of the modules indicated above before proceeding with this installation
 
 EOF
-    unless ( $ENV{PERL5_CPANPLUS_IS_RUNNING} || $ENV{PERL5_CPAN_IS_RUNNING} ) {
+    unless (
+      $self->dist_name eq 'Module-Build' ||
+      $ENV{PERL5_CPANPLUS_IS_RUNNING} || $ENV{PERL5_CPAN_IS_RUNNING} 
+    ) {
       $self->log_warn(
         "Run 'Build installdeps' to install missing prerequisites.\n\n"
       );
@@ -621,10 +624,18 @@ sub features     {
     }
 
     if (my $info = $ph->{auto_features}->access($key)) {
-      my $failures = $self->prereq_failures($info);
-      my $disabled = grep( /^(?:\w+_)?(?:requires|conflicts)$/,
-			   keys %$failures ) ? 1 : 0;
-      return !$disabled;
+      my $disabled;
+      for my $type ( @{$self->prereq_action_types} ) {
+        next if $type eq 'description' || $type eq 'recommends' || ! exists $info->{$type};
+        my $prereqs = $info->{$type};
+        for my $modname ( sort keys %$prereqs ) {
+          my $spec = $prereqs->{$modname};
+          my $status = $self->check_installed_status($modname, $spec);
+          if ((!$status->{ok}) xor ($type =~ /conflicts$/)) { return 0; }
+          if ( ! eval "require $modname; 1" ) { return 0; }
+        }
+      }
+      return 1;
     }
 
     return $ph->{features}->access($key, @_);
@@ -658,6 +669,15 @@ sub _mb_feature {
   }
 }
 
+sub _warn_mb_feature_deps {
+  my $self = shift;
+  my $name = shift;
+  $self->log_warn(
+    "The '$name' feature is not available.  Please install missing\n" .
+    "feature dependencies and try again.\n".
+    $self->_feature_deps_msg($name) . "\n"
+  );
+}
 
 sub add_build_element {
     my ($self, $elem) = @_;
@@ -1250,13 +1270,14 @@ sub write_config {
 
   sub set_bundle_inc {
     my $self = shift;
+    
     my $bundle_inc = $self->{properties}{bundle_inc};
     my $bundle_inc_preload = $self->{properties}{bundle_inc_preload};
     # We're in author mode if inc::latest is loaded, but not from cwd
     return unless inc::latest->can('loaded_modules');
     require ExtUtils::Installed;
     # ExtUtils::Installed is buggy about finding additions to default @INC
-    my $inst = ExtUtils::Installed->new(extra_libs => [$self->_added_to_INC]);
+    my $inst = ExtUtils::Installed->new(extra_libs => [@INC]);
     my @bundle_list = map { [ $_, 0 ] } inc::latest->loaded_modules;
 
     # XXX TODO: Need to get ordering of prerequisites correct so they are
@@ -1306,29 +1327,11 @@ sub check_autofeatures {
   my $max_name_len = length($longest->(keys %$features));
 
   my ($num_disabled, $log_text) = (0, "\nChecking optional features...\n");
-  while (my ($name, $info) = each %$features) {
-    my $feature_text = "  $name" . '.' x ($max_name_len - length($name) + 4);
-
-    my $disabled;
-    if ( my $failures = $self->prereq_failures($info) ) {
-      $disabled = grep( /^(?:\w+_)?(?:requires|conflicts)$/,
-			   keys %$failures ) ? 1 : 0;
-      $feature_text .= $disabled ? "disabled\n" : "enabled\n";
-      $num_disabled++ if $disabled;
-
-      while (my ($type, $prereqs) = each %$failures) {
-	while (my ($module, $status) = each %$prereqs) {
-	  my $required =
-	    ($type =~ /^(?:\w+_)?(?:requires|conflicts)$/) ? 1 : 0;
-	  my $prefix = ($required) ? '-' : '*';
-	  $feature_text .= "    $prefix $status->{message}\n";
-	}
-      }
-    } else {
-      $feature_text .= "enabled\n";
-    }
-    $log_text .= $feature_text if $disabled || $self->verbose;
+  for my $name ( sort keys %$features ) {
+    $log_text .= $self->_feature_deps_msg($name, $max_name_len);
   }
+
+  $num_disabled = () = $log_text =~ /disabled/g;
 
   # warn user if features disabled
   if ( $num_disabled ) {
@@ -1339,6 +1342,38 @@ sub check_autofeatures {
     $self->log_verbose( $log_text );
     return 1;
   }
+}
+
+sub _feature_deps_msg {
+  my ($self, $name, $max_name_len) = @_;
+    $max_name_len ||= length $name;
+    my $features = $self->auto_features;
+    my $info = $features->{$name};
+    my $feature_text = "$name" . '.' x ($max_name_len - length($name) + 4);
+
+    my ($log_text, $disabled) = ('','');
+    if ( my $failures = $self->prereq_failures($info) ) {
+      $disabled = grep( /^(?:\w+_)?(?:requires|conflicts)$/,
+                  keys %$failures ) ? 1 : 0;
+      $feature_text .= $disabled ? "disabled\n" : "enabled\n";
+
+      for my $type ( @{ $self->prereq_action_types } ) {
+        next unless exists $failures->{$type};
+        $feature_text .= "  $type:\n";
+        my $prereqs = $failures->{$type};
+        for my $module ( sort keys %$prereqs ) {
+          my $status = $prereqs->{$module};
+          my $required =
+            ($type =~ /^(?:\w+_)?(?:requires|conflicts)$/) ? 1 : 0;
+          my $prefix = ($required) ? '!' : '*';
+          $feature_text .= "    $prefix $status->{message}\n";
+        }
+      }
+    } else {
+      $feature_text .= "enabled\n";
+    }
+    $log_text .= $feature_text if $disabled || $self->verbose;
+    return $log_text;
 }
 
 # Automatically detect and add prerequisites based on configuration
@@ -1414,7 +1449,8 @@ sub prereq_failures {
 
   foreach my $type (@types) {
     my $prereqs = $info->{$type};
-    while ( my ($modname, $spec) = each %$prereqs ) {
+    for my $modname ( keys %$prereqs ) {
+      my $spec = $prereqs->{$modname};
       my $status = $self->check_installed_status($modname, $spec);
 
       if ($type =~ /^(?:\w+_)?conflicts$/) {
@@ -1463,23 +1499,20 @@ sub check_prereq {
   my $failures = $self->prereq_failures($info);
 
   if ( $failures ) {
+    $self->log_warn($log_text);
     for my $type ( @{ $self->prereq_action_types } ) {
       my $prereqs = $failures->{$type};
+      $self->log_warn("  ${type}:\n") if keys %$prereqs;
       for my $module ( sort keys %$prereqs ) {
         my $status = $prereqs->{$module};
-        my $prefix = ($type =~ /^(?:\w+_)?recommends$/) ? "* $type:" : "! $type:";
-        $log_text .= "$prefix $status->{message}\n";
+        my $prefix = ($type =~ /^(?:\w+_)?recommends$/) ? "* " : "! ";
+        $self->log_warn("    $prefix $status->{message}\n");
       }
     }
-
-    $self->log_warn( $log_text );
     return 0;
-
   } else {
-
     $self->log_verbose($log_text . "Looks good\n\n");
     return 1;
-
   }
 }
 
@@ -3350,6 +3383,7 @@ sub ACTION_realclean {
 
 sub ACTION_ppd {
   my ($self) = @_;
+
   require Module::Build::PPMMaker;
   my $ppd = Module::Build::PPMMaker->new();
   my $file = $ppd->make_ppd(%{$self->{args}}, build => $self);
@@ -3575,6 +3609,11 @@ sub do_create_license {
   my $self = shift;
   $self->log_info("Creating LICENSE file\n");
 
+  if (  ! $self->_mb_feature('license_creation') ) {
+    $self->_warn_mb_feature_deps('license_creation');
+    die "Aborting.\n";
+  }
+
   my $l = $self->license
     or die "No license specified";
 
@@ -3583,7 +3622,7 @@ sub do_create_license {
   my $class = "Software::License::$key";
 
   eval "use $class; 1"
-    or die "Can't load Software::License to create LICENSE file: $@";
+    or die "Can't load Software::License::$key to create LICENSE file: $@";
 
   $self->delete_filetree('LICENSE');
 
@@ -3679,6 +3718,11 @@ sub do_create_bundle_inc {
 
 sub ACTION_distdir {
   my ($self) = @_;
+
+  if ( @{$self->bundle_inc} && ! $self->_mb_feature('inc_bundling_support') ) {
+    $self->_warn_mb_feature_deps('inc_bundling_support');
+    die "Aborting.\n";
+  }
 
   $self->depends_on('distmeta');
   
@@ -4166,7 +4210,7 @@ sub prepare_metadata {
 
     if (my $key = $self->valid_licenses->{ $l }) {
       my $class = "Software::License::$key";
-      if (eval "use $class; 1") {
+      if (eval "require Software::License; require $class; 1") {
         # S::L requires a 'holder' key
         $node->{resources}{license} = $class->new({holder=>"nobody"})->url;
       }

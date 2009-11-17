@@ -25,6 +25,8 @@ my $build = ModuleBuildBuilder->new(
     'Test::More'            => 0.49,
     'Test::Harness'         => 3.16,    # PERL5LIB fixes
   },
+  # KEEP 'requires' as low as possible and target Build/test/install
+  # Requirements for authors should be implemented as optional features
   requires    => {
     'perl'                  => '5.006001',
     'Data::Dumper'          => 0,
@@ -35,10 +37,9 @@ my $build = ModuleBuildBuilder->new(
     'File::Path'            => 0,
     'File::Spec'            => ($^O eq 'MSWin32' ? 3.30 : '0.82'), # rel2abs()
     'ExtUtils::Install'     => 0,
-    'ExtUtils::Installed'   => 0,
     'ExtUtils::Manifest'    => 0,
     'ExtUtils::Mkbootstrap' => 0,
-    'IO::File'              => 1.13, # fixes binmode bug on perl < 5.8.8
+    'IO::File'              => 0,
     'Cwd'                   => 0,
     'Text::Abbrev'          => 0,
     'Text::ParseWords'      => 0,
@@ -46,13 +47,8 @@ my $build = ModuleBuildBuilder->new(
     'Test::Harness'         => 0,
   },
   recommends => {
-    'Archive::Tar'       => 1.09,
-    'ExtUtils::CBuilder' => 0.260301, # numerous bug fixes
     'ExtUtils::Install'  => 0.30,
     'ExtUtils::Manifest' => 1.54, # public maniskip()
-    'ExtUtils::ParseXS'  => 2.21,
-    'Pod::Readme'        => 0.04,
-    'Module::Signature'  => 0.21,
     'version'            => 0.74,
   },
   recursive_test_files => 1,
@@ -62,15 +58,42 @@ my $build = ModuleBuildBuilder->new(
 
   # overwrite the M::B that shipped in core
   installdirs   => ($] >= 5.009004 ? 'core' : 'site'),
-  
-  # Some CPANPLUS::Dist::Build versions need to allow mismatches 
+
+  # Some CPANPLUS::Dist::Build versions need to allow mismatches
   # On logic: thanks to Module::Install, CPAN.pm must set both keys, but
   # CPANPLUS sets only the one
-  allow_mb_mismatch => ( 
+  allow_mb_mismatch => (
     $ENV{PERL5_CPANPLUS_IS_RUNNING} && ! $ENV{PERL5_CPAN_IS_RUNNING} ? 1 : 0
   ),
 
   auto_features => {
+    dist_authoring => {
+      description => "Create new distributions",
+      requires => {
+        'Archive::Tar'       => 1.09,
+      },
+      recommends => {
+        'Pod::Readme'        => 0.04,
+        'Module::Signature'  => 0.21,
+      },
+    },
+    license_creation => {
+      description => "Create licenses automatically in distributions",
+      requires => {
+        'Software::License'  => 0,
+      },
+    },
+    PPM_support => {
+      description => "Generate PPM files for distributions",
+      requires    => {'IO::File' => 1.13}, # binmode bug in older core IO::File
+    },
+    inc_bundling_support => {
+      description => "Bundle Module::Build in inc/",
+      requires    => {
+        'ExtUtils::Install'     => 1.54, # also gets us ExtUtils::Installed 1.999_001
+        'ExtUtils::Installed'   => 1.999, # technically 1.999_001 is what's available
+      },
+    },
     YAML_support => {
       description => "Use YAML::Tiny to write META.yml files",
       requires    => {'YAML::Tiny' => 1.38},
@@ -82,7 +105,7 @@ my $build = ModuleBuildBuilder->new(
     },
     manpage_support => {
       description => "Create Unix man pages",
-      requires    => {'Pod::Man' => 0, 'Pod::Simple' => 0},
+      requires    => {'Pod::Man' => 0 },
     },
     HTML_support => {
       description => "Create HTML documentation",
