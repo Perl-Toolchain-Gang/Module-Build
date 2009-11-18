@@ -1,6 +1,11 @@
 Revision history for Perl extension Module::Build.
 
-0.35_09 - 
+0.35_09 -
+
+ Bug fixes:
+
+ - The DB package should not be included in 'provides' in META files
+   [David Golden]
 
 0.35_08 - Mon Nov 16 22:38:28 EST 2009
 
@@ -45,7 +50,7 @@ Revision history for Perl extension Module::Build.
    non-numeric prerequisites are given, as these are not supported by
    ExtUtils::MakeMaker in PREREQ_PM [David Golden]
 
- - Made MYMETA generation non-fatal if fields required for META.yml 
+ - Made MYMETA generation non-fatal if fields required for META.yml
    are missing [David Golden]
 
  - Added Pod::Simple to requirements for manpage support; avoids
@@ -181,7 +186,7 @@ Revision history for Perl extension Module::Build.
 
  Enhancements:
 
- - Generates MYMETA.yml during Build.PL (new standard protocol for 
+ - Generates MYMETA.yml during Build.PL (new standard protocol for
    communicating configuration results between toolchain components)
    [David Golden]
 
@@ -198,7 +203,7 @@ Revision history for Perl extension Module::Build.
  - Guard against trying :utf8 when :utf8 isn't available
 
  - The "test" action now dies when using the 'use_tap_harness'
-   option and tests fail, matching the behavior under Test::Harness. 
+   option and tests fail, matching the behavior under Test::Harness.
    (RT#49080) [initial patch from David Wheeler; revised by David Golden]
 
  Other:
@@ -234,7 +239,7 @@ Revision history for Perl extension Module::Build.
 
  Bug fixes:
 
- - When auto_configure_requires is true (the default), Module::Build will 
+ - When auto_configure_requires is true (the default), Module::Build will
    only add last 'major' version of Module:Build (e.g. 0.XX) to
    configure_requires to avoid specifying a minor development release not
    available on CPAN [David Golden]
@@ -287,7 +292,7 @@ Revision history for Perl extension Module::Build.
 
  Bug-fixes:
 
- - Bundled Module::Build::Version version code updated to fix unsafe use 
+ - Bundled Module::Build::Version version code updated to fix unsafe use
    of $@ (RT#47980) [John Peacock]
 
 0.34 - Tue Jul  7 16:56:47 EDT 2009
@@ -304,7 +309,7 @@ Revision history for Perl extension Module::Build.
  - Reversed VMS patch from 0.33_03 [Craig Berry]
 
  - PL_files in Build.PL that are in the bin/scripts directory should not be
-   installed as if they are scripts (fixed for case-tolerant systems). 
+   installed as if they are scripts (fixed for case-tolerant systems).
    [David Golden, reported by Craig Berry]
 
 0.33_05 - Sun Jun 28 22:06:49 EDT 2009
@@ -342,7 +347,7 @@ Revision history for Perl extension Module::Build.
    (RT#47256) [John Peacock]
 
  - skips xs.t and ppm.t when perl was not compiled with dynamic loading
-   since Module::Buld does not support static linking (RT#46178) 
+   since Module::Buld does not support static linking (RT#46178)
    [David Golden]
 
  - skip failing test in par.t if Archive::Zip is broken [David Golden]
@@ -355,25 +360,25 @@ Revision history for Perl extension Module::Build.
 
  Bug-fixes:
 
- - Removes Module::Build from its own configure/build_requires 
+ - Removes Module::Build from its own configure/build_requires
    [David Golden]
 
  - ConfigData->feature() confirms that modules actually load successfully,
    not just that they are present. (RT#43557) [David Golden]
 
- - Module::Build::Compat handling of INSTALL*LIB (RT#43827) 
+ - Module::Build::Compat handling of INSTALL*LIB (RT#43827)
    [Tony Payne, David Golden]
 
  - Module::Build::Compat and recursive test files (RT#39171) [Dave Rolsky]
 
  - Fixed bug linking non-standard XS names on Windows (RT#38065) ["snaury"]
 
- - Run PL files that don't generate any file (RT#39365) 
+ - Run PL files that don't generate any file (RT#39365)
    [Matisse Enzer, David Golden]
 
  - HTML generation failure no longer fatal (RT#36660) [David Golden]
 
- - realclean might not delete Build.bat on Windows (RT#43863) 
+ - realclean might not delete Build.bat on Windows (RT#43863)
    [Roy Ivy, David Golden]
 
  - include_dirs parameter now works correctly when given a single
@@ -391,7 +396,7 @@ Revision history for Perl extension Module::Build.
  - Add support for VMS in Unix compatibility mode (RT#42157)
    [John E. Malmberg
 
- - Added a can_action($name) method (RT#45172) [brian d foy] 
+ - Added a can_action($name) method (RT#45172) [brian d foy]
 
  - Documented that subclass methods should not permanently change
    current directory (RT#46919) [David Wheeler]
@@ -416,13 +421,13 @@ Revision history for Perl extension Module::Build.
 
  Other:
 
- - Adds current Module::Build to configure_requires (and build_requires) 
+ - Adds current Module::Build to configure_requires (and build_requires)
    if no configure_requires is specified
 
  - Always normalizes version number tuples in META.yml (e.g. 'v1.2.0')
-   (Partially addresses RT#46150) 
+   (Partially addresses RT#46150)
 
- - Normalizes a generated dist_version (e.g. from a .pm file) -- 
+ - Normalizes a generated dist_version (e.g. from a .pm file) --
    dist_version set manually in Build.PL is not normalized
 
  - Documentation update for create_license
@@ -449,7 +454,7 @@ Revision history for Perl extension Module::Build.
    PL_files property was set in Build.PL; restored old behavior and fixed
    tests and documentation related to this issue [David Golden]
 
- - Caches ExtUtils::CBuilder object in a temporary stash instead of properties 
+ - Caches ExtUtils::CBuilder object in a temporary stash instead of properties
 
  - Fixed undef resources->license in META.yml (RT #44453).
 
@@ -465,7 +470,7 @@ Revision history for Perl extension Module::Build.
 
  - dist_dir() now uses dist_name() and dist_version() accessors rather
    than using its properties directly. [brian d foy] (RT #45038)
-   
+
 0.32 - Wed Feb 25 17:40:02 PST 2009
 
  No changes since 0.31_04.
@@ -787,11 +792,11 @@ Revision history for Perl extension Module::Build.
    have stopped, but it didn't.  Fixed. [Matthew Cast and David
    Golden]
 
- - Module::Build::Compat adds "require 5.XXXXX" to Makefile.PL when 
+ - Module::Build::Compat adds "require 5.XXXXX" to Makefile.PL when
    'perl' is specified as a 'requires' prerequisite [David Golden]
 
- - Refactored t/compat.t for modularity and transparency; added 
-   labels for all tests; supressed subprocess output to 
+ - Refactored t/compat.t for modularity and transparency; added
+   labels for all tests; supressed subprocess output to
    STDOUT and STDERR [David Golden]
 
  - Fixed bug in perl_version_to_float when version is already a float
@@ -1318,7 +1323,7 @@ Revision history for Perl extension Module::Build.
  - The synonyms 'scripts' and 'prereq' for 'script_files' and
    'requires' were broken in a previous version (0.27_01, probably),
    but now they're fixed. [David Golden]
- 
+
  - Previously, we assumed that any custom subclass of Module::Build
    was located in _build/lib/.  This is only true if the author used
    the subclass() method, though.  We now use %INC to find where the
@@ -2465,13 +2470,13 @@ Revision history for Perl extension Module::Build.
  - Added experimental code to build a .ppd file, in support of
    ActiveState's "Perl Package Manager". [original patch by Dave
    Rolsky]
- 
+
  - For authors who use Module::Signature to sign their distributions,
    we now create the SIGNATURE file right in the distribution
    directory, rather than creating it in the top-level directory and
    copying it into place.  This solves problems related to having
    files get out of date with respect to their signatures.
- 
+
  - We now don't depend on Module::Info to scan for packages during the
    'dist' action anymore, because it's way too aggressive about
    loading other modules that you may not want loaded.  We now just
@@ -2534,12 +2539,12 @@ Revision history for Perl extension Module::Build.
 
  - The distribution directory (e.g. Sample-Module-0.13/ ) will now be
    deleted during the 'clean' or 'realclean' actions.
- 
+
  - During testing of modules, blib/lib and blib/arch are now added as
    absolute paths, not relative.  This helps tests that load the
    modules at runtime and may change the current working directory
    (like Module::Build itself does during testing).
- 
+
  - The $Config{cc} entry on some people's systems is something like
    'ccache gcc', so we now split that string using split_like_shell().
    [Richard Clamp]
@@ -2569,7 +2574,7 @@ Revision history for Perl extension Module::Build.
 
  - When compiling C code, we now respect 'pollute' and 'inc'
    parameters. (XXX - needs docs) [Dave Rolsky]
-   
+
  - Made the creation of the "install map" more generic.  (XXX - needs
    documentation)
 
@@ -2926,7 +2931,7 @@ Revision history for Perl extension Module::Build.
   - Renamed module_name_to_file() to find_module_by_name(), and added
     a parameter specifying the directories to search in.  Previously
     we searched in 'lib' and @INC, which wasn't correct in all
-    situations. 
+    situations.
 
   - Patched the docs to change "Build test" to "./Build test"
     [Elizabeth Mattijsen]
@@ -3120,7 +3125,7 @@ Revision history for Perl extension Module::Build.
   - For the 'Build dist' action, we'll use the 'tar' and 'gzip'
     programs (as specified by Config.pm) on Unix platforms, otherwise
     we'll use Archive::Tar and Compress::Zlib.
- 
+
 0.02  Wed Sep  5 00:53:04 CDT 2001
   - Added POD documentation.
 

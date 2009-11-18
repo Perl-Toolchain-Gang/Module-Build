@@ -4314,6 +4314,7 @@ sub find_packages_in_files {
 
     foreach my $package ( $pm_info->packages_inside ) {
       next if $package eq 'main';  # main can appear numerous times, ignore
+      next if $package eq 'DB';    # special debugging package, ignore 
       next if grep /^_/, split( /::/, $package ); # private package, ignore
 
       my $version = $pm_info->version( $package );
