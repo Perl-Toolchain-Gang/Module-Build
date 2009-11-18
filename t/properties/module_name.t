@@ -22,10 +22,10 @@ $dist->change_build_pl(
   dist_version => 1,
 )->regen;
 
-my $mb = $dist->new_from_context(); 
+my $mb = $dist->new_from_context();
 isa_ok( $mb, "Module::Build" );
-is( $mb->module_name, "Not::So::Simple", 
-  "module_name guessed from directory name" 
+is( $mb->module_name, "Not::So::Simple",
+  "module_name guessed from directory name"
 );
 
 #--------------------------------------------------------------------------#
@@ -44,9 +44,9 @@ $dist->change_build_pl(
   dist_abstract => "Don't complain about missing abstract",
 )->regen( clean => 1 );
 
-$mb = $dist->new_from_context(); 
+$mb = $dist->new_from_context();
 isa_ok( $mb, "Module::Build" );
-is( $mb->module_name, "Simple::Name", 
+is( $mb->module_name, "Simple::Name",
   "module_name guessed from dist_version_from"
 );
 

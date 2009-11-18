@@ -32,10 +32,10 @@ ok( ! $mb->recursive_test_files, "set for no recursive testing" );
 {
   local $ENV{PERL_MB_OPT} = "--verbose --recursive_test_files 1";
 
-  my $out = stdout_stderr_of( sub { 
+  my $out = stdout_stderr_of( sub {
       $dist->run_build('test');
   });
-  like( $out, qr/this is a recursive test/, 
+  like( $out, qr/this is a recursive test/,
     "recursive tests run via PERL_MB_OPT"
   );
 }
@@ -51,10 +51,10 @@ ok( ! $mb->recursive_test_files, "set for no recursive testing" );
 # verify settings preserved during 'Build test'
 {
   ok( !$ENV{PERL_MB_OPT}, "PERL_MB_OPT cleared" );
-  my $out = stdout_stderr_of( sub { 
+  my $out = stdout_stderr_of( sub {
       $dist->run_build('test');
   });
-  like( $out, qr/this is a recursive test/, 
+  like( $out, qr/this is a recursive test/,
     "recursive tests run via Build object"
   );
 }

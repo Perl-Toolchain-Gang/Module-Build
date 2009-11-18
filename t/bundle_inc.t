@@ -32,7 +32,7 @@ mkpath ( $arch_path );
 ok( -d $arch_path, "created temporary M::B pseudo-install directory");
 
 unshift @INC, $lib_path, $arch_path;
-local $ENV{PERL5LIB} = join( $Config{path_sep}, 
+local $ENV{PERL5LIB} = join( $Config{path_sep},
   $lib_path, $arch_path, ($ENV{PERL5LIB} ? $ENV{PERL5LIB} : () )
 );
 
@@ -54,7 +54,7 @@ is_deeply( $mb->bundle_inc, [ 'Module::Build' ],
 stdout_stderr_of( sub { $mb->dispatch('distdir') } );
 
 my $dist_inc = File::Spec->catdir($mb->dist_dir, 'inc');
-ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ), 
+ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ),
   "./inc/latest.pm created"
 );
 
@@ -62,7 +62,7 @@ ok( -d File::Spec->catdir( $dist_inc, 'inc_Module-Build' ),
   "dist_dir/inc/inc_Module_Build created"
 );
 
-my $mb_file = 
+my $mb_file =
   File::Spec->catfile( $dist_inc, qw/inc_Module-Build Module Build.pm/ );
 
 ok( -e $mb_file,
@@ -139,7 +139,7 @@ is_deeply( [sort @{$mb->bundle_inc}], [ 'Foo', 'Module::Build' ],
 
 my $output = stdout_stderr_of( sub { $mb->dispatch('distdir') } );
 
-ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ), 
+ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ),
   "./inc/latest.pm created"
 );
 
@@ -168,7 +168,7 @@ is_deeply( [sort @{$mb->bundle_inc}], [ 'Bar', 'Module::Build' ],
 
 $output = stdout_stderr_of( sub { $mb->dispatch('distdir') } );
 
-ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ), 
+ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ),
   "./inc/latest.pm created"
 );
 

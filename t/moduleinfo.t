@@ -214,7 +214,7 @@ foreach my $module ( sort keys %modules ) {
     # Test::Builder will prematurely numify objects, so use this form
     my $errs;
     ok( $pm_info->version eq $expected,
-        "correct module version (expected '$expected')" ) 
+        "correct module version (expected '$expected')" )
         or $errs++;
     is( $warnings, '', 'no warnings from parsing' ) or $errs++;
     diag "Got: '@{[$pm_info->version]}'\nModule contents:\n$module" if $errs;
@@ -268,10 +268,10 @@ $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
 is( $pm_info->version, '1.23_01', 'alpha version reported');
 
 # NOTE the following test has be done this way because Test::Builder is
-# too smart for our own good and tries to see if the version object is a 
+# too smart for our own good and tries to see if the version object is a
 # dual-var, which breaks with alpha versions:
 #    Argument "1.23_0100" isn't numeric in addition (+) at
-#    /usr/lib/perl5/5.8.7/Test/Builder.pm line 505. 
+#    /usr/lib/perl5/5.8.7/Test/Builder.pm line 505.
 
 ok( $pm_info->version > 1.23, 'alpha version greater than non');
 

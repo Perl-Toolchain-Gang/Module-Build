@@ -28,7 +28,7 @@ $dist->change_build_pl(
 );
 $dist->regen;
 
-ok my $mb = $dist->new_from_context, 
+ok my $mb = $dist->new_from_context,
     'Construct build object with test_file_exts parameter';
 
 $mb->add_to_cleanup('save_out');
@@ -51,7 +51,7 @@ $dist->change_build_pl(
 );
 $dist->regen;
 
-ok $mb = $dist->new_from_context, 
+ok $mb = $dist->new_from_context,
     'Construct build object with test_file_exts parameter';
 
 $mb->add_to_cleanup('save_out');
@@ -82,13 +82,13 @@ ok 0;
 ---
 $dist->regen;
 
-ok $mb = $dist->new_from_context, 
-    'Construct build object after setting tests to fail'; 
+ok $mb = $dist->new_from_context,
+    'Construct build object after setting tests to fail';
 # Use uc() so we don't confuse the current test output
 $out = stdout_stderr_of( sub { $dist->run_build('test')} );
 ok( $?, "'Build test' had non-zero exit code" );
-like( $out, qr{Errors in testing\.  Cannot continue\.}, 
-    "Saw emulated Test::Harness die() message" 
+like( $out, qr{Errors in testing\.  Cannot continue\.},
+    "Saw emulated Test::Harness die() message"
 );
 
 # vim:ts=4:sw=4:et:sta

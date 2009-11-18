@@ -38,7 +38,7 @@ BEGIN {
         $vms_efs_case = VMS::Feature::current("efs_case_preserve");
     } else {
         my $env_unix_rpt = $ENV{'DECC$FILENAME_UNIX_REPORT'} || '';
-        $unix_rpt = $env_unix_rpt =~ /^[ET1]/i; 
+        $unix_rpt = $env_unix_rpt =~ /^[ET1]/i;
         my $efs_case = $ENV{'DECC$EFS_CASE_PRESERVE'} || '';
         $vms_efs_case = $efs_case =~ /^[ET1]/i;
     }
@@ -64,7 +64,7 @@ sub undent {
 }
 
 sub chdir_all ($) {
-  # OS/2 has "current directory per disk", undeletable; 
+  # OS/2 has "current directory per disk", undeletable;
   # doing chdir() to another disk won't change cur-dir of initial disk...
   chdir('/') if $^O eq 'os2';
   chdir shift;
@@ -128,7 +128,7 @@ sub revert {
   else {
     delete $self->{filedata}{$_} for keys %{ $self->{filedata} };
     for my $pend ( qw/change remove/ ) {
-      delete $self->{pending}{$pend}{$_} for keys %{ $self->{pending}{$pend} }; 
+      delete $self->{pending}{$pend}{$_} for keys %{ $self->{pending}{$pend} };
     }
   }
   $self->_gen_default_filedata;
@@ -472,10 +472,10 @@ sub change_build_pl {
     use strict;
     use Module::Build;
     my \$b = Module::Build->new(
-    # Some CPANPLUS::Dist::Build versions need to allow mismatches 
+    # Some CPANPLUS::Dist::Build versions need to allow mismatches
     # On logic: thanks to Module::Install, CPAN.pm must set both keys, but
     # CPANPLUS sets only the one
-    allow_mb_mismatch => ( 
+    allow_mb_mismatch => (
       \$ENV{PERL5_CPANPLUS_IS_RUNNING} && ! \$ENV{PERL5_CPAN_IS_RUNNING} ? 1 : 0
     ),
     $args
@@ -621,7 +621,7 @@ Additional methods portably encapsulate running Build.PL and Build:
 
 Create a new object and an empty directory to hold the distribution's files.
 If no C<dir> option is provided, it defaults to MBTest->tmpdir, which sets
-a different temp directory for Perl core testing and CPAN testing.  
+a different temp directory for Perl core testing and CPAN testing.
 
 The C<new> method does not write any files -- see L</regen()> below.
 
@@ -762,11 +762,11 @@ Removes any files that are not part of the distribution.
 =head3 remove()
 
 Changes back to the original directory and removes the distribution
-directory (but not the temporary directory set during C<new()>).  
+directory (but not the temporary directory set during C<new()>).
 
   $dist = DistGen->new->chdir->regen;
   # ... do some testing ...
-  
+
   $dist->remove->chdir_in->regen;
   # ... do more testing ...
 

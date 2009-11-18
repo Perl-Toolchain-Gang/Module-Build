@@ -3,7 +3,7 @@ use lib 't/lib';
 use MBTest;
 use DistGen;
 
-plan tests => 7; 
+plan tests => 7;
 
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');
@@ -41,7 +41,7 @@ like( $out, qr/Getopt::Long/, "saw Getopt::Long prereq" );
 $out = stdout_stderr_of( sub {
     $dist->run_build('installdeps', '--cpan_client', 'ADLKASJDFLASDJ')
 });
-like( $out, qr/cpan_client .* is not executable/, 
+like( $out, qr/cpan_client .* is not executable/,
   "Build installdeps with bad cpan_client dies"
 );
 

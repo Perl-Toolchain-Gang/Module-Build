@@ -2,7 +2,7 @@
 
 use strict;
 use lib 't/lib';
-use MBTest; 
+use MBTest;
 use File::Spec::Functions qw/catdir catfile/;
 
 #--------------------------------------------------------------------------#
@@ -55,7 +55,7 @@ stdout_stderr_of( sub { $mb = $dist->new_from_context });
 is_deeply( $mb->share_dir, { dist => [ 'share' ] },
   "Default share_dir set as dist-type share"
 );
-is( $mb->{properties}{requires}{'File::ShareDir'}, '1.00', 
+is( $mb->{properties}{requires}{'File::ShareDir'}, '1.00',
   "File::ShareDir 1.00 added to 'requires'"
 );
 
@@ -120,7 +120,7 @@ $dist->change_build_pl(
   {
     module_name         => $dist->name,
     license             => 'perl',
-    share_dir           => { 
+    share_dir           => {
       dist => 'share',
       module => { $dist->name =>  'other/share'  },
     },
@@ -128,8 +128,8 @@ $dist->change_build_pl(
 );
 $dist->regen;
 stdout_stderr_of( sub { $mb = $dist->new_from_context });
-is_deeply( $mb->share_dir, 
-  { dist => [ 'share' ], 
+is_deeply( $mb->share_dir,
+  { dist => [ 'share' ],
     module => { $dist->name => ['other/share']  },
   },
   "Hashref share_dir w/ both dist and module shares (scalar-form)"
@@ -140,7 +140,7 @@ $dist->change_build_pl(
   {
     module_name         => $dist->name,
     license             => 'perl',
-    share_dir           => { 
+    share_dir           => {
       dist => [ 'share' ],
       module => { $dist->name =>  ['other/share']  },
     },
@@ -148,8 +148,8 @@ $dist->change_build_pl(
 );
 $dist->regen;
 stdout_stderr_of( sub { $mb = $dist->new_from_context });
-is_deeply( $mb->share_dir, 
-  { dist => [ 'share' ], 
+is_deeply( $mb->share_dir,
+  { dist => [ 'share' ],
     module => { $dist->name => ['other/share']  },
   },
   "Hashref share_dir w/ both dist and module shares (array-form)"
@@ -159,7 +159,7 @@ is_deeply( $mb->share_dir,
 # test constructing to/from mapping
 #--------------------------------------------------------------------------#
 
-is_deeply( $mb->_find_share_dir_files, 
+is_deeply( $mb->_find_share_dir_files,
   {
     catfile(qw/share foo.txt/) => catfile(qw/dist Simple-Share foo.txt/),
     catfile(qw/other share bar.txt/) => catfile(qw/module Simple-Share bar.txt/),
@@ -178,11 +178,11 @@ ok( -d 'blib/lib/auto/share', "blib/lib/auto/share exists" );
 
 my $share_list = Module::Build->rscan_dir('blib/lib/auto/share', sub {-f});
 
-is_deeply( 
-  [ sort @$share_list ], [ 
+is_deeply(
+  [ sort @$share_list ], [
     'blib/lib/auto/share/dist/Simple-Share/foo.txt',
     'blib/lib/auto/share/module/Simple-Share/bar.txt',
-  ], 
+  ],
   "share_dir files copied to blib"
 );
 
@@ -201,11 +201,11 @@ $share_list = Module::Build->rscan_dir(
   "$temp_install/lib/perl5/auto/share", sub {-f}
 );
 
-is_deeply( 
-  [ sort @$share_list ], [ 
+is_deeply(
+  [ sort @$share_list ], [
     "$temp_install/lib/perl5/auto/share/dist/Simple-Share/foo.txt",
     "$temp_install/lib/perl5/auto/share/module/Simple-Share/bar.txt",
-  ], 
+  ],
   "share_dir files correctly installed"
 );
 
@@ -216,7 +216,7 @@ is_deeply(
 SKIP: {
   eval { require File::ShareDir; File::ShareDir->VERSION(1.00) };
   skip "needs File::ShareDir 1.00", 2 if $@;
-  
+
   unshift @INC, File::Spec->catdir($temp_install, qw/lib perl5/);
   require Simple::Share;
 
