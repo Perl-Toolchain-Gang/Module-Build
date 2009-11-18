@@ -7,6 +7,9 @@ Revision history for Perl extension Module::Build.
  - The DB package should not be included in 'provides' in META files
    [David Golden]
 
+ - Fixed t/xs.t build failures in bleadperl for noexec temp directories
+   [Nicholas Clark]
+
 0.35_08 - Mon Nov 16 22:38:28 EST 2009
 
  Bug fixes:
