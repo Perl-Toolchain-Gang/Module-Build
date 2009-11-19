@@ -5,7 +5,6 @@ Module::Build::Bundling - How to bundle Module::Build with a distribution
 =head1 SYNOPSIS
 
   # Build.PL
-  use lib '.';
   use inc::latest 'Module::Build';
 
   Module::Build->new(
@@ -19,7 +18,7 @@ B<WARNING -- THIS IS AN EXPERIMENTAL FEATURE>
 
 In order to install a distribution using Module::Build, users must
 have Module::Build available on their systems.  There are two ways
-to do this.  The first way is to include Module::Build in the 
+to do this.  The first way is to include Module::Build in the
 C<configure_requires> metadata field.  This field is supported by
 recent versions L<CPAN> and L<CPANPLUS> and is a standard feature
 in the Perl core as of Perl 5.10.1.  Module::Build now adds itself
@@ -50,18 +49,12 @@ fields):
 A "bundling" Build.PL replaces the initial "use" line with a nearly
 transparent replacement:
 
-  use lib '.';
   use inc::latest 'Module::Build';
 
   Module::Build->new(
     module_name => 'Foo::Bar',
     license => 'perl',
   )->create_build_script;
-
-The inital C<lib> line ensures that the top-level distribution directory is
-added to C<@INC> so that C<inc::latest> loads from C<./inc/latest.pm>.  You
-SHOULD NOT add 'inc' to C<@INC> (unless you have other special reasons for
-doing so) -- that's not how C<inc::latest> works.
 
 For I<authors>, when "Build dist" is run, Module::Build will be
 automatically bundled into C<inc> according to the rules for
@@ -83,7 +76,7 @@ For example, to bundle the L<Devel::AssertOS::Unix> module (which ensures a
   use inc::latest 'Devel::AssertOS::Unix';
   use inc::latest 'Module::Build';
 
-  Module::Build->new(  
+  Module::Build->new(
     module_name => 'Foo::Bar',
     license => 'perl',
   )->create_build_script;
@@ -116,7 +109,7 @@ future version of Module::Build.
 Before bundling a distribution you must ensure that all prerequisites are
 also bundled and load in the correct order.  For Module::Build itself, this
 should not be necessary, but it is necessary for any other distribution.
-(A future release of Module::Build will hopefully address this deficiency.)  
+(A future release of Module::Build will hopefully address this deficiency.)
 
 For example, if you need C<Wibble>, but C<Wibble> depends on C<Wobble>,
 your Build.PL might look like this:
@@ -125,7 +118,7 @@ your Build.PL might look like this:
   use inc::latest 'Wibble';
   use inc::latest 'Module::Build';
 
-  Module::Build->new(  
+  Module::Build->new(
     module_name => 'Foo::Bar',
     license => 'perl',
   )->create_build_script;
@@ -147,7 +140,7 @@ Bug reports are also welcome at
 =head1 SEE ALSO
 
 perl(1), L<inc::latest>, L<Module::Build>(3), L<Module::Build::API>(3),
-L<Module::Build::Cookbook>(3), 
+L<Module::Build::Cookbook>(3),
 
 =cut
 
