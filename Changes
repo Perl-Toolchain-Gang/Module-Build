@@ -10,6 +10,14 @@ Revision history for Perl extension Module::Build.
  - Fixed t/xs.t build failures in bleadperl for noexec temp directories
    [Nicholas Clark]
 
+ Other:
+
+ - 'C_support' is no longer an optional feature.  Modern ExtUtils::CBuilder
+   and ExtUtils::ParseXS added to 'requires' list.  This ensures that
+   upgrading Module::Build will upgrade this critical modules.
+   ExtUtils::CBuilder no longer requires a compiler, so it is "safe" to
+   require.
+
 0.35_08 - Mon Nov 16 22:38:28 EST 2009
 
  Bug fixes:

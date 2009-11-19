@@ -6,12 +6,12 @@ use MBTest;
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
 
+my $tmp;
+
 {
-  my ($have_c_compiler, $C_support_feature) = check_compiler();
-  if (! $C_support_feature) {
-    plan skip_all => 'C_support not enabled';
-  } elsif ( ! $have_c_compiler ) {
-    plan skip_all => 'C_support enabled, but no compiler found';
+  my ($have_c_compiler, $tmp_exec) = check_compiler();
+  if ( ! $have_c_compiler ) {
+    plan skip_all => 'No compiler found';
   } elsif ( ! eval {require PAR::Dist; PAR::Dist->VERSION(0.17)} ) {
     plan skip_all => "PAR::Dist 0.17 or up not installed to check .par's.";
   } elsif ( ! eval {require Archive::Zip} ) {
@@ -19,10 +19,10 @@ blib_load('Module::Build::ConfigData');
   } else {
     plan tests => 3;
   }
+  require Cwd;
+  $tmp = MBTest->tmpdir( $tmp_exec ? () : (DIR => Cwd::cwd) );
 }
 
-
-my $tmp = MBTest->tmpdir;
 
 
 use DistGen;
@@ -80,7 +80,7 @@ SKIP: {
   my $tmp2 = MBTest->tmpdir;
   local %SIG;
   $SIG{__WARN__} = sub { print STDERR $_[0] unless $_[0] =~ /\bstat\b/ };
-  skip "broken Archive::Zip", 1 
+  skip "broken Archive::Zip", 1
     unless eval { $zip->read($filename) == Archive::Zip::AZ_OK() }
     && eval { $zip->extractTree('', "$tmp2/") == Archive::Zip::AZ_OK() }
     && -r File::Spec->catfile( $tmp2, 'blib', 'META.yml' );
