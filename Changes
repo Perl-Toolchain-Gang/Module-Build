@@ -14,10 +14,13 @@ Revision history for Perl extension Module::Build.
    @INC = @new_additions_to_inc, @saved_additions_to_inc, @default_inc
    [David Golden]
 
+ - Skip bundle_inc.t tests if bundled Module::Build for test can't be
+   tweaked (Works around test crashes on Win2) [David Golden]
+
  Other:
 
  - 'C_support' is no longer an optional feature.  Modern ExtUtils::CBuilder
-   and ExtUtils::ParseXS added to 'requires' list.  This ensures that
+   and ExtUtils::ParseXS added to the 'requires' list.  This ensures that
    upgrading Module::Build will upgrade this critical modules.
    ExtUtils::CBuilder no longer requires a compiler, so it is "safe" to
    require.
