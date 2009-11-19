@@ -74,10 +74,11 @@ ok( -e File::Spec->catfile( $dist_inc, qw/inc_Module-Build Module Build Base.pm/
 );
 
 # Force bundled M::B to a higher version so it gets loaded
-# This has failed on Win32 for no known reason, so we'll skip if
+# This has failed on Win32 for various reasons, so we'll skip if
 # we can't edit the file.
 
 eval {
+  chmod 0644, $mb_file; # seem to need this on Win32
   my $fh;
   $fh = IO::File->new($mb_file, "<") or die "Could not read $mb_file: $!";
   my $mb_code = do { local $/; <$fh> };
@@ -99,11 +100,13 @@ SKIP: {
 
   stdout_of( sub { Module::Build->run_perl_script('Build.PL',[],[]) } );
 
-  my $meta = IO::File->new('MYMETA.yml');
-  ok( $meta, "found MYMETA.yml" );
-  ok( scalar( grep { /generated_by:.*9999/ } <$meta> ),
-    "dist_dir Build.PL loaded bundled Module::Build"
-  );
+  {
+    my $meta = IO::File->new('MYMETA.yml');
+    ok( $meta, "found MYMETA.yml" );
+    ok( scalar( grep { /generated_by:.*9999/ } <$meta> ),
+      "dist_dir Build.PL loaded bundled Module::Build"
+    );
+  }
 
   #--------------------------------------------------------------------------#
   # test identification of dependencies
