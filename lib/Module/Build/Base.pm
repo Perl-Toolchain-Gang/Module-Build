@@ -2416,6 +2416,7 @@ sub _action_listing {
   while (my ($one, $two) = splice @actions, 0, 2) {
     $out .= sprintf("  %-12s                   %-12s\n", $one, $two||'');
   }
+  $out =~ s{\s*$}{}mg; # remove trailing spaces
   return $out;
 }
 

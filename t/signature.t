@@ -42,7 +42,7 @@ my $mb = Module::Build->new_from_context;
   is $@, '';
   chdir( $mb->dist_dir ) or die "Can't chdir to '@{[$mb->dist_dir]}': $!";
   ok -e 'SIGNATURE';
-  
+
   # Make sure the signature actually verifies
   ok Module::Signature::verify() == Module::Signature::SIGNATURE_OK();
   $dist->chdir_in;
@@ -88,10 +88,10 @@ $dist->chdir_in;
         license     => 'perl',
     });
     $dist->regen;
-    
+
     my $mb = Module::Build->new_from_context;
     is $mb->{properties}{sign}, 1;
-    
+
     eval {$mb->dispatch('distdir')};
     is $@, '';
     chdir( $mb->dist_dir ) or die "Can't chdir to '@{[$mb->dist_dir]}': $!";

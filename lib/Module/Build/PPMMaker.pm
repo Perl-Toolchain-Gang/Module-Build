@@ -137,7 +137,7 @@ sub _varchname {  # Copied from PPM.pm
 		 '<' => '&lt;',
 		);
   my $rx = join '|', keys %escapes;
-  
+
   sub _simple_xml_escape {
     $_[1] =~ s/($rx)/$escapes{$1}/go;
   }

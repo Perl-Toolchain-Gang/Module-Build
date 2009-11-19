@@ -9,7 +9,7 @@ blib_load('Module::Build::ConfigData');
 
 my $tmp = MBTest->tmpdir;
 
-my %metadata = 
+my %metadata =
   (
    module_name   => 'Simple',
    dist_version  => '3.14159265',
@@ -62,8 +62,8 @@ my $mb = Module::Build->new_from_context;
 
 {
   my $mb_prereq = { 'Module::Build' => $Module::Build::VERSION };
-  my $mb_config_req = { 
-    'Module::Build' => int($Module::Build::VERSION * 100)/100 
+  my $mb_config_req = {
+    'Module::Build' => int($Module::Build::VERSION * 100)/100
   };
   my $node = $mb->prepare_metadata( );
 

@@ -83,7 +83,7 @@ $build->install_base_relpaths('etc' => "etc/$distdir");
 $build->create_build_script();
 
 ===EOF===
-	
+
 #Test Build.PL exists ok?
 
 $dist->add_file("etc/config", <<'===EOF===');
