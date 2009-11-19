@@ -74,7 +74,9 @@ sub resume {
   my $self = $package->_construct(@_);
   $self->read_config;
 
-  unshift @INC, @{ $self->{properties}{_added_to_INC} || [] };
+  my @added_earlier = @{ $self->{properties}{_added_to_INC} || [] };
+
+  @INC = ($self->_added_to_INC, @added_earlier, $self->_default_INC);
 
   # If someone called Module::Build->current() or
   # Module::Build->new_from_context() and the correct class to use is

@@ -10,6 +10,10 @@ Revision history for Perl extension Module::Build.
  - Fixed t/xs.t build failures in bleadperl for noexec temp directories
    [Nicholas Clark]
 
+ - Adjusted order of @INC in resume() (fixes par.t, ppm.t, xs.t fails):
+   @INC = @new_additions_to_inc, @saved_additions_to_inc, @default_inc
+   [David Golden]
+
  Other:
 
  - 'C_support' is no longer an optional feature.  Modern ExtUtils::CBuilder
