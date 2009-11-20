@@ -7,6 +7,9 @@ Revision history for Perl extension Module::Build.
  - bundle_inc.t is more careful about permissions and open filehandles
    to avoid failures/skips on Win32 [David Golden]
 
+ - fix compilation error in Module::Build::Platform::VMS (RT#51766)
+   [David Golden]
+
 0.35_09 - Thu Nov 19 01:30:42 EST 2009
 
  Bug fixes:
