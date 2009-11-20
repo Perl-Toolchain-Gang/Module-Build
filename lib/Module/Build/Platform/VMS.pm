@@ -5,6 +5,7 @@ use vars qw($VERSION);
 $VERSION = '0.35_10';
 $VERSION = eval $VERSION;
 use Module::Build::Base;
+use Config;
 
 use vars qw(@ISA);
 @ISA = qw(Module::Build::Base);
