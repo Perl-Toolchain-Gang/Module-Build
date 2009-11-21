@@ -5,10 +5,11 @@ use Module::Build;
 use vars qw(@ISA);
 @ISA = qw(Module::Build);
 
+
 sub ACTION_distdir {
   my $self = shift;
   $self->SUPER::ACTION_distdir(@_);
-  
+
   my $build_pl = File::Spec->catfile($self->dist_dir, qw(Build.PL));
   my $build_pm = File::Spec->catfile($self->dist_dir, qw(lib Module Build.pm));
   my $base_pm  = File::Spec->catfile($self->dist_dir, qw(lib Module Build Base.pm));
@@ -39,6 +40,58 @@ sub do_replace {
   my ($self, $code, $file) = @_;
   $self->run_perl_script('-e', ['-pi.bak'], [$code, $file]);
   1 while unlink "$file.bak";
+}
+
+sub ACTION_patch_blead {
+  my $self = shift;
+  my $git_dir = $ARGV[1];
+  die "Usage: Build patch_blead <perl-git-directory>\n"
+    unless $git_dir && -d "$git_dir/.git" && -f "$git_dir/perl.h";
+
+  $self->depends_on('build');
+
+  $self->log_info( "Updating $git_dir\n" );
+  $self->{properties}{verbose} = 1;
+
+  # create a branch
+  my $cwd = $self->cwd;
+  chdir $git_dir;
+  $self->do_system("git checkout -b " . $self->dist_dir)
+    or die "Couldn't create git branch" . $self->dist_dir . "\n";
+  chdir $cwd;
+
+  # copy files
+  (my $git_mb_dir = $git_dir) =~ s{/?$}{/cpan/Module-Build};
+  my $files;
+
+  $files = $self->rscan_dir('blib/lib');
+  for my $file (@$files) {
+    next unless -f $file;
+    next if $file =~ /\.svn/;
+    (my $dest = $file) =~ s{^blib}{$git_mb_dir};
+    $self->copy_if_modified(from => $file, to => $dest);
+  }
+
+  $files = $self->rscan_dir('blib/script');
+  for my $file (@$files) {
+    next unless -f $file;
+    next if $file =~ /\.svn/;
+    (my $dest = $file) =~ s{^blib/script}{$git_mb_dir/scripts};
+    $self->copy_if_modified(from => $file, to => $dest);
+  }
+
+  my @skip = qw{ t/par.t t/signature.t };
+  $files = $self->rscan_dir('t');
+  for my $file (@$files) {
+    next unless -f $file;
+    next if $file =~ /\.svn/;
+    next if grep { $file eq $_ } @skip;
+    my $dest = "$git_mb_dir/$file";
+    $self->copy_if_modified(from => $file, to => $dest);
+  }
+
+  $self->copy_if_modified(from => 'Changes', to => "$git_mb_dir/Changes");
+  return 1;
 }
 
 1;

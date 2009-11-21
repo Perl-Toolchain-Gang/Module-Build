@@ -2,7 +2,7 @@
 
 =head2 Prerequisites
 
-These instructions assume you have already cloned the perl git 
+These instructions assume you have already cloned the perl git
 repository and have checked out the blead branch.  The blead branch should
 be clean of extraneous files
 
@@ -15,54 +15,37 @@ The rest of the instructions assume your perl git repo is ~/git/perl
 
 =head2 Creating a perl branch with changes
 
-Start in the Module-Build directory.  This would be the distdir left
-behind right after publishing a new release, or could be an unpacked 
-tarball from CPAN.
+Start in the Module-Build source directory.  This should *NOT* be the
+distdir -- you need the custom Module::Build subclass in inc/.  Checkout
+a fresh copy from the release tag, e.g.:
 
-  $ cd Module-Build-0.33_02
+  $ svn checkout http://svn.perl.org/modules/Module-Build/tags/0.35_09
+  $ cd 0.35_09
 
-Run the add-packages.pl program from ~/git/perl/Porting to create a 
-new git branch and copy in Module::Build files.  Be sure to exclude
-files with the '-e' flag:
-
-  $ perl ~/git/perl/Porting/add-package.pl -v -r ~/git/perl \
-        -e 'par\.t|signature\.t'
-
-There may be prompts about deleting read-only files. These are the excluded
-files.  (add-packages.pl does a recursive copy, then deletes excluded files 
-from the destination.  Why it does so is a mystery.)  Say "yes" to deleting
-these files.
-
-Module::Build::ConfigData is created during build, so must be generated and
-copied by hand:
+Next, run the "Build.PL" file and then the "patch_blead" action, giving the
+git repository directory as an argument:
 
   $ perl Build.PL
-  $ Build
-  $ cp blib/lib/Module/Build/ConfigData.pm ~/git/perl/lib/Module/Build/
+  $ Build patch_blead ~/git/perl
 
 =head2 Verifying and editing the branch
 
-After add-packages.pl finishes, ~/git/perl will be on the new branch. Verify
+After add-packages.pl finishes, ~/git/perl will be on the a new branch. Verify
 that and see what changes have been made:
 
   $ git branch
   $ git status
 
-ConfigData.pm will be marked modified, so add it to the index:
+Examine changes and determine if they should be staged or if an error occurred.
 
-  $ git add lib/Module/Build/ConfigData.pm
-
-If there are other changes made but not staged, examine them individually and
-determine if they should be staged or if an error occurred.
-
-If any files are being removed, be sure to edit Perl's MANIFEST file and stage
-it to be committed.
+If any files are being added or removed, be sure to edit Perl's MANIFEST file
+and stage it to be committed.
 
   $ vim MANIFEST
   $ git add MANIFEST
 
 Next, modify the Module::Build section of Porting/Maintainers.pl to indicate
-the distribution file on which the patch is based.  Note the version that 
+the distribution file on which the patch is based.  Note the version that
 is being replaced -- you'll need this later when creating the commit message.
 Update any other metadata necessary, then add this file to the index.
 
@@ -86,7 +69,7 @@ the old version number in Porting/Maintainers.pl)
 
   Bug-fixes:
   - Fixed tests for bleadperl
-  
+
   0.33_01 - Sat Jun 13 20:24:42 EDT 2009
 
   [... rest of Changes ...]
@@ -144,7 +127,7 @@ interactive rebase:
   $ git rebase -i origin
 
 In the editor, you will have the option to choose how commits are rebased.
-Leave the first entry as 'pick' and make all subsequent entries 'squash'.  
+Leave the first entry as 'pick' and make all subsequent entries 'squash'.
 After you leave the editor, a new editor window will open and you will have
 the opportunity to combine all commit messages.  Generally, you'll want to keep
 the initial Changes list and just delete the other commit messages.
