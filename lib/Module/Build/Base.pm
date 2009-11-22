@@ -3483,7 +3483,7 @@ sub ACTION_dist {
 sub ACTION_distcheck {
   my ($self) = @_;
 
-  $self->_check_manifest_skip;
+  $self->_check_manifest_skip unless $self->invoked_action eq 'distclean';
 
   require ExtUtils::Manifest;
   local $^W; # ExtUtils::Manifest is not warnings clean.
