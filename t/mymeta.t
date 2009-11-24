@@ -2,7 +2,8 @@
 
 use strict;
 use lib 't/lib';
-use MBTest tests => 3;
+use MBTest;
+plan tests => 7;
 
 blib_load('Module::Build');
 
@@ -27,4 +28,22 @@ $dist->chdir_in;
 }
 
 #########################
+
+{
+  my $output = stdout_stderr_of sub { $dist->run_build('distcheck') };
+  like($output, qr/Creating a temporary 'MANIFEST.SKIP'/,
+    "MANIFEST.SKIP created for distcheck"
+  );
+  unlike($output, qr/MYMETA/,
+    "MYMETA not flagged by distcheck"
+  );
+}
+
+
+{
+  my $output = stdout_stderr_of sub { $dist->run_build('distclean') };
+  ok( ! -f 'MYMETA.yml', "No MYMETA.yml after distclean" );
+  ok( ! -f 'MANIFEST.SKIP', "No MANIFEST.SKIP after distclean" );
+}
+
 

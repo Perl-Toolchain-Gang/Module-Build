@@ -3862,7 +3862,7 @@ sub _write_default_maniskip {
 
   $content .= <<'EOF';
 # Avoid configuration metadata file
-^MYMETA\.$
+^MYMETA\.
 
 # Avoid Module::Build generated and utility files.
 \bBuild$
@@ -3871,6 +3871,7 @@ sub _write_default_maniskip {
 \bBuild.COM$
 \bBUILD.COM$
 \bbuild.com$
+^MANIFEST\.SKIP
 
 # Avoid archives of this distribution
 EOF
@@ -3889,8 +3890,9 @@ sub _check_manifest_skip {
   my $maniskip = 'MANIFEST.SKIP';
 
   if ( ! -e $maniskip ) {
-    $self->log_warn("File '$maniskip' does not exist: Creating a default '$maniskip'\n");
+    $self->log_warn("File '$maniskip' does not exist: Creating a temporary '$maniskip'\n");
     $self->_write_default_maniskip($maniskip);
+    $self->add_to_cleanup($maniskip);
   }
   else {
     # MYMETA must not be added to MANIFEST, so always confirm the skip
