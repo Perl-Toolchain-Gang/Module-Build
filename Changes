@@ -13,6 +13,11 @@ Revision history for Perl extension Module::Build.
  - Don't generate a MANIFEST.SKIP during distclean [reported by Zefram,
    fixed by David Golden]
 
+ - Module::Build::ModuleInfo version parsing would fail if a module sets
+   its $VERSION from another module, but the other module is not installed.
+   We now try to detect such failures, prepend 'lib' to @INC and try again.
+   [David Golden]
+
 0.35_09 - Thu Nov 19 01:30:42 EST 2009
 
  Bug fixes:

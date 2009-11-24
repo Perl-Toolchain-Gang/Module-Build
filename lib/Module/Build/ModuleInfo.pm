@@ -321,6 +321,12 @@ sub _evaluate_version_line {
   local $^W;
   # Try to get the $VERSION
   eval $eval;
+  # some modules say $VERSION = $Foo::Bar::VERSION, but Foo::Bar isn't
+  # installed, so we need to hunt in ./lib for it
+  if ( $@ =~ /Can't locate/ && -d 'lib' ) {
+    local @INC = ('lib',@INC);
+    eval $eval;
+  }
   warn "Error evaling version line '$eval' in $self->{filename}: $@\n"
     if $@;
   (ref($vsub) eq 'CODE') or
