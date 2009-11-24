@@ -1753,17 +1753,45 @@ my \$build = $build_package->resume (
 EOF
 }
 
-sub create_build_script {
+sub create_mymeta {
   my ($self) = @_;
-  $self->write_config;
-
-  # Create MYMETA.yml
   my $mymetafile = $self->mymetafile;
+  my $metafile = $self->metafile;
+
+  # cleanup
   if ( $self->delete_filetree($mymetafile) ) {
     $self->log_verbose("Removed previous '$mymetafile'\n");
   }
   $self->log_info("Creating new '$mymetafile' with configuration results\n");
-  $self->write_metafile( $mymetafile, $self->prepare_metadata( fatal => 0 ) );
+
+  # use old meta and update prereqs, if possible
+  my $mymeta;
+  if ( -f $metafile ) {
+    $mymeta = $self->read_metafile( $self->metafile );
+    my $prereqs = $self->_normalize_prereqs;
+    for my $t ( keys %$prereqs ) {
+        $mymeta->{$t} = $prereqs->{$t};
+    }
+  }
+  # but generate from scratch, ignoring errors if META doesn't exist
+  else {
+    $mymeta = $self->prepare_metadata( fatal => 0 );
+  }
+
+  # MYMETA is always static
+  $mymeta->{dynamic_config} = 0;
+  # Note which M::B created it
+  $mymeta->{generated_by} = "Module::Build version $Module::Build::VERSION";
+
+  $self->write_metafile( $mymetafile, $mymeta );
+  return 1;
+}
+
+sub create_build_script {
+  my ($self) = @_;
+
+  $self->write_config;
+  $self->create_mymeta;
 
   # Create Build
   my ($build_script, $dist_name, $dist_version)
@@ -4138,6 +4166,21 @@ sub do_create_metafile {
   return 1;
 }
 
+sub read_metafile {
+  my $self = shift;
+  my ($metafile) = @_;
+  my $yaml;
+
+  my $class = $self->_mb_feature('YAML_support')
+            ? 'YAML::Tiny' : 'Module::Build::YAML' ;
+
+  eval "require $class; 1" or die $@;
+  my $meta = $class->read($metafile)
+    or $self->log_warn( "Error reading '$metafile': " . $class->errstr . "\n");
+
+  return $meta->[0] || {};
+}
+
 sub write_metafile {
   my $self = shift;
   my ($metafile, $node) = @_;
@@ -4173,6 +4216,23 @@ sub normalize_version {
     # leave alone
   }
   return $version;
+}
+
+sub _normalize_prereqs {
+  my ($self) = @_;
+  my $p = $self->{properties};
+
+  # copy prereq data structures so we can modify them before writing to META
+  my %prereq_types;
+  for my $type ( 'configure_requires', @{$self->prereq_action_types} ) {
+    if (exists $p->{$type}) {
+      for my $mod ( keys %{ $p->{$type} } ) {
+        $prereq_types{$type}{$mod} =
+          $self->normalize_version($p->{$type}{$mod});
+      }
+    }
+  }
+  return \%prereq_types;
 }
 
 sub prepare_metadata {
@@ -4226,19 +4286,10 @@ sub prepare_metadata {
     # XXX we are silently omitting the url for any unknown license
   }
 
-  # copy prereq data structures so we can modify them before writing to META
-  my %prereq_types;
-  for my $type ( 'configure_requires', @{$self->prereq_action_types} ) {
-    if (exists $p->{$type}) {
-      for my $mod ( keys %{ $p->{$type} } ) {
-        $prereq_types{$type}{$mod} =
-          $self->normalize_version($p->{$type}{$mod});
-      }
-    }
-  }
 
-  for my $t ( keys %prereq_types ) {
-      $add_node->($t, $prereq_types{$t});
+  my $prereqs = $self->_normalize_prereqs;
+  for my $t ( keys %$prereqs ) {
+      $add_node->($t, $prereqs->{$t});
   }
 
   if (exists $p->{dynamic_config}) {

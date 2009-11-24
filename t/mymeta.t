@@ -3,7 +3,7 @@
 use strict;
 use lib 't/lib';
 use MBTest;
-plan tests => 23;
+plan tests => 24;
 
 blib_load('Module::Build');
 blib_load('Module::Build::YAML');
@@ -50,9 +50,12 @@ $dist->chdir_in;
   my $output = stdout_of sub { $dist->run_build('distmeta') };
   like($output, qr/Creating META.yml/,
     "Ran Build distmeta to create META.yml");
-  my $meta = Module::Build::YAML->read('META.yml');
-  my $mymeta = Module::Build::YAML->read('MYMETA.yml');
-  is_deeply( $meta, $mymeta, "Generated MYMETA matches generated META" );
+  my $meta = Module::Build::YAML->read('META.yml')->[0];
+  my $mymeta = Module::Build::YAML->read('MYMETA.yml')->[0];
+  is( delete $mymeta->{dynamic_config}, 0,
+    "MYMETA 'dynamic_config' is 0"
+  );
+  is_deeply( $meta, $mymeta, "Other generated MYMETA matches generated META" );
   $output = stdout_stderr_of sub { $dist->run_build('realclean') };
   like( $output, qr/Cleaning up/, "Ran realclean");
   ok( ! -e 'Build', "Build file removed" );
@@ -65,9 +68,9 @@ $dist->chdir_in;
     "Ran Build.PL with dynamic config"
   );
   ok( -e "MYMETA.yml", "MYMETA.yml exists" );
-  $mymeta = Module::Build::YAML->read('MYMETA.yml');
-  isnt(   $meta->[0]{requires}{'File::Spec'},
-        $mymeta->[0]{requires}{'File::Spec'},
+  $mymeta = Module::Build::YAML->read('MYMETA.yml')->[0];
+  isnt(   $meta->{requires}{'File::Spec'},
+        $mymeta->{requires}{'File::Spec'},
         "MYMETA requires differs from META"
   );
   $output = stdout_stderr_of sub { $dist->run_build('realclean') };
@@ -76,15 +79,16 @@ $dist->chdir_in;
   ok( ! -e 'MYMETA.yml', "MYMETA file removed" );
 
   # manually change META and check that changes are preserved
-  $meta->[0]{author} = ['John Gault'];
-  ok( $meta->write('META.yml'), "Wrote manually modified META.yml" );
+  $meta->{author} = ['John Gault'];
+  ok( Module::Build::YAML->new($meta)->write('META.yml'),
+    "Wrote manually modified META.yml" );
 
   $output = stdout_of sub { $dist->run_build_pl };
   like($output, qr/Creating new 'MYMETA.yml' with configuration results/,
     "Ran Build.PL"
   );
-  my $mymeta2 = Module::Build::YAML->read('MYMETA.yml');
-  is_deeply( $mymeta2->[0]{author}, [ 'John Gault' ],
+  my $mymeta2 = Module::Build::YAML->read('MYMETA.yml')->[0];
+  is_deeply( $mymeta2->{author}, [ 'John Gault' ],
     "MYMETA preserved META modifications"
   );
 

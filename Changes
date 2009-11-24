@@ -18,6 +18,12 @@ Revision history for Perl extension Module::Build.
    We now try to detect such failures, prepend 'lib' to @INC and try again.
    [David Golden]
 
+ - MYMETA.yml used to be generated from scratch, overriding any
+   customizations used to create META.yml.  Now, if META.yml exists, that
+   will be used as the base for MYMETA and only prereq fields will be
+   updated (to reflect any dynamic configuration); also, 'dynamic_config'
+   will be set to false and 'generated_by' will be updated [David Golden]
+
 0.35_09 - Thu Nov 19 01:30:42 EST 2009
 
  Bug fixes:
