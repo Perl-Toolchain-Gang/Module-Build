@@ -39,6 +39,7 @@ MANIFEST
 META.yml
 README
 scripts/config_data
+t/00-compile.t
 t/actions/installdeps.t
 t/add_property.t
 t/basic.t
