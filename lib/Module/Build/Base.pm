@@ -1767,7 +1767,10 @@ sub create_mymeta {
   # use old meta and update prereqs, if possible
   my $mymeta;
   if ( -f $metafile ) {
-    $mymeta = $self->read_metafile( $self->metafile );
+    $mymeta = eval { $self->read_metafile( $self->metafile ) };
+  }
+  # if we read META OK, just update it
+  if ( defined $mymeta ) {
     my $prereqs = $self->_normalize_prereqs;
     for my $t ( keys %$prereqs ) {
         $mymeta->{$t} = $prereqs->{$t};
