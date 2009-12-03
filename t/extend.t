@@ -186,19 +186,19 @@ print "Hello, World!\n";
 				  meta_add => {foo => 'bar'},
 				  conflicts => {'Foo::Barxx' => 0},
 			        );
-  my $data = $mb->prepare_metadata;
+  my $data = $mb->get_metadata;
   is $data->{foo}, 'bar';
 
   $mb->meta_merge(foo => 'baz');
-  $data = $mb->prepare_metadata;
+  $data = $mb->get_metadata;
   is $data->{foo}, 'baz';
 
   $mb->meta_merge(conflicts => {'Foo::Fooxx' => 0});
-  $data = $mb->prepare_metadata;
+  $data = $mb->get_metadata;
   is_deeply $data->{conflicts}, {'Foo::Barxx' => 0, 'Foo::Fooxx' => 0};
 
   $mb->meta_add(conflicts => {'Foo::Bazxx' => 0});
-  $data = $mb->prepare_metadata;
+  $data = $mb->get_metadata;
   is_deeply $data->{conflicts}, {'Foo::Bazxx' => 0, 'Foo::Fooxx' => 0};
 }
 

@@ -1778,7 +1778,7 @@ sub create_mymeta {
   }
   # but generate from scratch, ignoring errors if META doesn't exist
   else {
-    $mymeta = $self->prepare_metadata( fatal => 0 );
+    $mymeta = $self->get_metadata( fatal => 0 );
   }
 
   # MYMETA is always static
@@ -4161,7 +4161,7 @@ sub do_create_metafile {
     push @INC, File::Spec->catdir($self->blib, 'lib');
   }
 
-  if ( $self->write_metafile( $self->metafile, $self->prepare_metadata( fatal => 1 ) ) ) {
+  if ($self->write_metafile($self->metafile,$self->get_metadata(fatal=>1))){
     $self->{wrote_metadata} = 1;
     $self->_add_to_manifest('MANIFEST', $metafile);
   }
@@ -4238,16 +4238,34 @@ sub _normalize_prereqs {
   return \%prereq_types;
 }
 
-sub prepare_metadata {
+
+# wrapper around old prepare_metadata API;
+sub get_metadata {
   my ($self, %args) = @_;
-  my $fatal = $args{fatal} || 0;
+  my $metadata = {};
+  $self->prepare_metadata( $metadata, undef, \%args );
+  return $metadata;
+}
+
+# To preserve compatibility with old API, $node *must* be a hashref
+# passed in to prepare_metadata.  $keys is an arrayref holding a
+# list of keys -- it's use is optional and generally no longer needed
+# but kept for back compatibility.  $args is an optional parameter to
+# support the new 'fatal' toggle
+
+sub prepare_metadata {
+  my ($self, $node, $keys, $args) = @_;
+  unless ( ref $node eq 'HASH' ) {
+    croak "prepare_metadata() requires a hashref argument to hold output\n";
+  }
+  my $fatal = $args->{fatal} || 0;
   my $p = $self->{properties};
-  my $node = {};
 
   # A little helper sub
   my $add_node = sub {
     my ($name, $val) = @_;
     $node->{$name} = $val;
+    push @$keys, $name if $keys;
   };
 
   foreach (qw(dist_name dist_version dist_author dist_abstract license)) {
