@@ -84,6 +84,7 @@ my @extra_exports = qw(
   check_compiler
   have_module
   blib_load
+  timed_out
 );
 push @EXPORT, @extra_exports;
 __PACKAGE__->export(scalar caller, @extra_exports);
@@ -236,6 +237,24 @@ sub blib_load {
       join("\n  ", @INC) . "\nFatal error occured in blib_load() at $file, line $line.\n";
     }
   }
+}
+
+sub timed_out {
+  my ($sub, $timeout) = @_;
+  return unless $sub;
+  $timeout ||= 60;
+
+  my $saw_alarm = 0;
+  eval {
+    local $SIG{ALRM} = sub { $saw_alarm++; die "alarm\n"; }; # NB: \n required
+    alarm $timeout;
+    $sub->();
+    alarm 0;
+  };
+  if ($@) {
+    die unless $@ eq "alarm\n";   # propagate unexpected errors
+  }
+  return $saw_alarm;
 }
 
 1;
