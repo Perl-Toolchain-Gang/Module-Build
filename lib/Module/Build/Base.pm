@@ -1279,7 +1279,15 @@ sub write_config {
     return unless inc::latest->can('loaded_modules');
     require ExtUtils::Installed;
     # ExtUtils::Installed is buggy about finding additions to default @INC
-    my $inst = ExtUtils::Installed->new(extra_libs => [@INC]);
+    my $inst = eval { ExtUtils::Installed->new(extra_libs => [@INC]) };
+    if ($@) {
+      $self->log_warn( << "EUI_ERROR" );
+Bundling in inc/ is disabled because ExtUtils::Installed could not
+create a list of your installed modules.  Here is the error:
+$@
+EUI_ERROR
+      return;
+    }
     my @bundle_list = map { [ $_, 0 ] } inc::latest->loaded_modules;
 
     # XXX TODO: Need to get ordering of prerequisites correct so they are

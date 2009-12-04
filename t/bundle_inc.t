@@ -8,6 +8,7 @@ use Config;
 use IO::File;
 use File::Spec;
 use ExtUtils::Packlist;
+use ExtUtils::Installed;
 use File::Path;
 
 # Ensure any Module::Build modules are loaded from correct directory
@@ -16,6 +17,9 @@ blib_load('Module::Build::ConfigData');
 
 if ( $ENV{PERL_CORE} ) {
   plan skip_all => 'bundle_inc tests will never succeed in PERL_CORE';
+}
+elsif ( ! eval { ExtUtils::Installed->new(extra_libs => [@INC]) } ) {
+  plan skip_all => 'ExtUtils::Installed had problems with your system';
 }
 elsif ( Module::Build::ConfigData->feature('inc_bundling_support') ) {
   plan tests => 18;
