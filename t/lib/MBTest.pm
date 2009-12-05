@@ -2,6 +2,7 @@ package MBTest;
 
 use strict;
 
+use IO::File ();
 use File::Spec;
 use File::Temp ();
 use File::Path ();
@@ -108,7 +109,7 @@ __PACKAGE__->export(scalar caller, @extra_exports);
 
 { # backwards compatible temp filename recipe adapted from perlfaq
   my $tmp_count = 0;
-  my $tmp_base_name = sprintf("%d-%d", $$, time());
+  my $tmp_base_name = sprintf("MB-%d-%d", $$, time());
   sub temp_file_name {
     sprintf("%s-%04d", $tmp_base_name, ++$tmp_count)
   }
@@ -124,7 +125,7 @@ sub tmpdir {
 
 sub save_handle {
   my ($handle, $subr) = @_;
-  my $outfile = temp_file_name();
+  my $outfile = File::Spec->catfile(File::Spec->tmpdir, temp_file_name());
 
   local *SAVEOUT;
   open SAVEOUT, ">&" . fileno($handle)
@@ -255,6 +256,18 @@ sub timed_out {
     die unless $@ eq "alarm\n";   # propagate unexpected errors
   }
   return $saw_alarm;
+}
+
+sub check_EUI {
+  my $timed_out;
+  stdout_stderr_of( sub {
+      $timed_out = timed_out( sub {
+          ExtUtils::Installed->new(extra_libs => [@INC])
+        }
+      );
+    }
+  );
+  return ! $timed_out;
 }
 
 1;
