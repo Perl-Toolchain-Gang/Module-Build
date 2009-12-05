@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.35_13 -
+0.35_13 - Sat Dec  5 11:26:36 EST 2009
 
  - Protect against tempfile errors when checking ExtUtils::Installed
 
