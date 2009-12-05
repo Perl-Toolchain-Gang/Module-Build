@@ -2,7 +2,7 @@
 # the equivalent Module::Build methods for each make target.  See the
 # documentation for Module::Build::Compat for more information.
 
-use 5.005_04;
+use 5.006001;
 
 use lib qw(lib);
 use Module::Build::Compat;

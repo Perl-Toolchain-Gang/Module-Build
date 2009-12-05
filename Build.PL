@@ -1,3 +1,4 @@
+use 5.006001;
 use strict;
 
 # On some platforms (*ahem*, MacPerl 5.6.1) "use lib qw(lib);" doesn't
