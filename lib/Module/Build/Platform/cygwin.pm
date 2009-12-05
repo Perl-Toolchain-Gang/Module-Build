@@ -2,7 +2,7 @@ package Module::Build::Platform::cygwin;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.35_12';
+$VERSION = '0.35_13';
 $VERSION = eval $VERSION;
 use Module::Build::Platform::Unix;
 
