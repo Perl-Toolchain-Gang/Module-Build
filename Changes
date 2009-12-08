@@ -1,8 +1,14 @@
 Revision history for Perl extension Module::Build.
 
-0.35_14 - 
+0.35_14 -
+
+ Bug fixes:
+
+ - Skip ppm.t if Pod::HTML is not available
 
 0.35_13 - Sat Dec  5 11:26:36 EST 2009
+
+ Bug fixes:
 
  - Protect against tempfile errors when checking ExtUtils::Installed
 
