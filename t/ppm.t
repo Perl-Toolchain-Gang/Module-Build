@@ -18,6 +18,8 @@ my $tmp;
     plan skip_all => 'No compiler found';
   } elsif ( !$Config{usedl} ) {
     plan skip_all => 'Perl not compiled for dynamic loading'
+  } elsif ( ! eval {require Pod::HTML} ) {
+    plan skip_all => "Pod::HTML not installed";
   } elsif ( ! eval {require Archive::Tar} ) {
     plan skip_all => "Archive::Tar not installed to read archives.";
   } elsif ( ! eval {IO::Zlib->VERSION(1.01)} ) {
