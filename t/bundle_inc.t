@@ -43,7 +43,12 @@ local $ENV{PERL5LIB} = join( $Config{path_sep},
   $lib_path, $arch_path, ($ENV{PERL5LIB} ? $ENV{PERL5LIB} : () )
 );
 
-stdout_of( sub { $current_mb->dispatch('install', install_base => $temp_install) } );
+# must uninst=0 so we don't try to remove an installed M::B!
+stdout_of( sub { $current_mb->dispatch(
+      'install', install_base => $temp_install, uninst => 0
+    )
+  }
+);
 
 # create dist object in a temp directory
 # enter the directory and generate the skeleton files
