@@ -3990,8 +3990,7 @@ sub share_dir {
 
   # Always coerce to proper hash form
   if    ( ! defined $p->{share_dir} ) {
-    # not set -- use default 'share' dir if exists
-    $p->{share_dir} = { dist => [ 'share' ] } if -d 'share';
+    return;
   }
   elsif ( ! ref $p->{share_dir}  ) {
     # scalar -- treat as a single 'dist' directory

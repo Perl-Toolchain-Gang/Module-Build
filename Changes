@@ -4,6 +4,10 @@ Revision history for Perl extension Module::Build.
 
  Bug fixes:
 
+ - The 'share_dir' property no longer defaults to 'share' and must be
+   explicitly set instead; this fixes problems for CPAN distributions that
+   already have a 'share' directory for whatever reason
+
  - Change t/00-compile.t test for more portability
 
  - Skip ppm.t if Pod::HTML is not available

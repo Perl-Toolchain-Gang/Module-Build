@@ -33,7 +33,7 @@ my $mb = $dist->new_from_context;
 # Test without a 'share' dir
 ok( $mb, "Created Module::Build object" );
 is( $mb->share_dir, undef,
-  "default share undef if no 'share' dir exists"
+  "default share_dir undef if no 'share' dir exists"
 );
 ok( ! exists $mb->{properties}{requires}{'File::ShareDir'},
   "File::ShareDir not added to 'requires'"
@@ -52,12 +52,13 @@ ok( -e catfile(qw/other share bar.txt/), "Created 'other/share' directory" );
 
 # Check default when share_dir is not given
 stdout_stderr_of( sub { $mb = $dist->new_from_context });
-is_deeply( $mb->share_dir, { dist => [ 'share' ] },
-  "Default share_dir set as dist-type share"
+is( $mb->share_dir, undef,
+  "Default share_dir is undef even if 'share' exists"
 );
-is( $mb->{properties}{requires}{'File::ShareDir'}, '1.00',
-  "File::ShareDir 1.00 added to 'requires'"
+ok( ! exists $mb->{properties}{requires}{'File::ShareDir'},
+  "File::ShareDir not added to 'requires'"
 );
+
 
 # share_dir set to scalar
 $dist->change_build_pl(
