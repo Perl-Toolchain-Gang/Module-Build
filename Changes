@@ -4,6 +4,8 @@ Revision history for Perl extension Module::Build.
 
  Bug fixes:
 
+ - Change t/00-compile.t test for more portability
+
  - Skip ppm.t if Pod::HTML is not available
 
  - Ensure bundle_inc.t doesn't accidentally uninstall the installed M::B
