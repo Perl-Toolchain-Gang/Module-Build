@@ -1094,7 +1094,7 @@ sub _guess_module_name {
     $mod_name =~ s{-}{::}g;
     $mod_path =~ s{-}{/}g;
     $mod_path .= ".pm";
-    if ( -e $mod_path || -e File::Spec->catfile('lib', $mod_path) ) {
+    if ( -e $mod_path || -e "lib/$mod_path" ) {
       $p->{module_name} = $mod_name;
     }
     else {
