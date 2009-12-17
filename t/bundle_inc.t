@@ -91,6 +91,7 @@ ok( -e File::Spec->catfile( $dist_inc, qw/inc_Module-Build Module Build Base.pm/
 
 eval {
   my $fh;
+  chmod 0666, $mb_file;
   $fh = IO::File->new($mb_file, "<") or die "Could not read $mb_file: $!";
   my $mb_code = do { local $/; <$fh> };
   $mb_code =~ s{\$VERSION\s+=\s+\S+}{\$VERSION = 9999;};
@@ -116,6 +117,7 @@ SKIP: {
   ok( scalar( grep { /generated_by:.*9999/ } <$meta> ),
     "dist_dir Build.PL loaded bundled Module::Build"
   );
+  close $meta;
 
   #--------------------------------------------------------------------------#
   # test identification of dependencies
