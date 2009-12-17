@@ -1090,7 +1090,7 @@ sub _guess_module_name {
     $p->{module_name} = $mi->name;
   }
   else {
-    my $mod_path = my $mod_name = File::Basename::basename($self->base_dir);
+    my $mod_path = my $mod_name = $p->{dist_name};
     $mod_name =~ s{-}{::}g;
     $mod_path =~ s{-}{/}g;
     $mod_path .= ".pm";
