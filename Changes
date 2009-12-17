@@ -5,32 +5,36 @@ Revision history for Perl extension Module::Build.
  Bug fixes:
 
  - If not set, the 'module_name' is detected from 'dist_version_from'
-   or from 'dist_name'.  The directory is no longer used.
+   or from 'dist_name'.  The directory is no longer used. [David Golden]
 
  - The 'share_dir' property no longer defaults to 'share' and must be
    explicitly set instead; this fixes problems for CPAN distributions that
-   already have a 'share' directory for whatever reason
+   already have a 'share' directory for whatever reason [David Golden]
 
- - Change t/00-compile.t test for more portability
+ - Change t/00-compile.t test for more portability [David Golden]
 
- - Skip ppm.t if Pod::Html is not available
+ - Skip ppm.t if Pod::Html is not available [David Goldenj]
 
  - Changed guts inc::latest to work properly on older versions of Perl
+   [David Golden]
 
  - Ensure bundle_inc.t doesn't accidentally uninstall the installed M::B
    during testing if the user had 'uninst=1' set during Build.PL
+   [David Golden]
 
 0.35_13 - Sat Dec  5 11:26:36 EST 2009
 
  Bug fixes:
 
  - Protect against tempfile errors when checking ExtUtils::Installed
+   [David Golden]
 
 0.35_12 - Fri Dec  4 23:06:49 EST 2009
 
  Bug fixes:
 
  - Protect inc/ bundling tests against broken ExtUtils::Installed
+   [David Golden]
 
 0.35_11 - Thu Dec  3 11:07:44 EST 2009
 
