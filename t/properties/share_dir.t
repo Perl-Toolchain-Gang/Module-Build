@@ -162,8 +162,8 @@ is_deeply( $mb->share_dir,
 
 is_deeply( $mb->_find_share_dir_files,
   {
-    catfile(qw/share foo.txt/) => catfile(qw/dist Simple-Share foo.txt/),
-    catfile(qw/other share bar.txt/) => catfile(qw/module Simple-Share bar.txt/),
+    "share/foo.txt" => "dist/Simple-Share/foo.txt",
+    "other/share/bar.txt" => "module/Simple-Share/bar.txt",
   },
   "share_dir filemap for copying to lib complete"
 );
