@@ -7,7 +7,7 @@ use Config;
 
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
-my $PPM_support = Module::Build::ConfigData->feature('manpage_support');
+my $PPM_support = Module::Build::ConfigData->feature('PPM_support');
 my $manpage_support = Module::Build::ConfigData->feature('manpage_support');
 my $HTML_support = Module::Build::ConfigData->feature('HTML_support');
 
