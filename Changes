@@ -15,7 +15,7 @@ Revision history for Perl extension Module::Build.
 
  - Skip ppm.t if Pod::Html is not available [David Goldenj]
 
- - Changed guts inc::latest to work properly on older versions of Perl
+ - Changed guts of inc::latest to work properly on older versions of Perl
    [David Golden]
 
  - Ensure bundle_inc.t doesn't accidentally uninstall the installed M::B
