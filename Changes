@@ -13,7 +13,9 @@ Revision history for Perl extension Module::Build.
 
  - Change t/00-compile.t test for more portability
 
- - Skip ppm.t if Pod::HTML is not available
+ - Skip ppm.t if Pod::Html is not available
+
+ - Changed guts inc::latest to work properly on older versions of Perl
 
  - Ensure bundle_inc.t doesn't accidentally uninstall the installed M::B
    during testing if the user had 'uninst=1' set during Build.PL

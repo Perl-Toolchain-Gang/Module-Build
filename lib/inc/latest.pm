@@ -21,16 +21,12 @@ sub import {
   my ($package, $mod, @args) = @_;
   return unless(defined $mod);
 
-  my $inc_path = './inc/latest.pm';
-  my $private_path = './inc/latest/private.pm';
+  my $inc_path = 'inc/latest.pm';
+  my $private_path = 'inc/latest/private.pm';
   if(-e $inc_path) {
-    # delete our methods
-    delete $inc::latest::{$_} for(keys %inc::latest::);
-    # load the bundled module
-    require $inc_path;
     require $private_path;
-    my $import = inc::latest->can('import');
-    goto $import;
+    splice( @_, 0, 1, 'inc::latest::private');
+    goto \&inc::latest::private::import;
   }
 
   # author mode - just record and load the modules

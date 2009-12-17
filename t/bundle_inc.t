@@ -22,7 +22,7 @@ elsif ( ! MBTest::check_EUI() ) {
   plan skip_all => 'ExtUtils::Installed takes too long on your system';
 }
 elsif ( Module::Build::ConfigData->feature('inc_bundling_support') ) {
-  plan tests => 18;
+  plan tests => 19;
 } else {
   plan skip_all => 'inc_bundling_support feature is not enabled';
 }
@@ -40,7 +40,7 @@ ok( -d $arch_path, "created temporary M::B pseudo-install directory");
 
 unshift @INC, $lib_path, $arch_path;
 local $ENV{PERL5LIB} = join( $Config{path_sep},
-  $lib_path, $arch_path, ($ENV{PERL5LIB} ? $ENV{PERL5LIB} : () )
+  $lib_path, ($ENV{PERL5LIB} ? $ENV{PERL5LIB} : () )
 );
 
 # must uninst=0 so we don't try to remove an installed M::B!
@@ -62,12 +62,12 @@ is_deeply( $mb->bundle_inc, [ 'Module::Build' ],
   "Module::Build is flagged for bundling"
 );
 
-# see what gets bundled
+# bundle stuff into distdir
 stdout_stderr_of( sub { $mb->dispatch('distdir') } );
 
 my $dist_inc = File::Spec->catdir($mb->dist_dir, 'inc');
 ok( -e File::Spec->catfile( $dist_inc, 'latest.pm' ),
-  "./inc/latest.pm created"
+  "dist_dir/inc/latest.pm created"
 );
 
 ok( -d File::Spec->catdir( $dist_inc, 'inc_Module-Build' ),
@@ -111,9 +111,10 @@ SKIP: {
   chdir $mb->dist_dir;
 
   stdout_of( sub { Module::Build->run_perl_script('Build.PL',[],[]) } );
+  ok( -e 'MYMETA.yml', 'MYMETA was created' );
 
   my $meta = IO::File->new('MYMETA.yml');
-  ok( $meta, "found MYMETA.yml" );
+  ok( $meta, "opened MYMETA.yml" );
   ok( scalar( grep { /generated_by:.*9999/ } <$meta> ),
     "dist_dir Build.PL loaded bundled Module::Build"
   );
