@@ -21,9 +21,9 @@ sub import {
   my ($package, $mod, @args) = @_;
   return unless(defined $mod);
 
-  my $inc_path = 'inc/latest.pm';
   my $private_path = 'inc/latest/private.pm';
-  if(-e $inc_path) {
+  if(-e $private_path) {
+    # user mode - delegate work to bundled private module
     require $private_path;
     splice( @_, 0, 1, 'inc::latest::private');
     goto \&inc::latest::private::import;
