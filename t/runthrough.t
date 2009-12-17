@@ -13,7 +13,7 @@ my $have_yaml = Module::Build::ConfigData->feature('YAML_support');
 my $tmp = MBTest->tmpdir;
 
 use DistGen;
-my $dist = DistGen->new( dir => $tmp );
+my $dist = DistGen->new();
 $dist->change_build_pl
 ({
   module_name => 'Simple',
@@ -197,7 +197,7 @@ SKIP: {
 echo Hello, World!
 ---
 
-  $dist = DistGen->new( dir => $tmp );
+  $dist = DistGen->new();
   $dist->change_build_pl({
 			  module_name => 'Simple',
 			  scripts     => [ 'bin/script.bat' ],
