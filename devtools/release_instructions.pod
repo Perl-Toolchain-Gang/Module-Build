@@ -49,7 +49,14 @@ to PAUSE using other means.
 
 =head2 After shipping
 
-Now the release is out and tagged.  Start a new version number
+Now the release is out and tagged.
+
+Before doing anything else, this is a good time to patch blead.  See
+devtools/patching_blead.pod for instructions:
+
+  $ Build patch_blead <path-to-perl-git-repo>
+
+After patching blead, it's also time to start a new version number
 
   $ ./devtools/bump_version.pl
 
