@@ -10,6 +10,12 @@ Revision history for Perl extension Module::Build.
    might configure_requires a new Module::Build after Build.PL was already
    run for an earlier distribution. [David Golden, on advice of Matt Trout]
 
+ Other:
+
+ - t/bundle_inc.t fails in odd ways.  This test of an experimental feature
+   should not prevent users from installing Module::Build, so this test
+   now skips unless $ENV{MB_TEST_EXPERIMENTAL} is true
+
 0.36 - Sun Dec 20 15:02:38 EST 2009
 
 No changes from 0.35_15 other than the version number.
