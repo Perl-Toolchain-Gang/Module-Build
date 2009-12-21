@@ -1,6 +1,14 @@
 Revision history for Perl extension Module::Build.
 
-0.36_01 - 
+0.3601 - Mon Dec 21 14:39:33 EST 2009
+
+ Bug fixes:
+
+ - When the currently running Module::Build is not the same as the one
+   that created the Build file, there is now a warning rather than a fatal
+   error.  This helps installation of dependency chains where a dependency
+   might configure_requires a new Module::Build after Build.PL was already
+   run for an earlier distribution. [David Golden, on advice of Matt Trout]
 
 0.36 - Sun Dec 20 15:02:38 EST 2009
 
