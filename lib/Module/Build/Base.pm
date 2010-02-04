@@ -4385,6 +4385,8 @@ sub find_dist_packages {
   return $self->find_packages_in_files(\@pm_files, \%dist_files);
 }
 
+# XXX Do not document this function; mst wrote it and now says the API is
+# stupid and needs to be fixed and it shouldn't become a public API until then
 sub find_packages_in_files {
   my ($self, $file_list, $filename_map) = @_;
 
