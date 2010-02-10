@@ -2934,7 +2934,7 @@ sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
     next unless $cmd =~ /perl/i;
     my $interpreter = $self->{properties}{perl};
 
-    $self->log_verbose("Changing sharpbang in $file to $interpreter");
+    $self->log_verbose("Changing sharpbang in $file to $interpreter\n");
     my $shb = '';
     $shb .= $c->get('sharpbang')."$interpreter $arg\n" if $does_shbang;
 
