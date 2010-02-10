@@ -25,6 +25,7 @@ $VERSION = eval $VERSION;
 my %OSTYPES = qw(
 		 aix       Unix
 		 bsdos     Unix
+		 beos      Unix
 		 dgux      Unix
 		 dragonfly Unix
 		 dynixptx  Unix

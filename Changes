@@ -5,7 +5,9 @@ Revision history for Perl extension Module::Build.
  Bug fixes:
 
  - Added missing newline to "Changing sharpbang" messages under verbose
-   output (RT#54474)
+   output (RT#54474) [David Golden]
+
+ - Added 'beos' to list of Unix-like os types (RT#53876) [Nigel Horne]
 
 0.3603 - Mon Jan 18 22:28:59 EST 2010
 
