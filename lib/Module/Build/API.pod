@@ -181,6 +181,11 @@ files in the directory will be compiled to object files.  The
 directory will be added to the search path during the compilation and
 linking phases of any C or XS files.
 
+[version 0.3604]
+
+A list of directories can be supplied using an anonymous array
+reference of strings.
+
 =item conflicts
 
 [version 0.07]

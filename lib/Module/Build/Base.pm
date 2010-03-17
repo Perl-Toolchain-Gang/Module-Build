@@ -2728,11 +2728,19 @@ sub process_support_files {
   my $p = $self->{properties};
   return unless $p->{c_source};
 
-  push @{$p->{include_dirs}}, $p->{c_source};
+  my $files;
+  if (ref($p->{c_source}) eq "ARRAY") {
+      push @{$p->{include_dirs}}, @{$p->{c_source}};
+      for my $path (@{$p->{c_source}}) {
+          push @$files, @{ $self->rscan_dir($path, file_qr('\.c(c|p|pp|xx|\+\+)?$')) };
+      }
+  } else {
+      push @{$p->{include_dirs}}, $p->{c_source};
+      $files = $self->rscan_dir($p->{c_source}, file_qr('\.c(c|p|pp|xx|\+\+)?$'));
+  }
 
-  my $files = $self->rscan_dir($p->{c_source}, file_qr('\.c(c|p|pp|xx|\+\+)?$'));
   foreach my $file (@$files) {
-    push @{$p->{objects}}, $self->compile_c($file);
+      push @{$p->{objects}}, $self->compile_c($file);
   }
 }
 
