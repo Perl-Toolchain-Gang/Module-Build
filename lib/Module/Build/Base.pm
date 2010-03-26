@@ -3671,7 +3671,10 @@ sub do_create_license {
     or die "No license specified";
 
   my $key = $self->valid_licenses->{$l}
-    or die "'$l' isn't a license key we know about";
+    or die "'$l' isn't a recognized license\n",
+           "licenses we know about:\n",
+           map { "\t$_\n" } sort keys %{ $self->valid_licenses };
+
   my $class = "Software::License::$key";
 
   eval "use $class; 1"
