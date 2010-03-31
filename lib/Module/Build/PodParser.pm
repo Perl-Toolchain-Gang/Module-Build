@@ -2,7 +2,7 @@ package Module::Build::PodParser;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.36_05';
+$VERSION = '0.3605';
 $VERSION = eval $VERSION;
 use vars qw(@ISA);
 
