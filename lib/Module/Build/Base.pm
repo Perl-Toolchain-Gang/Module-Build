@@ -3521,7 +3521,8 @@ sub ACTION_pardist {
 sub ACTION_dist {
   my ($self) = @_;
 
-  $self->depends_on('distdir');
+  # MUST dispatch() and not depends_ok() so we generate a clean distdir
+  $self->dispatch('distdir');
 
   my $dist_dir = $self->dist_dir;
 

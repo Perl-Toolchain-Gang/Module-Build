@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.36_07 - 
 
+ Bug fixes:
+
+ - The 'dist' action now always ensures a clean dist directory before
+   creating the tarball [David Golden]
+
 0.36_06 - Thu Apr  1 01:23:58 EDT 2010
 
  Other:
