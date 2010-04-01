@@ -19,8 +19,7 @@ Start in the Module-Build source directory.  This should *NOT* be the
 distdir -- you need the custom Module::Build subclass in inc/.  Checkout
 a fresh copy from the release tag, e.g.:
 
-  $ svn checkout http://svn.perl.org/modules/Module-Build/tags/0.35_09
-  $ cd 0.35_09
+  $ git checkout 0.35_09
 
 Next, run the "Build.PL" file and then the "patch_blead" action, giving the
 git repository directory as an argument:

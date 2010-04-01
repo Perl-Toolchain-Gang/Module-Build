@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 # NOTE: we run this immediately *after* a release so that any reports
-# against svn are obvious
+# against the repo are obvious
 
 use strict;
 use warnings;
@@ -47,11 +47,9 @@ my @excluded = qw(
 # Get list of .pm files
 my @pmfiles = File::Find::Rule->new->or(
   File::Find::Rule->name('*.pm'),
-  File::Find::Rule->directory->name( qr/\.svn/ )->prune->discard
 )->in( 'lib' );
 my @scripts = File::Find::Rule->new()->or(
   File::Find::Rule->name('*'),
-  File::Find::Rule->directory->name( qr/\.svn/ )->prune->discard
 )->in( './scripts' );
 
 # first start the new Changes entry

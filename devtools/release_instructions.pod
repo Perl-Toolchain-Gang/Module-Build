@@ -2,31 +2,29 @@
 
 =head2 Prerequisites
 
-Recent Module::Build releases have been packaged using the CPDK tool
-by Eric Wilhelm.  This distribution is not yet on CPAN, but can be
-installed from its repository:
+Module::Build now bundles it's own release script in the custom subclass
+in inc/.  However, it has some prerequisites:
 
-  $ svn co http://svn.scratchcomputing.com/CPDK/trunk/ CPDK
-  $ cd CPDK
-  $ cpan .
+  Git::Wrapper
+  CPAN::Uploader
 
 =head2 Packaging and shipping
 
-Update Module::Build and make sure there are no local changes or conflicts.
+Update Module::Build from the repository and make sure there are no
+uncommitted changes:
 
-  $ svn up
-
-  $ svn st
+  $ git fetch
+  $ git status
+  $ git diff origin/master
 
 See what the last tag was:
 
-  $ svn_taglist | tail
-  ...
-  0.31_02
+  $ git describe
+  0.3605-6-ge176ee6
 
 Pull the logs since that tag and update the Changes file if necessary
 
-  $ svn_logsincetag 0.31_02 | less
+  $ git log 0.3605..HEAD
   ...
 
   $ vim Changes
@@ -34,18 +32,12 @@ Pull the logs since that tag and update the Changes file if necessary
 If everything is good, just datestamp the version section at the top of
 Changes (e.g. use "r! date" then "kJ" in vim.)
 
-  $ svn ci -m "Changes - prep for release"
+  $ git commit -a -m "Changes - prep for release"
 
 And we should now be ready for automated shipping:
 
   $ perl Build.PL
-  $ Build distcheck
-  $ Build distmeta
-  $ publish-module
-
-At the moment, for anyone but Eric Wilhelm, this will fail during
-the 'scp_relay' stage, but the tarball exists and can be uploaded
-to PAUSE using other means.
+  $ Build upload
 
 =head2 After shipping
 
@@ -60,7 +52,7 @@ After patching blead, it's also time to start a new version number
 
   $ ./devtools/bump_version.pl
 
-  $ svn ci -m "Changes, lib/***.pm - bump version"
+  $ git commit -a -m "Changes, lib/***.pm - bump version"
 
 =cut
 
