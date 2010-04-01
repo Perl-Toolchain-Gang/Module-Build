@@ -94,4 +94,115 @@ sub ACTION_patch_blead {
   return 1;
 }
 
+sub ACTION_upload {
+  my $self = shift;
+
+  $self->depends_on('checkchanges');
+  $self->depends_on('checkgit');
+
+  eval { require CPAN::Uploader; 1 }
+    or die "CPAN::Uploader must be installed for uploading to work.\n";
+  
+  $self->depends_on('build');
+  $self->depends_on('distmeta');
+  $self->depends_on('distcheck');
+  $self->depends_on('disttest');
+  $self->depends_on('dist');
+
+  my $uploader = $self->find_command("cpan-upload");
+
+  if ( $self->y_n("Upload to CPAN?", 'y') ) {
+#    $self->do_system($uploader, $self->dist_dir . ".tar.gz") 
+#      or die "Failed to upload.\n";
+      die;
+      $self->depends_on('tag_git');
+  }
+
+  return 1;
+}
+
+sub ACTION_checkgit {
+  my $self = shift;
+
+  unless ( -d '.git' ) {
+    $self->log_warn("\n*** This does not seem to be a git repository. Checks disabled ***\n");
+    return 1;
+  }
+
+  eval { require Git::Wrapper; 1 }
+    or die "Git::Wrapper must be installed to check the distribution.\n";
+  
+  my $git = Git::Wrapper->new('.');
+  my @repos = $git->remote;
+  if ( ! grep { /\Aorigin\z/ } @repos ) {
+    die "You have no 'origin' repository. Aborting!\n"
+  }
+
+# Are we on the master branch?
+  $self->log_info("Checking current branch...\n");
+  my @branches = $git->branch;
+  my ($cur_branch) = grep { /\A\*\s*\w/ } @branches;
+  die "Can't determine current branch\n" unless $cur_branch;
+  $cur_branch =~ s{\A\*\s+}{};
+  if ( $cur_branch ne 'master' ) {
+    unless ( $self->y_n("Are you sure you want to tag the '$cur_branch' branch?", 'n') ) {
+      die "Aborting!\n";
+    }
+  }
+
+# files checked in
+  $self->log_info("Checking for files that aren't checked in...\n");
+  my @diff = $git->diff('HEAD');
+  if ( @diff ) {
+    $self->log_warn( "Some files not checked in.  Aborting!\n\n" );
+    $self->log_warn( join( "\n", $git->diff('--stat') ) . "\n" );
+    exit 1;
+  }
+
+# check that we're up to date
+  $self->log_info("Checking for differences from origin...\n");
+  my @refs = split q{ }, join( "\n", $git->show_ref('refs/heads/master', 'refs/remotes/origin/master'));
+  if ( ! ($refs[0] eq $refs[2] )) {
+    $self->log_warn( "Local repo not in sync with origin.  Aborting!\n");
+    $self->log_warn( "\nMaster refs:\n" );
+    $self->log_warn( "$_\n" ) for $git->show_ref('master');
+    exit 1;
+  }
+  
+}
+
+sub ACTION_tag_git {
+  my $self = shift;
+
+  unless ( -d '.git' ) {
+    $self->log_warn("\n*** This does not seem to be a git repository. Tagging disabled ***\n");
+    return 1;
+  }
+
+  eval { require Git::Wrapper; 1 }
+    or die "Git::Wrapper must be installed to check the distribution.\n";
+  
+  my $git = Git::Wrapper->new('.');
+  my $tag = $self->dist_version;
+  $git->tag('-m', "tagging $tag", $tag);
+  $git->push('--tags');
+  return 1;
+}
+
+sub ACTION_checkchanges {
+  my $self = shift;
+
+  # Changes
+  $self->log_info( "Here is the start of Changes:" );
+  system("head -10 Changes");
+  unless ( $self->y_n("Have you updated the Changes file with the tag and date?", 'n') ) {
+    die "Aborting!\n";
+  }
+
+  return 1;
+}
+
+
+
+
 1;
