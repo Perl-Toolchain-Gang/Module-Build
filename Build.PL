@@ -55,7 +55,7 @@ my $build = ModuleBuildBuilder->new(
     'version'            => 0.74,
   },
   recursive_test_files => 1,
-  sign          => 1,
+  sign          => 0, 
   create_readme => 1,
   create_license => 1,
 
