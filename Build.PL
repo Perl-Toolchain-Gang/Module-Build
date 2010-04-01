@@ -115,11 +115,8 @@ my $build = ModuleBuildBuilder->new(
   script_files   => ['scripts/config_data'],
   meta_merge     => {
     resources => {
-      homepage => 'http://sourceforge.net/projects/module-build',
-      bugtracker =>
-        'http://rt.cpan.org/NoAuth/Bugs.html?Dist=Module-Build',
       MailingList => 'mailto:module-build@perl.org',
-      repository  => 'http://svn.perl.org/modules/Module-Build/'
+      repository  => 'http://github.com/dagolden/module-build.git'
     }
   },
 );
