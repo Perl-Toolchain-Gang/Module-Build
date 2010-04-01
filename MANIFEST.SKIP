@@ -38,3 +38,4 @@ Plugin
 doc_check.pl$
 ^[^/]+\.patch$
 ^devtools
+^.gitignore
