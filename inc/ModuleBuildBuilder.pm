@@ -112,9 +112,8 @@ sub ACTION_upload {
   my $uploader = $self->find_command("cpan-upload");
 
   if ( $self->y_n("Upload to CPAN?", 'y') ) {
-#    $self->do_system($uploader, $self->dist_dir . ".tar.gz") 
-#      or die "Failed to upload.\n";
-      die;
+    $self->do_system($uploader, $self->dist_dir . ".tar.gz") 
+      or die "Failed to upload.\n";
       $self->depends_on('tag_git');
   }
 
