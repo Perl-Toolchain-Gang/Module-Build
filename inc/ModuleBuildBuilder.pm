@@ -183,7 +183,9 @@ sub ACTION_tag_git {
   
   my $git = Git::Wrapper->new('.');
   my $tag = $self->dist_version;
+  $self->log_info("Tagging HEAD as $tag");
   $git->tag('-m', "tagging $tag", $tag);
+  $self->log_info("Pushing tags to origin");
   $git->push('--tags');
   return 1;
 }
