@@ -34,6 +34,10 @@ Changes (e.g. use "r! date" then "kJ" in vim.)
 
   $ git commit -a -m "Changes - prep for release"
 
+Push all commits to an 'origin' branch:
+
+  $ git push origin master
+
 And we should now be ready for automated shipping:
 
   $ perl Build.PL
