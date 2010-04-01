@@ -1,14 +1,14 @@
 Revision history for Perl extension Module::Build.
 
-0.36_06 - 
+0.36_06 - Thu Apr  1 01:23:58 EDT 2010
 
  Other:
 
- - Migrated repository to git
-
- - Disabled SIGNATURE generation
+ - Migrated repository to git and updated META.yml to match
 
  - Removed bugtracker URL (let search.cpan.org use default)
+
+ - Disabled SIGNATURE generation
 
 0.3605 - Wed Mar 31 12:05:11 EDT 2010
 
