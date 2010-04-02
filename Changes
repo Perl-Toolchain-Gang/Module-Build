@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.36_08 - 
 
+ Enhancements:
+
+ - Give a list of valid licenses when given one we don't recognize
+   (RT#55951) [Yanick Champoux]
+
 0.3607 - Thu Apr  1 11:27:16 EDT 2010
 
  Bug fixes:
