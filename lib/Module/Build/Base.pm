@@ -926,8 +926,7 @@ __PACKAGE__->add_property(
 );
 
 {
-  my $Is_ActivePerl = eval {require ActivePerl::DocTools};
-  __PACKAGE__->add_property(html_css => $Is_ActivePerl ? 'Active.css' : '');
+  __PACKAGE__->add_property(html_css => '');
 }
 
 {
@@ -1978,7 +1977,6 @@ sub _translate_option {
     create_readme
     extra_compiler_flags
     extra_linker_flags
-    html_css
     install_base
     install_path
     meta_add
@@ -3061,6 +3059,24 @@ sub _is_default_installable {
 	 ) ? 1 : 0;
 }
 
+sub _is_ActivePerl {
+#  return 0;
+  my $self = shift;
+  unless (exists($self->{_is_ActivePerl})) {
+    $self->{_is_ActivePerl} = (eval { require ActivePerl::DocTools; } || 0);
+  }  
+  return $self->{_is_ActivePerl};
+}
+
+sub _is_ActivePPM {
+#  return 0;
+  my $self = shift;
+  unless (exists($self->{_is_ActivePPM})) {
+    $self->{_is_ActivePPM} = (eval { require ActivePerl::PPM::InstallHist; } || 0);
+  }  
+  return $self->{_is_ActivePPM};
+}
+
 sub ACTION_manpages {
   my $self = shift;
 
@@ -3069,20 +3085,10 @@ sub ACTION_manpages {
   $self->depends_on('code');
 
   foreach my $type ( qw(bin lib) ) {
-    my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
-                                   exclude => [ file_qr('\.bat$') ] );
-    next unless %$files;
-
+    next unless ( $self->invoked_action eq 'manpages' || $self->_is_default_installable("${type}doc"));
     my $sub = $self->can("manify_${type}_pods");
-    next unless defined( $sub );
-
-    if ( $self->invoked_action eq 'manpages' ) {
-      $self->$sub();
-    } elsif ( $self->_is_default_installable("${type}doc") ) {
-      $self->$sub();
-    }
+    $self->$sub() if defined( $sub );
   }
-
 }
 
 sub manify_bin_pods {
@@ -3173,20 +3179,10 @@ sub ACTION_html {
   $self->depends_on('code');
 
   foreach my $type ( qw(bin lib) ) {
-    my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
-				   exclude =>
-                                        [ file_qr('\.(?:bat|com|html)$') ] );
-    next unless %$files;
-
-    if ( $self->invoked_action eq 'html' ) {
-      $self->htmlify_pods( $type );
-    } elsif ( $self->_is_default_installable("${type}html") ) {
-      $self->htmlify_pods( $type );
-    }
+    next unless ( $self->invoked_action eq 'html' || $self->_is_default_installable("${type}html"));
+    $self->htmlify_pods( $type );
   }
-
 }
-
 
 # 1) If it's an ActiveState perl install, we need to run
 #    ActivePerl::DocTools->UpdateTOC;
@@ -3195,9 +3191,6 @@ sub htmlify_pods {
   my $self = shift;
   my $type = shift;
   my $htmldir = shift || File::Spec->catdir($self->blib, "${type}html");
-
-  require Module::Build::PodParser;
-  require Pod::Html;
 
   $self->add_to_cleanup('pod2htm*');
 
@@ -3212,21 +3205,30 @@ sub htmlify_pods {
 
   my @rootdirs = ($type eq 'bin') ? qw(bin) :
       $self->installdirs eq 'core' ? qw(lib) : qw(site lib);
+  my $podroot = $self->original_prefix('core');
+  
+  my $htmlroot = $self->install_sets('core')->{libhtml};
+  my @podpath = (map { File::Spec->abs2rel($_ ,$podroot) } grep { -d  } 
+    ( $self->install_sets('core', 'lib'), # lib
+      $self->install_sets('core', 'bin'), # bin
+      $self->install_sets('site', 'lib'), # site/lib
+    ),File::Spec->rel2abs($self->blib)
+  );
 
-  my $podpath = join ':',
-                map  $_->[1],
-                grep -e $_->[0],
-                map  [File::Spec->catdir($self->blib, $_), $_],
-                qw( script lib );
+  my $podpath = join(":", map { tr,:\\,|/,; $_ } @podpath);
 
-  foreach my $pod ( keys %$pods ) {
+  my $blibdir = join('/', File::Spec->splitdir(
+    (File::Spec->splitpath(File::Spec->rel2abs($htmldir),1))[1]),'');
+
+    foreach my $pod ( keys %$pods ) {
 
     my ($name, $path) = File::Basename::fileparse($pods->{$pod},
-                                                 file_qr('\.(?:pm|plx?|pod)$'));
+       file_qr('\.(?:pm|plx?|pod)$'));
     my @dirs = File::Spec->splitdir( File::Spec->canonpath( $path ) );
     pop( @dirs ) if scalar(@dirs) && $dirs[-1] eq File::Spec->curdir;
 
-    my $fulldir = File::Spec->catfile($htmldir, @rootdirs, @dirs);
+    my $fulldir = File::Spec->catdir($htmldir, @rootdirs, @dirs);
+    my $tmpfile = File::Spec->catfile($fulldir, "${name}.tmp");
     my $outfile = File::Spec->catfile($fulldir, "${name}.html");
     my $infile  = File::Spec->abs2rel($pod);
 
@@ -3237,38 +3239,73 @@ sub htmlify_pods {
         or die "Couldn't mkdir $fulldir: $!";
     }
 
-    my $path2root = join( '/', ('..') x (@rootdirs+@dirs) );
-    my $htmlroot = join( '/',
-			 ($path2root,
-			  $self->installdirs eq 'core' ? () : qw(site) ) );
-
-    my $fh = IO::File->new($infile) or die "Can't read $infile: $!";
-    my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
-
-    my $title = join( '::', (@dirs, $name) );
-    $title .= " - $abstract" if $abstract;
-
-    my @opts = (
-                '--flush',
-                "--title=$title",
-                "--podpath=$podpath",
-                "--infile=$infile",
-                "--outfile=$outfile",
-                '--podroot=' . $self->blib,
-                "--htmlroot=$htmlroot",
-               );
-
-    if ( eval{Pod::Html->VERSION(1.03)} ) {
-      push( @opts, ('--header', '--backlink=Back to Top') );
-      push( @opts, "--css=$path2root/" . $self->html_css) if $self->html_css;
-    }
-
     $self->log_verbose("HTMLifying $infile -> $outfile\n");
-    $self->log_verbose("pod2html @opts\n");
-    eval { Pod::Html::pod2html(@opts); 1 }
-      or $self->log_warn("pod2html @opts failed: $@");
-  }
+    if ($self->_is_ActivePerl) {
+      my $depth = @rootdirs + @dirs;
+      my %opts = ( infile => $infile,
+                   outfile => $tmpfile,
+                   podpath => $podpath,
+                   podroot => $podroot,
+                   index => 1,
+                   depth => $depth,
+                 );
+      eval { 
+        require ActivePerl::DocTools::Pod;
+        ActivePerl::DocTools::Pod::pod2html(%opts); 
+        1;
+      } or $self->log_warn('AP::DT::P::pod2html ' . 
+          join(", ", map { "$_ => $opts{$_}" } (keys %opts)) . " failed: $@");
+    } else {
+      require Module::Build::PodParser;
+      require Pod::Html;
+      my $path2root = join( '/', ('..') x (@rootdirs+@dirs) );
+      my $fh = IO::File->new($infile) or die "Can't read $infile: $!";
+      my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
 
+      my $title = join( '::', (@dirs, $name) );
+      $title .= " - $abstract" if $abstract;
+
+      my @opts = (
+                  '--flush',
+                  "--title=$title",
+                  "--podpath=$podpath",
+                  "--infile=$infile",
+                  "--outfile=$tmpfile",
+                  "--podroot=$podroot",
+                  "--htmlroot=$path2root",
+                 );
+
+      if ( eval{Pod::Html->VERSION(1.03)} ) {
+        push( @opts, ('--header', '--backlink=Back to Top') );
+      }
+
+      $self->log_verbose("P::H::pod2html @opts\n");
+      eval { Pod::Html::pod2html(@opts); 1 }
+        or $self->log_warn("pod2html @opts failed: $@");
+    }
+    # We now have to cleanup the resulting html file
+    my $fh = IO::File->new($tmpfile) or die "Can't read $tmpfile: $!";
+    my $html = join('',<$fh>);
+    $fh->close;
+    if (!$self->_is_ActivePerl) { 
+      # These fixups are already done by AP::DT:P:pod2html
+      # The output from pod2html is NOT XHTML!  
+      # IE6+ will display content that is not valid for DOCTYPE
+      $html =~ s#^<!DOCTYPE .*?>#<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">#im;
+      $html =~ s#<html xmlns="http://www.w3.org/1999/xhtml">#<html>#i;
+
+      # IE6+ will not display local HTML files with strict 
+      # security without this comment
+      $html =~ s#<head>#<head>\n<!-- saved from url=(0017)http://localhost/ -->#i;
+    }
+    # Fixup links that point to our temp blib 
+    $html =~ s/\Q$blibdir\E//g;
+
+    $fh = IO::File->new(">$outfile") or die "Can't write $outfile: $!";
+    print $fh $html;
+    $fh->close;
+    unlink($tmpfile);
+  }
 }
 
 # Adapted from ExtUtils::MM_Unix
@@ -3352,6 +3389,22 @@ sub ACTION_install {
   require ExtUtils::Install;
   $self->depends_on('build');
   ExtUtils::Install::install($self->install_map, $self->verbose, 0, $self->{args}{uninst}||0);
+  if ($self->_is_ActivePerl && $self->{_completed_actions}{html}) {
+    $self->log_info("Building ActivePerl Table of Contents\n");
+    eval { ActivePerl::DocTools::WriteTOC(verbose => $self->verbose ? 1 : 0); 1; }
+      or $self->log_warn("AP::DT:: WriteTOC() failed: $@");
+  }
+  if ($self->_is_ActivePPM) {
+    $self->log_info("Writing ActivePerl PPM install info\n");
+    my %opts = (
+        target    => $self->module_name,
+        instdir   => $self->installdirs,
+        buildtool => ref($self),
+    );
+    eval { ActivePerl::PPM::InstallHist::add_info(\%opts); 1; }
+      or $self->log_warn('AP::PPM::IH::add_info ' . 
+      join(", ", map { "$_ => $opts{$_}" } (keys %opts)) . " failed: $@");
+  }
 }
 
 sub ACTION_fakeinstall {
@@ -3503,11 +3556,13 @@ sub ACTION_ppmdist {
     }
   }
 
-  foreach my $type ( qw(bin lib) ) {
-    local $self->{properties}{html_css} = 'Active.css';
-    $self->htmlify_pods( $type, File::Spec->catdir($ppm, 'blib', 'html') );
-  }
-
+  # No need to create HTML because PPM creates the HTML documentation at 
+  # installtion.  This is also noted in the fact the ppd files don't support
+  # html file location dirs.
+#  foreach my $type ( qw(bin lib) ) {
+#    $self->htmlify_pods( $type, File::Spec->catdir($ppm, 'blib', 'html') );
+#  }
+  
   # create a tarball;
   # the directory tar'ed must be blib so we need to do a chdir first
   my $target = File::Spec->catfile( File::Spec->updir, $ppm );
@@ -4834,7 +4889,9 @@ sub install_map {
   foreach my $type ($self->install_types) {
     my $localdir = File::Spec->catdir( $blib, $type );
     next unless -e $localdir;
-
+    
+    next if (($type eq 'bindoc' || $type eq 'libdoc') && not $self->is_unixish);
+    
     if (my $dest = $self->install_destination($type)) {
       $map{$localdir} = $dest;
     } else {
