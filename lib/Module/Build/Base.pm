@@ -105,7 +105,7 @@ sub resume {
     my $mb_version = $Module::Build::VERSION;
     if ( $mb_version ne $self->{properties}{mb_version} ) {
       $self->log_warn(<<"MISMATCH");
-* WARNING: Configuration was initially created with Module::Build 
+* WARNING: Configuration was initially created with Module::Build
   version '$self->{properties}{mb_version}' but we are now using version '$mb_version'.
   If errors occur, you must re-run the Build.PL or Makefile.PL script.
 MISMATCH
@@ -3064,7 +3064,7 @@ sub _is_ActivePerl {
   my $self = shift;
   unless (exists($self->{_is_ActivePerl})) {
     $self->{_is_ActivePerl} = (eval { require ActivePerl::DocTools; } || 0);
-  }  
+  }
   return $self->{_is_ActivePerl};
 }
 
@@ -3073,7 +3073,7 @@ sub _is_ActivePPM {
   my $self = shift;
   unless (exists($self->{_is_ActivePPM})) {
     $self->{_is_ActivePPM} = (eval { require ActivePerl::PPM::InstallHist; } || 0);
-  }  
+  }
   return $self->{_is_ActivePPM};
 }
 
@@ -3206,9 +3206,9 @@ sub htmlify_pods {
   my @rootdirs = ($type eq 'bin') ? qw(bin) :
       $self->installdirs eq 'core' ? qw(lib) : qw(site lib);
   my $podroot = $self->original_prefix('core');
-  
+
   my $htmlroot = $self->install_sets('core')->{libhtml};
-  my @podpath = (map { File::Spec->abs2rel($_ ,$podroot) } grep { -d  } 
+  my @podpath = (map { File::Spec->abs2rel($_ ,$podroot) } grep { -d  }
     ( $self->install_sets('core', 'lib'), # lib
       $self->install_sets('core', 'bin'), # bin
       $self->install_sets('site', 'lib'), # site/lib
@@ -3249,11 +3249,11 @@ sub htmlify_pods {
                    index => 1,
                    depth => $depth,
                  );
-      eval { 
+      eval {
         require ActivePerl::DocTools::Pod;
-        ActivePerl::DocTools::Pod::pod2html(%opts); 
+        ActivePerl::DocTools::Pod::pod2html(%opts);
         1;
-      } or $self->log_warn('AP::DT::P::pod2html ' . 
+      } or $self->log_warn('AP::DT::P::pod2html ' .
           join(", ", map { "$_ => $opts{$_}" } (keys %opts)) . " failed: $@");
     } else {
       require Module::Build::PodParser;
@@ -3287,18 +3287,18 @@ sub htmlify_pods {
     my $fh = IO::File->new($tmpfile) or die "Can't read $tmpfile: $!";
     my $html = join('',<$fh>);
     $fh->close;
-    if (!$self->_is_ActivePerl) { 
+    if (!$self->_is_ActivePerl) {
       # These fixups are already done by AP::DT:P:pod2html
-      # The output from pod2html is NOT XHTML!  
+      # The output from pod2html is NOT XHTML!
       # IE6+ will display content that is not valid for DOCTYPE
       $html =~ s#^<!DOCTYPE .*?>#<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">#im;
       $html =~ s#<html xmlns="http://www.w3.org/1999/xhtml">#<html>#i;
 
-      # IE6+ will not display local HTML files with strict 
+      # IE6+ will not display local HTML files with strict
       # security without this comment
       $html =~ s#<head>#<head>\n<!-- saved from url=(0017)http://localhost/ -->#i;
     }
-    # Fixup links that point to our temp blib 
+    # Fixup links that point to our temp blib
     $html =~ s/\Q$blibdir\E//g;
 
     $fh = IO::File->new(">$outfile") or die "Can't write $outfile: $!";
@@ -3402,7 +3402,7 @@ sub ACTION_install {
         buildtool => ref($self),
     );
     eval { ActivePerl::PPM::InstallHist::add_info(\%opts); 1; }
-      or $self->log_warn('AP::PPM::IH::add_info ' . 
+      or $self->log_warn('AP::PPM::IH::add_info ' .
       join(", ", map { "$_ => $opts{$_}" } (keys %opts)) . " failed: $@");
   }
 }
@@ -3556,13 +3556,13 @@ sub ACTION_ppmdist {
     }
   }
 
-  # No need to create HTML because PPM creates the HTML documentation at 
+  # No need to create HTML because PPM creates the HTML documentation at
   # installtion.  This is also noted in the fact the ppd files don't support
   # html file location dirs.
 #  foreach my $type ( qw(bin lib) ) {
 #    $self->htmlify_pods( $type, File::Spec->catdir($ppm, 'blib', 'html') );
 #  }
-  
+
   # create a tarball;
   # the directory tar'ed must be blib so we need to do a chdir first
   my $target = File::Spec->catfile( File::Spec->updir, $ppm );
@@ -4889,9 +4889,9 @@ sub install_map {
   foreach my $type ($self->install_types) {
     my $localdir = File::Spec->catdir( $blib, $type );
     next unless -e $localdir;
-    
+
     next if (($type eq 'bindoc' || $type eq 'libdoc') && not $self->is_unixish);
-    
+
     if (my $dest = $self->install_destination($type)) {
       $map{$localdir} = $dest;
     } else {
