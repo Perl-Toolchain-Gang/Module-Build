@@ -473,6 +473,14 @@ add your own stuff to it:
 See the L<distcheck> and L<skipcheck> actions if you want to find out
 what the C<manifest> action would do, without actually doing anything.
 
+=item manifest_skip
+
+[version 0.3608]
+
+This is an action intended for use by module authors, not people
+installing modules.  It will generate a boilerplate MANIFEST.SKIP file
+if one does not already exist.
+
 =item manpages
 
 [version 0.28]
