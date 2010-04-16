@@ -1182,6 +1182,26 @@ sub find_module_by_name { # Method provided for backwards compatibility
   return Module::Build::ModuleInfo->find_module_by_name(@_[1,2]);
 }
 
+{
+  # $unlink_list_for_pid{$$} = [ ... ]
+  my %unlink_list_for_pid;
+
+  sub _unlink_on_exit {
+    my $self = shift;
+    for my $f ( @_ ) {
+      push @{$unlink_list_for_pid{$$}}, $f if -f $f;
+    }
+    return 1;
+  }
+
+  END {
+    for my $f ( map glob($_), @{ $unlink_list_for_pid{$$} || [] } ) {
+      next unless -e $f;
+      File::Path::rmtree($f, 0, 0);
+    }
+  }
+}
+
 sub add_to_cleanup {
   my $self = shift;
   my %files = map {$self->localize_file_path($_), 1} @_;
@@ -3943,7 +3963,7 @@ sub _check_manifest_skip {
   if ( ! -e $maniskip ) {
     $self->log_warn("File '$maniskip' does not exist: Creating a temporary '$maniskip'\n");
     $self->_write_default_maniskip($maniskip);
-    $self->add_to_cleanup($maniskip);
+    $self->_unlink_on_exit($maniskip);
   }
   else {
     # MYMETA must not be added to MANIFEST, so always confirm the skip
