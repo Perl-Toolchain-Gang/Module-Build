@@ -201,15 +201,15 @@ sub _construct {
 
 sub log_info {
   my $self = shift;
-  print @_ unless(ref($self) and $self->quiet);
+  print @_ if ref($self) && ( $self->verbose || ! $self->quiet );
 }
 sub log_verbose {
   my $self = shift;
-  $self->log_info(@_) if(ref($self) and $self->verbose);
+  print @_ if ref($self) && $self->verbose;
 }
 sub log_debug {
   my $self = shift;
-  print @_ if ref $self && $self->debug;
+  print @_ if ref($self) && $self->debug;
 }
 
 sub log_warn {

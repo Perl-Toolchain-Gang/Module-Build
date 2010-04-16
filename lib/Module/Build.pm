@@ -734,7 +734,8 @@ Suppress informative messages on output.
 
 =item verbose
 
-Display extra information about the Build on output.
+Display extra information about the Build on output.  C<verbose> will
+turn off C<quiet>
 
 =item cpan_client
 
