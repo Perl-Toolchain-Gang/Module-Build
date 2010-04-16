@@ -3782,9 +3782,6 @@ sub ACTION_distdir {
 
   $self->depends_on('distmeta');
 
-  # Must not include MYMETA
-  $self->_check_mymeta_skip('MANIFEST.SKIP');
-
   my $dist_files = $self->_read_manifest('MANIFEST')
     or die "Can't create distdir without a MANIFEST file - run 'manifest' action first.\n";
   delete $dist_files->{SIGNATURE};  # Don't copy, create a fresh one
@@ -3800,6 +3797,7 @@ sub ACTION_distdir {
   $self->add_to_cleanup($dist_dir);
 
   foreach my $file (keys %$dist_files) {
+    next if $file =~ m{^MYMETA\.}; # Double check that we skip MYMETA.*
     my $new = $self->copy_if_modified(from => $file, to_dir => $dist_dir, verbose => 0);
   }
 
