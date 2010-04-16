@@ -3983,6 +3983,18 @@ sub ACTION_manifest {
   ExtUtils::Manifest::mkmanifest();
 }
 
+sub ACTION_manifest_skip {
+  my ($self) = @_;
+
+  if ( -e 'MANIFEST.SKIP' ) {
+    $self->log_warn("MANIFEST.SKIP already exists.\n");
+    return 0;
+  }
+  $self->log_info("Creating a new MANIFEST.SKIP file\n");
+  return $self->_write_default_maniskip;
+  return -e 'MANIFEST.SKIP'
+}
+
 # Case insensitive regex for files
 sub file_qr {
     return File::Spec->case_tolerant ? qr($_[0])i : qr($_[0]);
