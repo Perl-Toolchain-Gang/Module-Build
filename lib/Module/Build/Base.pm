@@ -3072,7 +3072,7 @@ sub _is_ActivePPM {
 #  return 0;
   my $self = shift;
   unless (exists($self->{_is_ActivePPM})) {
-    $self->{_is_ActivePPM} = (eval { require ActivePerl::PPM::InstallHist; } || 0);
+    $self->{_is_ActivePPM} = (eval { require ActivePerl::PPM; } || 0);
   }
   return $self->{_is_ActivePPM};
 }
@@ -3395,15 +3395,20 @@ sub ACTION_install {
       or $self->log_warn("AP::DT:: WriteTOC() failed: $@");
   }
   if ($self->_is_ActivePPM) {
-    $self->log_info("Writing ActivePerl PPM install info\n");
-    my %opts = (
-        target    => $self->module_name,
-        instdir   => $self->installdirs,
-        buildtool => ref($self),
-    );
-    eval { ActivePerl::PPM::InstallHist::add_info(\%opts); 1; }
-      or $self->log_warn('AP::PPM::IH::add_info ' .
-      join(", ", map { "$_ => $opts{$_}" } (keys %opts)) . " failed: $@");
+    # We touch 'lib/perllocal.pod'. There is an existing logic in subroutine _init_db()
+    # of 'ActivePerl/PPM/InstallArea.pm' that says that if 'lib/perllocal.pod' has a 'date-last-touched'
+    # greater than that of the PPM SQLite databases ('etc/ppm-perl-area.db' and/or
+    # 'site/etc/ppm-site-area.db') then the PPM SQLite databases are rebuilt from scratch.
+
+    # in the following line, 'perllocal.pod' this is *always* 'lib/perllocal.pod', never 'site/lib/perllocal.pod'
+    my $F_perllocal = File::Spec->catfile($self->install_sets('core', 'lib'), 'perllocal.pod');
+    my $dt_stamp = time;
+
+    $self->log_info("For ActivePerl's PPM: touch '$F_perllocal'\n");
+
+    open PERLLOCAL, ">>$F_perllocal";
+    close PERLLOCAL;
+    utime($dt_stamp, $dt_stamp, $F_perllocal);
   }
 }
 
@@ -3556,12 +3561,9 @@ sub ACTION_ppmdist {
     }
   }
 
-  # No need to create HTML because PPM creates the HTML documentation at
-  # installtion.  This is also noted in the fact the ppd files don't support
-  # html file location dirs.
-#  foreach my $type ( qw(bin lib) ) {
-#    $self->htmlify_pods( $type, File::Spec->catdir($ppm, 'blib', 'html') );
-#  }
+  foreach my $type ( qw(bin lib) ) {
+    $self->htmlify_pods( $type, File::Spec->catdir($ppm, 'blib', 'html') );
+  }
 
   # create a tarball;
   # the directory tar'ed must be blib so we need to do a chdir first
