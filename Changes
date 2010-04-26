@@ -16,6 +16,11 @@ Revision history for Perl extension Module::Build.
    is less surprising/confusing and the 'Build manifest_skip' action
    is now available instead to bootstrap the file
 
+ Bug fixes:
+
+ - Fixed runtime error on cygwin when searching for an executable command
+   during installdeps testing [David Golden]
+
 0.3607 - Thu Apr  1 11:27:16 EDT 2010
 
  Bug fixes:
