@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.36_08 - 
+0.36_08 -
 
  Enhancements:
 
@@ -8,13 +8,14 @@ Revision history for Perl extension Module::Build.
    (RT#55951) [Yanick Champoux]
 
  - Added 'Build manifest_skip' action to generate a default MANIFEST.SKIP
+   [David Golden]
 
  Changes:
 
  - When temporarily generating a MANIFEST.SKIP when none exists, it will
    be removed on exit instead of hanging around until 'Build clean'.  This
    is less surprising/confusing and the 'Build manifest_skip' action
-   is now available instead to bootstrap the file
+   is now available instead to bootstrap the file [David Golden]
 
  Bug fixes:
 
