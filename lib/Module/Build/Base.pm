@@ -4892,7 +4892,7 @@ sub install_map {
     my $localdir = File::Spec->catdir( $blib, $type );
     next unless -e $localdir;
 
-    # the line "...next if (($type eq 'bindoc'..." was one of many changes introduced for 
+    # the line "...next if (($type eq 'bindoc'..." was one of many changes introduced for
     # improving HTML generation on ActivePerl, see https://rt.cpan.org/Public/Bug/Display.html?id=53478
     # Most changes were ok, but this particular line caused test failures in t/manifypods.t on windows,
     # therefore it is commented out.
