@@ -4,7 +4,8 @@ Revision history for Perl extension Module::Build.
 
   Bug fixes:
 
-  - Fix failing t/manifypods.t on Windows from 0.36_09 changes
+  - Fix failing t/manifypods.t on Windows from 0.36_09 changes [Klaus
+    Eichner]
 
 0.36_09 - Tue May 11 09:19:12 EDT 2010
 
