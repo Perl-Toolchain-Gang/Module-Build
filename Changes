@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.36_11 - 
 
+  Bug fixes:
+
+  - Handle META/MYMETA reading and writing within Module::Build to ensure
+    utf8 mode on filehandles.  Now passes/gets only strings to YAML::Tiny
+    or Module::Build::YAML
+
 0.36_10 - Wed May 19 18:36:06 EDT 2010
 
   Bug fixes:

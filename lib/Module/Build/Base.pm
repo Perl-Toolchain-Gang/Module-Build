@@ -3960,11 +3960,21 @@ Reads $file and returns the $content.
 sub _slurp {
     my $self = shift;
     my $file = shift;
-    open my $fh, "<", $file or croak "Can't open $file: $!";
+    my $mode = shift || "";
+    open my $fh, "<$mode", $file or croak "Can't open $file for reading: $!";
     local $/;
     return <$fh>;
 }
 
+sub _spew {
+    my $self = shift;
+    my $file = shift;
+    my $content = shift || "";
+    my $mode = shift || "";
+    open my $fh, ">$mode", $file or croak "Can't open $file for writing: $!";
+    print {$fh} $content;
+    close $fh;
+}
 
 
 sub _append_maniskip {
@@ -4277,6 +4287,7 @@ sub do_create_metafile {
   return 1;
 }
 
+# We handle slurping from the metafile to ensure proper utf8 if possible
 sub read_metafile {
   my $self = shift;
   my ($metafile) = @_;
@@ -4286,12 +4297,15 @@ sub read_metafile {
             ? 'YAML::Tiny' : 'Module::Build::YAML' ;
 
   eval "require $class; 1" or die $@;
-  my $meta = $class->read($metafile)
-    or $self->log_warn( "Error reading '$metafile': " . $class->errstr . "\n");
+
+  my $string = $self->_slurp($metafile, $] < 5.8 ? "" : ":utf8");
+  my $meta = $class->read_string($string)
+    or $self->log_warn( "Error parsing '$metafile': " . $class->errstr . "\n");
 
   return $meta->[0] || {};
 }
 
+# We handle spewing to the metafile to ensure proper utf8 if possible
 sub write_metafile {
   my $self = shift;
   my ($metafile, $node) = @_;
@@ -4305,9 +4319,8 @@ sub write_metafile {
     require Module::Build::YAML;
     $yaml = Module::Build::YAML->new($node);
   }
-  my $result = $yaml->write($metafile)
-    or $self->log_warn( "Error writing '$metafile': " . $yaml->errstr . "\n");
-  return $result;
+  my $string = $yaml->write_string;
+  return $self->_spew($metafile, $string, $] < 5.8 ? "" : ":utf8")
 }
 
 sub normalize_version {
