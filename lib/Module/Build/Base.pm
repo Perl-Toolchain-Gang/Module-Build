@@ -3252,7 +3252,7 @@ sub htmlify_pods {
     }
 
     $self->log_verbose("HTMLifying $infile -> $outfile\n");
-    if ($self->_is_ActivePerl) {
+    if ($self->_is_ActivePerl && eval { require ActivePerl::DocTools::Pod; 1 } ) {
       my $depth = @rootdirs + @dirs;
       my %opts = ( infile => $infile,
                    outfile => $tmpfile,
@@ -3262,7 +3262,6 @@ sub htmlify_pods {
                    depth => $depth,
                  );
       eval {
-        require ActivePerl::DocTools::Pod;
         ActivePerl::DocTools::Pod::pod2html(%opts);
         1;
       } or $self->log_warn('AP::DT::P::pod2html ' .

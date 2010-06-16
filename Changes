@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.36_12 -
 
+  Bug fixes:
+
+  - Won't try to use ActivePerl doc generation tools without confirming
+    that they are indeed installed. [David Golden]
+
   Changes:
 
   - When authors do not specify Module::Build in configure_requires and
