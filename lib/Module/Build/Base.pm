@@ -3230,12 +3230,28 @@ sub htmlify_pods {
   my $podpath = join(":", map { tr,:\\,|/,; $_ } @podpath);
 
   my $blibdir = join('/', File::Spec->splitdir(
-    (File::Spec->splitpath(File::Spec->rel2abs($htmldir),1))[1]),'');
+    (File::Spec->splitpath(File::Spec->rel2abs($htmldir),1))[1]),''
+  );
 
-    foreach my $pod ( keys %$pods ) {
+  my ($with_ActiveState, $htmltool);
+
+  if ( $with_ActiveState = $self->_is_ActivePerl
+    && eval { require ActivePerl::DocTools::Pod; 1 }
+  ) {
+    $htmltool = "ActiveState::DocTools::Pod " .
+      ActiveState::DocTools::Pod->VERSION;
+  }
+  else {
+      require Module::Build::PodParser;
+      require Pod::Html;
+    $htmltool = "Pod::Html " .  Pod::Html->VERSION;
+  }
+  $self->log_verbose("Converting Pod to HTML with $htmltool\n");
+
+  foreach my $pod ( keys %$pods ) {
 
     my ($name, $path) = File::Basename::fileparse($pods->{$pod},
-       file_qr('\.(?:pm|plx?|pod)$'));
+      file_qr('\.(?:pm|plx?|pod)$'));
     my @dirs = File::Spec->splitdir( File::Spec->canonpath( $path ) );
     pop( @dirs ) if scalar(@dirs) && $dirs[-1] eq File::Spec->curdir;
 
@@ -3252,23 +3268,21 @@ sub htmlify_pods {
     }
 
     $self->log_verbose("HTMLifying $infile -> $outfile\n");
-    if ($self->_is_ActivePerl && eval { require ActivePerl::DocTools::Pod; 1 } ) {
+    if ( $with_ActiveState ) {
       my $depth = @rootdirs + @dirs;
       my %opts = ( infile => $infile,
-                   outfile => $tmpfile,
-                   podpath => $podpath,
-                   podroot => $podroot,
-                   index => 1,
-                   depth => $depth,
-                 );
+        outfile => $tmpfile,
+        podpath => $podpath,
+        podroot => $podroot,
+        index => 1,
+        depth => $depth,
+      );
       eval {
         ActivePerl::DocTools::Pod::pod2html(%opts);
         1;
-      } or $self->log_warn('AP::DT::P::pod2html ' .
-          join(", ", map { "$_ => $opts{$_}" } (keys %opts)) . " failed: $@");
+      } or $self->log_warn("[$htmltool] pod2html (" .
+        join(", ", map { "q{$_} => q{$opts{$_}}" } (keys %opts)) . ") failed: $@");
     } else {
-      require Module::Build::PodParser;
-      require Pod::Html;
       my $path2root = join( '/', ('..') x (@rootdirs+@dirs) );
       my $fh = IO::File->new($infile) or die "Can't read $infile: $!";
       my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
@@ -3277,14 +3291,14 @@ sub htmlify_pods {
       $title .= " - $abstract" if $abstract;
 
       my @opts = (
-                  '--flush',
-                  "--title=$title",
-                  "--podpath=$podpath",
-                  "--infile=$infile",
-                  "--outfile=$tmpfile",
-                  "--podroot=$podroot",
-                  "--htmlroot=$path2root",
-                 );
+        '--flush',
+        "--title=$title",
+        "--podpath=$podpath",
+        "--infile=$infile",
+        "--outfile=$tmpfile",
+        "--podroot=$podroot",
+        "--htmlroot=$path2root",
+      );
 
       if ( eval{Pod::Html->VERSION(1.03)} ) {
         push( @opts, ('--header', '--backlink=Back to Top') );
@@ -3292,7 +3306,8 @@ sub htmlify_pods {
 
       $self->log_verbose("P::H::pod2html @opts\n");
       eval { Pod::Html::pod2html(@opts); 1 }
-        or $self->log_warn("pod2html @opts failed: $@");
+        or $self->log_warn("[$htmltool] pod2html( " .
+        join(", ", map { "q{$_}" } @opts) . ") failed: $@");
     }
     # We now have to cleanup the resulting html file
     my $fh = IO::File->new($tmpfile) or die "Can't read $tmpfile: $!";
@@ -3317,6 +3332,9 @@ sub htmlify_pods {
     $fh->close;
     unlink($tmpfile);
   }
+
+  return;
+
 }
 
 # Adapted from ExtUtils::MM_Unix
