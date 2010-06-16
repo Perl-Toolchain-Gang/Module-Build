@@ -110,14 +110,14 @@ SKIP: {
   skip( 'YAML_support feature is not enabled', 7 ) unless $have_yaml;
 
   my $output = eval {
-    stdout_of( sub { $mb->dispatch('disttest') } )
+    stdout_stderr_of( sub { $mb->dispatch('disttest') } )
   };
   is $@, '';
 
   # After a test, the distdir should contain a blib/ directory
   ok -e File::Spec->catdir('Simple-0.01', 'blib');
 
-  eval {$mb->dispatch('distdir')};
+  stdout_stderr_of ( sub { eval {$mb->dispatch('distdir')} } );
   is $@, '';
 
   # The 'distdir' should contain a lib/ directory

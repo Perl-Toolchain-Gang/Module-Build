@@ -68,7 +68,9 @@ is($mb->dist_name, 'bin-foo');
 is($mb->dist_version, '0.01');
 is_deeply($mb->dist_author,
   ['A. U. Thor, a.u.thor@a.galaxy.far.far.away']);
-ok $mb->dispatch('distmeta');
+my $result;
+stdout_stderr_of( sub { $result = $mb->dispatch('distmeta') } );
+ok $result;
 
 SKIP: {
   skip( 'YAML_support feature is not enabled', 1 )

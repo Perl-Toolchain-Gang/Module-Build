@@ -1408,8 +1408,8 @@ sub _feature_deps_msg {
     return $log_text;
 }
 
-# Automatically detect and add prerequisites based on configuration
-sub auto_require {
+# Automatically detect configure_requires prereqs
+sub auto_config_requires {
   my ($self) = @_;
   my $p = $self->{properties};
 
@@ -1420,6 +1420,10 @@ sub auto_require {
     && ! exists $p->{configure_requires}{'Module::Build'}
   ) {
     (my $ver = $VERSION) =~ s/^(\d+\.\d\d).*$/$1/; # last major release only
+    $self->log_warn(<<EOM);
+Module::Build was not found in configure_requires! Adding it now
+automatically as: configure_requires => { 'Module::Build' => $ver }
+EOM
     $self->_add_prereq('configure_requires', 'Module::Build', $ver);
   }
 
@@ -1433,6 +1437,14 @@ sub auto_require {
       $self->_add_prereq('configure_requires', $mod, $mod->VERSION);
     }
   }
+
+  return;
+}
+
+# Automatically detect and add prerequisites based on configuration
+sub auto_require {
+  my ($self) = @_;
+  my $p = $self->{properties};
 
   # If needs_compiler is not explictly set, automatically set it
   # If set, we need ExtUtils::CBuilder (and a compiler)
@@ -1802,8 +1814,8 @@ sub create_mymeta {
   # if we read META OK, just update it
   if ( defined $mymeta ) {
     my $prereqs = $self->_normalize_prereqs;
-    for my $t ( keys %$prereqs ) {
-        $mymeta->{$t} = $prereqs->{$t};
+    for my $t ( 'configure_requires', @{$self->prereq_action_types} ) {
+        $mymeta->{$t} = $prereqs->{$t} if $prereqs->{$t};
     }
   }
   # but generate from scratch, ignoring errors if META doesn't exist
@@ -4245,7 +4257,6 @@ sub _hash_merge {
 
 sub ACTION_distmeta {
   my ($self) = @_;
-
   $self->do_create_makefile_pl if $self->create_makefile_pl;
   $self->do_create_readme if $self->create_readme;
   $self->do_create_license if $self->create_license;
@@ -4279,7 +4290,11 @@ sub do_create_metafile {
     push @INC, File::Spec->catdir($self->blib, 'lib');
   }
 
-  if ($self->write_metafile($self->metafile,$self->get_metadata(fatal=>1))){
+  if (
+    $self->write_metafile(
+      $self->metafile,$self->get_metadata(fatal=>1, auto => 1)
+    )
+  ){
     $self->{wrote_metadata} = 1;
     $self->_add_to_manifest('MANIFEST', $metafile);
   }
@@ -4381,6 +4396,8 @@ sub prepare_metadata {
   }
   my $fatal = $args->{fatal} || 0;
   my $p = $self->{properties};
+
+  $self->auto_config_requires if $args->{auto};
 
   # A little helper sub
   my $add_node = sub {

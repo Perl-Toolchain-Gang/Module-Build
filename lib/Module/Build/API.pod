@@ -1593,10 +1593,23 @@ of F<META.yml>.   E.g.
     return $data;
   }
 
-The only valid argument is C<fatal>, which indicates whether missing required
+Valid arguments include:
+
+=over
+
+=item *
+
+C<fatal> -- indicates whether missing required
 metadata fields should be a fatal error or not.  For META creation, it
 generally should, but for MYMETA creation for end-users, it should not be
 fatal.
+
+=item *
+
+C<auto> -- indicates whether any necessary configure_requires should be
+automatically added.  This is used in META creation.
+
+=back
 
 This method is a wrapper around the old prepare_metadata API now that we
 no longer use YAML::Node to hold metadata.

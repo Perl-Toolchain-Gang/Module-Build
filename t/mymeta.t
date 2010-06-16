@@ -3,7 +3,7 @@
 use strict;
 use lib 't/lib';
 use MBTest;
-plan tests => 24;
+plan tests => 25;
 
 blib_load('Module::Build');
 blib_load('Module::Build::YAML');
@@ -47,15 +47,21 @@ $dist->chdir_in;
 
 # Test interactions between META/MYMETA
 {
-  my $output = stdout_of sub { $dist->run_build('distmeta') };
+  my $output = stdout_stderr_of sub { $dist->run_build('distmeta') };
   like($output, qr/Creating META.yml/,
     "Ran Build distmeta to create META.yml");
+  # regenerate MYMETA to pick up from META instead of creating from scratch
+  $output = stdout_of sub { $dist->run_build_pl };
+  like($output, qr/Creating new 'MYMETA.yml' with configuration results/,
+    "Re-ran Build.PL and regenerated MYMETA.yml based on META.yml"
+  );
+
   my $meta = Module::Build::YAML->read('META.yml')->[0];
   my $mymeta = Module::Build::YAML->read('MYMETA.yml')->[0];
   is( delete $mymeta->{dynamic_config}, 0,
     "MYMETA 'dynamic_config' is 0"
   );
-  is_deeply( $meta, $mymeta, "Other generated MYMETA matches generated META" );
+  is_deeply( $mymeta, $meta, "Other generated MYMETA matches generated META" );
   $output = stdout_stderr_of sub { $dist->run_build('realclean') };
   like( $output, qr/Cleaning up/, "Ran realclean");
   ok( ! -e 'Build', "Build file removed" );
