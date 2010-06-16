@@ -3248,6 +3248,9 @@ sub htmlify_pods {
   }
   $self->log_verbose("Converting Pod to HTML with $htmltool\n");
 
+  my $errors = 0;
+
+  POD:
   foreach my $pod ( keys %$pods ) {
 
     my ($name, $path) = File::Basename::fileparse($pods->{$pod},
@@ -3310,6 +3313,10 @@ sub htmlify_pods {
         join(", ", map { "q{$_}" } @opts) . ") failed: $@");
     }
     # We now have to cleanup the resulting html file
+    if ( ! -r $tmpfile ) {
+      $errors++;
+      next POD;
+    }
     my $fh = IO::File->new($tmpfile) or die "Can't read $tmpfile: $!";
     my $html = join('',<$fh>);
     $fh->close;
@@ -3333,7 +3340,7 @@ sub htmlify_pods {
     unlink($tmpfile);
   }
 
-  return;
+  return ! $errors;
 
 }
 
