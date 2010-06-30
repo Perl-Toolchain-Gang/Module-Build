@@ -97,7 +97,11 @@ __PACKAGE__->export(scalar caller, @extra_exports);
 
 # always return to the current directory
 {
-  my $cwd = File::Spec->rel2abs(Cwd::cwd);
+  my $cwd;
+  # must be done in BEGIN because tmpdir uses it in BEGIN for $ENV{HOME}
+  BEGIN { 
+    $cwd = File::Spec->rel2abs(Cwd::cwd);
+  }
 
   sub original_cwd { return $cwd }
 

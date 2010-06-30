@@ -7,6 +7,9 @@ Revision history for Perl extension Module::Build.
   - Won't try to use ActivePerl doc generation tools without confirming
     that they are indeed installed. [David Golden]
 
+  - Sets temporary $ENV{HOME} in testing to an absolute path, which fixes
+    some issues when tested as part of the Perl core [Nicholas Clark]
+
   Changes:
 
   - When authors do not specify Module::Build in configure_requires and
