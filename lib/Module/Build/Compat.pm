@@ -65,10 +65,6 @@ my %macro_to_build = %makefile_to_build;
 # "LIB=foo make" is not the same as "perl Makefile.PL LIB=foo"
 delete $macro_to_build{LIB};
 
-sub _simple_prereq {
-  return $_[0] =~ /^[0-9_]+\.?[0-9_]*$/; # crudly, a decimal literal
-}
-
 sub _merge_prereq {
   my ($req, $breq) = @_;
   $req ||= {};
@@ -79,18 +75,16 @@ sub _merge_prereq {
     for my $k (keys %$p) {
       next if $k eq 'perl';
 
-      if ( ! _simple_prereq( $p->{$k} ) ) {
-        # It seems like a lot of people trip over "0.1.2" stuff, so we help them here...
-        if ( $p->{$k} =~ /^[0-9_]+\.[0-9_]+\.[0-9_]+$/ ) {
-          my $proper_ver = eval { Module::Build::Version->new($p->{$k})->numify };
-          if ( ! $@ ) {
-            warn "Using '$p->{$k}' for '$k' is not supported by Module::Build::Compat - converting it to '$proper_ver'\n";
-            $p->{$k} = $proper_ver;
-            next;
-          }
-        }
-        
-        die "Prereq '$p->{$k}' for '$k' is not supported by Module::Build::Compat ( use a simpler version like '0.05' or '1.4.25' )\n";
+      my $v_obj = eval { Module::Build::Version->new($p->{$k}) };
+      if ( ! defined $v_obj ) {
+          die "A prereq of the form '$p->{$k}' for '$k' is not supported by Module::Build::Compat ( use a simpler version like '0.05' or 'v1.4.25' )\n";
+      }
+
+      # It seems like a lot of people trip over "0.1.2" stuff, so we help them here...
+      if ( $v_obj->is_qv ) {
+        my $proper_ver = $v_obj->numify;
+        warn "Dotted-decimal prereq '$p->{$k}' for '$k' is not portable - converting it to '$proper_ver'\n";
+        $p->{$k} = $proper_ver;
       }
     }
   }

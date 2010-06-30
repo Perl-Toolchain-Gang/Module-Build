@@ -3767,7 +3767,11 @@ sub do_create_makefile_pl {
   my $self = shift;
   require Module::Build::Compat;
   $self->log_info("Creating Makefile.PL\n");
-  Module::Build::Compat->create_makefile_pl($self->create_makefile_pl, $self, @_);
+  eval { Module::Build::Compat->create_makefile_pl($self->create_makefile_pl, $self, @_) };
+  if ( $@ ) {
+    1 while unlink 'Makefile.PL';
+    die "$@\n";
+  }
   $self->_add_to_manifest('MANIFEST', 'Makefile.PL');
 }
 

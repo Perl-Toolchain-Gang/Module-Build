@@ -325,6 +325,7 @@ ok $mb, "Module::Build->new_from_context";
     requires            => {
       'Foo::Frobnicate' => '0.1.2',
     },
+    create_makefile_pl  => 'traditional',
   });
   $dist->regen;
 
@@ -333,9 +334,9 @@ ok $mb, "Module::Build->new_from_context";
     $mb = Module::Build->new_from_context;
   });
 
-  my $output = stdout_stderr_of( sub { Module::Build::Compat->create_makefile_pl( 'traditional', $mb ) } );
+  my $output = stdout_stderr_of( sub { $mb->do_create_makefile_pl } );
   ok -e 'Makefile.PL', "Makefile.PL created";
-  like $output, qr/is not supported/, "Correctly complains and converts dotted-decimal";
+  like $output, qr/is not portable/, "Correctly complains and converts dotted-decimal";
 
   my $file_contents = slurp 'Makefile.PL';
   like $file_contents, qr/Foo::Frobnicate.+0\.001002/, "Properly converted dotted-decimal";
@@ -350,19 +351,22 @@ ok $mb, "Module::Build->new_from_context";
     module_name         => $distname,
     license             => 'perl',
     requires            => {
-      'Foo::Frobnicate' => '3.5.2.7-TRIAL',
+      'Foo::Frobnicate' => '3.5_2_7',
     },
+    create_makefile_pl  => 'traditional',
   });
   $dist->regen;
 
+  ok ! -e 'Makefile.PL', "Makefile.PL doesn't exist before we start";
+
   my $mb;
   stdout_stderr_of( sub {
-    $mb = Module::Build->new_from_context;
+    $mb = $dist->run_build_pl;
   });
 
-  my $output = stdout_stderr_of( sub { Module::Build::Compat->create_makefile_pl( 'traditional', $mb ) } );
+  my ($output, $error) = stdout_stderr_of( sub { $dist->run_build('distmeta') } );
+  like $error, qr/is not supported/ms, "Correctly dies when it encounters invalid prereq";
   ok ! -e 'Makefile.PL', "Makefile.PL NOT created";
-  like $output, qr/is not supported/, "Correctly dies when it encounters invalid prereq";
 
   1 while unlink 'Makefile.PL';
   ok ! -e 'Makefile.PL', "Makefile.PL cleaned up";
