@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.36_12 -
 
+  Enhancements:
+
+  - Module::Build::Compat will now convert dotted-decimal prereqs into
+    decimal rather than dying (and will warn about this). [Apocalypse]
+
   Bug fixes:
 
   - Won't try to use ActivePerl doc generation tools without confirming
