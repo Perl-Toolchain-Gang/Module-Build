@@ -78,8 +78,20 @@ sub _merge_prereq {
   for my $p ( $req, $breq ) {
     for my $k (keys %$p) {
       next if $k eq 'perl';
-      die "Prereq '$p->{$k}' for '$k' is not supported by Module::Build::Compat\n"
-        unless _simple_prereq($p->{$k});
+
+      if ( ! _simple_prereq( $p->{$k} ) ) {
+        # It seems like a lot of people trip over "0.1.2" stuff, so we help them here...
+        if ( $p->{$k} =~ /^[0-9_]+\.[0-9_]+\.[0-9_]+$/ ) {
+          my $proper_ver = eval { Module::Build::Version->new($p->{$k})->numify };
+          if ( ! $@ ) {
+            warn "Using '$p->{$k}' for '$k' is not supported by Module::Build::Compat - converting it to '$proper_ver'\n";
+            $p->{$k} = $proper_ver;
+            next;
+          }
+        }
+        
+        die "Prereq '$p->{$k}' for '$k' is not supported by Module::Build::Compat ( use a simpler version like '0.05' or '1.4.25' )\n";
+      }
     }
   }
   # merge

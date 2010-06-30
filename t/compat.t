@@ -313,6 +313,59 @@ ok $mb, "Module::Build->new_from_context";
     ok( ! exists $args->{TESTS}, 'Not using incorrect recursive tests key' );
   }
 
+  1 while unlink 'Makefile.PL';
+  ok ! -e 'Makefile.PL', "Makefile.PL cleaned up";
+}
+
+{
+  # make sure using prereq with '0.1.2' complains
+  $dist->change_build_pl({
+    module_name         => $distname,
+    license             => 'perl',
+    requires            => {
+      'Foo::Frobnicate' => '0.1.2',
+    },
+  });
+  $dist->regen;
+
+  my $mb;
+  stdout_stderr_of( sub {
+    $mb = Module::Build->new_from_context;
+  });
+
+  my $output = stdout_stderr_of( sub { Module::Build::Compat->create_makefile_pl( 'traditional', $mb ) } );
+  ok -e 'Makefile.PL', "Makefile.PL created";
+  like $output, qr/is not supported/, "Correctly complains and converts dotted-decimal";
+
+  my $file_contents = slurp 'Makefile.PL';
+  like $file_contents, qr/Foo::Frobnicate.+0\.001002/, "Properly converted dotted-decimal";
+
+  1 while unlink 'Makefile.PL';
+  ok ! -e 'Makefile.PL', "Makefile.PL cleaned up";
+}
+
+{
+  # make sure using invalid prereq blows up
+  $dist->change_build_pl({
+    module_name         => $distname,
+    license             => 'perl',
+    requires            => {
+      'Foo::Frobnicate' => '3.5.2.7-TRIAL',
+    },
+  });
+  $dist->regen;
+
+  my $mb;
+  stdout_stderr_of( sub {
+    $mb = Module::Build->new_from_context;
+  });
+
+  my $output = stdout_stderr_of( sub { Module::Build::Compat->create_makefile_pl( 'traditional', $mb ) } );
+  ok ! -e 'Makefile.PL', "Makefile.PL NOT created";
+  like $output, qr/is not supported/, "Correctly dies when it encounters invalid prereq";
+
+  1 while unlink 'Makefile.PL';
+  ok ! -e 'Makefile.PL', "Makefile.PL cleaned up";
 }
 
 #########################################################
