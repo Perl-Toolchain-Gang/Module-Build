@@ -4022,9 +4022,14 @@ sub _spew {
 
 sub _case_tolerant {
   my $self = shift;
-  $self->{_case_tolerant} = File::Spec->case_tolerant
-    unless defined($self->{_case_tolerant});
-  return $self->{_case_tolerant};
+  if ( ref $self ) {
+    $self->{_case_tolerant} = File::Spec->case_tolerant
+      unless defined($self->{_case_tolerant});
+    return $self->{_case_tolerant};
+  }
+  else {
+    return File::Spec->case_tolerant;
+  }
 }
 
 sub _append_maniskip {
@@ -5410,7 +5415,7 @@ sub dir_contains {
 
   return 0 if @second_dirs < @first_dirs;
 
-  my $is_same = ( $self->{_case_tolerant}
+  my $is_same = ( $self->_case_tolerant
 		  ? sub {lc(shift()) eq lc(shift())}
 		  : sub {shift() eq shift()} );
 
