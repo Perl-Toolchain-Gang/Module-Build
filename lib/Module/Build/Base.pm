@@ -1603,7 +1603,7 @@ sub check_installed_status {
       return \%status;
     }
 
-    $status{have} = $pm_info->version();
+    $status{have} = eval { $pm_info->version() };
     if ($spec and !defined($status{have})) {
       @status{ qw(have message) } = (undef, "Couldn't find a \$VERSION in prerequisite $modname");
       return \%status;

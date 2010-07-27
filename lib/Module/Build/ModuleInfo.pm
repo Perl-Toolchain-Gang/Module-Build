@@ -345,11 +345,12 @@ sub _evaluate_version_line {
   }
 
   # Bless it into our own version class
-  eval { $result = Module::Build::Version->new($result) };
-  die "Version '$result' from $self->{filename} does not appear to be valid:\n$eval\n\nThe fatal error was: $@\n"
+  my $vobj;
+  eval { $vobj = Module::Build::Version->new($result) };
+  warn "Version '$result' from $self->{filename} does not appear to be valid:\n$eval\n\nThe error was: $@\n"
     if $@;
 
-  return $result;
+  return $vobj;
 }
 }
 

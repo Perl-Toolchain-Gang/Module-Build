@@ -153,7 +153,7 @@ our $VERSION = '1.23_00_00';
 );
 my %modules = reverse @modules;
 
-plan tests => 36 + 2 * keys( %modules );
+plan tests => 39 + 2 * keys( %modules );
 
 blib_load('Module::Build::ModuleInfo');
 
@@ -438,3 +438,18 @@ $VERSION = version->new('0.61.' . (qw$Revision: 129 $)[1]);
   is( $pm_info->version('Simple::Simon'), '0.61.129', 'version for embedded package' );
 }
 
+{
+  # Make sure we handle illegal $VERSIONS
+  $dist->change_file( 'lib/Simple.pm', <<'---' );
+package Simple;
+our $VERSION = "ABC";
+---
+  $dist->regen;
+  my $warning;
+  local $SIG{__WARN__} = sub { $warning = shift };
+  $pm_info = Module::Build::ModuleInfo->new_from_file('lib/Simple.pm');
+  like( $warning, qr/does not appear to be valid/, "Got warning on bad version" );
+  is( $pm_info->name, 'Simple', 'found default package' );
+  is( $pm_info->version, undef, "invalid version returned as undef" );
+
+}

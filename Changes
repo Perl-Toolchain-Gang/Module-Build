@@ -15,6 +15,10 @@ Revision history for Perl extension Module::Build.
   - Sets temporary $ENV{HOME} in testing to an absolute path, which fixes
     some issues when tested as part of the Perl core [Nicholas Clark]
 
+  - Module::Build::ModuleInfo now warns instead of dying when a module
+    has an invalid version.  ->version now just returns undef
+    (RT#59593) [David Golden]
+
   Changes:
 
   - When authors do not specify Module::Build in configure_requires and
