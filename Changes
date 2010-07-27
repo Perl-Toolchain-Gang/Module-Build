@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.36_12 -
+0.36_12 - Tue Jul 27 00:08:51 EDT 2010
 
   Enhancements:
 
@@ -8,6 +8,9 @@ Revision history for Perl extension Module::Build.
     decimal rather than dying (and will warn about this). [Apocalypse]
 
   Bug fixes:
+
+  - Caches case-sensitivity checks to boost performance, fixes 
+    RT#55162 and RT#56513 [Reini Urban]
 
   - Won't try to use ActivePerl doc generation tools without confirming
     that they are indeed installed. [David Golden]
