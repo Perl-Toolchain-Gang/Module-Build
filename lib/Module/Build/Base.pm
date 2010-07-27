@@ -1717,9 +1717,6 @@ sub print_build_script {
 
   my %q = map {$_, $self->$_()} qw(config_dir base_dir);
 
-  my $case_tolerant = 0+(File::Spec->can('case_tolerant')
-			 && File::Spec->case_tolerant);
-  $q{base_dir} = uc $q{base_dir} if $case_tolerant;
   $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $self->is_windowsish;
 
   $q{magic_numfile} = $self->config_file('magicnum');
@@ -2697,7 +2694,7 @@ sub ACTION_testcover {
   # testcover was run.  If so, start over.
   if (-e 'cover_db') {
     my $pm_files = $self->rscan_dir
-        (File::Spec->catdir($self->blib, 'lib'), file_qr('\.pm$') );
+        (File::Spec->catdir($self->blib, 'lib'), $self->file_qr('\.pm$') );
     my $cover_files = $self->rscan_dir('cover_db', sub {-f $_ and not /\.html$/});
 
     $self->do_system(qw(cover -delete))
@@ -2762,11 +2759,11 @@ sub process_support_files {
   if (ref($p->{c_source}) eq "ARRAY") {
       push @{$p->{include_dirs}}, @{$p->{c_source}};
       for my $path (@{$p->{c_source}}) {
-          push @$files, @{ $self->rscan_dir($path, file_qr('\.c(c|p|pp|xx|\+\+)?$')) };
+          push @$files, @{ $self->rscan_dir($path, $self->file_qr('\.c(c|p|pp|xx|\+\+)?$')) };
       }
   } else {
       push @{$p->{include_dirs}}, $p->{c_source};
-      $files = $self->rscan_dir($p->{c_source}, file_qr('\.c(c|p|pp|xx|\+\+)?$'));
+      $files = $self->rscan_dir($p->{c_source}, $self->file_qr('\.c(c|p|pp|xx|\+\+)?$'));
   }
 
   foreach my $file (@$files) {
@@ -2890,8 +2887,10 @@ sub find_PL_files {
   }
 
   return unless -d 'lib';
-  return { map {$_, [/^(.*)\.PL$/i ]} @{ $self->rscan_dir('lib',
-                                                          file_qr('\.PL$')) } };
+  return { 
+    map {$_, [/^(.*)\.PL$/i ]} 
+    @{ $self->rscan_dir('lib', $self->file_qr('\.PL$')) } 
+  };
 }
 
 sub find_pm_files  { shift->_find_file_by_type('pm',  'lib') }
@@ -2944,7 +2943,7 @@ sub _find_file_by_type {
   return { map {$_, $_}
 	   map $self->localize_file_path($_),
 	   grep !/\.\#/,
-	   @{ $self->rscan_dir($dir, file_qr("\\.$type\$")) } };
+	   @{ $self->rscan_dir($dir, $self->file_qr("\\.$type\$")) } };
 }
 
 sub localize_file_path {
@@ -3017,7 +3016,7 @@ sub ACTION_testpod {
   my @files = sort keys %{$self->_find_pods($self->libdoc_dirs)},
                    keys %{$self->_find_pods
                              ($self->bindoc_dirs,
-                              exclude => [ file_qr('\.bat$') ])}
+                              exclude => [ $self->file_qr('\.bat$') ])}
     or die "Couldn't find any POD files to test\n";
 
   { package # hide from PAUSE
@@ -3098,6 +3097,10 @@ sub ACTION_manpages {
 
   foreach my $type ( qw(bin lib) ) {
     next unless ( $self->invoked_action eq 'manpages' || $self->_is_default_installable("${type}doc"));
+    my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
+                                   exclude => [ $self->file_qr('\.bat$') ] );
+    next unless %$files;
+
     my $sub = $self->can("manify_${type}_pods");
     $self->$sub() if defined( $sub );
   }
@@ -3107,7 +3110,7 @@ sub manify_bin_pods {
   my $self    = shift;
 
   my $files   = $self->_find_pods( $self->{properties}{bindoc_dirs},
-                                   exclude => [ file_qr('\.bat$') ] );
+                                   exclude => [ $self->file_qr('\.bat$') ] );
   return unless keys %$files;
 
   my $mandir = File::Spec->catdir( $self->blib, 'bindoc' );
@@ -3207,7 +3210,7 @@ sub htmlify_pods {
   $self->add_to_cleanup('pod2htm*');
 
   my $pods = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
-                                exclude => [ file_qr('\.(?:bat|com|html)$') ] );
+                                exclude => [ $self->file_qr('\.(?:bat|com|html)$') ] );
   return unless %$pods;  # nothing to do
 
   unless ( -d $htmldir ) {
@@ -3254,7 +3257,8 @@ sub htmlify_pods {
   foreach my $pod ( keys %$pods ) {
 
     my ($name, $path) = File::Basename::fileparse($pods->{$pod},
-      file_qr('\.(?:pm|plx?|pod)$'));
+      $self->file_qr('\.(?:pm|plx?|pod)$')
+    );
     my @dirs = File::Spec->splitdir( File::Spec->canonpath( $path ) );
     pop( @dirs ) if scalar(@dirs) && $dirs[-1] eq File::Spec->curdir;
 
@@ -3386,7 +3390,7 @@ sub ACTION_diff {
   delete $installmap->{read};
   delete $installmap->{write};
 
-  my $text_suffix = file_qr('\.(pm|pod)$');
+  my $text_suffix = $self->file_qr('\.(pm|pod)$');
 
   while (my $localdir = each %$installmap) {
     my @localparts = File::Spec->splitdir($localdir);
@@ -4016,6 +4020,12 @@ sub _spew {
     close $fh;
 }
 
+sub _case_tolerant {
+  my $self = shift;
+  $self->{_case_tolerant} = File::Spec->case_tolerant
+    unless defined($self->{_case_tolerant});
+  return $self->{_case_tolerant};
+}
 
 sub _append_maniskip {
   my $self = shift;
@@ -4104,7 +4114,7 @@ sub ACTION_manifest_skip {
 
 # Case insensitive regex for files
 sub file_qr {
-    return File::Spec->case_tolerant ? qr($_[0])i : qr($_[0]);
+    return shift->{_case_tolerant} ? qr($_[0])i : qr($_[0]);
 }
 
 sub dist_dir {
@@ -4207,13 +4217,13 @@ sub script_files {
   }
 
   my %pl_files = map {
-    File::Spec->canonpath( File::Spec->case_tolerant ? uc $_ : $_ ) => 1
+    File::Spec->canonpath( $_ ) => 1
   } keys %{ $self->PL_files || {} };
 
   my @bin_files = $self->_files_in('bin');
 
   my %bin_map = map {
-    $_ => File::Spec->canonpath( File::Spec->case_tolerant ? uc $_ : $_ )
+    $_ => File::Spec->canonpath( $_ )
   } @bin_files;
 
   return $_ = { map {$_ => 1} grep !$pl_files{$bin_map{$_}}, @bin_files };
@@ -5400,7 +5410,7 @@ sub dir_contains {
 
   return 0 if @second_dirs < @first_dirs;
 
-  my $is_same = ( File::Spec->case_tolerant
+  my $is_same = ( $self->{_case_tolerant}
 		  ? sub {lc(shift()) eq lc(shift())}
 		  : sub {shift() eq shift()} );
 
