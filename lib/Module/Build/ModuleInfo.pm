@@ -8,7 +8,7 @@ package Module::Build::ModuleInfo;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.36_12';
+$VERSION = '0.36_13';
 $VERSION = eval $VERSION;
 
 use File::Spec;
