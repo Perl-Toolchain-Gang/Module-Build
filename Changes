@@ -1,5 +1,10 @@
 Revision history for Perl extension Module::Build.
 
+ Bug-fixes:
+
+ - Bundled Module::Build::Version updated to bring into sync with CPAN
+   version.pm 0.82 [David Golden]
+
 0.36_12 - Tue Jul 27 00:08:51 EDT 2010
 
   Enhancements:
