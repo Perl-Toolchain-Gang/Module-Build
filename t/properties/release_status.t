@@ -176,5 +176,25 @@ blib_load('Module::Build');
   );
 }
 
+{
+  my $dist = DistGen->new( name => 'Simple::Name', version => q{'0.01_01'} );
+
+  $dist->change_build_pl(
+    module_name => 'Simple::Name',
+    dist_version => '1.23beta1',
+  )->regen;
+
+  $dist->chdir_in;
+
+  my $mb = $dist->new_from_context();
+  isa_ok( $mb, "Module::Build" );
+  is( $mb->dist_suffix, "",
+    "non-standard dist_version does not get a suffix"
+  );
+  is( $mb->release_status, "stable",
+    "non-standard dist_version defaults to stable release_status"
+  );
+}
+
 # Test with alpha number
 # vim:ts=2:sw=2:et:sta:sts=2
