@@ -62,6 +62,7 @@ EOF
 
   $self->dist_name;
   $self->dist_version;
+  $self->release_status;
   $self->_guess_module_name unless $self->module_name;
 
   $self->_find_nested_builds;
@@ -963,6 +964,7 @@ __PACKAGE__->add_property($_) for qw(
   dist_abstract
   dist_author
   dist_name
+  dist_suffix
   dist_version
   dist_version_from
   extra_compiler_flags
@@ -983,6 +985,7 @@ __PACKAGE__->add_property($_) for qw(
   program_name
   quiet
   recursive_test_files
+  release_status
   script_files
   scripts
   share_dir
@@ -1123,6 +1126,41 @@ sub dist_name {
   return $p->{dist_name};
 }
 
+sub release_status {
+  my ($self) = @_;
+  my $p = $self->{properties};
+
+  if ( ! defined $p->{release_status} ) {
+    $p->{release_status} = $self->_is_dev_version ? 'testing' : 'stable';
+  }
+
+  unless ( $p->{release_status} =~ qr/\A(?:stable|testing|unstable)\z/ ) {
+    die "Illegal value '$p->{release_status}' for release_status\n";
+  }
+
+  if ( $p->{release_status} eq 'stable' && $self->_is_dev_version ) {
+    my $version = $self->dist_version;
+    die "Illegal value '$p->{release_status}' with version '$version'\n";
+  }
+  return $p->{release_status};
+}
+
+sub dist_suffix {
+  my ($self) = @_;
+  my $p = $self->{properties};
+  return $p->{dist_suffix} if defined $p->{dist_suffix};
+
+  if ( $self->release_status eq 'stable' ) {
+    $p->{dist_suffix} = "";
+  }
+  else {
+    # non-stable release but non-dev version number needs '-TRIAL' appended
+    $p->{dist_suffix} = $self->_is_dev_version ? "" : "TRIAL" ;
+  }
+
+  return $p->{dist_suffix};
+}
+
 sub dist_version_from {
   my ($self) = @_;
   my $p = $self->{properties};
@@ -1151,6 +1189,16 @@ sub dist_version {
     unless defined $p->{dist_version};
 
   return $p->{dist_version};
+}
+
+sub _is_dev_version {
+  my ($self) = @_;
+  my $dist_version = $self->dist_version;
+  my $version_obj = eval { Module::Build::Version->new( $dist_version ) };
+  # assume it's normal if the version string is fatal -- in this case
+  # the author might be doing something weird so should play along and
+  # assume they'll specify all necessary behavior
+  return $@ ? 0 : $version_obj->is_alpha;
 }
 
 sub dist_author   { shift->_pod_parse('author')   }
@@ -4124,7 +4172,9 @@ sub file_qr {
 
 sub dist_dir {
   my ($self) = @_;
-  return join "-", $self->dist_name, $self->dist_version;
+  my $dir = join "-", $self->dist_name, $self->dist_version;
+  $dir .= "-" . $self->dist_suffix if $self->dist_suffix;
+  return $dir;
 }
 
 sub ppm_name {

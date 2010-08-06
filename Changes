@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.36_14 - 
 
+  Enhancements:
+
+  - Adds 'release_status' and 'dist_suffix' properties in preparation
+    for adding CPAN Meta Spec 2 support.  'dist_suffix' will be set
+    to 'TRIAL' automatically when necessary. [David Golden]
+
 0.36_13 - Wed Jul 28 22:40:25 EDT 2010
 
  Bug-fixes:

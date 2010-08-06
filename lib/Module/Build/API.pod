@@ -266,6 +266,25 @@ a reasonable default.  However, some agglomerative distributions like
 C<libwww-perl> or C<bioperl> have names that don't correspond directly
 to a module name, so C<dist_name> can be set independently.
 
+=item dist_suffix
+
+[version 0.37]
+
+Specifies an optional suffix to include after the version number
+in the distribution directory (and tarball) name.  The only suffix
+currently recognized by PAUSE is 'TRIAL', which indicates that the
+distribution should not be indexed.  For example:
+
+  Foo-Bar-1.23-TRIAL.tar.gz
+
+This will automatically do the "right thing" depending on C<dist_version> and
+C<release_status>.  When C<dist_version> does not have an underscore and
+C<release_status> is not 'stable', then C<dist_suffix> will default to 'TRIAL'.
+Otherwise it will default to the empty string, disabling the suffix.  
+
+In general, authors should only set this if they B<must> override the default
+behavior for some particular purpose.
+
 =item dist_version
 
 [version 0.11]
@@ -715,6 +734,22 @@ for the details of how requirements can be specified.
 Normally, C<Module::Build> does not search subdirectories when looking
 for tests to run. When this options is set it will search recursively
 in all subdirectories of the standard 't' test directory.
+
+=item release_status
+
+[version 0.37]
+
+The CPAN Meta Spec version 2 adds C<release_status> to allow authors
+to specify how a distribution should be indexed.  Consistent with the
+spec, this parameter can only have one three values: 'stable',
+'testing' or 'unstable'.
+
+Unless explicitly set by the author, C<release_status> will default
+to 'stable' unless C<dist_version> contains an underscore, in which
+case it will default to 'testing'.
+
+It is an error to specify a C<release_status> of 'stable' when
+C<dist_version> contains an underscore character.
 
 =item requires
 
