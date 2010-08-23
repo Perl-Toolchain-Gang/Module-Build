@@ -8,6 +8,12 @@ Revision history for Perl extension Module::Build.
     for adding CPAN Meta Spec 2 support.  'dist_suffix' will be set
     to 'TRIAL' automatically when necessary. [David Golden]
 
+  - Makes 'license' more liberal.  You can now specify either a license
+    key from the approved list (c.f. Module::Build::API) or just a
+    Software::License subclass name (e.g. 'Perl_5').  This should
+    provide better support for custom or proprietary licenses.
+    [David Golden]
+
 0.36_13 - Wed Jul 28 22:40:25 EDT 2010
 
  Bug-fixes:
