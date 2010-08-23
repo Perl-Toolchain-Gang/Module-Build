@@ -55,12 +55,10 @@ BEGIN {
   my $t_lib = File::Spec->catdir('t', 'bundled');
   push @INC, $t_lib; # Let user's installed version override
 
-  if ($ENV{PERL_CORE}) {
-    # We change directories, so expand @INC and $^X to absolute paths
-    # Also add .
-    @INC = (map(File::Spec->rel2abs($_), @INC), ".");
-    $^X = File::Spec->rel2abs($^X);
-  }
+  # We change directories, so expand @INC and $^X to absolute paths
+  # Also add .
+  @INC = (map(File::Spec->rel2abs($_), @INC), ".");
+  $^X = File::Spec->rel2abs($^X);
 }
 
 use Exporter;
