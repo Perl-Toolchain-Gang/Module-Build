@@ -58,6 +58,7 @@ t/install.t
 t/install_extra_target.t
 t/lib/DistGen.pm
 t/lib/MBTest.pm
+t/lib/Software/License/VaporWare.pm
 t/manifypods.t
 t/metadata.t
 t/metadata2.t
@@ -71,8 +72,11 @@ t/perl_mb_opt.t
 t/PL_files.t
 t/pod_parser.t
 t/ppm.t
+t/properties/dist_suffix.t
+t/properties/license.t
 t/properties/module_name.t
 t/properties/needs_compiler.t
+t/properties/release_status.t
 t/properties/share_dir.t
 t/README.pod
 t/resume.t
