@@ -471,8 +471,12 @@ L<Module::Build/"INSTALL PATHS">
 
 [version 0.07]
 
-Specifies the licensing terms of your distribution.  Valid options include:
+Specifies the licensing terms of your distribution.
 
+As of Module::Build version 0.36_14, you may use a L<Software::License>
+subclass name (e.g. 'Apache_2_0') instead of one of the keys below.
+
+The legacy list of valid license values include:
 
 =over 4
 
@@ -549,9 +553,9 @@ restrictions.
 
 =back
 
-
 Note that you must still include the terms of your license in your
-documentation - this field only lets automated tools figure out your
+code and documentation - this field only sets the information that is included
+in distribution metadata to let automated tools figure out your
 licensing restrictions.  Humans still need something to read.  If you
 choose to provide this field, you should make sure that you keep it in
 sync with your written documentation if you ever change your licensing
@@ -560,13 +564,7 @@ terms.
 You may also use a license type of C<unknown> if you don't wish to
 specify your terms in the metadata.
 
-It is a fatal error to use a license other than the ones mentioned
-above.  This is not because I wish to impose licensing terms on you -
-please let me know if you would like another license option to be
-added to the list.  I just started out with a small set of licenses to
-keep things simple, figuring I'd let people with actual working
-knowledge in this area tell me what to do.  So if that's you, drop me
-a line.
+Also see the C<create_license> parameter.
 
 =item meta_add
 
