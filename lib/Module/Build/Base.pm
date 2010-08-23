@@ -4549,12 +4549,13 @@ sub prepare_metadata {
   # if Software::License::* exists, then we can use it to get normalized name
   # for META files
 
-  if ( grep { $_ eq $license } qw/unknown restrictive unrestricted open_source/ ) {
-    $meta_license = $license;
-  }
-  elsif ( my $sl = $self->_software_license_object ) {
+  if ( my $sl = $self->_software_license_object ) {
     $meta_license = $sl->meta_name;
     $meta_license_url = $sl->url;
+  }
+  elsif ( exists $self->valid_licenses()->{$license} ) {
+    $meta_license = $license;
+    $meta_license_url = $self->_license_url( $license );
   }
   else {
   # if we didn't find a license from a Software::License class,
