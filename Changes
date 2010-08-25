@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.36_16 - 
 
+  Bug fixes:
+
+  - Better error message in case package declaration is not found
+    when searching for version. [Alexandr Ciornii]
+
 0.36_15 - Wed Aug 25 10:41:28 EDT 2010
 
   Bug fixes:

@@ -1181,7 +1181,11 @@ sub dist_version {
     my $version_from = File::Spec->catfile( split( qr{/}, $dist_version_from ) );
     my $pm_info = Module::Build::ModuleInfo->new_from_file( $version_from )
       or die "Can't find file $version_from to determine version";
+    #$p->{dist_version} is undef here
     $p->{dist_version} = $self->normalize_version( $pm_info->version() );
+    unless (defined $p->{dist_version}) {
+      die "Can't determine distribution version from $version_from";
+    }
   }
 
   die ("Can't determine distribution version, must supply either 'dist_version',\n".
