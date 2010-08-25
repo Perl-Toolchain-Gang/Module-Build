@@ -45,6 +45,7 @@ t/actions/manifest_skip.t
 t/add_property.t
 t/basic.t
 t/bundle_inc.t
+t/bundled/Software/License.pm
 t/bundled/Tie/CPHash.pm
 t/compat.t
 t/compat/exit.t
