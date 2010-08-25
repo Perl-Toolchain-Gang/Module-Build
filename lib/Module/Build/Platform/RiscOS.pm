@@ -2,7 +2,7 @@ package Module::Build::Platform::RiscOS;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.36_15';
+$VERSION = '0.36_16';
 $VERSION = eval $VERSION;
 use Module::Build::Base;
 
