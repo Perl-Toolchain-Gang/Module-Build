@@ -3,7 +3,11 @@ use lib 't/lib';
 use MBTest;
 use DistGen;
 
-plan 'no_plan';
+if ( $] lt 5.008001 ) { 
+  plan skip_all => "dotted-version numbers are buggy before 5.8.1";
+} else {
+  plan 'no_plan';
+}
 
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');
