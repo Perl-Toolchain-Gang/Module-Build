@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.36_17 - 
 
+  Enhancements:
+
+  - Added 'distinstall' action to run 'Build install' inside the
+    generated distribution directory [Jeff Thalhammer]
+
 0.36_16 - Thu Aug 26 12:44:07 EDT 2010
 
   Bug fixes:

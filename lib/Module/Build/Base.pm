@@ -3993,6 +3993,22 @@ sub ACTION_disttest {
       });
 }
 
+sub ACTION_distinstall {
+  my ($self, @args) = @_;
+
+  $self->depends_on('distdir');
+
+  $self->_do_in_dir ( $self->dist_dir,
+    sub {
+      $self->run_perl_script('Build.PL')
+        or die "Error executing 'Build.PL' in dist directory: $!";
+      $self->run_perl_script('Build')
+        or die "Error executing 'Build' in dist directory: $!";
+      $self->run_perl_script('Build', [], ['install'])
+        or die "Error executing 'Build install' in dist directory";
+    }
+  );
+}
 
 =begin private
 

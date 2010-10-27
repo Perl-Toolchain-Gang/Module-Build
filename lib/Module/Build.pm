@@ -328,6 +328,15 @@ Creates a "distribution directory" named C<$dist_name-$dist_version>
 copies all the files listed in the F<MANIFEST> file to that directory.
 This directory is what the distribution tarball is created from.
 
+=item distinstall
+
+[version 0.37]
+
+Performs the 'distdir' action, then switches into that directory and runs a
+C<perl Build.PL>, followed by the 'build' and 'install' actions in that
+directory.  Use PERL_MB_OPT or F<.modulebuildrc> to set options that should be
+applied during subprocesses
+
 =item distmeta
 
 [version 0.21]
@@ -361,9 +370,11 @@ MANIFEST.
 
 [version 0.05]
 
-Performs the 'distdir' action, then switches into that directory and
-runs a C<perl Build.PL>, followed by the 'build' and 'test' actions in
-that directory.
+Performs the 'distdir' action, then switches into that directory and runs a
+C<perl Build.PL>, followed by the 'build' and 'test' actions in that directory.
+Use PERL_MB_OPT or F<.modulebuildrc> to set options that should be applied
+during subprocesses
+
 
 =item docs
 
