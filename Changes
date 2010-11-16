@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.36_18 - 
 
+  Changes:
+
+  - Added dependency on Perl::OSType to refactor and centralize
+    management of OS type mapping
+
 0.36_17 - Wed Oct 27 18:08:36 EDT 2010
 
   Enhancements:
