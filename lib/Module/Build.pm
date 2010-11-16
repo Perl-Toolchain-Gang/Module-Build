@@ -10,6 +10,7 @@ use strict;
 use File::Spec ();
 use File::Path ();
 use File::Basename ();
+use Perl::OSType ();
 
 use Module::Build::Base;
 
@@ -18,60 +19,6 @@ use vars qw($VERSION @ISA);
 $VERSION = '0.36_18';
 $VERSION = eval $VERSION;
 
-# Okay, this is the brute-force method of finding out what kind of
-# platform we're on.  I don't know of a systematic way.  These values
-# came from the latest (bleadperl) perlport.pod.
-
-my %OSTYPES = qw(
-		 aix       Unix
-		 bsdos     Unix
-		 beos      Unix
-		 dgux      Unix
-		 dragonfly Unix
-		 dynixptx  Unix
-		 freebsd   Unix
-		 linux     Unix
-		 haiku     Unix
-		 hpux      Unix
-		 irix      Unix
-		 darwin    Unix
-		 machten   Unix
-		 midnightbsd Unix
-		 mirbsd    Unix
-		 next      Unix
-		 openbsd   Unix
-		 netbsd    Unix
-		 dec_osf   Unix
-		 nto       Unix
-		 svr4      Unix
-		 svr5      Unix
-		 sco_sv    Unix
-		 unicos    Unix
-		 unicosmk  Unix
-		 solaris   Unix
-		 sunos     Unix
-		 cygwin    Unix
-		 os2       Unix
-		 interix   Unix
-		 gnu       Unix
-		 gnukfreebsd Unix
-		 nto       Unix
-
-		 dos       Windows
-		 MSWin32   Windows
-
-		 os390     EBCDIC
-		 os400     EBCDIC
-		 posix-bc  EBCDIC
-		 vmesa     EBCDIC
-
-		 MacOS     MacOS
-		 VMS       VMS
-		 VOS       VOS
-		 riscos    RiscOS
-		 amigaos   Amiga
-		 mpeix     MPEiX
-		);
 
 # Inserts the given module into the @ISA hierarchy between
 # Module::Build and its immediate parent
@@ -94,18 +41,18 @@ sub _interpose_module {
 if (grep {-e File::Spec->catfile($_, qw(Module Build Platform), $^O) . '.pm'} @INC) {
   __PACKAGE__->_interpose_module("Module::Build::Platform::$^O");
 
-} elsif (exists $OSTYPES{$^O}) {
-  __PACKAGE__->_interpose_module("Module::Build::Platform::$OSTYPES{$^O}");
+} elsif ( my $ostype = os_type() ) {
+  __PACKAGE__->_interpose_module("Module::Build::Platform::$ostype");
 
 } else {
   warn "Unknown OS type '$^O' - using default settings\n";
 }
 
-sub os_type { $OSTYPES{$^O} }
+sub os_type { return Perl::OSType::os_type() }
 
-sub is_vmsish { return ((os_type() || '') eq 'VMS') }
-sub is_windowsish { return ((os_type() || '') eq 'Windows') }
-sub is_unixish { return ((os_type() || '') eq 'Unix') }
+sub is_vmsish { return Perl::OSType::is_os_type('VMS') }
+sub is_windowsish { return Perl::OSType::is_os_type('Windows') }
+sub is_unixish { return Perl::OSType::is_os_type('Unix') }
 
 1;
 
