@@ -4540,7 +4540,7 @@ sub prepare_metadata {
   foreach my $f (qw(dist_name dist_version dist_author dist_abstract license)) {
     my $field = $self->$f();
     unless ( defined $field and length $field ) {
-      my $err = "ERROR: Missing required field '$_' for metafile\n";
+      my $err = "ERROR: Missing required field '$f' for metafile\n";
       if ( $fatal ) {
         die $err;
       }
