@@ -3293,8 +3293,9 @@ sub htmlify_pods {
   if ( $with_ActiveState = $self->_is_ActivePerl
     && eval { require ActivePerl::DocTools::Pod; 1 }
   ) {
-    $htmltool = "ActiveState::DocTools::Pod " .
-      ActiveState::DocTools::Pod->VERSION;
+    my $tool_v = ActiveState::DocTools::Pod->VERSION;
+    $htmltool = "ActiveState::DocTools::Pod";
+    $htmltool .= " $tool_v" if $tool_v && length $tool_v;
   }
   else {
       require Module::Build::PodParser;
