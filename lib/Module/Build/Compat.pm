@@ -207,7 +207,7 @@ EOF
   } elsif ($type eq 'traditional') {
 
     my (%MM_Args, %prereq);
-    if (eval "use Tie::IxHash; 1") {
+    if (eval "use Tie::IxHash 1.2; 1") {
       tie %MM_Args, 'Tie::IxHash'; # Don't care if it fails here
       tie %prereq,  'Tie::IxHash'; # Don't care if it fails here
     }

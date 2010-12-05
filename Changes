@@ -11,6 +11,9 @@ Revision history for Perl extension Module::Build.
 
   - no longer uses fake user 'foo' in t/tilde (RT#61793) [David Golden]
 
+  - won't fail tests if an ancient Tie::IxHash is installed
+    [Christopher J. Madsen]
+
 0.36_17 - Wed Oct 27 18:08:36 EDT 2010
 
   Enhancements:
