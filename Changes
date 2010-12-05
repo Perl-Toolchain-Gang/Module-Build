@@ -9,6 +9,9 @@ Revision history for Perl extension Module::Build.
 
   Bug fixes:
 
+ - Bundled Module::Build::Version updated to bring into sync with CPAN
+   version.pm 0.86 [David Golden]
+
   - no longer uses fake user 'foo' in t/tilde (RT#61793) [David Golden]
 
   - won't fail tests if an ancient Tie::IxHash is installed
