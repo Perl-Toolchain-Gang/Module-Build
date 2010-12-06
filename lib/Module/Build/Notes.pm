@@ -4,7 +4,7 @@ package Module::Build::Notes;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.36_18';
+$VERSION = '0.36_19';
 $VERSION = eval $VERSION;
 use Data::Dumper;
 use IO::File;
