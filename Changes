@@ -49,6 +49,9 @@ Revision history for Perl extension Module::Build.
 
   - Skip noexec tmpdir check on Windows (RT#55667) [Jan Dubois]
 
+  - Arguments with key value pairs may now have keys with "-" in them
+    (RT#53050) [David Golden]
+
 0.36_17 - Wed Oct 27 18:08:36 EDT 2010
 
   Enhancements:
