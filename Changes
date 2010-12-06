@@ -9,6 +9,9 @@ Revision history for Perl extension Module::Build.
 
   Bug fixes:
 
+ - A Perl interpreter mismatch between running Build.PL and running Build
+   is now a fatal error, not a warning (RT#55183) [David Golden]
+
  - Bundled Module::Build::Version updated to bring into sync with CPAN
    version.pm 0.86 [David Golden]
 

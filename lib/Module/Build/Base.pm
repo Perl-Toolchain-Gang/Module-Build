@@ -96,8 +96,12 @@ sub resume {
 
   unless ($self->_perl_is_same($self->{properties}{perl})) {
     my $perl = $self->find_perl_interpreter;
-    $self->log_warn(" * WARNING: Configuration was initially created with '$self->{properties}{perl}',\n".
-		    "   but we are now using '$perl'.\n");
+    die(<<"DIEFATAL");
+* FATAL ERROR: Perl interpreter mismatch. Configuration was initially
+  created with '$self->{properties}{perl}'
+  but we are now using '$perl'.  You must
+  run 'Build realclean' or 'make realclean' and re-configure.
+DIEFATAL
   }
 
   $self->cull_args(@ARGV);
