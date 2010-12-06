@@ -3506,8 +3506,8 @@ sub ACTION_install {
 
     $self->log_info("For ActivePerl's PPM: touch '$F_perllocal'\n");
 
-    open PERLLOCAL, ">>$F_perllocal";
-    close PERLLOCAL;
+    open my $perllocal, ">>", $F_perllocal;
+    close $perllocal;
     utime($dt_stamp, $dt_stamp, $F_perllocal);
   }
 }
