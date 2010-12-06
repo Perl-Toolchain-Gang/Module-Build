@@ -150,6 +150,10 @@ our $VERSION = '1.23_00_00';
   'v1.2_3' => <<'---', # package NAME VERSION
   package Simple v1.2_3;
 ---
+  '1.23a' => <<'---', # non-numeric (which version.pm doesn't like)
+package Simple;
+our $VERSION = '1.23a';
+---
 );
 my %modules = reverse @modules;
 
@@ -203,6 +207,8 @@ foreach my $module ( sort keys %modules ) {
         if $] < 5.006 && $module =~ /\bour\b/;
     skip( "No package NAME VERSION support until perl 5.11.1", 2 )
         if $] < 5.011001 && $module =~ /package\s+[\w\:\']+\s+v?[0-9._]+/;
+
+    $expected =~ s/[a-z_]+$//i; # strip trailing alphabeticals like M::B does
 
     $dist->change_file( 'lib/Simple.pm', $module );
     $dist->regen;

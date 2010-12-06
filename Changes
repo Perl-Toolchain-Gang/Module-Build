@@ -7,6 +7,11 @@ Revision history for Perl extension Module::Build.
   - Added dependency on Perl::OSType to refactor and centralize
     management of OS type mapping [David Golden]
 
+  - When parsing a version number out of a file, any trailing alphabetical
+    characters will be dropped to avoid fatal errors when comparing version
+    numbers.  These would have been dropped (with a warning) anyway during
+    an ordinary numeric comparison. (RT#56071) [David Golden]
+
   Bug fixes:
 
   - A Perl interpreter mismatch between running Build.PL and running Build

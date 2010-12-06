@@ -344,6 +344,10 @@ sub _evaluate_version_line {
     $result =~ s{_}{}g;
   }
 
+  # Trailing alphabeticals aren't acceptable anymore, but we'll be nice
+  # and try to ignore it (even though Perl might not)
+  $result =~ s/[a-z_]+$//i;
+
   # Bless it into our own version class
   my $vobj;
   eval { $vobj = Module::Build::Version->new($result) };
