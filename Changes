@@ -28,6 +28,10 @@ Revision history for Perl extension Module::Build.
   - Return to starting directory after install action; this is
     an attempt to fix an install.t heisenbug (RT#63003) [David Golden]
 
+  - A broken version.pm load won't cause Module::Build::Version to
+    die trying to install itself as a mock version (RT#59499)
+    [Eric Wilhelm and David Golden]
+
 0.36_17 - Wed Oct 27 18:08:36 EDT 2010
 
   Enhancements:

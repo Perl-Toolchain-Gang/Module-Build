@@ -6,6 +6,16 @@ $VERSION = 0.86;
 
 eval "use version $VERSION";
 if ($@) { # can't locate version files, use our own
+    # We might be here because version.pm was present but there was
+    # an error, so make we want to be sure users see what's happening
+    # We also need to clear %INC entries, as the "undef" for a broken
+    # version.pm can't be directly overwritten later.
+    if ( exists $INC{'version.pm'} && ! defined $INC{'version.pm'} ) {
+        warn "Error loading version.pm: $@\n";
+        warn "Using Module::Build::Version bundled version code instead.\n";
+        delete $INC{'version.pm'};
+        delete $INC{'version/vpp.pm'};
+    }
 
     # Avoid redefined warnings if an old version.pm was available
     delete $version::{$_} foreach keys %version::;
