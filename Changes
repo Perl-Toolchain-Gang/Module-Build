@@ -5,24 +5,24 @@ Revision history for Perl extension Module::Build.
   Changes:
 
   - Added dependency on Perl::OSType to refactor and centralize
-    management of OS type mapping
+    management of OS type mapping [David Golden]
 
   Bug fixes:
 
- - A Perl interpreter mismatch between running Build.PL and running Build
-   is now a fatal error, not a warning (RT#55183) [David Golden]
+  - A Perl interpreter mismatch between running Build.PL and running Build
+    is now a fatal error, not a warning (RT#55183) [David Golden]
 
- - Bundled Module::Build::Version updated to bring into sync with CPAN
-   version.pm 0.86 [David Golden]
+  - Bundled Module::Build::Version updated to bring into sync with CPAN
+    version.pm 0.86 [David Golden]
 
-  - no longer uses fake user 'foo' in t/tilde (RT#61793) [David Golden]
+  - No longer uses fake user 'foo' in t/tilde (RT#61793) [David Golden]
 
-  - won't fail tests if an ancient Tie::IxHash is installed
+  - Won't fail tests if an ancient Tie::IxHash is installed
     [Christopher J. Madsen]
 
-  - correctly report missing metafile field names [David Golden]
+  - Correctly report missing metafile field names [David Golden]
 
-  - suppress uninitialized value errors during Pod creation
+  - Suppress uninitialized value errors during Pod creation
     on ActiveState Perl [David Golden]
 
   - Return to starting directory after install action; this is
