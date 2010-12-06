@@ -52,6 +52,9 @@ Revision history for Perl extension Module::Build.
   - Arguments with key value pairs may now have keys with "-" in them
     (RT#53050) [David Golden]
 
+  - Add quotemeta to t/tilde.t test to fix Cygwin fails
+    [Chris Williams and David Golden]
+
 0.36_17 - Wed Oct 27 18:08:36 EDT 2010
 
   Enhancements:

@@ -107,6 +107,6 @@ SKIP: {
         $expected = $home . '/../[^/]+' . '/fooxzy';
     }
 
-    like( run_sample( $p => "~$me/fooxzy")->$p(),  qr($expected)i );
+    like( run_sample( $p => "~$me/fooxzy")->$p(),  qr(\Q$expected\E)i );
 }
 
