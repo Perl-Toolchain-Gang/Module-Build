@@ -47,6 +47,8 @@ Revision history for Perl extension Module::Build.
   - Add install*script to search path for installdeps client
     and search site, then vendor, then core paths
 
+  - Skip noexec tmpdir check on Windows (RT#55667) [Jan Dubois]
+
 0.36_17 - Wed Oct 27 18:08:36 EDT 2010
 
   Enhancements:

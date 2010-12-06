@@ -208,6 +208,9 @@ sub check_compiler {
 
   my $have_c_compiler;
   stderr_of( sub {$have_c_compiler = $mb->have_c_compiler} );
+  # XXX link_executable() is not yet implemented for Windows
+  # and noexec tmpdir is irrelevant on Windows
+  return ($have_c_compiler, 1) if $^O eq "MSWin32";
 
   # check noexec tmpdir
   my $tmp_exec;
