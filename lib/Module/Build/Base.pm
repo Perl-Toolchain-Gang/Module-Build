@@ -1771,6 +1771,13 @@ sub print_build_script {
 
   my $closedata="";
 
+  my $config_requires;
+  if ( -f $self->metafile ) {
+    my $meta = eval { $self->read_metafile( $self->metafile ) };
+    $config_requires = $meta && $meta->{configure_requires}{'Module::Build'};
+  }
+  $config_requires ||= 0;
+
   my %q = map {$_, $self->$_()} qw(config_dir base_dir);
 
   $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $self->is_windowsish;
@@ -1828,6 +1835,7 @@ $quoted_INC
 close(*DATA) unless eof(*DATA); # ensure no open handles to this script
 
 use $build_package;
+Module::Build->VERSION(q{$config_requires});
 
 # Some platforms have problems setting \$^X in shebang contexts, fix it up here
 \$^X = Module::Build->find_perl_interpreter;

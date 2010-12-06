@@ -55,6 +55,10 @@ Revision history for Perl extension Module::Build.
   - Add quotemeta to t/tilde.t test to fix Cygwin fails
     [Chris Williams and David Golden]
 
+  - Build script now checks that M::B is at least the same version
+    of M::B as provided in 'configure_requires' in META
+    (RT#54954) [David Golden]
+
 0.36_17 - Wed Oct 27 18:08:36 EDT 2010
 
   Enhancements:
