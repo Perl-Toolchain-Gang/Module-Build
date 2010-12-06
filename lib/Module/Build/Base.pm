@@ -2635,6 +2635,8 @@ sub do_tests {
 
   my $tests = $self->find_test_files;
 
+  local $ENV{PERL_DL_NONLAZY} = 1;
+
   if(@$tests) {
     my $args = $self->tap_harness_args;
     if($self->use_tap_harness or ($args and %$args)) {

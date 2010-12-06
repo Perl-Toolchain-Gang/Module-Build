@@ -37,6 +37,9 @@ Revision history for Perl extension Module::Build.
     die trying to install itself as a mock version (RT#59499)
     [Eric Wilhelm and David Golden]
 
+  - PERL_DL_NONLAZY is now always set when tests are run
+    (RT#56055) [Dmitry Karasik]
+
 0.36_17 - Wed Oct 27 18:08:36 EDT 2010
 
   Enhancements:
