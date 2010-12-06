@@ -22,6 +22,9 @@ Revision history for Perl extension Module::Build.
   - suppress uninitialized value errors during Pod creation
     on ActiveState Perl [David Golden]
 
+  - Return to starting directory after install action; this is
+    an attempt to fix an install.t heisenbug (RT#63003) [David Golden]
+
 0.36_17 - Wed Oct 27 18:08:36 EDT 2010
 
   Enhancements:

@@ -3481,7 +3481,14 @@ sub ACTION_install {
   my ($self) = @_;
   require ExtUtils::Install;
   $self->depends_on('build');
-  ExtUtils::Install::install($self->install_map, $self->verbose, 0, $self->{args}{uninst}||0);
+  # RT#63003 suggest that odd cirmstances that we might wind up
+  # in a different directory than we started, so wrap with _do_in_dir to
+  # ensure we get back to where we started; hope this fixes it!
+  $self->_do_in_dir( ".", sub {
+    ExtUtils::Install::install(
+      $self->install_map, $self->verbose, 0, $self->{args}{uninst}||0
+    );
+  });
   if ($self->_is_ActivePerl && $self->{_completed_actions}{html}) {
     $self->log_info("Building ActivePerl Table of Contents\n");
     eval { ActivePerl::DocTools::WriteTOC(verbose => $self->verbose ? 1 : 0); 1; }
@@ -3788,7 +3795,7 @@ sub _sign_dir {
 sub _do_in_dir {
   my ($self, $dir, $do) = @_;
 
-  my $start_dir = $self->cwd;
+  my $start_dir = File::Spec->rel2abs($self->cwd);
   chdir $dir or die "Can't chdir() to $dir: $!";
   eval {$do->()};
   my @err = $@ ? ($@) : ();
