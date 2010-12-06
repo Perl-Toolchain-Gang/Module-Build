@@ -44,6 +44,9 @@ Revision history for Perl extension Module::Build.
     no specific 'fakeinstall' options are provided (RT#57279)
     [David Golden]
 
+  - Add install*script to search path for installdeps client
+    and search site, then vendor, then core paths
+
 0.36_17 - Wed Oct 27 18:08:36 EDT 2010
 
   Enhancements:
