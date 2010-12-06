@@ -40,6 +40,10 @@ Revision history for Perl extension Module::Build.
   - PERL_DL_NONLAZY is now always set when tests are run
     (RT#56055) [Dmitry Karasik]
 
+  - 'fakeinstall' will use .modulebuildrc actions for 'install' if
+    no specific 'fakeinstall' options are provided (RT#57279)
+    [David Golden]
+
 0.36_17 - Wed Oct 27 18:08:36 EDT 2010
 
   Enhancements:

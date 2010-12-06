@@ -2291,6 +2291,11 @@ sub read_modulebuildrc {
 
   my ($global_opts) =
     $self->read_args( $self->split_like_shell( $options{'*'} || '' ) );
+
+  # let fakeinstall act like install if not provided
+  if ( $action eq 'fakeinstall' && ! exists $options{fakeinstall} ) {
+    $action = 'install';
+  }
   my ($action_opts) =
     $self->read_args( $self->split_like_shell( $options{$action} || '' ) );
 
