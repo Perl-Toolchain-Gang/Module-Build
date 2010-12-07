@@ -9,12 +9,22 @@ use lib File::Spec->catdir('lib');          # use our self to install
 use lib File::Spec->catdir('t', 'bundled'); # use bundled modules
 use lib File::Spec->catdir('t', 'lib');     # our utilities
 
+# System installed configuration prereqs should take precedence
+BEGIN {
+  if ( ! eval "require Perl::OSType; 1" ) {
+    delete $INC{'Perl/OSType.pm'};
+    eval "require inc::Perl::OSType; 1"
+      and $INC{'Perl/OSType.pm'} = {'inc/Perl/OSType.pm'};
+    die $@ if $@;
+  }
+}
+
 # We use Module::Build to test & install itself.
 use Module::Build;
 
 # <remove_me> This code is only present for M::B developers, not on CPAN
-use lib File::Spec->catdir('inc');
 # A custom builder that does some special stuff during the 'dist' phase
+use lib 'inc';
 use ModuleBuildBuilder;
 # </remove_me>
 
