@@ -26,6 +26,11 @@ my $build = ModuleBuildBuilder->new(
     'Test::More'            => 0.49,
     'Test::Harness'         => 3.16,    # PERL5LIB fixes
   },
+  # We have to provide a boostrap copy in case configure_requires
+  # is not respected, but let's try to let people do it the right way
+  configure_requires => {
+    'Perl::OSType'          => 1,     # needs 1.0 API
+  },
   # KEEP 'requires' as low as possible and target Build/test/install
   # Requirements for authors should be implemented as optional features
   requires    => {
