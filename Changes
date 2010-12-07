@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.36_19 - 
 
+  Bug fixes:
+
+  - Perl::OSType is declared as a 'configure_requires' dependency, but is
+    also bundled in inc (and loaded if needed) [David Golden]
+
 0.36_18 - Mon Dec  6 16:46:49 EST 2010
 
   Changes:
