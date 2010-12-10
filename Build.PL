@@ -11,19 +11,19 @@ use lib File::Spec->catdir('t', 'lib');     # our utilities
 
 # System installed configuration prereqs should take precedence
 BEGIN {
-  if ( ! eval "require Perl::OSType; 1" ) {
+  if ( ! eval "use Perl::OSType 1 (); 1" ) {
     delete $INC{'Perl/OSType.pm'};
     eval "require inc::Perl::OSType; 1"
       and $INC{'Perl/OSType.pm'} = {'inc/Perl/OSType.pm'};
     die $@ if $@;
   }
-  if ( ! eval "version; 1" ) {
+  if ( ! eval "use version 0.87 (); 1" ) {
     delete $INC{'version.pm'};
     eval "require inc::MBVersion; 1"
       and $INC{'version.pm'} = {'inc/MBVersion.pm'};
     die $@ if $@;
   }
-  if ( ! eval "Module::Metadata; 1" ) {
+  if ( ! eval "use Module::Metadata 1.000002 (); 1" ) {
     delete $INC{'Module/Metadata.pm'};
     eval "require inc::Module::Metadata; 1"
       and $INC{'Module/Metadata.pm'} = {'inc/Module/Metadata.pm'};
@@ -78,6 +78,8 @@ my $build = ModuleBuildBuilder->new(
     'Getopt::Long'          => 0,
     'Test::Harness'         => 0,
     'Perl::OSType'          => 1, # needs 1.0 API
+    'version'               => 0.87,  # No longer requires M::B
+    'Module::Metadata'      => 1,
   },
   recommends => {
     'ExtUtils::Install'  => 0.30,
