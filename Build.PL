@@ -53,7 +53,7 @@ my $build = ModuleBuildBuilder->new(
   configure_requires => {
     'Perl::OSType'          => 1,     # needs 1.0 API
     'version'               => 0.87,  # No longer requires M::B
-    'Module::Metadata'      => 1,
+    'Module::Metadata'      => 1.000002, # uses version.pm
   },
   # KEEP 'requires' as low as possible and target Build/test/install
   # Requirements for authors should be implemented as optional features
@@ -77,10 +77,11 @@ my $build = ModuleBuildBuilder->new(
     'Text::ParseWords'      => 0,
     'Getopt::Long'          => 0,
     'Test::Harness'         => 0,
+    'YAML::Tiny'            => 1.40,
+    # configure_requires repeated here
     'Perl::OSType'          => 1, # needs 1.0 API
     'version'               => 0.87,  # No longer requires M::B
-    'Module::Metadata'      => 1,
-    'YAML::Tiny'            => 1.40,
+    'Module::Metadata'      => 1.000002, # uses version.pm
   },
   recommends => {
     'ExtUtils::Install'  => 0.30,
