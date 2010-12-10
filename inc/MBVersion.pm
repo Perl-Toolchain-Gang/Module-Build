@@ -60,7 +60,7 @@ use strict;
 
 use vars qw(@ISA $VERSION $CLASS $STRICT $LAX *declare *qv);
 
-$VERSION = 0.86;
+$VERSION = 0.87;
 
 $CLASS = 'version';
 
@@ -168,10 +168,8 @@ $LAX =
 
 #--------------------------------------------------------------------------#
 
-# XXX NO XS FOR US
-# eval "use version::vxs $VERSION";
-if ( 1 ) { # XXX force pure perl
-#   XXX We provide our own vpp
+#eval "use version::vxs $VERSION"; XXX DONT TRY XS
+if ( 1 ) { # XXX FORCE PURE PERL
 #    eval "use version::vpp $VERSION"; # don't tempt fate
 #    die "$@" if ( $@ );
     push @ISA, "version::vpp";
@@ -187,8 +185,8 @@ if ( 1 ) { # XXX force pure perl
 	*version::parse = \&version::vpp::parse;
     }
 }
-else {
-  # XXX NO XS FOR US -- deleted it
+else { # use XS module
+# XXX NO XS FOR US -- WE DELETED IT
 }
 
 # Preloaded methods go here.
@@ -380,7 +378,7 @@ use strict;
 use POSIX qw/locale_h/;
 use locale;
 use vars qw ($VERSION @ISA @REGEXS);
-$VERSION = 0.86;
+$VERSION = 0.87;
 
 use overload (
     '""'       => \&stringify,
