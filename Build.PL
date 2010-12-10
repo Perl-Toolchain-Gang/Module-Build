@@ -151,9 +151,10 @@ my $build = ModuleBuildBuilder->new(
 );
 
 $build->create_build_script;
-unless (-f "MYMETA.yml") { # fallback if we don't have YAML::Tiny
+if (-f "META.yml" && ! -f "MYMETA.yml") { # fallback if we don't have YAML::Tiny
   require File::Copy;
-  if ( File::Copy::copy("META.yml", "MYMETA.yml") ) {
+  File::Copy::copy("META.yml", "MYMETA.yml") or warn "Error: $!\n";
+  if ( -f 'MYMETA.yml' ) {
     warn "Copied META.yml to MYMETA.yml for bootstrapping\n";
   }
   else {
