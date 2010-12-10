@@ -80,6 +80,7 @@ my $build = ModuleBuildBuilder->new(
     'Perl::OSType'          => 1, # needs 1.0 API
     'version'               => 0.87,  # No longer requires M::B
     'Module::Metadata'      => 1,
+    'YAML::Tiny'            => 1.40,
   },
   recommends => {
     'ExtUtils::Install'  => 0.30,
@@ -131,7 +132,7 @@ my $build = ModuleBuildBuilder->new(
     },
     YAML_support => {
       description => "Use YAML::Tiny to write META.yml files",
-      requires    => {'YAML::Tiny' => 1.38},
+      requires    => {'YAML::Tiny' => 1.40},
     },
     manpage_support => {
       description => "Create Unix man pages",
@@ -154,5 +155,9 @@ my $build = ModuleBuildBuilder->new(
 );
 
 $build->create_build_script;
+unless (-f "MYMETA.yml") { # fallback if we don't have YAML::Tiny
+  require File::Copy;
+  File::Copy::copy("META.yml", "MYMETA.yml");
+}
 
 # vim:ts=2:sw=2:et:sta

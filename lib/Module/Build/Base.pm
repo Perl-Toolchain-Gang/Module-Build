@@ -4470,14 +4470,11 @@ sub read_metafile {
   my ($metafile) = @_;
   my $yaml;
 
-  my $class = $self->_mb_feature('YAML_support')
-            ? 'YAML::Tiny' : 'Module::Build::YAML' ;
-
-  eval "require $class; 1" or die $@;
+  $self->_mb_feature('YAML_support') or return;
 
   my $string = $self->_slurp($metafile, $] < 5.8 ? "" : ":utf8");
-  my $meta = $class->read_string($string)
-    or $self->log_warn( "Error parsing '$metafile': " . $class->errstr . "\n");
+  my $meta = $YAML::Tiny->read_string($string)
+    or $self->log_warn( "Error parsing '$metafile': " . YAML::Tiny->errstr . "\n");
 
   return $meta->[0] || {};
 }
@@ -4486,16 +4483,10 @@ sub read_metafile {
 sub write_metafile {
   my $self = shift;
   my ($metafile, $node) = @_;
-  my $yaml;
 
-  if ($self->_mb_feature('YAML_support')) {
-    # XXX this is probably redundant, but stick with it
-    require YAML::Tiny;
-    $yaml = YAML::Tiny->new($node);
-  } else {
-    require Module::Build::YAML;
-    $yaml = Module::Build::YAML->new($node);
-  }
+  return unless $self->_mb_feature('YAML_support');
+
+  my $yaml = YAML::Tiny->new($node);
   my $string = $yaml->write_string;
   return $self->_spew($metafile, $string, $] < 5.8 ? "" : ":utf8")
 }
