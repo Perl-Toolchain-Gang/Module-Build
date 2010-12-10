@@ -4470,7 +4470,8 @@ sub read_metafile {
   my $self = shift;
   my ($metafile) = @_;
 
-  $self->check_installed_status("YAML::Tiny", 1.4) or return;
+  my $status = $self->check_installed_status("YAML::Tiny", 1.4);
+  return unless $status->{ok};
   require YAML::Tiny;
 
   my $string = $self->_slurp($metafile, $] < 5.8 ? "" : ":utf8");
@@ -4485,7 +4486,8 @@ sub write_metafile {
   my $self = shift;
   my ($metafile, $node) = @_;
 
-  $self->check_installed_status("YAML::Tiny", 1.4) or return;
+  my $status = $self->check_installed_status("YAML::Tiny", 1.4);
+  return unless $status->{ok};
   require YAML::Tiny;
 
   my $yaml = YAML::Tiny->new($node);
