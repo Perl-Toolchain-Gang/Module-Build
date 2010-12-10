@@ -17,6 +17,18 @@ BEGIN {
       and $INC{'Perl/OSType.pm'} = {'inc/Perl/OSType.pm'};
     die $@ if $@;
   }
+  if ( ! eval "version; 1" ) {
+    delete $INC{'version.pm'};
+    eval "require inc::MBVersion; 1"
+      and $INC{'version.pm'} = {'inc/MBVersion.pm'};
+    die $@ if $@;
+  }
+  if ( ! eval "Module::Metadata; 1" ) {
+    delete $INC{'Module/Metadata.pm'};
+    eval "require inc::Module::Metadata; 1"
+      and $INC{'Module/Metadata.pm'} = {'inc/Module/Metadata.pm'};
+    die $@ if $@;
+  }
 }
 
 # We use Module::Build to test & install itself.
@@ -40,6 +52,8 @@ my $build = ModuleBuildBuilder->new(
   # is not respected, but let's try to let people do it the right way
   configure_requires => {
     'Perl::OSType'          => 1,     # needs 1.0 API
+    'version'               => 0.87,  # No longer requires M::B
+    'Module::Metadata'      => 1,
   },
   # KEEP 'requires' as low as possible and target Build/test/install
   # Requirements for authors should be implemented as optional features
