@@ -2,6 +2,20 @@ Revision history for Perl extension Module::Build.
 
 0.36_20 - 
 
+  *** DEPRECATIONS ***
+
+  - Module::Build::Version has been deprecated.  Module::Build now depends
+    directly upon version.pm.  A pure-perl version has been bundled in inc/
+    solely for bootstrapping in case configure_requires is not supported.
+    M::B::Version remains as a wrapper around version.pm.
+
+  - Module::Build::ModuleInfo has been deprecated.  Module::Build now
+    depends directly upon Module::Metadata (which is an extraction of
+    M::B::ModuleInfo intended for general reuse).  A pure-perl version has
+    been bundled in inc/ solely for bootstrapping in case
+    configure_requires is not supported. M::B::ModuleInfo remains as a
+    wrapper around Module::Metadata.
+
 0.36_19 - Tue Dec  7 13:43:42 EST 2010
 
   Bug fixes:
