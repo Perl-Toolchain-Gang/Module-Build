@@ -1889,7 +1889,8 @@ sub create_mymeta {
   # Note which M::B created it
   $mymeta->{generated_by} = "Module::Build version $Module::Build::VERSION";
 
-  $self->write_metafile( $mymetafile, $mymeta );
+  $self->write_metafile( $mymetafile, $mymeta ) or
+    $self->log_warn("Could not create MYMETA.yml\n");
   return 1;
 }
 
