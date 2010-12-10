@@ -4469,9 +4469,9 @@ sub do_create_metafile {
 sub read_metafile {
   my $self = shift;
   my ($metafile) = @_;
-  my $yaml;
 
-  $self->_mb_feature('YAML_support') or return;
+  $self->check_installed_status("YAML::Tiny", 1.4) or return;
+  require YAML::Tiny;
 
   my $string = $self->_slurp($metafile, $] < 5.8 ? "" : ":utf8");
   my $meta = YAML::Tiny->read_string($string)
@@ -4485,7 +4485,8 @@ sub write_metafile {
   my $self = shift;
   my ($metafile, $node) = @_;
 
-  return unless $self->_mb_feature('YAML_support');
+  $self->check_installed_status("YAML::Tiny", 1.4) or return;
+  require YAML::Tiny;
 
   my $yaml = YAML::Tiny->new($node);
   my $string = $yaml->write_string;

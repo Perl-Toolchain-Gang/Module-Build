@@ -73,9 +73,8 @@ stdout_stderr_of( sub { $result = $mb->dispatch('distmeta') } );
 ok $result;
 
 SKIP: {
-  skip( 'YAML_support feature is not enabled', 1 )
-      unless Module::Build::ConfigData->feature('YAML_support');
-  require YAML::Tiny;
+  skip( 'YAML::Tiny is not installed', 1 )
+      unless eval "require YAML::Tiny; 1";
   my $yml = YAML::Tiny::LoadFile('META.yml');
   is_deeply($yml->{provides}, \%meta_provides);
 }

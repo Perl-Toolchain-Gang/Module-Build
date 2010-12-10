@@ -6,7 +6,7 @@ use MBTest tests => 29;
 
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
-my $have_yaml = Module::Build::ConfigData->feature('YAML_support');
+my $have_yaml = eval "require YAML::Tiny; 1";
 
 #########################
 
@@ -107,7 +107,7 @@ ok grep {$_ eq 'save_out'     } $mb->cleanup;
 }
 
 SKIP: {
-  skip( 'YAML_support feature is not enabled', 7 ) unless $have_yaml;
+  skip( 'YAML::Tiny is not available', 7 ) unless $have_yaml;
 
   my $output = eval {
     stdout_stderr_of( sub { $mb->dispatch('disttest') } )

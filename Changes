@@ -18,6 +18,8 @@ Revision history for Perl extension Module::Build.
 
   - Module::Build::YAML has been deprecated.  Module::Build now depends
     directly upon YAML::Tiny.  M::B::YAML remains as a subclass wrapper.
+    The YAML_support feature has been removed, as YAML is now an ordinary
+    dependency.
 
 0.36_19 - Tue Dec  7 13:43:42 EST 2010
 

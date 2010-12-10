@@ -130,10 +130,6 @@ my $build = ModuleBuildBuilder->new(
         'ExtUtils::Installed'   => 1.999, # technically 1.999_001 is what's available
       },
     },
-    YAML_support => {
-      description => "Use YAML::Tiny to write META.yml files",
-      requires    => {'YAML::Tiny' => 1.40},
-    },
     manpage_support => {
       description => "Create Unix man pages",
       requires    => {'Pod::Man' => 0 },
