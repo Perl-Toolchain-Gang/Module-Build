@@ -1,8 +1,10 @@
 Build.PL
 Changes
 contrib/bash_completion.module-build
-INSTALL
+inc/MBVersion.pm
+inc/Module/Metadata.pm
 inc/Perl/OSType.pm
+INSTALL
 lib/inc/latest.pm
 lib/inc/latest/private.pm
 lib/Module/Build.pm
