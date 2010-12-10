@@ -4473,7 +4473,7 @@ sub read_metafile {
   $self->_mb_feature('YAML_support') or return;
 
   my $string = $self->_slurp($metafile, $] < 5.8 ? "" : ":utf8");
-  my $meta = $YAML::Tiny->read_string($string)
+  my $meta = YAML::Tiny->read_string($string)
     or $self->log_warn( "Error parsing '$metafile': " . YAML::Tiny->errstr . "\n");
 
   return $meta->[0] || {};
