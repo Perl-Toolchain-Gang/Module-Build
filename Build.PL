@@ -77,7 +77,7 @@ my $build = ModuleBuildBuilder->new(
     'Text::ParseWords'      => 0,
     'Getopt::Long'          => 0,
     'Test::Harness'         => 0,
-    'YAML::Tiny'            => 1.40,
+    'CPAN::Meta::YAML'      => 0.002,
     # configure_requires repeated here
     'Perl::OSType'          => 1, # needs 1.0 API
     'version'               => 0.87,  # No longer requires M::B
@@ -152,7 +152,7 @@ my $build = ModuleBuildBuilder->new(
 );
 
 $build->create_build_script;
-if (-f "META.yml" && ! -f "MYMETA.yml") { # fallback if we don't have YAML::Tiny
+if (-f "META.yml" && ! -f "MYMETA.yml") { # fallback if we don't have CPAN::Meta::YAML
   require File::Copy;
   File::Copy::copy("META.yml", "MYMETA.yml") or warn "Error: $!\n";
   if ( -f 'MYMETA.yml' ) {

@@ -7,6 +7,7 @@ use lib 't/lib';
 use MBTest 'no_plan';
 
 use DistGen qw(undent);
+use CPAN::Meta::YAML;
 
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
@@ -72,10 +73,7 @@ my $result;
 stdout_stderr_of( sub { $result = $mb->dispatch('distmeta') } );
 ok $result;
 
-SKIP: {
-  skip( 'YAML::Tiny is not installed', 1 )
-      unless eval "require YAML::Tiny; 1";
-  my $yml = YAML::Tiny::LoadFile('META.yml');
-  is_deeply($yml->{provides}, \%meta_provides);
-}
+my $yml = CPAN::Meta::YAML->read_string(slurp('META.yml'))->[0];
+is_deeply($yml->{provides}, \%meta_provides);
+
 $dist->chdir_original if $dist->did_chdir;

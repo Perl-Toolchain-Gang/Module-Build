@@ -3,12 +3,8 @@
 use strict;
 use lib 't/lib';
 use MBTest;
-if ( eval "require YAML::Tiny; 1" ) {
-  plan tests => 25;
-}
-else {
-  plan skip_all => "No YAML::Tiny";
-}
+use CPAN::Meta::YAML;
+plan tests => 25;
 
 blib_load('Module::Build');
 
@@ -60,8 +56,8 @@ $dist->chdir_in;
     "Re-ran Build.PL and regenerated MYMETA.yml based on META.yml"
   );
 
-  my $meta = YAML::Tiny->read('META.yml')->[0];
-  my $mymeta = YAML::Tiny->read('MYMETA.yml')->[0];
+  my $meta = CPAN::Meta::YAML->read('META.yml')->[0];
+  my $mymeta = CPAN::Meta::YAML->read('MYMETA.yml')->[0];
   is( delete $mymeta->{dynamic_config}, 0,
     "MYMETA 'dynamic_config' is 0"
   );
@@ -78,7 +74,7 @@ $dist->chdir_in;
     "Ran Build.PL with dynamic config"
   );
   ok( -e "MYMETA.yml", "MYMETA.yml exists" );
-  $mymeta = YAML::Tiny->read('MYMETA.yml')->[0];
+  $mymeta = CPAN::Meta::YAML->read('MYMETA.yml')->[0];
   isnt(   $meta->{requires}{'File::Spec'},
         $mymeta->{requires}{'File::Spec'},
         "MYMETA requires differs from META"
@@ -90,14 +86,14 @@ $dist->chdir_in;
 
   # manually change META and check that changes are preserved
   $meta->{author} = ['John Gault'];
-  ok( YAML::Tiny->new($meta)->write('META.yml'),
+  ok( CPAN::Meta::YAML->new($meta)->write('META.yml'),
     "Wrote manually modified META.yml" );
 
   $output = stdout_of sub { $dist->run_build_pl };
   like($output, qr/Creating new 'MYMETA.yml' with configuration results/,
     "Ran Build.PL"
   );
-  my $mymeta2 = YAML::Tiny->read('MYMETA.yml')->[0];
+  my $mymeta2 = CPAN::Meta::YAML->read('MYMETA.yml')->[0];
   is_deeply( $mymeta2->{author}, [ 'John Gault' ],
     "MYMETA preserved META modifications"
   );

@@ -293,17 +293,13 @@ Creates the F<META.yml> file that describes the distribution.
 F<META.yml> is a file containing various bits of I<metadata> about the
 distribution.  The metadata includes the distribution name, version,
 abstract, prerequisites, license, and various other data about the
-distribution.  This file is created as F<META.yml> in YAML format.
-It is recommended that the C<YAML::Tiny> module be installed to create it.
-If the C<YAML::Tiny> module is not installed, an internal module supplied
-with Module::Build will be used to write the META.yml file, and this
-will most likely be fine.
+distribution.  This file is created as F<META.yml> in a simplified YAML format.
 
 F<META.yml> file must also be listed in F<MANIFEST> - if it's not, a
 warning will be issued.
 
-The current version of the F<META.yml> specification can be found at
-L<http://module-build.sourceforge.net/META-spec-current.html>
+The current version of the F<META.yml> specification can be found
+on CPAN as L<CPAN::Meta::Spec>.
 
 =item distsign
 
@@ -1084,10 +1080,10 @@ modify it under the same terms as Perl itself.
 =head1 SEE ALSO
 
 perl(1), L<Module::Build::Cookbook>, L<Module::Build::Authoring>,
-L<Module::Build::API>, L<ExtUtils::MakeMaker>, L<YAML::Tiny>
+L<Module::Build::API>, L<ExtUtils::MakeMaker>
 
 F<META.yml> Specification:
-L<http://module-build.sourceforge.net/META-spec-current.html>
+L<CPAN::Meta::Spec>
 
 L<http://www.dsmit.com/cons/>
 
