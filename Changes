@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.36_21 - 
+0.36_21 - Fri Jan 21 11:01:28 EST 2011
 
   - Changed YAML::Tiny references to the new CPAN::Meta::YAML module
     instead, which is the YAML-variant that is going into the Perl core
