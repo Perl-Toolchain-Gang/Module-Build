@@ -68,7 +68,6 @@ testall testcover testdb testpod testpodcoverage versioninstall
 
 Module::Build - Build and install Perl modules
 
-
 =head1 SYNOPSIS
 
 Standard process for building & installing modules:

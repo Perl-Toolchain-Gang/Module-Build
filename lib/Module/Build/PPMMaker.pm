@@ -154,7 +154,6 @@ __END__
 
 Module::Build::PPMMaker - Perl Package Manager file creation
 
-
 =head1 SYNOPSIS
 
   On the command line, builds a .ppd file:

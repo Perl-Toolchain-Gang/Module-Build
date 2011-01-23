@@ -450,7 +450,6 @@ __END__
 
 Module::Build::Compat - Compatibility with ExtUtils::MakeMaker
 
-
 =head1 SYNOPSIS
 
   # In a Build.PL :
