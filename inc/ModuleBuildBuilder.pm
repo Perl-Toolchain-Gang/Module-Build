@@ -78,6 +78,7 @@ sub ACTION_patch_blead {
     next if $file =~ /\.svn/;
     (my $dest = $file) =~ s{^blib/script}{$git_mb_dir/scripts};
     $self->copy_if_modified(from => $file, to => $dest);
+    chmod 0644, $dest;
   }
 
   my @skip = qw{ t/par.t t/signature.t };
