@@ -9,21 +9,34 @@ use lib File::Spec->catdir('lib');          # use our self to install
 use lib File::Spec->catdir('t', 'bundled'); # use bundled modules
 use lib File::Spec->catdir('t', 'lib');     # our utilities
 
+my @exit_warn;
+END {
+  warn "\nThese additional prerequisites must be installed:\n  requires:\n"
+    if @exit_warn;
+  for my $h ( @exit_warn ) {
+    my ($mod, $min) = @$h;
+    warn "    ! $mod (we need version $min)\n";
+  }
+}
+
 # System installed configuration prereqs should take precedence
 BEGIN {
   if ( ! eval "use Perl::OSType 1 (); 1" ) {
+    push @exit_warn, [ 'Perl::OSType', '1.00' ];
     delete $INC{'Perl/OSType.pm'};
     eval "require inc::Perl::OSType; 1"
       and $INC{'Perl/OSType.pm'} = {'inc/Perl/OSType.pm'};
     die $@ if $@;
   }
   if ( ! eval "use version 0.87 (); 1" ) {
+    push @exit_warn, [ 'version', '0.87' ];
     delete $INC{'version.pm'};
     eval "require inc::MBVersion; 1"
       and $INC{'version.pm'} = {'inc/MBVersion.pm'};
     die $@ if $@;
   }
   if ( ! eval "use Module::Metadata 1.000002 (); 1" ) {
+    push @exit_warn, [ 'Module::Metadata', '1.000002' ];
     delete $INC{'Module/Metadata.pm'};
     eval "require inc::Module::Metadata; 1"
       and $INC{'Module/Metadata.pm'} = {'inc/Module/Metadata.pm'};
