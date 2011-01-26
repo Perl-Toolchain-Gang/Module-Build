@@ -4,7 +4,12 @@
 
 use 5.006001;
 
+
 use lib qw(lib);
+
+# bootstrap configure_requires prereqs
+BEGIN { do 'inc/bootstrap.pl' or die defined($@) ? $@ : $! }
+
 use Module::Build::Compat;
 
 Module::Build::Compat->run_build_pl(args => \@ARGV);
