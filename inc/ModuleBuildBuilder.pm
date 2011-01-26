@@ -170,11 +170,11 @@ sub ACTION_checkgit {
 
 # check that we're up to date
   $self->log_info("Checking for differences from origin...\n");
-  my @refs = split q{ }, join( "\n", $git->show_ref('refs/heads/master', 'refs/remotes/origin/master'));
+  my @refs = split q{ }, join( "\n", $git->show_ref("refs/heads/$cur_branch", "refs/remotes/origin/$cur_branch"));
   if ( ! ($refs[0] eq $refs[2] )) {
     $self->log_warn( "Local repo not in sync with origin.  Aborting!\n");
-    $self->log_warn( "\nMaster refs:\n" );
-    $self->log_warn( "$_\n" ) for $git->show_ref('master');
+    $self->log_warn( "\n$cur_branch refs:\n" );
+    $self->log_warn( "$_\n" ) for $git->show_ref($cur_branch);
     exit 1;
   }
   
