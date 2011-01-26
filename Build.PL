@@ -1,6 +1,11 @@
 use 5.006001;
 use strict;
 
+BEGIN {
+  die "CPANPLUS::Dist::Build version 0.08 or later is required to install Module::Build\n"
+    if $INC{'CPANPLUS/Dist/Build.pm'} && CPANPLUS::Dist::Build->VERSION lt '0.08';
+}
+
 # On some platforms (*ahem*, MacPerl 5.6.1) "use lib qw(lib);" doesn't
 # find the local "lib" directory, so we use File::Spec to do it properly.
 use File::Spec 0.82;
@@ -9,40 +14,8 @@ use lib File::Spec->catdir('lib');          # use our self to install
 use lib File::Spec->catdir('t', 'bundled'); # use bundled modules
 use lib File::Spec->catdir('t', 'lib');     # our utilities
 
-my @exit_warn;
-END {
-  warn "\nThese additional prerequisites must be installed:\n  requires:\n"
-    if @exit_warn;
-  for my $h ( @exit_warn ) {
-    my ($mod, $min) = @$h;
-    warn "    ! $mod (we need version $min)\n";
-  }
-}
-
-# System installed configuration prereqs should take precedence
-BEGIN {
-  if ( ! eval "use Perl::OSType 1 (); 1" ) {
-    push @exit_warn, [ 'Perl::OSType', '1.00' ];
-    delete $INC{'Perl/OSType.pm'};
-    eval "require inc::Perl::OSType; 1"
-      and $INC{'Perl/OSType.pm'} = {'inc/Perl/OSType.pm'};
-    die $@ if $@;
-  }
-  if ( ! eval "use version 0.87 (); 1" ) {
-    push @exit_warn, [ 'version', '0.87' ];
-    delete $INC{'version.pm'};
-    eval "require inc::MBVersion; 1"
-      and $INC{'version.pm'} = {'inc/MBVersion.pm'};
-    die $@ if $@;
-  }
-  if ( ! eval "use Module::Metadata 1.000002 (); 1" ) {
-    push @exit_warn, [ 'Module::Metadata', '1.000002' ];
-    delete $INC{'Module/Metadata.pm'};
-    eval "require inc::Module::Metadata; 1"
-      and $INC{'Module/Metadata.pm'} = {'inc/Module/Metadata.pm'};
-    die $@ if $@;
-  }
-}
+# bootstrap configure_requires prereqs
+BEGIN { do 'inc/bootstrap.pl' }
 
 # We use Module::Build to test & install itself.
 use Module::Build;
