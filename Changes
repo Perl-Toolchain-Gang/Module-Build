@@ -1,5 +1,14 @@
 Revision history for Perl extension Module::Build.
 
+0.3623 - Wed Jan 26 17:45:30 EST 2011
+
+  - Fixed bugs involving bootstrapping configure_requires prerequisites
+    on older CPANPLUS clients or for either CPAN/CPANPLUS when using
+    the compatibility Makefile.PL
+
+  - Added diagnostic output when configure_requires are missing for
+    the benefit of users doing manual installation
+
 0.3622 - Mon Jan 24 21:06:50 EST 2011
 
   - No changes from 0.36_21
