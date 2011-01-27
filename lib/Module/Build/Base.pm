@@ -3317,8 +3317,7 @@ sub htmlify_pods {
     ( $self->install_sets('core', 'lib'), # lib
       $self->install_sets('core', 'bin'), # bin
       $self->install_sets('site', 'lib'), # site/lib
-    ),File::Spec->rel2abs($self->blib)
-  );
+    ) ), File::Spec->rel2abs($self->blib);
 
   my $podpath = join(":", map { tr,:\\,|/,; $_ } @podpath);
 
@@ -3403,9 +3402,13 @@ sub htmlify_pods {
       }
 
       $self->log_verbose("P::H::pod2html @opts\n");
-      eval { Pod::Html::pod2html(@opts); 1 }
-        or $self->log_warn("[$htmltool] pod2html( " .
-        join(", ", map { "q{$_}" } @opts) . ") failed: $@");
+      {
+        my $orig = Cwd::getcwd();
+        eval { Pod::Html::pod2html(@opts); 1 }
+          or $self->log_warn("[$htmltool] pod2html( " .
+          join(", ", map { "q{$_}" } @opts) . ") failed: $@");
+        chdir($orig);
+      }
     }
     # We now have to cleanup the resulting html file
     if ( ! -r $tmpfile ) {
