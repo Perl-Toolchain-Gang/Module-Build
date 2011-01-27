@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.37_01 - 
 
+0.3624 - Thu Jan 27 11:38:39 EST 2011
+
+  - Fixed pod2html directory bugs and fixed creation of spurious blib
+    directory in core perl directory when running install.t (RT#63003)
+    [Chris Williams]
+
 0.3623 - Wed Jan 26 17:45:30 EST 2011
 
   - Fixed bugs involving bootstrapping configure_requires prerequisites
