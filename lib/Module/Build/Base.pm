@@ -3905,7 +3905,6 @@ HERE
 
   $self->delete_filetree('LICENSE');
 
-  my $author = join " & ", @{ $self->dist_author };
   my $fh = IO::File->new('> LICENSE')
     or die "Can't write LICENSE file: $!";
   print $fh $license->fulltext;
@@ -4423,7 +4422,8 @@ sub _software_license_object {
   return unless defined $class;
 
   # Software::License requires a 'holder' argument
-  my $sl = eval { $class->new({holder=>"nobody"}) };
+  my $author = join( " & ", @{ $self->dist_author }) || 'unknown';
+  my $sl = eval { $class->new({holder=>$author}) };
   if ( $@ ) {
     $self->log_warn( "Error getting '$class' object: $@" );
   }
