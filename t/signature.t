@@ -4,14 +4,12 @@ use strict;
 use lib 't/lib';
 use MBTest;
 
-if ( $ENV{TEST_SIGNATURE} ) {
-  if ( have_module( 'Module::Signature' ) ) {
-    plan tests => 13;
-  } else {
-    plan skip_all => '$ENV{TEST_SIGNATURE} is set, but Module::Signature not found';
-  }
+if ( have_module( 'Module::Signature' )
+  && $INC{'Module/Signature.pm'} =~ m{t/lib/Module/Signature\.pm} 
+) {
+  plan tests => 12;
 } else {
-  plan skip_all => '$ENV{TEST_SIGNATURE} is not set';
+  plan skip_all => "Mock Module::Signature not loadable";
 }
 
 blib_load('Module::Build');
@@ -27,6 +25,8 @@ $dist->change_build_pl
   module_name => $dist->name,
   license     => 'perl',
   sign        => 1,
+  auto_configure_requires => 0,
+  quiet => 1,
 });
 $dist->regen;
 
@@ -36,15 +36,13 @@ $dist->chdir_in;
 
 my $mb = Module::Build->new_from_context;
 
-
 {
   eval {$mb->dispatch('distdir')};
-  is $@, '';
+  my $err = $@;
+  is $err, '';
   chdir( $mb->dist_dir ) or die "Can't chdir to '@{[$mb->dist_dir]}': $!";
   ok -e 'SIGNATURE';
 
-  # Make sure the signature actually verifies
-  ok Module::Signature::verify() == Module::Signature::SIGNATURE_OK();
   $dist->chdir_in;
 }
 
@@ -68,7 +66,6 @@ my $mb = Module::Build->new_from_context;
 eval { $mb->dispatch('realclean') };
 is $@, '';
 
-
 {
   eval {$mb->dispatch('distdir', sign => 0 )};
   is $@, '';
@@ -86,6 +83,8 @@ $dist->chdir_in;
     $dist->change_build_pl({
         module_name => $dist->name,
         license     => 'perl',
+        auto_configure_requires => 0,
+        quiet => 1,
     });
     $dist->regen;
 
@@ -93,7 +92,8 @@ $dist->chdir_in;
     is $mb->{properties}{sign}, 1;
 
     eval {$mb->dispatch('distdir')};
-    is $@, '';
+    my $err = $@;
+    is $err, '';
     chdir( $mb->dist_dir ) or die "Can't chdir to '@{[$mb->dist_dir]}': $!";
     ok -e 'SIGNATURE', 'Build.PL --sign=1 signs';
 }
