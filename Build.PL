@@ -33,6 +33,7 @@ my $build = ModuleBuildBuilder->new(
     'File::Temp'            => 0.15,    # tmpdir() + fixes
     'Test::More'            => 0.49,
     'Test::Harness'         => 3.16,    # PERL5LIB fixes
+    'Parse::CPAN::Meta'     => '1.420',
   },
   # We have to provide a boostrap copy in case configure_requires
   # is not respected, but let's try to let people do it the right way
@@ -63,7 +64,7 @@ my $build = ModuleBuildBuilder->new(
     'Text::ParseWords'      => 0,
     'Getopt::Long'          => 0,
     'Test::Harness'         => 0,
-    'CPAN::Meta::YAML'      => 0.002,
+    'CPAN::Meta'            => '2.110330',
     # configure_requires repeated here
     'Perl::OSType'          => 1, # needs 1.0 API
     'version'               => 0.87,  # No longer requires M::B
@@ -138,7 +139,7 @@ my $build = ModuleBuildBuilder->new(
 );
 
 $build->create_build_script;
-if (-f "META.yml" && ! -f "MYMETA.yml") { # fallback if we don't have CPAN::Meta::YAML
+if (-f "META.yml" && ! -f "MYMETA.yml") { # fallback if we don't have CPAN::Meta
   require File::Copy;
   File::Copy::copy("META.yml", "MYMETA.yml") or warn "Error: $!\n";
   if ( -f 'MYMETA.yml' ) {
