@@ -40,6 +40,7 @@ lib/Module/Build/YAML.pm
 LICENSE
 Makefile.PL
 MANIFEST
+META.json
 META.yml
 README
 scripts/config_data
@@ -63,6 +64,7 @@ t/install.t
 t/install_extra_target.t
 t/lib/DistGen.pm
 t/lib/MBTest.pm
+t/lib/Module/Signature.pm
 t/lib/Software/License/VaporWare.pm
 t/manifypods.t
 t/metadata.t
@@ -96,4 +98,3 @@ t/use_tap_harness.t
 t/versions.t
 t/write_default_maniskip.t
 t/xs.t
-META.json

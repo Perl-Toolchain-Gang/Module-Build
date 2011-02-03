@@ -39,3 +39,4 @@ doc_check.pl$
 ^[^/]+\.patch$
 ^devtools
 ^.gitignore
+^MYMETA\.json$
