@@ -2,11 +2,21 @@ Revision history for Perl extension Module::Build.
 
 0.37_01 - 
 
+  [ENHANCEMENTS]
+
+  - Generates META.json and MYMETA.json consistent with version 2 of the
+    CPAN Meta Spec. [David Golden]
+
   [BUG FIXES]
 
   - t/signature.t now uses a mocked Module::Signature; this should be
     more robust across platforms as it only needs to confirm that
     Module::Build is calling Module::Signature when expected
+
+  [OTHER]
+
+  - Added CPAN::Meta and Parse::CPAN::Meta to prerequisites and dropped
+    CPAN::Meta::YAML
 
 0.3624 - Thu Jan 27 11:38:39 EST 2011
 
