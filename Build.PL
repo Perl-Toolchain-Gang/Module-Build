@@ -73,7 +73,6 @@ my $build = ModuleBuildBuilder->new(
   recommends => {
     'ExtUtils::Install'  => 0.30,
     'ExtUtils::Manifest' => 1.54, # public maniskip()
-    'version'            => 0.74,
   },
   recursive_test_files => 1,
   sign          => 0, 
