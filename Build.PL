@@ -64,7 +64,7 @@ my $build = ModuleBuildBuilder->new(
     'Text::ParseWords'      => 0,
     'Getopt::Long'          => 0,
     'Test::Harness'         => 0,
-    'CPAN::Meta'            => '2.110330',
+    'CPAN::Meta'            => '2.110390',
     # configure_requires repeated here
     'Perl::OSType'          => 1, # needs 1.0 API
     'version'               => 0.87,  # No longer requires M::B

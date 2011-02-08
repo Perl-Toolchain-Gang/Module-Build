@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.37_02 - 
 
+  [BUG FIXES]
+
+  - bumped CPAN::Meta prereq to 2.110390 to avoid a regression in 2.110360
+
 0.37_01 - Thu Feb  3 03:44:38 EST 2011
 
   [ENHANCEMENTS]
