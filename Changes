@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.37_03 - 
 
+  [OTHER]
+
+  - dropped configure_requires as some CPAN clients apparently get
+    confused by having things in both configure_requires and requires
+
 0.37_02 - Mon Feb  7 21:05:30 EST 2011
 
   [BUG FIXES]

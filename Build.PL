@@ -35,13 +35,6 @@ my $build = ModuleBuildBuilder->new(
     'Test::Harness'         => 3.16,    # PERL5LIB fixes
     'Parse::CPAN::Meta'     => '1.420',
   },
-  # We have to provide a boostrap copy in case configure_requires
-  # is not respected, but let's try to let people do it the right way
-  configure_requires => {
-    'Perl::OSType'          => 1,     # needs 1.0 API
-    'version'               => 0.87,  # No longer requires M::B
-    'Module::Metadata'      => 1.000002, # uses version.pm
-  },
   # KEEP 'requires' as low as possible and target Build/test/install
   # Requirements for authors should be implemented as optional features
   requires    => {
@@ -65,7 +58,6 @@ my $build = ModuleBuildBuilder->new(
     'Getopt::Long'          => 0,
     'Test::Harness'         => 0,
     'CPAN::Meta'            => '2.110390',
-    # configure_requires repeated here
     'Perl::OSType'          => 1, # needs 1.0 API
     'version'               => 0.87,  # No longer requires M::B
     'Module::Metadata'      => 1.000002, # uses version.pm
