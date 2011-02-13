@@ -3,8 +3,8 @@
 use strict;
 use lib 't/lib';
 use MBTest;
-use CPAN::Meta 2.110390;
-use Parse::CPAN::Meta 1.420;
+use CPAN::Meta 2.110420;
+use Parse::CPAN::Meta 1.4401;
 plan tests => 39;
 
 blib_load('Module::Build');

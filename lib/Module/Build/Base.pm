@@ -1892,7 +1892,7 @@ sub create_mymeta {
   }
 
   # Try loading META.json or META.yml
-  if ( $self->try_require("CPAN::Meta", "2.110390") ) {
+  if ( $self->try_require("CPAN::Meta", "2.110420") ) {
     for my $file ( @metafiles ) {
       next unless -f $file;
       $meta_obj = eval { CPAN::Meta->load_file($file) };
@@ -4543,7 +4543,7 @@ sub _write_meta_files {
 sub _get_meta_object {
   my $self = shift;
   my %args = @_;
-  return unless $self->try_require("CPAN::Meta", "2.110390");
+  return unless $self->try_require("CPAN::Meta", "2.110420");
 
   my $meta;
   eval {
@@ -4568,7 +4568,7 @@ sub read_metafile {
   my $self = shift;
   my ($metafile) = @_;
 
-  return unless $self->try_require("CPAN::Meta", "2.110390");
+  return unless $self->try_require("CPAN::Meta", "2.110420");
   my $meta = CPAN::Meta->load_file($metafile);
   return $meta->as_struct( {version => "1.4"} );
 }
@@ -4581,7 +4581,7 @@ sub write_metafile {
   my $self = shift;
   my ($metafile, $struct) = @_;
 
-  return unless $self->try_require("CPAN::Meta", "2.110390");
+  return unless $self->try_require("CPAN::Meta", "2.110420");
 
   my $meta = CPAN::Meta->new( $struct );
   return $meta->save( $metafile, { version => "1.4" } );

@@ -12,6 +12,10 @@ Revision history for Perl extension Module::Build.
   - dropped configure_requires as some CPAN clients apparently get
     confused by having things in both configure_requires and requires
 
+  - bumped Parse::CPAN::Meta build prereq to 1.4401
+
+  - bumped CPAN::Meta prereq to 2.110420
+
 0.37_02 - Mon Feb  7 21:05:30 EST 2011
 
   [BUG FIXES]
