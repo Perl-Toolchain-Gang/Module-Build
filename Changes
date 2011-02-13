@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.37_03 - 
 
+  [BUG FIXES]
+
+  - removed an irrelevant test in t/actions/installdeps.t that was causing
+    failures on some Cygwin platforms
+
   [OTHER]
 
   - dropped configure_requires as some CPAN clients apparently get
