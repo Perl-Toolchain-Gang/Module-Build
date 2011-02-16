@@ -37,12 +37,6 @@ that and see what changes have been made:
 
 Examine changes and determine if they should be staged or if an error occurred.
 
-If any files are being added or removed, be sure to edit Perl's MANIFEST file
-and stage it to be committed.
-
-  $ vim MANIFEST
-  $ git add MANIFEST
-
 Next, modify the Module::Build section of Porting/Maintainers.pl to indicate
 the distribution file on which the patch is based.  Note the version that
 is being replaced -- you'll need this later when creating the commit message.
@@ -51,18 +45,34 @@ Update any other metadata necessary, then add this file to the index.
   $ vim Porting/Maintainers.pl
   $ git add Porting/Maintainers.pl
 
+Now that Maintainers.pl is updated, verify that blead matches CPAN with the
+core-cpan-diff tool:
+
+  $ perl Porting/core-cpan-diff -m http://cpan.dagolden.com/ Module::Build
+
+If there are any differences, you can get a diff like this:
+
+  $ perl Porting/core-cpan-diff -d -r -m http://cpan.dagolden.com/ Module::Build
+
+Note that the C<patch_blead> action will copy in files, but will not remove
+files in bleadperl that resulted from deletions or renames.  Pay careful
+attention if C<core-cpan-diff> suggests this is the case.  You'll need to "git
+rm" them by hand.
+
+If any files were added or removed, be sure to edit Perl's MANIFEST file
+and stage it to be committed.
+
+  $ vim MANIFEST
+  $ git add MANIFEST
+
+If any files were added or removed from F<bin/>, you'll need to make
+changes in F<utils/> in the Perl source.
+
 Also, you need to add a note to F<pod/perldelta.pod> in the "Updated Modules"
 section:
 
   $ vim pod/perldelta.pod
   $ git add pod/perldelta.pod
-
-=head2 Verifying against CPAN
-
-Now that Maintainers.pl is updated, verify that blead matches CPAN with the
-core-cpan-diff tool:
-
-  $ perl Porting/core-cpan-diff -d -r Module::Build
 
 =head2 Commiting the branch
 
