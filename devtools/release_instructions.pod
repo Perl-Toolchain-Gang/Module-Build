@@ -45,18 +45,18 @@ And we should now be ready for automated shipping:
 
 =head2 After shipping
 
-Now the release is out and tagged.
-
-Before doing anything else, this is a good time to patch blead.  See
-devtools/patching_blead.pod for instructions:
-
-  $ Build patch_blead <path-to-perl-git-repo>
-
-After patching blead, it's also time to start a new version number
+Now the release is out and tagged, so it's time to start a
+new version number:
 
   $ ./devtools/bump_version.pl
-
   $ git commit -a -m "Changes, lib/***.pm - bump version"
+
+=head2 Patching blead
+
+If the version just released should also get added to bleadperl, see
+F<devtools/patching_blead.pod> for instructions:
+
+  $ perldoc devtools/patching_blead.pod
 
 =cut
 
