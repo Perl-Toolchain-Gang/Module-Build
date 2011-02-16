@@ -51,6 +51,19 @@ Update any other metadata necessary, then add this file to the index.
   $ vim Porting/Maintainers.pl
   $ git add Porting/Maintainers.pl
 
+Also, you need to add a note to F<pod/perldelta.pod> in the "Updated Modules"
+section:
+
+  $ vim pod/perldelta.pod
+  $ git add pod/perldelta.pod
+
+=head2 Verifying against CPAN
+
+Now that Maintainers.pl is updated, verify that blead matches CPAN with the
+core-cpan-diff tool:
+
+  $ perl Porting/core-cpan-diff -d -r Module::Build
+
 =head2 Commiting the branch
 
 Commit the branch and use the editor to create a commit message.  The
