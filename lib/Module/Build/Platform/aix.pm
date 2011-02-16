@@ -2,7 +2,7 @@ package Module::Build::Platform::aix;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.37_03';
+$VERSION = '0.37_04';
 $VERSION = eval $VERSION;
 use Module::Build::Platform::Unix;
 
