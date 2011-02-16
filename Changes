@@ -1,6 +1,10 @@
 Revision history for Perl extension Module::Build.
 
-0.37_04 - 
+0.37_04 - Wed Feb 16 15:27:21 EST 2011
+
+  [OTHER]
+
+  - moved scripts/ to bin/ for less confusing porting to bleadperl
 
 0.37_03 - Wed Feb 16 09:54:05 EST 2011
 
