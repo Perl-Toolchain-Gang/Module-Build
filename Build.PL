@@ -120,7 +120,7 @@ my $build = ModuleBuildBuilder->new(
   },
 
   add_to_cleanup => ['t/Sample/pod2htm*'],
-  script_files   => ['scripts/config_data'],
+  script_files   => ['bin/config_data'],
   meta_merge     => {
     resources => {
       MailingList => 'mailto:module-build@perl.org',

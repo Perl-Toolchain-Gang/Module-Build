@@ -1,3 +1,4 @@
+bin/config_data
 Build.PL
 Changes
 contrib/bash_completion.module-build
@@ -43,7 +44,6 @@ MANIFEST
 META.json
 META.yml
 README
-scripts/config_data
 t/00-compile.t
 t/actions/installdeps.t
 t/actions/manifest_skip.t
