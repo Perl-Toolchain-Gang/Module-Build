@@ -2,6 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.37_06 - 
 
+  [BUG FIXES]
+
+  - prerequisites with the empty string instead of a version are
+    normalized to "0".  (RT#65909)
+
 0.37_05 - Sat Feb 19 20:43:23 EST 2011
 
   [BUG FIXES]

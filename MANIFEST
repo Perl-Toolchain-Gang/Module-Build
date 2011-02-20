@@ -83,6 +83,7 @@ t/properties/license.t
 t/properties/module_name.t
 t/properties/needs_compiler.t
 t/properties/release_status.t
+t/properties/requires.t
 t/properties/share_dir.t
 t/README.pod
 t/resume.t

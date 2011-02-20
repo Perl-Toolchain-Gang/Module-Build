@@ -1931,7 +1931,8 @@ sub create_mymeta {
     }
     $mymeta->{dynamic_config} = 0;
     $mymeta->{generated_by} = "Module::Build version $Module::Build::VERSION";
-    $meta_obj = CPAN::Meta->new( $mymeta );
+    eval { $meta_obj = CPAN::Meta->new( $mymeta ) }
+      or do { use Data::Dumper; print Dumper($mymeta) };
   }
   # or generate from scratch, ignoring errors if META doesn't exist
   else {
@@ -4593,7 +4594,7 @@ sub write_metafile {
 
 sub normalize_version {
   my ($self, $version) = @_;
-  $version = 0 unless defined $version;
+  $version = 0 unless defined $version and length $version;
 
   if ( $version =~ /[=<>!,]/ ) { # logic, not just version
     # take as is without modification
