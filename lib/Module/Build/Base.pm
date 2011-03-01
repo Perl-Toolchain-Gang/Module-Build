@@ -1931,8 +1931,7 @@ sub create_mymeta {
     }
     $mymeta->{dynamic_config} = 0;
     $mymeta->{generated_by} = "Module::Build version $Module::Build::VERSION";
-    eval { $meta_obj = CPAN::Meta->new( $mymeta ) }
-      or do { use Data::Dumper; print Dumper($mymeta) };
+    eval { $meta_obj = CPAN::Meta->new( $mymeta, { lazy_validation => 1 } ) }
   }
   # or generate from scratch, ignoring errors if META doesn't exist
   else {
