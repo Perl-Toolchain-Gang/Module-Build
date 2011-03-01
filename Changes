@@ -7,6 +7,10 @@ Revision history for Perl extension Module::Build.
   - prerequisites with the empty string instead of a version are
     normalized to "0".  (RT#65909)
 
+  [OTHER]
+
+  - More Pod typo/link fixes [Hongwen Qiu]
+
 0.37_05 - Sat Feb 19 20:43:23 EST 2011
 
   [BUG FIXES]
