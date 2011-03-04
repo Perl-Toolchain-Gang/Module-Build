@@ -28,7 +28,7 @@ sub ACTION_distdir {
 		    $api_pod);
 
   # Replace "<action_list>" with a list of actions
-  my $action_text = $self->_action_listing(scalar $self->known_actions);
+  my $action_text = $self->_action_listing(scalar Module::Build->known_actions);
   $self->do_replace(qq[s{<action_list>}{$action_text}], $build_pm);
 
   # Finally, sneakily rewrite the Build.PL to use a vanilla
