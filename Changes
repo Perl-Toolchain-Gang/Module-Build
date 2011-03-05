@@ -1,6 +1,15 @@
 Revision history for Perl extension Module::Build.
 
-0.37_07 - 
+0.3800 - Sat Mar  5 15:11:41 EST 2011
+
+  Summary of major changes since 0.3624:
+
+    [ENHANCEMENTS]
+
+    - Generates META.json and MYMETA.json consistent with version 2 of the
+      CPAN Meta Spec. [David Golden]
+
+  Also in this release:
 
   [BUG FIXES]
 
