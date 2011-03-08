@@ -16,7 +16,7 @@ use Module::Build::Base;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Module::Build::Base);
-$VERSION = '0.3800';
+$VERSION = '0.39_01';
 $VERSION = eval $VERSION;
 
 
