@@ -121,7 +121,7 @@ You can run the 'help' action for a complete list of actions.
 
 =head1 GUIDE TO DOCUMENTATION
 
-The documentation for C<Module::Build> is broken up into three sections:
+The documentation for C<Module::Build> is broken up into sections:
 
 =over
 

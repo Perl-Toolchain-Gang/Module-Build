@@ -10,6 +10,10 @@ Revision history for Perl extension Module::Build.
   - Fixed failing tilde.t when run under UID without passwd entry
     (RT#67893) [Dominic Hargreaves]
 
+  [DOCUMENTATION]
+
+  - Fixed typo in Module::Build (RT#67008) [David Golden]
+
 0.3800 - Sat Mar  5 15:11:41 EST 2011
 
   Summary of major changes since 0.3624:
