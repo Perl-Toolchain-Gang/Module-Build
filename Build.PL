@@ -34,6 +34,7 @@ my $build = ModuleBuildBuilder->new(
     'Test::More'            => 0.49,
     'Test::Harness'         => 3.16,    # PERL5LIB fixes
     'Parse::CPAN::Meta'     => '1.4401',
+    'CPAN::Meta::YAML'      => 0.003,
   },
   # KEEP 'requires' as low as possible and target Build/test/install
   # Requirements for authors should be implemented as optional features
