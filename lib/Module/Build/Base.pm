@@ -3428,7 +3428,6 @@ sub htmlify_pods {
       $title .= " - $abstract" if $abstract;
 
       my @opts = (
-        '--flush',
         "--title=$title",
         "--podpath=$podpath",
         "--infile=$infile",
@@ -3437,7 +3436,13 @@ sub htmlify_pods {
         "--htmlroot=$path2root",
       );
 
-      if ( eval{Pod::Html->VERSION(1.03)} ) {
+      unless ( eval{Pod::Html->VERSION(1.12)} ) {
+        push( @opts, ('--flush') ); # caching removed in 1.12
+      }
+
+      if ( eval{Pod::Html->VERSION(1.12)} ) {
+        push( @opts, ('--header', '--backlink') );
+      } elsif ( eval{Pod::Html->VERSION(1.03)} ) {
         push( @opts, ('--header', '--backlink=Back to Top') );
       }
 
