@@ -2940,7 +2940,7 @@ sub _share_dir_map {
   my %files;
   for my $dir ( @$list ) {
     for my $f ( @{ $self->rscan_dir( $dir, sub {-f} )} ) {
-      $f =~ s{\A.*\Q$dir\E/}{};
+      $f =~ s{\A.*?\Q$dir\E/}{};
       $files{"$dir/$f"} = "$prefix/$f";
     }
   }
