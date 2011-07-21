@@ -50,7 +50,10 @@ core-cpan-diff tool:
 
   $ perl Porting/core-cpan-diff -m http://cpan.dagolden.com/ Module::Build
 
-If there are any differences, you can get a diff like this:
+Note that you will see Module/Build/ConfigData.pm only in Perl and not on
+CPAN. This is normal.
+
+If there are any other differences, you can get a diff like this:
 
   $ perl Porting/core-cpan-diff -d -r -m http://cpan.dagolden.com/ Module::Build
 
