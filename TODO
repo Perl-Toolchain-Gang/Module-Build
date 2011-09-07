@@ -9,6 +9,14 @@
     multiple times in META.yml.  Hold off until this is clarified in
     the META.yml spec.
 
+    - CPAN::Meta::Spec clearly says that configure, runtime and
+      build requirements are needed for "Build", and that
+      configure, runtime, build and test requirements are needed
+      for "Build test". As such, there is no need to duplicate
+      the contents of configure_requires into build_requires.
+
+  - I can't find the mentioned "complaining". Has it been removed?
+
 * Check edge cases for normalize_version -- string "v1.2" might not
   get normalized, but it should
 
