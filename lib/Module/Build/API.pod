@@ -157,6 +157,24 @@ checking on binary/packaged distributions of the module.
 See the documentation for L<Module::Build::Authoring/"PREREQUISITES">
 for the details of how requirements can be specified.
 
+=item configure_requires
+
+[version 0.30]
+
+Modules listed in this section must be installed I<before> configuring
+this distribution (i.e. before running the F<Build.PL> script).
+This might be a specific minimum version of C<Module::Build> or any
+other module the F<Build.PL> needs in order to do its stuff.  Clients
+like C<CPAN.pm> or C<CPANPLUS> will be expected to pick
+C<configure_requires> out of the F<META.yml> file and install these
+items before running the C<Build.PL>.
+
+Module::Build may automatically add itself to configure_requires.
+See L</auto_configure_requires> for details.
+
+See the documentation for L<Module::Build::Authoring/"PREREQUISITES">
+for the details of how requirements can be specified.
+
 =item create_packlist
 
 [version 0.28]
