@@ -4889,10 +4889,14 @@ sub find_packages_in_files {
     }
   }
 
-  # Normalize versions.  Can't use exists() here because of bug in YAML::Node.
-  # XXX "bug in YAML::Node" comment seems irrelvant -- dagolden, 2009-05-18
-  for (grep defined $_->{version}, values %prime) {
-    $_->{version} = $self->normalize_version( $_->{version} );
+  # Normalize versions or delete them if undef/0
+  for my $provides ( values %prime ) {
+    if ( $provides->{version} ) {
+      $provides->{version} = $self->normalize_version( $provides->{version} )
+    }
+    else {
+      delete $provides->{version};
+    }
   }
 
   return \%prime;
