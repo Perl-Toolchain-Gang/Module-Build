@@ -8,6 +8,9 @@ Revision history for Perl extension Module::Build.
     listed in 'provides' metadata, which will be rejected by PAUSE
     [David Golden, reported by Christopher Fields]
 
+  - Fixed bug in PodParser to allow numerals in module names
+    [Tokuhirom]
+
 0.39_01 - Thu Jul 21 16:48:48 EDT 2011
 
   [BUG FIXES]
