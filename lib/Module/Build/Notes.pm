@@ -228,7 +228,7 @@ sub feature {
 
   require Module::Build;  # XXX should get rid of this
   while (my ($type, $prereqs) = each %info) {
-    next if $type eq 'description' || $type eq 'recommends';
+    next if $type eq 'description' || $type =~ /^(?:\w+_)?recommends$/;
 
     my %p = %$prereqs;  # Ditto here.
     while (my ($modname, $spec) = each %p) {

@@ -2,7 +2,7 @@
 
 use strict;
 use lib 't/lib';
-use MBTest tests => 58;
+use MBTest tests => 59;
 
 blib_load('Module::Build');
 
@@ -92,6 +92,20 @@ $dist->chdir_in;
   my $mb = Module::Build->new(
     module_name => $dist->name,
     recommends  => {ModuleBuildNonExistent => 3},
+  );
+  ok $flagged;
+  $dist->clean;
+}
+
+{
+  # Make sure the correct warning message is generated when an
+  # optional build prereq isn't installed
+  my $flagged = 0;
+  local $SIG{__WARN__} = sub { $flagged = 1 if $_[0] =~ /ModuleBuildNonExistent is not installed/};
+
+  my $mb = Module::Build->new(
+    module_name      => $dist->name,
+    build_recommends => {ModuleBuildNonExistent => 3},
   );
   ok $flagged;
   $dist->clean;

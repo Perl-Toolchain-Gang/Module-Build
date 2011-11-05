@@ -636,7 +636,7 @@ sub features     {
     if (my $info = $ph->{auto_features}->access($key)) {
       my $disabled;
       for my $type ( @{$self->prereq_action_types} ) {
-        next if $type eq 'description' || $type eq 'recommends' || ! exists $info->{$type};
+        next if $type eq 'description' || $type =~ /^(?:\w+_)?recommends$/ || ! exists $info->{$type};
         my $prereqs = $info->{$type};
         for my $modname ( sort keys %$prereqs ) {
           my $spec = $prereqs->{$modname};
@@ -938,7 +938,7 @@ __PACKAGE__->add_property(
 }
 
 {
-  my @prereq_action_types = qw(requires build_requires conflicts recommends);
+  my @prereq_action_types = qw(requires build_requires build_recommends conflicts recommends);
   foreach my $type (@prereq_action_types) {
     __PACKAGE__->add_property($type => {});
   }
@@ -1910,6 +1910,7 @@ sub create_mymeta {
     # XXX refactor this mapping somewhere
     $mymeta->{prereqs}{runtime}{requires} = $prereqs->{requires};
     $mymeta->{prereqs}{build}{requires} = $prereqs->{build_requires};
+    $mymeta->{prereqs}{build}{recommends} = $prereqs->{build_recommends};
     $mymeta->{prereqs}{runtime}{recommends} = $prereqs->{recommends};
     $mymeta->{prereqs}{runtime}{conflicts} = $prereqs->{conflicts};
     # delete empty entries
