@@ -38,7 +38,9 @@ sub new {
 
   $self->check_manifest;
   $self->auto_require;
-  if ( !$self->check_prereq || !$self->check_autofeatures ) {
+
+  # All checks must run regardless if one fails, so no short circuiting!
+  if( grep { !$_ } $self->check_prereq, $self->check_autofeatures ) {
     $self->log_warn(<<EOF);
 
 ERRORS/WARNINGS FOUND IN PREREQUISITES.  You may wish to install the versions
