@@ -751,9 +751,9 @@ to all actions, and the key 'Build_PL' specifies options to be applied
 when you invoke C<perl Build.PL>.
 
   *           verbose=1   # global options
-  Build_PL    --install_base /home/ken
-              --install_path html=/home/ken/docs/html
   diff        flags=-u
+  install     --install_base /home/ken
+              --install_path html=/home/ken/docs/html
   installdeps --cpan_client 'cpanp -i'
 
 If you wish to locate your resource file in a different location, you
