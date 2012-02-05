@@ -144,6 +144,26 @@ installed when C<perl Build.PL> is executed, but you've listed in
 L</build_requires> so that they should be available when C<./Build> is
 executed.
 
+=item build_recommends
+
+[version 0.39_02]
+
+This is just like the L</build_requires> argument, except that modules listed
+in this section aren't essential, just a good idea.  We'll just print
+a friendly warning if one of these modules aren't found, but we'll
+continue running.
+
+If a module is recommended but not required, all tests should still
+pass if the module isn't installed.  This may mean that some tests
+may be skipped if recommended dependencies aren't present.
+
+Automated tools like CPAN.pm should inform the user when recommended
+modules aren't installed, and it should offer to install them if it
+wants to be helpful.
+
+See the documentation for L<Module::Build::Authoring/"PREREQUISITES">
+for the details of how requirements can be specified.
+
 =item build_requires
 
 [version 0.07]

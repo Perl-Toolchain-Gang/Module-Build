@@ -11,6 +11,10 @@ Revision history for Perl extension Module::Build.
   - Fixed bug in PodParser to allow numerals in module names
     [Tokuhirom]
 
+  [ENHANCEMENTS]
+
+  - Addition of build_recommends.
+
 0.39_01 - Thu Jul 21 16:48:48 EDT 2011
 
   [BUG FIXES]

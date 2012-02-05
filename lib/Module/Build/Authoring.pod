@@ -172,6 +172,14 @@ want to install these items temporarily.  It also helps reduce the
 size of the CPAN dependency graph if everything isn't smooshed into
 C<requires>.
 
+=item build_recommends
+
+Items that are recommended for building and testing this distribution,
+but aren't necessary after installation, and aren't required to
+provide comprehensive testing. Installlation and testing is possible
+without these, but some tests could be skipped as a result of one
+missing.
+
 =item requires
 
 Items that are necessary for basic functioning.
