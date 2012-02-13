@@ -11,6 +11,9 @@ Revision history for Perl extension Module::Build.
   - Fixed bug in PodParser to allow numerals in module names
     [Tokuhirom]
 
+  - Fixed bug where giving arguments twice led to them becoming arrays,
+    resulting in install paths like "ARRAY(0xdeadbeef)/lib/Foo.pm"
+
 0.39_01 - Thu Jul 21 16:48:48 EDT 2011
 
   [BUG FIXES]

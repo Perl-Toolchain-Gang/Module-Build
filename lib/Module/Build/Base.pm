@@ -2121,12 +2121,14 @@ sub _translate_option {
   return $opt;
 }
 
+my %singular_argument = map { ($_ => 1) } qw/install_base prefix destdir installdir verbose quiet uninst debug sign/;
+
 sub _read_arg {
   my ($self, $args, $key, $val) = @_;
 
   $key = $self->_translate_option($key);
 
-  if ( exists $args->{$key} ) {
+  if ( exists $args->{$key} and not $singular_argument{$key} ) {
     $args->{$key} = [ $args->{$key} ] unless ref $args->{$key};
     push @{$args->{$key}}, $val;
   } else {
