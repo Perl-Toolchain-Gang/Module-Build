@@ -43,6 +43,9 @@ And we should now be ready for automated shipping:
   $ perl Build.PL
   $ Build upload
 
+Note that the latter command requires a C<.pause> file as described in
+L<cpan_upload>'s documentation.
+
 =head2 After shipping
 
 Now the release is out and tagged, so it's time to start a
