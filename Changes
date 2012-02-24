@@ -1,6 +1,8 @@
 Revision history for Perl extension Module::Build.
 
-0.40 - 
+0.40 - Fri Feb 24 18:47:48 CET 2012
+
+  - Released 0.39_02 as 0.40 without any code changes
 
 0.39_02 - Thu Feb 17 00:33:18 MET 2012
 
