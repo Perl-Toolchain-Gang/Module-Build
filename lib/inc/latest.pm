@@ -192,7 +192,7 @@ available.  For example:
   my @list = inc::latest->loaded_modules;
 
 This takes no arguments and always returns a list of module names requested for
-loading via "use inc::latest 'MODULE'", regardless of wether the load was
+loading via "use inc::latest 'MODULE'", regardless of whether the load was
 successful or not.
 
 =item write()

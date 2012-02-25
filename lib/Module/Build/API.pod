@@ -630,7 +630,7 @@ specify explicitly.
 [version 0.36]
 
 The C<needs_compiler> parameter indicates whether a compiler is required to
-build the distsribution.  The default is false, unless XS files are found or
+build the distribution.  The default is false, unless XS files are found or
 the C<c_source> parameter is set, in which case it is true.  If true,
 L<ExtUtils::CBuilder> is automatically added to C<build_requires> if needed.
 
