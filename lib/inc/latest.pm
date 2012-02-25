@@ -132,7 +132,7 @@ a distribution and are used by Build.PL (or Makefile.PL).
 
 Arguments to C<inc::latest> are module names that are checked against both the
 current C<@INC> array and against specially-named directories in C<inc>.  If
-the bundled verison is newer than the installed one (or the module isn't
+the bundled version is newer than the installed one (or the module isn't
 installed, then, the bundled directory is added to the start of <@INC> and the
 module is loaded from there.
 
