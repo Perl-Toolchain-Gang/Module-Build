@@ -1400,6 +1400,22 @@ characters will do their special things.  If you supply multiple
 arguments, no shell will get involved and the command will be executed
 directly.
 
+=item extra_compiler_flags()
+
+=item extra_compiler_flags(@flags)
+
+[version 0.25]
+
+Set or retrieve the extra compiler flags. Returns an arrayref of flags.
+
+=item extra_linker_flags()
+
+=item extra_linker_flags(@flags)
+
+[version 0.25]
+
+Set or retrieve the extra linker flags. Returns an arrayref of flags.
+
 =item feature($name)
 
 =item feature($name => $value)
