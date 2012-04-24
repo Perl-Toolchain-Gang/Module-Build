@@ -860,7 +860,7 @@ parameter as follows:
 
   lib     => installprivlib  installsitelib      installvendorlib
   arch    => installarchlib  installsitearch     installvendorarch
-  script  => installscript   installsitebin      installvendorbin
+  script  => installscript   installsitescript   installvendorscript
   bin     => installbin      installsitebin      installvendorbin
   bindoc  => installman1dir  installsiteman1dir  installvendorman1dir
   libdoc  => installman3dir  installsiteman3dir  installvendorman3dir
