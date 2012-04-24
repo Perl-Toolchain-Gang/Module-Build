@@ -28,7 +28,8 @@ sub parse_from_filehandle {
   local $_;
   while (<$fh>) {
     next unless /^=(?!cut)/ .. /^=cut/;  # in POD
-    last if ($self->{abstract}) = /^  (?:  [a-z0-9:]+  \s+ - \s+  )  (.*\S)  /ix;
+    # Accept Name - abstract or C<Name> - abstract
+    last if ($self->{abstract}) = /^ (?: [a-z0-9:]+ | [BCIF] < [a-z0-9:]+ > ) \s+ - \s+ (.*\S) /ix;
   }
 
   my @author;
