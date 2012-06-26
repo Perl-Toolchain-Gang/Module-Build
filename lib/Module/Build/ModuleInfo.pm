@@ -4,7 +4,7 @@ package Module::Build::ModuleInfo;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.4001';
+$VERSION = '0.4002';
 $VERSION = eval $VERSION;
 
 require Module::Metadata;
