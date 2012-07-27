@@ -6,9 +6,9 @@ Revision history for Perl extension Module::Build.
 
   [BUG FIXES]
 
-  - Test for TAP::Harness version properly
+  - Test for TAP::Harness version properly [Leon Timmermans]
 
-  - Install to 'site' on 5.12+
+  - Install to 'site' on 5.12+ [Leon Timmermans]
 
   [DOCUMENTATION]
 
