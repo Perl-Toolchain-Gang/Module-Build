@@ -73,7 +73,7 @@ my $build = ModuleBuildBuilder->new(
   create_license => 1,
 
   # overwrite the M::B that shipped in core
-  installdirs   => ($] >= 5.009004 ? 'core' : 'site'),
+  installdirs   => ($] >= 5.009004 && $] < 5.011 ? 'core' : 'site'),
 
   # Some CPANPLUS::Dist::Build versions need to allow mismatches
   # On logic: thanks to Module::Install, CPAN.pm must set both keys, but
