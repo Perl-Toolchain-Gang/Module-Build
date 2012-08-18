@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.4003 - 
 
+  [BUG FIXES]
+
+  - Get rid of outdated metadata tests [Steve Hay]
+
 0.4002 - Fri Jul 27 20:04:09 EEST 2012
 
   [BUG FIXES]
