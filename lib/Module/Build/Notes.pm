@@ -205,7 +205,7 @@ sub write {
 
   seek($fh, tell($fh), 0);
   my $data = [$config, $features, $auto_features];
-  $fh->print( 'do{ my '
+  print($fh 'do{ my '
 	      . Data::Dumper->new([$data],['x'])->Purity(1)->Dump()
 	      . '$x; }' );
   truncate($fh, tell($fh));
