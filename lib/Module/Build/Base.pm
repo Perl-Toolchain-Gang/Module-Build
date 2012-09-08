@@ -1830,10 +1830,10 @@ use File::Spec;
 
 sub magic_number_matches {
   return 0 unless -e '$q{magic_numfile}';
-  local *FH;
-  open FH, '$q{magic_numfile}' or return 0;
-  my \$filenum = <FH>;
-  close FH;
+  my \$FH;
+  open \$FH, '<','$q{magic_numfile}' or return 0;
+  my \$filenum = <\$FH>;
+  close \$FH;
   return \$filenum == $magic_number;
 }
 
