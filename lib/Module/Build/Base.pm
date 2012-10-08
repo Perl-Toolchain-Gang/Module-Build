@@ -763,10 +763,7 @@ sub ACTION_config_data {
   }
 
   sub hash_properties {
-    for (shift->_mb_classes) {
-      return @{$additive_properties{$_}->{'HASH'}}
-        if exists $additive_properties{$_}->{'HASH'};
-    }
+    map { exists $additive_properties{$_}->{HASH} ? @{$additive_properties{$_}->{HASH}} : () } shift->_mb_classes;
   }
 
   sub add_property {
