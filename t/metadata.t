@@ -2,7 +2,7 @@
 
 use strict;
 use lib 't/lib';
-use MBTest tests => 53;
+use MBTest tests => 55;
 
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
@@ -97,6 +97,22 @@ my $mb = Module::Build->new_from_context;
 
   # exists() doesn't seem to work here
   is_deeply $node->{configure_requires}, $mb_prereq, 'Add M::B to configure_requires';
+
+
+  # test that subclass name is added to prereq
+  @Module::Build::MySubclass::ISA = 'Module::Build';
+  $Module::Build::MySubclass::VERSION = 0.01;
+  bless $mb, 'Module::Build::MySubclass';
+
+  my $output = stdout_stderr_of( sub {
+    $node = $mb->get_metadata( auto => 1 );
+  });
+  like( $output, qr/Module::Build::MySubclass was not found in configure_requires/,
+    "saw warning about subclass not in configure_requires"
+  );
+  $mb_prereq->{'Module::Build::MySubclass'} = 0.01;
+  is_deeply $node->{configure_requires}, $mb_prereq, 'Add M::B to configure_requires';
+
 }
 
 $dist->clean;
