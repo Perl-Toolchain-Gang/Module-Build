@@ -1474,20 +1474,21 @@ sub _feature_deps_msg {
 # Automatically detect configure_requires prereqs
 sub auto_config_requires {
   my ($self) = @_;
+  my $builder = ref $self;
   my $p = $self->{properties};
 
-  # add current Module::Build to configure_requires if there
+  # add current Module::Build (or subclass) to configure_requires if there
   # isn't one already specified (but not ourself, so we're not circular)
-  if ( $self->dist_name ne 'Module-Build'
+  if ( $self->module_name ne $builder
     && $self->auto_configure_requires
-    && ! exists $p->{configure_requires}{'Module::Build'}
+    && ! exists $p->{configure_requires}{$builder}
   ) {
-    (my $ver = $VERSION) =~ s/^(\d+\.\d\d).*$/$1/; # last major release only
+    (my $ver = $self->VERSION) =~ s/^(\d+\.\d\d).*$/$1/; # last major release only
     $self->log_warn(<<EOM);
-Module::Build was not found in configure_requires! Adding it now
-automatically as: configure_requires => { 'Module::Build' => $ver }
+$builder was not found in configure_requires! Adding it now
+automatically as: configure_requires => { $builder => $ver }
 EOM
-    $self->_add_prereq('configure_requires', 'Module::Build', $ver);
+    $self->_add_prereq('configure_requires', $builder, $ver);
   }
 
   # if we're in author mode, add inc::latest modules to
