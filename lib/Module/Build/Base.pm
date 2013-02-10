@@ -942,7 +942,7 @@ __PACKAGE__->add_property(
 }
 
 {
-  my @prereq_action_types = qw(requires build_requires conflicts recommends);
+  my @prereq_action_types = qw(requires build_requires test_requires conflicts recommends);
   foreach my $type (@prereq_action_types) {
     __PACKAGE__->add_property($type => {});
   }
@@ -1915,6 +1915,7 @@ sub create_mymeta {
     # XXX refactor this mapping somewhere
     $mymeta->{prereqs}{runtime}{requires} = $prereqs->{requires};
     $mymeta->{prereqs}{build}{requires} = $prereqs->{build_requires};
+    $mymeta->{prereqs}{test}{requires} = $prereqs->{test_requires};
     $mymeta->{prereqs}{runtime}{recommends} = $prereqs->{recommends};
     $mymeta->{prereqs}{runtime}{conflicts} = $prereqs->{conflicts};
     # delete empty entries
