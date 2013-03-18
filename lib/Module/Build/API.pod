@@ -175,6 +175,15 @@ See L</auto_configure_requires> for details.
 See the documentation for L<Module::Build::Authoring/"PREREQUISITES">
 for the details of how requirements can be specified.
 
+=item test_requires
+
+[version 0.4004]
+
+Modules listed in this section must be installed before testing the distribution.
+
+See the documentation for L<Module::Build::Authoring/"PREREQUISITES">
+for the details of how requirements can be specified.
+
 =item create_packlist
 
 [version 0.28]
@@ -1753,7 +1762,7 @@ Examples:
 
 Returns a reference to a hash describing all prerequisites.  The keys of the
 hash will be the various prerequisite types ('requires', 'build_requires',
-'configure_requires', 'recommends', or 'conflicts') and the values will be
+'test_requires', 'configure_requires', 'recommends', or 'conflicts') and the values will be
 references to hashes of module names and version numbers.  Only prerequisites
 types that are defined will be included.  The C<prereq_data> action is just a
 thin wrapper around the C<prereq_data()> method and dumps the hash as a string
