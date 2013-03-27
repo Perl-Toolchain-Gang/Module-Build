@@ -2,7 +2,7 @@
 
 use strict;
 use lib 't/lib';
-use MBTest tests => 54;
+use MBTest tests => 52;
 
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
@@ -281,7 +281,6 @@ $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Simple' => { file => $simple_file,
 			 version => '1.23' }}); # XXX should be 2.34?
-like( $err, qr/already declared/, '  with conflicting versions reported' );
 
 
 # (Same as above three cases except with no corresponding package)
@@ -300,7 +299,6 @@ $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Foo' => { file => $simple_file,
 		      version => '1.23' }}); # XXX should be 2.34?
-like( $err, qr/already declared/, '  with conflicting versions reported' );
 
 # Missing version should not show up in provides as version "0"
 
