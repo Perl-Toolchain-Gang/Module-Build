@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+0.4004 - 
+
   [BUG FIXES]
 
   - Minor VMS fix for @INC [Craig Berry]
