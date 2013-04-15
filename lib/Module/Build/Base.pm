@@ -3429,7 +3429,7 @@ sub htmlify_pods {
       } or $self->log_warn("[$htmltool] pod2html (" .
         join(", ", map { "q{$_} => q{$opts{$_}}" } (keys %opts)) . ") failed: $@");
     } else {
-      my $path2root = join( '/', ('..') x (@rootdirs+@dirs) );
+      my $path2root = join( '/', ('..') x (@dirs) );
       my $fh = IO::File->new($infile) or die "Can't read $infile: $!";
       my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
 
