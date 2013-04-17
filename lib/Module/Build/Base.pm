@@ -3360,11 +3360,11 @@ sub htmlify_pods {
               : $self->original_prefix('core');
 
   my $htmlroot = $self->install_sets('core')->{libhtml};
-  my @podpath = (map { File::Spec->abs2rel($_ ,$podroot) } grep { -d  }
+  my @podpath = ( (map { File::Spec->abs2rel($_ ,$podroot) } grep { -d  }
     ( $self->install_sets('core', 'lib'), # lib
       $self->install_sets('core', 'bin'), # bin
       $self->install_sets('site', 'lib'), # site/lib
-    ) ), File::Spec->rel2abs($self->blib);
+    ) ), File::Spec->rel2abs($self->blib) );
 
   my $podpath = $ENV{PERL_CORE}
               ? File::Spec->catdir($podroot, 'lib')
