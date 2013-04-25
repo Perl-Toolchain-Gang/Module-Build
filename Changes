@@ -6,6 +6,8 @@ Revision history for Perl extension Module::Build.
 
   - #72176: pod2html will fail with an empty podpath in some cases. [Phillip Moore]
 
+  - Fix links between modules in HTML docs output [Michael Wild, Leon Timmermans]
+
 0.4004 - Fri Mar 29 15:05:00 CET 2013
 
   [BUG FIXES]
