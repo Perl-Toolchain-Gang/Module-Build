@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.4005
 
+  [ENHANCEMENTS]
+
+  - Added --pureperl-only support
+
   [BUG FIXES]
 
   - #72176: pod2html will fail with an empty podpath in some cases. [Phillip Moore]

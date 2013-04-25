@@ -922,6 +922,8 @@ __PACKAGE__->add_property(test_file_exts => ['.t']);
 __PACKAGE__->add_property(use_tap_harness => 0);
 __PACKAGE__->add_property(cpan_client => 'cpan');
 __PACKAGE__->add_property(tap_harness_args => {});
+__PACKAGE__->add_property(pureperl_only => 0);
+__PACKAGE__->add_property(allow_pureperl => 0);
 __PACKAGE__->add_property(
   'installdirs',
   default => 'site',
@@ -2120,6 +2122,8 @@ sub _translate_option {
     use_tap_harness
     tap_harness_args
     cpan_client
+    pureperl_only
+    allow_pureperl
   ); # normalize only selected option names
 
   return $opt;
@@ -2160,6 +2164,8 @@ sub _optional_arg {
     debug
     sign
     use_tap_harness
+    pureperl_only
+    allow_pureperl
   );
 
   # inverted boolean options; eg --noverbose or --no-verbose
@@ -2969,7 +2975,9 @@ sub process_PL_files {
 
 sub process_xs_files {
   my $self = shift;
+  return if $self->pureperl_only && $self->allow_pureperl;
   my $files = $self->find_xs_files;
+  croak 'Can\'t build xs files under --pureperl-only' if %$files && $self->pureperl_only;
   while (my ($from, $to) = each %$files) {
     unless ($from eq $to) {
       $self->add_to_cleanup($to);
