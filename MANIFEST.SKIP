@@ -11,6 +11,7 @@ CVS
 ^MANIFEST\.SKIP$
 \.bak$
 \.rej$
+\.orig$
 ^patch
 ^Module-
 ^t/_
