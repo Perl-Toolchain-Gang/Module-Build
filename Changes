@@ -1,5 +1,12 @@
 Revision history for Perl extension Module::Build.
 
+0.4006
+
+  [ENHANCEMENTS]
+
+  - Significantly sped up some tests by not forcing HTML docs to be
+    built when the user's config doesn't ask for them anyway.
+
 0.4005 - Thu Apr 25 15:10:14 CEST 2013
 
   [ENHANCEMENTS]
