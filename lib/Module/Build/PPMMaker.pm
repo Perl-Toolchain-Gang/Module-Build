@@ -1,6 +1,7 @@
 package Module::Build::PPMMaker;
 
 use strict;
+use if $] > 5.018, 'deprecate';
 use Config;
 use vars qw($VERSION);
 use IO::File;

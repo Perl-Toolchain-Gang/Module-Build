@@ -7,6 +7,7 @@ package Module::Build;
 # done in Module::Build::Base.
 
 use strict;
+use if $] > 5.018, 'deprecate';
 use File::Spec ();
 use File::Path ();
 use File::Basename ();

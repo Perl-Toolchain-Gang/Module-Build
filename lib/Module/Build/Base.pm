@@ -3,6 +3,7 @@
 package Module::Build::Base;
 
 use strict;
+use if $] > 5.018, 'deprecate';
 use vars qw($VERSION);
 use warnings;
 
