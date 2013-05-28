@@ -1513,7 +1513,7 @@ sub auto_require {
   my ($self) = @_;
   my $p = $self->{properties};
 
-  # If needs_compiler is not explictly set, automatically set it
+  # If needs_compiler is not explicitly set, automatically set it
   # If set, we need ExtUtils::CBuilder (and a compiler)
   my $xs_files = $self->find_xs_files;
   if ( ! defined $p->{needs_compiler} ) {
@@ -3109,7 +3109,7 @@ sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
     my $FIXIN = IO::File->new($file) or die "Can't process '$file': $!";
     local $/ = "\n";
     chomp(my $line = <$FIXIN>);
-    next unless $line =~ s/^\s*\#!\s*//;     # Not a shbang file.
+    next unless $line =~ s/^\s*\#!\s*//;     # Not a shebang file.
 
     my ($cmd, $arg) = (split(' ', $line, 2), '');
     next unless $cmd =~ /perl/i;
@@ -3586,7 +3586,7 @@ sub ACTION_install {
   my ($self) = @_;
   require ExtUtils::Install;
   $self->depends_on('build');
-  # RT#63003 suggest that odd cirmstances that we might wind up
+  # RT#63003 suggest that odd circumstances that we might wind up
   # in a different directory than we started, so wrap with _do_in_dir to
   # ensure we get back to where we started; hope this fixes it!
   $self->_do_in_dir( ".", sub {
