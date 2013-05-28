@@ -729,7 +729,7 @@ executed build actions.
 
 When Module::Build starts up, it will look first for a file,
 F<$ENV{HOME}/.modulebuildrc>.  If it's not found there, it will look
-in the the F<.modulebuildrc> file in the directories referred to by
+in the F<.modulebuildrc> file in the directories referred to by
 the environment variables C<HOMEDRIVE> + C<HOMEDIR>, C<USERPROFILE>,
 C<APPDATA>, C<WINDIR>, C<SYS$LOGIN>.  If the file exists, the options
 specified there will be used as defaults, as if they were typed on the
