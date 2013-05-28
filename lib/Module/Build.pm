@@ -1,5 +1,7 @@
 package Module::Build;
 
+use if $] >= 5.019, 'deprecate';
+
 # This module doesn't do much of anything itself, it inherits from the
 # modules that do the real work.  The only real thing it has to do is
 # figure out which OS-specific module to pull in.  Many of the
@@ -18,6 +20,8 @@ use vars qw($VERSION @ISA);
 @ISA = qw(Module::Build::Base);
 $VERSION = '0.4005';
 $VERSION = eval $VERSION;
+
+use if $] >= 5.019, 'deprecate';
 
 
 # Inserts the given module into the @ISA hierarchy between

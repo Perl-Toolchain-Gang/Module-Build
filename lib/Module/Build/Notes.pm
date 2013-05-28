@@ -1,5 +1,7 @@
 package Module::Build::Notes;
 
+use if $] >= 5.019, 'deprecate';
+
 # A class for persistent hashes
 
 use strict;

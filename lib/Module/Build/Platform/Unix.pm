@@ -1,5 +1,7 @@
 package Module::Build::Platform::Unix;
 
+use if $] >= 5.019, 'deprecate';
+
 use strict;
 use vars qw($VERSION);
 $VERSION = '0.4005';
