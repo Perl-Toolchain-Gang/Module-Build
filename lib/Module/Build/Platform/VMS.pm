@@ -3,6 +3,7 @@ package Module::Build::Platform::VMS;
 use if $] >= 5.019, 'deprecate';
 
 use strict;
+use if $] > 5.018, 'deprecate';
 use vars qw($VERSION);
 $VERSION = '0.4005';
 $VERSION = eval $VERSION;

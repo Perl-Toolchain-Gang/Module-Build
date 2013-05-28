@@ -3,6 +3,7 @@ package Module::Build::YAML;
 use if $] >= 5.019, 'deprecate';
 
 use strict;
+use if $] > 5.018, 'deprecate';
 use CPAN::Meta::YAML 0.002 ();
 our @ISA = qw(CPAN::Meta::YAML);
 our $VERSION  = '1.41';
