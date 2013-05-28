@@ -21,9 +21,6 @@ use vars qw($VERSION @ISA);
 $VERSION = '0.4005';
 $VERSION = eval $VERSION;
 
-use if $] >= 5.019, 'deprecate';
-
-
 # Inserts the given module into the @ISA hierarchy between
 # Module::Build and its immediate parent
 sub _interpose_module {
