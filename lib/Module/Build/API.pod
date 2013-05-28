@@ -1082,7 +1082,7 @@ This method is the preferred interface for retrieving the arguments passed via
 command line options to F<Build.PL> or F<Build>, minus the Module-Build
 specific options.
 
-When called in in a scalar context with no arguments, this method returns a
+When called in a scalar context with no arguments, this method returns a
 reference to the hash storing all of the arguments; in an array context, it
 returns the hash itself.  When passed a single argument, it returns the value
 stored in the args hash for that option key.  When called with two arguments,
