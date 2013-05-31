@@ -3695,10 +3695,6 @@ sub ACTION_installdeps {
     }
   }
 
-  if ( ! -x $command ) {
-    die "cpan_client '$command' is not executable\n";
-  }
-
   $self->do_system($command, @opts, @install);
 }
 
