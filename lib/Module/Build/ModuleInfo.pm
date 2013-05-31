@@ -2,8 +2,6 @@
 # vim:ts=8:sw=2:et:sta:sts=2
 package Module::Build::ModuleInfo;
 
-use if $] >= 5.019, 'deprecate';
-
 use strict;
 use vars qw($VERSION);
 $VERSION = '0.4005';

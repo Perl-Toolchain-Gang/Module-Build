@@ -1,7 +1,4 @@
 package Module::Build::YAML;
-
-use if $] >= 5.019, 'deprecate';
-
 use strict;
 use CPAN::Meta::YAML 0.002 ();
 our @ISA = qw(CPAN::Meta::YAML);

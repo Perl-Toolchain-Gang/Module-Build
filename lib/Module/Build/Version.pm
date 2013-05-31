@@ -1,7 +1,4 @@
 package Module::Build::Version;
-
-use if $] >= 5.019, 'deprecate';
-
 use strict;
 use vars qw($VERSION);
 $VERSION = '0.87'; ### XXX sync with version of version.pm below

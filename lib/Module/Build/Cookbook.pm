@@ -1,7 +1,4 @@
 package Module::Build::Cookbook;
-
-use if $] >= 5.019, 'deprecate';
-
 use strict;
 use vars qw($VERSION);
 $VERSION = '0.4005';
