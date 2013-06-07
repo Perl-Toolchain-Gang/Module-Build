@@ -1,5 +1,7 @@
 package Module::Build;
 
+use if $] >= 5.019, 'deprecate';
+
 # This module doesn't do much of anything itself, it inherits from the
 # modules that do the real work.  The only real thing it has to do is
 # figure out which OS-specific module to pull in.  Many of the
@@ -16,9 +18,8 @@ use Module::Build::Base;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Module::Build::Base);
-$VERSION = '0.4003';
+$VERSION = '0.4005';
 $VERSION = eval $VERSION;
-
 
 # Inserts the given module into the @ISA hierarchy between
 # Module::Build and its immediate parent
@@ -729,7 +730,7 @@ executed build actions.
 
 When Module::Build starts up, it will look first for a file,
 F<$ENV{HOME}/.modulebuildrc>.  If it's not found there, it will look
-in the the F<.modulebuildrc> file in the directories referred to by
+in the F<.modulebuildrc> file in the directories referred to by
 the environment variables C<HOMEDRIVE> + C<HOMEDIR>, C<USERPROFILE>,
 C<APPDATA>, C<WINDIR>, C<SYS$LOGIN>.  If the file exists, the options
 specified there will be used as defaults, as if they were typed on the

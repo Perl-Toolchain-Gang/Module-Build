@@ -6,7 +6,7 @@ use strict;
 use vars qw($VERSION);
 use warnings;
 
-$VERSION = '0.4003';
+$VERSION = '0.4005';
 $VERSION = eval $VERSION;
 BEGIN { require 5.006001 }
 
@@ -919,6 +919,8 @@ __PACKAGE__->add_property(test_file_exts => ['.t']);
 __PACKAGE__->add_property(use_tap_harness => 0);
 __PACKAGE__->add_property(cpan_client => 'cpan');
 __PACKAGE__->add_property(tap_harness_args => {});
+__PACKAGE__->add_property(pureperl_only => 0);
+__PACKAGE__->add_property(allow_pureperl => 0);
 __PACKAGE__->add_property(
   'installdirs',
   default => 'site',
@@ -939,7 +941,7 @@ __PACKAGE__->add_property(
 }
 
 {
-  my @prereq_action_types = qw(requires build_requires conflicts recommends);
+  my @prereq_action_types = qw(requires build_requires test_requires conflicts recommends);
   foreach my $type (@prereq_action_types) {
     __PACKAGE__->add_property($type => {});
   }
@@ -1506,7 +1508,7 @@ sub auto_require {
   my ($self) = @_;
   my $p = $self->{properties};
 
-  # If needs_compiler is not explictly set, automatically set it
+  # If needs_compiler is not explicitly set, automatically set it
   # If set, we need ExtUtils::CBuilder (and a compiler)
   my $xs_files = $self->find_xs_files;
   if ( ! defined $p->{needs_compiler} ) {
@@ -1809,7 +1811,7 @@ sub print_build_script {
 
   my @myINC = $self->_added_to_INC;
   for (@myINC, values %q) {
-    $_ = File::Spec->canonpath( $_ );
+    $_ = File::Spec->canonpath( $_ ) unless $self->is_vmsish;
     s/([\\\'])/\\$1/g;
   }
 
@@ -1912,6 +1914,7 @@ sub create_mymeta {
     # XXX refactor this mapping somewhere
     $mymeta->{prereqs}{runtime}{requires} = $prereqs->{requires};
     $mymeta->{prereqs}{build}{requires} = $prereqs->{build_requires};
+    $mymeta->{prereqs}{test}{requires} = $prereqs->{test_requires};
     $mymeta->{prereqs}{runtime}{recommends} = $prereqs->{recommends};
     $mymeta->{prereqs}{runtime}{conflicts} = $prereqs->{conflicts};
     # delete empty entries
@@ -2116,6 +2119,8 @@ sub _translate_option {
     use_tap_harness
     tap_harness_args
     cpan_client
+    pureperl_only
+    allow_pureperl
   ); # normalize only selected option names
 
   return $opt;
@@ -2156,6 +2161,8 @@ sub _optional_arg {
     debug
     sign
     use_tap_harness
+    pureperl_only
+    allow_pureperl
   );
 
   # inverted boolean options; eg --noverbose or --no-verbose
@@ -2965,7 +2972,9 @@ sub process_PL_files {
 
 sub process_xs_files {
   my $self = shift;
+  return if $self->pureperl_only && $self->allow_pureperl;
   my $files = $self->find_xs_files;
+  croak 'Can\'t build xs files under --pureperl-only' if %$files && $self->pureperl_only;
   while (my ($from, $to) = each %$files) {
     unless ($from eq $to) {
       $self->add_to_cleanup($to);
@@ -3095,7 +3104,7 @@ sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
     my $FIXIN = IO::File->new($file) or die "Can't process '$file': $!";
     local $/ = "\n";
     chomp(my $line = <$FIXIN>);
-    next unless $line =~ s/^\s*\#!\s*//;     # Not a shbang file.
+    next unless $line =~ s/^\s*\#!\s*//;     # Not a shebang file.
 
     my ($cmd, $arg) = (split(' ', $line, 2), '');
     next unless $cmd =~ /perl/i;
@@ -3298,6 +3307,7 @@ sub _find_pods {
       foreach my $regexp ( @{ $args{exclude} } ) {
         next FILE if $file =~ $regexp;
       }
+      $file = $self->localize_file_path($file);
       $files{$file} = File::Spec->abs2rel($file, $dir) if $self->contains_pod( $file )
     }
   }
@@ -3355,11 +3365,11 @@ sub htmlify_pods {
               : $self->original_prefix('core');
 
   my $htmlroot = $self->install_sets('core')->{libhtml};
-  my @podpath = (map { File::Spec->abs2rel($_ ,$podroot) } grep { -d  }
+  my @podpath = ( (map { File::Spec->abs2rel($_ ,$podroot) } grep { -d  }
     ( $self->install_sets('core', 'lib'), # lib
       $self->install_sets('core', 'bin'), # bin
       $self->install_sets('site', 'lib'), # site/lib
-    ) ), File::Spec->rel2abs($self->blib);
+    ) ), File::Spec->rel2abs($self->blib) );
 
   my $podpath = $ENV{PERL_CORE}
               ? File::Spec->catdir($podroot, 'lib')
@@ -3424,7 +3434,7 @@ sub htmlify_pods {
       } or $self->log_warn("[$htmltool] pod2html (" .
         join(", ", map { "q{$_} => q{$opts{$_}}" } (keys %opts)) . ") failed: $@");
     } else {
-      my $path2root = join( '/', ('..') x (@rootdirs+@dirs) );
+      my $path2root = File::Spec->catdir((File::Spec->updir) x @dirs);
       my $fh = IO::File->new($infile) or die "Can't read $infile: $!";
       my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
 
@@ -3437,7 +3447,7 @@ sub htmlify_pods {
         "--infile=$infile",
         "--outfile=$tmpfile",
         "--podroot=$podroot",
-        "--htmlroot=$path2root",
+        ($path2root ? "--htmlroot=$path2root" : ()),
       );
 
       unless ( eval{Pod::Html->VERSION(1.12)} ) {
@@ -3571,7 +3581,7 @@ sub ACTION_install {
   my ($self) = @_;
   require ExtUtils::Install;
   $self->depends_on('build');
-  # RT#63003 suggest that odd cirmstances that we might wind up
+  # RT#63003 suggest that odd circumstances that we might wind up
   # in a different directory than we started, so wrap with _do_in_dir to
   # ensure we get back to where we started; hope this fixes it!
   $self->_do_in_dir( ".", sub {
@@ -3680,10 +3690,6 @@ sub ACTION_installdeps {
         last;
       }
     }
-  }
-
-  if ( ! -x $command ) {
-    die "cpan_client '$command' is not executable\n";
   }
 
   $self->do_system($command, @opts, @install);
@@ -4091,9 +4097,9 @@ sub ACTION_disttest {
 
         $self->run_perl_script('Build.PL') # XXX Should this be run w/ --nouse-rcfile
           or die "Error executing 'Build.PL' in dist directory: $!";
-        $self->run_perl_script('Build')
-          or die "Error executing 'Build' in dist directory: $!";
-        $self->run_perl_script('Build', [], ['test'])
+        $self->run_perl_script($self->build_script)
+          or die "Error executing $self->build_script in dist directory: $!";
+        $self->run_perl_script($self->build_script, [], ['test'])
           or die "Error executing 'Build test' in dist directory";
       });
 }
@@ -4107,9 +4113,9 @@ sub ACTION_distinstall {
     sub {
       $self->run_perl_script('Build.PL')
         or die "Error executing 'Build.PL' in dist directory: $!";
-      $self->run_perl_script('Build')
-        or die "Error executing 'Build' in dist directory: $!";
-      $self->run_perl_script('Build', [], ['install'])
+      $self->run_perl_script($self->build_script)
+        or die "Error executing $self->build_script in dist directory: $!";
+      $self->run_perl_script($self->build_script, [], ['install'])
         or die "Error executing 'Build install' in dist directory";
     }
   );

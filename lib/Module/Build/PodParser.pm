@@ -2,7 +2,7 @@ package Module::Build::PodParser;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '0.4003';
+$VERSION = '0.4005';
 $VERSION = eval $VERSION;
 use vars qw(@ISA);
 
@@ -29,7 +29,7 @@ sub parse_from_filehandle {
   while (<$fh>) {
     next unless /^=(?!cut)/ .. /^=cut/;  # in POD
     # Accept Name - abstract or C<Name> - abstract
-    last if ($self->{abstract}) = /^ (?: [a-z0-9:]+ | [BCIF] < [a-z0-9:]+ > ) \s+ - \s+ (.*\S) /ix;
+    last if ($self->{abstract}) = /^ (?: [a-z_0-9:]+ | [BCIF] < [a-z_0-9:]+ > ) \s+ - \s+ (.*\S) /ix;
   }
 
   my @author;

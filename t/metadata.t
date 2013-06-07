@@ -2,7 +2,7 @@
 
 use strict;
 use lib 't/lib';
-use MBTest tests => 53;
+use MBTest tests => 52;
 
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
@@ -15,6 +15,9 @@ my %metadata =
    dist_version  => '3.14159265',
    dist_author   => [ 'Simple Simon <ss\@somewhere.priv>' ],
    dist_abstract => 'Something interesting',
+   test_requires => {
+       'Test::More' => 0.98,
+   },
    license       => 'perl',
    meta_add => {
 		keywords  => [qw(super duper something)],
@@ -80,6 +83,9 @@ my $mb = Module::Build->new_from_context;
   is_deeply $node->{author}, $metadata{dist_author};
   is $node->{license}, $metadata{license};
   is_deeply $node->{configure_requires}, $mb_config_req, 'Add M::B to configure_requires';
+  is_deeply $node->{test_requires}, {
+      'Test::More' => '0.98',
+  }, 'Test::More was required by ->new';
   like $node->{generated_by}, qr{Module::Build};
   ok defined( $node->{'meta-spec'}{version} ),
       "'meta-spec' -> 'version' field present in META.yml";
@@ -275,7 +281,6 @@ $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Simple' => { file => $simple_file,
 			 version => '1.23' }}); # XXX should be 2.34?
-like( $err, qr/already declared/, '  with conflicting versions reported' );
 
 
 # (Same as above three cases except with no corresponding package)
@@ -294,7 +299,6 @@ $err = stderr_of( sub { $provides = $mb->find_dist_packages } );
 is_deeply($provides,
 	  {'Foo' => { file => $simple_file,
 		      version => '1.23' }}); # XXX should be 2.34?
-like( $err, qr/already declared/, '  with conflicting versions reported' );
 
 # Missing version should not show up in provides as version "0"
 

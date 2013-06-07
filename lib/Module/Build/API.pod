@@ -72,6 +72,13 @@ An array reference of files to be cleaned up when the C<clean> action
 is performed. See also the L<add_to_cleanup()|/"add_to_cleanup(@files)">
 method.
 
+=item allow_pureperl
+
+[version 0.4005]
+
+A bool indicating the module is still functional without its xs parts.
+When an XS module is build with --pureperl_only, it will otherwise fail.
+
 =item auto_configure_requires
 
 [version 0.34]
@@ -171,6 +178,15 @@ items before running the C<Build.PL>.
 
 Module::Build may automatically add itself to configure_requires.
 See L</auto_configure_requires> for details.
+
+See the documentation for L<Module::Build::Authoring/"PREREQUISITES">
+for the details of how requirements can be specified.
+
+=item test_requires
+
+[version 0.4004]
+
+Modules listed in this section must be installed before testing the distribution.
 
 See the documentation for L<Module::Build::Authoring/"PREREQUISITES">
 for the details of how requirements can be specified.
@@ -1066,7 +1082,7 @@ This method is the preferred interface for retrieving the arguments passed via
 command line options to F<Build.PL> or F<Build>, minus the Module-Build
 specific options.
 
-When called in in a scalar context with no arguments, this method returns a
+When called in a scalar context with no arguments, this method returns a
 reference to the hash storing all of the arguments; in an array context, it
 returns the hash itself.  When passed a single argument, it returns the value
 stored in the args hash for that option key.  When called with two arguments,
@@ -1753,7 +1769,7 @@ Examples:
 
 Returns a reference to a hash describing all prerequisites.  The keys of the
 hash will be the various prerequisite types ('requires', 'build_requires',
-'configure_requires', 'recommends', or 'conflicts') and the values will be
+'test_requires', 'configure_requires', 'recommends', or 'conflicts') and the values will be
 references to hashes of module names and version numbers.  Only prerequisites
 types that are defined will be included.  The C<prereq_data> action is just a
 thin wrapper around the C<prereq_data()> method and dumps the hash as a string
