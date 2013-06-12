@@ -16,7 +16,7 @@ my %metadata =
    dist_author   => [ 'Simple Simon <ss\@somewhere.priv>' ],
    dist_abstract => 'Something interesting',
    test_requires => {
-       'Test::More' => 0.98,
+       'Test::More' => 0.49,
    },
    license       => 'perl',
    meta_add => {
@@ -84,7 +84,7 @@ my $mb = Module::Build->new_from_context;
   is $node->{license}, $metadata{license};
   is_deeply $node->{configure_requires}, $mb_config_req, 'Add M::B to configure_requires';
   is_deeply $node->{test_requires}, {
-      'Test::More' => '0.98',
+      'Test::More' => '0.49',
   }, 'Test::More was required by ->new';
   like $node->{generated_by}, qr{Module::Build};
   ok defined( $node->{'meta-spec'}{version} ),
