@@ -19,7 +19,6 @@ use File::Basename ();
 use File::Spec 0.82 ();
 use File::Compare ();
 use Module::Build::Dumper ();
-use IO::File ();
 use Text::ParseWords ();
 
 use Module::Build::ModuleInfo;
@@ -1082,7 +1081,7 @@ sub subclass {
   File::Path::mkpath($filedir);
   die "Can't create directory $filedir: $!" unless -d $filedir;
 
-  my $fh = IO::File->new("> $filename") or die "Can't create $filename: $!";
+  open(my $fh, '>', $filename) or die "Can't create $filename: $!";
   print $fh <<EOF;
 package $opts{class};
 use $pack;
@@ -1229,7 +1228,7 @@ sub _pod_parse {
 
   my $docfile = $self->_main_docfile
     or return;
-  my $fh = IO::File->new($docfile)
+  open(my $fh, '<', $docfile)
     or return;
 
   require Module::Build::PodParser;
@@ -1289,13 +1288,13 @@ sub read_config {
 
   my $file = $self->config_file('build_params')
     or die "Can't find 'build_params' in " . $self->config_dir;
-  my $fh = IO::File->new($file) or die "Can't read '$file': $!";
+  open(my $fh, '<', $file) or die "Can't read '$file': $!";
   my $ref = eval do {local $/; <$fh>};
   die if $@;
+  close $fh;
   my $c;
   ($self->{args}, $c, $self->{properties}) = @$ref;
   $self->{config} = Module::Build::Config->new(values => $c);
-  close $fh;
 }
 
 sub has_config_data {
@@ -1307,13 +1306,14 @@ sub _write_data {
   my ($self, $filename, $data) = @_;
 
   my $file = $self->config_file($filename);
-  my $fh = IO::File->new("> $file") or die "Can't create '$file': $!";
+  open(my $fh, '>', $file) or die "Can't create '$file': $!";
   unless (ref($data)) {  # e.g. magicnum
     print $fh $data;
     return;
   }
 
   print {$fh} Module::Build::Dumper->_data_dump($data);
+  close $fh;
 }
 
 sub write_config {
@@ -1832,10 +1832,10 @@ use File::Spec;
 
 sub magic_number_matches {
   return 0 unless -e '$q{magic_numfile}';
-  local *FH;
-  open FH, '$q{magic_numfile}' or return 0;
-  my \$filenum = <FH>;
-  close FH;
+  my \$FH;
+  open \$FH, '<','$q{magic_numfile}' or return 0;
+  my \$filenum = <\$FH>;
+  close \$FH;
   return \$filenum == $magic_number;
 }
 
@@ -1972,7 +1972,7 @@ sub create_build_script {
 
   $self->log_info("Creating new '$build_script' script for ",
                   "'$dist_name' version '$dist_version'\n");
-  my $fh = IO::File->new(">$build_script") or die "Can't create '$build_script': $!";
+  open(my $fh, '>', $build_script) or die "Can't create '$build_script': $!";
   $self->print_build_script($fh);
   close $fh;
 
@@ -2340,7 +2340,7 @@ sub read_modulebuildrc {
     return () unless $modulebuildrc;
   }
 
-  my $fh = IO::File->new( $modulebuildrc )
+  open(my $fh, '<', $modulebuildrc )
       or die "Can't open $modulebuildrc: $!";
 
   my %options; my $buffer = '';
@@ -2461,7 +2461,7 @@ sub get_action_docs {
     (my $file = $class) =~ s{::}{/}g;
     # NOTE: silently skipping relative paths if any chdir() happened
     $file = $INC{$file . '.pm'} or next;
-    my $fh = IO::File->new("< $file") or next;
+    open(my $fh, '<', $file) or next;
     $files_found++;
 
     # Code below modified from /usr/bin/perldoc
@@ -3104,7 +3104,7 @@ sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
 
   my ($does_shbang) = $c->get('sharpbang') =~ /^\s*\#\!/;
   for my $file (@files) {
-    my $FIXIN = IO::File->new($file) or die "Can't process '$file': $!";
+    open(my $FIXIN, '<', $file) or die "Can't process '$file': $!";
     local $/ = "\n";
     chomp(my $line = <$FIXIN>);
     next unless $line =~ s/^\s*\#!\s*//;     # Not a shebang file.
@@ -3124,7 +3124,7 @@ eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
     if 0; # not running under some shell
 } unless $self->is_windowsish; # this won't work on win32, so don't
 
-    my $FIXOUT = IO::File->new(">$file.new")
+    open(my $FIXOUT, '>', "$file.new")
       or die "Can't create new $file: $!\n";
 
     # Print out the new #! line (or equivalent).
@@ -3321,7 +3321,7 @@ sub contains_pod {
   my ($self, $file) = @_;
   return '' unless -T $file;  # Only look at text files
 
-  my $fh = IO::File->new( $file ) or die "Can't open $file: $!";
+  open(my $fh, '<', $file ) or die "Can't open $file: $!";
   while (my $line = <$fh>) {
     return 1 if $line =~ /^\=(?:head|pod|item)/;
   }
@@ -3438,7 +3438,7 @@ sub htmlify_pods {
         join(", ", map { "q{$_} => q{$opts{$_}}" } (keys %opts)) . ") failed: $@");
     } else {
       my $path2root = File::Spec->catdir((File::Spec->updir) x @dirs);
-      my $fh = IO::File->new($infile) or die "Can't read $infile: $!";
+      open(my $fh, '<', $infile) or die "Can't read $infile: $!";
       my $abstract = Module::Build::PodParser->new(fh => $fh)->get_abstract();
 
       my $title = join( '::', (@dirs, $name) );
@@ -3477,9 +3477,9 @@ sub htmlify_pods {
       $errors++;
       next POD;
     }
-    my $fh = IO::File->new($tmpfile) or die "Can't read $tmpfile: $!";
+    open(my $fh, '<', $tmpfile) or die "Can't read $tmpfile: $!";
     my $html = join('',<$fh>);
-    $fh->close;
+    close $fh;
     if (!$self->_is_ActivePerl) {
       # These fixups are already done by AP::DT:P:pod2html
       # The output from pod2html is NOT XHTML!
@@ -3494,9 +3494,9 @@ sub htmlify_pods {
     # Fixup links that point to our temp blib
     $html =~ s/\Q$blibdir\E//g;
 
-    $fh = IO::File->new(">$outfile") or die "Can't write $outfile: $!";
+    open($fh, '>', $outfile) or die "Can't write $outfile: $!";
     print $fh $html;
-    $fh->close;
+    close $fh;
     unlink($tmpfile);
   }
 
@@ -3865,12 +3865,12 @@ sub _add_to_manifest {
   my $mode = (stat $manifest)[2];
   chmod($mode | oct(222), $manifest) or die "Can't make $manifest writable: $!";
 
-  my $fh = IO::File->new("< $manifest") or die "Can't read $manifest: $!";
+  open(my $fh, '<', $manifest) or die "Can't read $manifest: $!";
   my $last_line = (<$fh>)[-1] || "\n";
   my $has_newline = $last_line =~ /\n$/;
-  $fh->close;
+  close $fh;
 
-  $fh = IO::File->new(">> $manifest") or die "Can't write to $manifest: $!";
+  open($fh, '>>', $manifest) or die "Can't write to $manifest: $!";
   print $fh "\n" unless $has_newline;
   print $fh map "$_\n", @$lines;
   close $fh;
@@ -3966,7 +3966,7 @@ HERE
 
   $self->delete_filetree('LICENSE');
 
-  my $fh = IO::File->new('> LICENSE')
+  open(my $fh, '>', 'LICENSE')
     or die "Can't write LICENSE file: $!";
   print $fh $license->fulltext;
   close $fh;
@@ -3998,8 +3998,7 @@ EOF
   } elsif ( eval {require Pod::Text; 1} ) {
     $self->log_info("Creating README using Pod::Text\n");
 
-    my $fh = IO::File->new('> README');
-    if ( defined($fh) ) {
+    if ( open(my $fh, '>', 'README') ) {
       local $^W = 0;
       no strict "refs";
 
@@ -4020,7 +4019,7 @@ EOF
 
       Pod::Text::pod2text( $docfile, $fh );
 
-      $fh->close;
+      close $fh;
     } else {
       $self->log_warn(
         "Cannot create 'README' file: Can't open file for writing\n" );
@@ -4214,17 +4213,17 @@ sub _append_maniskip {
   my $skip = shift;
   my $file = shift || 'MANIFEST.SKIP';
   return unless defined $skip && length $skip;
-  my $fh = IO::File->new(">> $file")
+  open(my $fh, '>>', $file)
     or die "Can't open $file: $!";
 
   print $fh "$skip\n";
-  $fh->close();
+  close $fh;
 }
 
 sub _write_default_maniskip {
   my $self = shift;
   my $file = shift || 'MANIFEST.SKIP';
-  my $fh = IO::File->new("> $file")
+  open(my $fh, '>', $file)
     or die "Can't open $file: $!";
 
   my $content = $self->_eumanifest_has_include ? "#!include_default\n"
@@ -4250,6 +4249,8 @@ EOF
   $content .= '\b'.$self->dist_name.'-[\d\.\_]+'."\n";
 
   print $fh $content;
+  
+  close $fh;
 
   return;
 }
@@ -5413,7 +5414,7 @@ sub compile_xs {
                    @typemaps, $file);
 
     $self->log_info("@command\n");
-    my $fh = IO::File->new("> $args{outfile}") or die "Couldn't write $args{outfile}: $!";
+    open(my $fh, '>', $args{outfile}) or die "Couldn't write $args{outfile}: $!";
     print {$fh} $self->_backticks(@command);
     close $fh;
   }
@@ -5542,7 +5543,7 @@ sub process_xs {
     require ExtUtils::Mkbootstrap;
     $self->log_info("ExtUtils::Mkbootstrap::Mkbootstrap('$spec->{bs_file}')\n");
     ExtUtils::Mkbootstrap::Mkbootstrap($spec->{bs_file});  # Original had $BSLOADLIBS - what's that?
-    {my $fh = IO::File->new(">> $spec->{bs_file}")}  # create
+    open(my $fh, '>>', $spec->{bs_file});  # create
     utime((time)x2, $spec->{bs_file});  # touch
   }
 

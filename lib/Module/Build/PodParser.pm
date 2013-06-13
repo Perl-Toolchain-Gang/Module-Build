@@ -16,7 +16,7 @@ sub new {
 
   unless ($self->{fh}) {
     die "No 'file' or 'fh' parameter given" unless $self->{file};
-    $self->{fh} = IO::File->new($self->{file}) or die "Couldn't open $self->{file}: $!";
+    open($self->{fh}, '<', $self->{file}) or die "Couldn't open $self->{file}: $!";
   }
 
   return $self;

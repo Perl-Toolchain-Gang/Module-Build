@@ -11,7 +11,6 @@ use Carp;
 use File::Basename  ();
 use File::Spec      ();
 use File::Path      ();
-use IO::File        ();
 use File::Copy      ();
 
 # track and return modules loaded by inc::latest
@@ -46,7 +45,7 @@ sub write {
 
   # write inc/latest.pm
   File::Path::mkpath( $where );
-  my $fh = IO::File->new( File::Spec->catfile($where,'latest.pm'), "w" );
+  open my $fh, '>', File::Spec->catfile($where,'latest.pm');
   print {$fh} "# This stub created by inc::latest $VERSION\n";
   print {$fh} <<'HERE';
 package inc::latest;

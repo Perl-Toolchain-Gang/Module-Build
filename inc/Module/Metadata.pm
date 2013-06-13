@@ -15,7 +15,6 @@ $VERSION = '1.000002';
 $VERSION = eval $VERSION;
 
 use File::Spec;
-use IO::File;
 use version 0.87;
 BEGIN {
   if ($INC{'Log/Contextual.pm'}) {
@@ -379,7 +378,7 @@ sub _parse_file {
   my $self = shift;
 
   my $filename = $self->{filename};
-  my $fh = IO::File->new( $filename )
+  open( my $fh, '<', $filename )
     or die( "Can't open '$filename': $!" );
 
   $self->_parse_fh($fh);
