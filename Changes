@@ -7,6 +7,9 @@ Revision history for Perl extension Module::Build.
   - Significantly sped up some tests by not forcing HTML docs to be
     built when the user's config doesn't ask for them anyway.
 
+  - The Module::Metadata package was split out from this distro back
+    in 2010.  Removed its regression tests
+
 0.4005 - Thu Apr 25 15:10:14 CEST 2013
 
   [ENHANCEMENTS]
