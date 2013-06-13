@@ -1006,6 +1006,7 @@ __PACKAGE__->add_property($_) for qw(
   verbose
   debug
   xs_files
+  extra_manify_args
 );
 
 sub config {
@@ -3237,6 +3238,8 @@ sub ACTION_manpages {
 
   $self->depends_on('code');
 
+  my %extra_manify_args = $self->{properties}{'extra_manify_args'} ? %{ $self->{properties}{'extra_manify_args'} } : ();
+
   foreach my $type ( qw(bin lib) ) {
     next unless ( $self->invoked_action eq 'manpages' || $self->_is_default_installable("${type}doc"));
     my $files = $self->_find_pods( $self->{properties}{"${type}doc_dirs"},
@@ -3244,12 +3247,13 @@ sub ACTION_manpages {
     next unless %$files;
 
     my $sub = $self->can("manify_${type}_pods");
-    $self->$sub() if defined( $sub );
+    $self->$sub( %extra_manify_args ) if defined( $sub );
   }
 }
 
 sub manify_bin_pods {
   my $self    = shift;
+  my %podman_args = (section =>  1, @_); # binaries go in section 1
 
   my $files   = $self->_find_pods( $self->{properties}{bindoc_dirs},
                                    exclude => [ $self->file_qr('\.bat$') ] );
@@ -3262,7 +3266,7 @@ sub manify_bin_pods {
   foreach my $file (keys %$files) {
     # Pod::Simple based parsers only support one document per instance.
     # This is expected to change in a future version (Pod::Simple > 3.03).
-    my $parser  = Pod::Man->new( section => 1 ); # binaries go in section 1
+    my $parser  = Pod::Man->new( %podman_args );
     my $manpage = $self->man1page_name( $file ) . '.' .
                   $self->config( 'man1ext' );
     my $outfile = File::Spec->catfile($mandir, $manpage);
@@ -3276,6 +3280,7 @@ sub manify_bin_pods {
 
 sub manify_lib_pods {
   my $self    = shift;
+  my %podman_args = (section => 3, @_); # libraries go in section 3
 
   my $files   = $self->_find_pods($self->{properties}{libdoc_dirs});
   return unless keys %$files;
@@ -3287,7 +3292,7 @@ sub manify_lib_pods {
   while (my ($file, $relfile) = each %$files) {
     # Pod::Simple based parsers only support one document per instance.
     # This is expected to change in a future version (Pod::Simple > 3.03).
-    my $parser  = Pod::Man->new( section => 3 ); # libraries go in section 3
+    my $parser  = Pod::Man->new( %podman_args );
     my $manpage = $self->man3page_name( $relfile ) . '.' .
                   $self->config( 'man3ext' );
     my $outfile = File::Spec->catfile( $mandir, $manpage);

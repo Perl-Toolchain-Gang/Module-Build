@@ -13,6 +13,9 @@ Revision history for Perl extension Module::Build.
   - Removed dependence on IO::File, replacing it with safe invocations
     of open(). [Sven Dowideit]
 
+  - Added an 'extra_manify_args' parameter to facilitate man pages
+    containing Unicode. [Joenio Costa]
+
 0.4005 - Thu Apr 25 15:10:14 CEST 2013
 
   [ENHANCEMENTS]
