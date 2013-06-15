@@ -16,6 +16,10 @@ Revision history for Perl extension Module::Build.
   - Added an 'extra_manify_args' parameter to facilitate man pages
     containing Unicode. [Joenio Costa]
 
+  - Added an '--html_links 0' argument for the 'html' action, which
+    can hugely speed things up.  The main effect is speeding up the
+    M::B tests themselves.
+
 0.4005 - Thu Apr 25 15:10:14 CEST 2013
 
   [ENHANCEMENTS]

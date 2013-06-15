@@ -362,6 +362,12 @@ C<Config.pm>.  You can also supply or override install paths on the
 command line by specifying C<install_path> values for the C<binhtml>
 and/or C<libhtml> installation targets.
 
+With an optional C<html_links> argument set to a false value, you can
+skip the search for other documentation to link to, because that can
+waste a lot of time if there aren't any links to generate anyway:
+
+  ./Build html --html_links 0
+
 =item install
 
 [version 0.01]

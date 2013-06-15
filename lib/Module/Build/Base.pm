@@ -3373,15 +3373,18 @@ sub htmlify_pods {
               : $self->original_prefix('core');
 
   my $htmlroot = $self->install_sets('core')->{libhtml};
-  my @podpath = ( (map { File::Spec->abs2rel($_ ,$podroot) } grep { -d  }
-    ( $self->install_sets('core', 'lib'), # lib
-      $self->install_sets('core', 'bin'), # bin
-      $self->install_sets('site', 'lib'), # site/lib
-    ) ), File::Spec->rel2abs($self->blib) );
+  my $podpath;
+  unless (defined $self->args('html_links') and !$self->args('html_links')) {
+    my @podpath = ( (map { File::Spec->abs2rel($_ ,$podroot) } grep { -d  }
+                     ( $self->install_sets('core', 'lib'), # lib
+                       $self->install_sets('core', 'bin'), # bin
+                       $self->install_sets('site', 'lib'), # site/lib
+                     ) ), File::Spec->rel2abs($self->blib) );
 
-  my $podpath = $ENV{PERL_CORE}
-              ? File::Spec->catdir($podroot, 'lib')
-              : join(":", map { tr,:\\,|/,; $_ } @podpath);
+    $podpath = $ENV{PERL_CORE}
+      ? File::Spec->catdir($podroot, 'lib')
+        : join(":", map { tr,:\\,|/,; $_ } @podpath);
+  }
 
   my $blibdir = join('/', File::Spec->splitdir(
     (File::Spec->splitpath(File::Spec->rel2abs($htmldir),1))[1]),''
@@ -3431,7 +3434,7 @@ sub htmlify_pods {
       my $depth = @rootdirs + @dirs;
       my %opts = ( infile => $infile,
         outfile => $tmpfile,
-        podpath => $podpath,
+        ( defined($podpath) ? (podpath => $podpath) : ()),
         podroot => $podroot,
         index => 1,
         depth => $depth,
@@ -3451,7 +3454,7 @@ sub htmlify_pods {
 
       my @opts = (
         "--title=$title",
-        "--podpath=$podpath",
+        ( defined($podpath) ? "--podpath=$podpath" : ()),
         "--infile=$infile",
         "--outfile=$tmpfile",
         "--podroot=$podroot",
