@@ -830,7 +830,7 @@ sub ACTION_config_data {
     }
   }
 
-} # end closure
+} # end enclosure
 ########################################################################
 sub _make_hash_accessor {
   my ($property, $p) = @_;
