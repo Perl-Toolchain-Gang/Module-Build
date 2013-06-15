@@ -1129,83 +1129,90 @@ END_WARN
 sub dist_name {
   my $self = shift;
   my $p = $self->{properties};
-  return $p->{dist_name} if defined $p->{dist_name};
+  my $me = 'dist_name';
+  return $p->{$me} if defined $p->{$me};
 
   die "Can't determine distribution name, must supply either 'dist_name' or 'module_name' parameter"
     unless $self->module_name;
 
-  ($p->{dist_name} = $self->module_name) =~ s/::/-/g;
+  ($p->{$me} = $self->module_name) =~ s/::/-/g;
 
-  return $p->{dist_name};
+  return $p->{$me};
 }
 
 sub release_status {
   my ($self) = @_;
+  my $me = 'release_status';
   my $p = $self->{properties};
 
-  if ( ! defined $p->{release_status} ) {
-    $p->{release_status} = $self->_is_dev_version ? 'testing' : 'stable';
+  if ( ! defined $p->{$me} ) {
+    $p->{$me} = $self->_is_dev_version ? 'testing' : 'stable';
   }
 
-  unless ( $p->{release_status} =~ qr/\A(?:stable|testing|unstable)\z/ ) {
-    die "Illegal value '$p->{release_status}' for release_status\n";
+  unless ( $p->{$me} =~ qr/\A(?:stable|testing|unstable)\z/ ) {
+    die "Illegal value '$p->{$me}' for $me\n";
   }
 
-  if ( $p->{release_status} eq 'stable' && $self->_is_dev_version ) {
+  if ( $p->{$me} eq 'stable' && $self->_is_dev_version ) {
     my $version = $self->dist_version;
-    die "Illegal value '$p->{release_status}' with version '$version'\n";
+    die "Illegal value '$p->{$me}' with version '$version'\n";
   }
-  return $p->{release_status};
+  return $p->{$me};
 }
 
 sub dist_suffix {
   my ($self) = @_;
   my $p = $self->{properties};
-  return $p->{dist_suffix} if defined $p->{dist_suffix};
+  my $me = 'dist_suffix';
+
+  return $p->{$me} if defined $p->{$me};
 
   if ( $self->release_status eq 'stable' ) {
-    $p->{dist_suffix} = "";
+    $p->{$me} = "";
   }
   else {
     # non-stable release but non-dev version number needs '-TRIAL' appended
-    $p->{dist_suffix} = $self->_is_dev_version ? "" : "TRIAL" ;
+    $p->{$me} = $self->_is_dev_version ? "" : "TRIAL" ;
   }
 
-  return $p->{dist_suffix};
+  return $p->{$me};
 }
 
 sub dist_version_from {
   my ($self) = @_;
   my $p = $self->{properties};
+  my $me = 'dist_version_from';
+
   if ($self->module_name) {
-    $p->{dist_version_from} ||=
+    $p->{$me} ||=
       join( '/', 'lib', split(/::/, $self->module_name) ) . '.pm';
   }
-  return $p->{dist_version_from} || undef;
+  return $p->{$me} || undef;
 }
 
 sub dist_version {
   my ($self) = @_;
   my $p = $self->{properties};
+  my $me = 'dist_version';
 
-  return $p->{dist_version} if defined $p->{dist_version};
+  return $p->{$me} if defined $p->{$me};
 
   if ( my $dist_version_from = $self->dist_version_from ) {
     my $version_from = File::Spec->catfile( split( qr{/}, $dist_version_from ) );
     my $pm_info = Module::Build::ModuleInfo->new_from_file( $version_from )
       or die "Can't find file $version_from to determine version";
-    #$p->{dist_version} is undef here
-    $p->{dist_version} = $self->normalize_version( $pm_info->version() );
-    unless (defined $p->{dist_version}) {
+    #$p->{$me} is undef here
+    $p->{$me} = $self->normalize_version( $pm_info->version() );
+    unless (defined $p->{$me}) {
       die "Can't determine distribution version from $version_from";
     }
   }
 
   die ("Can't determine distribution version, must supply either 'dist_version',\n".
        "'dist_version_from', or 'module_name' parameter")
-    unless defined $p->{dist_version};
+    unless defined $p->{$me};
 
-  return $p->{dist_version};
+  return $p->{$me};
 }
 
 sub _is_dev_version {
