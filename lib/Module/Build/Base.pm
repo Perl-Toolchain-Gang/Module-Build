@@ -791,10 +791,10 @@ sub ACTION_config_data {
     return $class;
   }
 
-    sub property_error {
-      my $self = shift;
-      die 'ERROR: ', @_;
-    }
+  sub property_error {
+    my $self = shift;
+    die 'ERROR: ', @_;
+  }
 
   sub _set_defaults {
     my $self = shift;
