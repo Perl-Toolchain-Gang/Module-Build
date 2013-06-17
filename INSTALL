@@ -18,20 +18,6 @@ the "./" notation, you can do this:
 The important thing is that the "Build" script gets executed and that
 you pass it the "test", "install", etc. arguments.
 
-If you really want to, you can use a more traditional Makefile.PL:
-
-  perl Makefile.PL
-  make test
-  make install     (this step may need to be done as the superuser)
-
-Substitute "nmake" or "gmake" for "make" if you use some other
-make-alike on your platform - 'perl -V:make' can tell you what you
-should use.
-
-I recommend using the Build.PL option.  If you use the Makefile.PL
-option, you'll actually be using the Build.PL option under the surface
-anyway, with a pass-through Makefile.
-
 There's heaps more information in the README and in the documentation
 of the various packages in this distribution.
 
