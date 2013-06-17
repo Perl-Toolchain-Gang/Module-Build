@@ -756,10 +756,7 @@ sub ACTION_config_data {
   }
 
   sub array_properties {
-    for (shift->_mb_classes) {
-      return @{$additive_properties{$_}->{ARRAY}}
-        if exists $additive_properties{$_}->{ARRAY};
-    }
+    map { exists $additive_properties{$_}->{ARRAY} ? @{$additive_properties{$_}->{ARRAY}} : () } shift->_mb_classes;
   }
 
   sub hash_properties {
