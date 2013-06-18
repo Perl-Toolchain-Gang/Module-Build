@@ -1,9 +1,6 @@
 package Module::Build::Platform::VOS;
 
 use strict;
-use vars qw($VERSION);
-$VERSION = '0.4005';
-$VERSION = eval $VERSION;
 use Module::Build::Base;
 
 use vars qw(@ISA);

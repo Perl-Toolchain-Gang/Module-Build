@@ -3,10 +3,6 @@
 package Module::Build::ModuleInfo;
 
 use strict;
-use vars qw($VERSION);
-$VERSION = '0.4005';
-$VERSION = eval $VERSION;
-
 require Module::Metadata;
 our @ISA = qw/Module::Metadata/;
 
