@@ -95,10 +95,7 @@ C<ExtUtils::MakeMaker>.  Developers may alter the behavior of the
 module through subclassing in a much more straightforward way than
 with C<MakeMaker>.  It also does not require a C<make> on your system
 - most of the C<Module::Build> code is pure-perl and written in a very
-cross-platform way.  In fact, you don't even need a shell, so even
-platforms like MacOS (traditional) can use it fairly easily.  Its only
-prerequisites are modules that are included with perl 5.6.0, and it
-works fine on perl 5.005 if you can install a few additional modules.
+cross-platform way.
 
 See L<"MOTIVATIONS"> for more comparisons between C<ExtUtils::MakeMaker>
 and C<Module::Build>.
