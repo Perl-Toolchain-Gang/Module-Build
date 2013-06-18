@@ -1,5 +1,6 @@
 package ManifypodsWithUtf8;
 use strict;
+use utf8;
 use Test::More;
 
 use lib 't/lib';
@@ -21,13 +22,18 @@ my $tmp = MBTest->tmpdir;
 
 use DistGen;
 my $dist = DistGen->new( dir => $tmp );
-$dist->add_file( 'lib/Simple/PodWithUtf8.pod', <<'---' );
+my $content = <<'---';
+
+=encoding utf8
+
 =head1 NAME
 
 Simple::PodWithUtf8 - POD with some (ç á à ô) special chars
 
 =cut
 ---
+utf8::encode($content);
+$dist->add_file( 'lib/Simple/PodWithUtf8.pod', $content);
 $dist->regen;
 $dist->chdir_in;
 
@@ -49,9 +55,9 @@ my $sep = $mb->manpage_separator;
 my $ext3 = $mb->config('man3ext');
 my $to = File::Spec->catfile('blib', 'libdoc', "Simple${sep}PodWithUtf8.${ext3}");
 
-open my $pod, '<:utf8', $to;
-undef $/; my $pod_content = <$pod>;
+open my $pod, '<:encoding(utf-8)', $to;
+my $pod_content = do { local $/; <$pod> };
 close $pod;
 
-ok $pod_content =~ qr/ \(ç á à ô\) /, "POD should contain special characters";
+like($pod_content, qr/ \(ç á à ô\) /, "POD should contain special characters");
 
