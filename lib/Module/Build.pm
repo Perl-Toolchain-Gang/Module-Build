@@ -1,5 +1,6 @@
 package Module::Build;
-
+use vars qw($VERSION);
+$VERSION = '0.4005';
 use if $] >= 5.019, 'deprecate';
 
 # This module doesn't do much of anything itself, it inherits from the
