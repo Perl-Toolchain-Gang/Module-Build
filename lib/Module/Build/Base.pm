@@ -1,6 +1,8 @@
 # -*- mode: cperl; tab-width: 8; indent-tabs-mode: nil; basic-offset: 2 -*-
 # vim:ts=8:sw=2:et:sta:sts=2
 package Module::Build::Base;
+use vars qw($VERSION);
+$VERSION = '0.4005';
 
 use strict;
 use warnings;
