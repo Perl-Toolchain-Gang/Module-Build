@@ -17,7 +17,8 @@ $dist->chdir_in;
 #########################
 
 
-# Test object creation
+# This run_test_harness with Test::Harness::switches  = undef and harness_switches() returning empty list,
+# ensure there are no warnings
 {
   # make sure Test::Harness loaded before we define Test::Harness::runtests otherwise we'll
   # get another redefined warning inside Test::Harness::runtests
