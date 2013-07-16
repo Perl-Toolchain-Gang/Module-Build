@@ -10,3 +10,6 @@ perl:
   - "5.14"
   - "5.12"
   - "5.10"
+script:
+  - perl Build.PL && ./Build test && ./Build disttest
+  - perl Makefile.PL && make test
