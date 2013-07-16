@@ -2,7 +2,7 @@
 
 use strict;
 use lib 't/lib';
-use MBTest tests => 5;
+use MBTest tests => 9;
 
 blib_load('Module::Build');
 
@@ -17,35 +17,55 @@ $dist->chdir_in;
 #########################
 
 
-# This run_test_harness with Test::Harness::switches  = undef and harness_switches() returning empty list,
-# ensure there are no warnings
+# make sure Test::Harness loaded before we define Test::Harness::runtests otherwise we'll
+# get another redefined warning inside Test::Harness::runtests
+use Test::Harness;
+
 {
-  # make sure Test::Harness loaded before we define Test::Harness::runtests otherwise we'll
-  # get another redefined warning inside Test::Harness::runtests
-  use Test::Harness;
-
   local $SIG{__WARN__} = sub { die "Termination after a warning: $_[0]"};
-
   my $mock1 = { A => 1 };
   my $mock2 = { B => 2 };
-  
-  my $mb = Module::Build->new( module_name => $dist->name );
+
   no warnings qw[redefine once];
   local *Module::Build::harness_switches = sub { return };
-  local *Test::Harness::runtests = sub {
-	ok shift == $mock1, "runtests ran with expected parameters";
-	ok shift == $mock2, "runtests ran with expected parameters";
-  };
+  
+  # This runs run_test_harness with Test::Harness::switches = undef and harness_switches() returning empty list,
+  # ensure there are no warnings, and output is undef too
+  {
+    my $mb = Module::Build->new( module_name => $dist->name );
+    local *Test::Harness::runtests = sub {
+      ok shift == $mock1, "runtests ran with expected parameters";
+      ok shift == $mock2, "runtests ran with expected parameters";
+      ok ! defined $Test::Harness::switches, "switches are undef";
+      ok ! defined $Test::Harness::Switches, "switches are undef";
+    };
 
-  # $Test::Harness::switches and $Test::Harness::switches are aliases, but we pretend we don't know this
-  $Test::Harness::switches = undef;
-  $Test::Harness::switches = undef;
-  $mb->run_test_harness([$mock1, $mock2]);
+    # $Test::Harness::switches and $Test::Harness::switches are aliases, but we pretend we don't know this
+    local $Test::Harness::switches = undef;
+    local $Test::Harness::switches = undef;
 
-  ok 1, "run_test_harness should not produce warning if Test::Harness::[Ss]witches are undef and harness_switches() return empty list";
+    $mb->run_test_harness([$mock1, $mock2]);
 
-  ok ! defined $Test::Harness::switches, "switches are undef";
-  ok ! defined $Test::Harness::Switches, "switches are undef";
+    ok 1, "run_test_harness should not produce warning if Test::Harness::[Ss]witches are undef and harness_switches() return empty list";
+
+  }
+
+  # This runs run_test_harness with Test::Harness::switches = '' and harness_switches() returning empty list,
+  # ensure there are no warnings, and output is undef
+  {
+
+    my $mb = Module::Build->new( module_name => $dist->name );
+    local *Test::Harness::runtests = sub {
+      ok shift == $mock1, "runtests ran with expected parameters";
+      ok shift == $mock2, "runtests ran with expected parameters";
+      ok ! defined $Test::Harness::switches, "switches are undef";
+      ok ! defined $Test::Harness::Switches, "switches are undef";
+    };
+
+    # $Test::Harness::switches and $Test::Harness::switches are aliases, but we pretend we don't know this
+    local $Test::Harness::switches = '';
+    local $Test::Harness::switches = '';
+    $mb->run_test_harness([$mock1, $mock2]);
+
+  }
 }
-
-
