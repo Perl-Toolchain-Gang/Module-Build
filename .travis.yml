@@ -1,6 +1,6 @@
 language: perl
 notifications:
-  on_sucess: change
+  on_success: change
   on_failure: always
   irc: "irc.perl.org#toolchain"
   email: false
