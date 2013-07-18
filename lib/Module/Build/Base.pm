@@ -2773,7 +2773,7 @@ sub run_test_harness {
     local $ENV{HARNESS_PERL_SWITCHES} = join ' ', grep defined, $ENV{HARNESS_PERL_SWITCHES}, @harness_switches;
 
     $Test::Harness::switches = undef   unless length $Test::Harness::switches;
-    $Test::Harness::Switches = undef   unless length $Test::Harness::Switches;
+    $Test::Harness::Switches = undef   unless defined $Test::Harness::Switches and length $Test::Harness::Switches;
     delete $ENV{HARNESS_PERL_SWITCHES} unless length $ENV{HARNESS_PERL_SWITCHES};
 
     local ($Test::Harness::verbose,
