@@ -14,6 +14,44 @@ Revision history for Perl extension Module::Build.
 
 0.4006 - Thu Jul 18 14:19:49 CEST 2013
 
+  - Announcement: The Perl5-Porters have decided to remove
+    Module::Build from the perl core distribution.  It will still be
+    available on CPAN, and development is planned to continue
+    regardless.
+
+    For more information, see:
+
+    * http://www.nntp.perl.org/group/perl.perl5.porters/2013/05/msg202041.html
+    * http://blogs.perl.org/users/joel_berger/2013/05/on-the-removal-of-some-core-modules.html
+    * http://www.dagolden.com/index.php/2140/paying-respect-to-modulebuild/
+    * http://perlhacks.com/2013/06/removing-modules-from-core/
+
+  [BUG FIXES]
+
+  - In the 'installdeps' action, w don't need to check for an
+    executable bit on the CPAN client, just try executing it.
+    Otherwise we needlessly fail on e.g. VMS.
+
+  - Actually handle utf8 correctly in utf8-man tests. [Leon Timmermans]
+
+  - Don't clobber standard array/hash attributes in subclasses that
+    have their own array/hash attributes. [Graham Ollis]
+
+  - We now allow underscores in package names, when extracting the
+    name & abstract from POD. [Ricardo Signes, Shlomi Fish]
+
+  - When building HTML docs, fix a problem with setting the --htmlroot
+    argument. [Ken Williams]
+
+  - Lower Test::More dependency in the test metadata, so distgen
+    output won't mess up console with older Test::More installed.
+    [Tatsuhiko Miyagawa]
+
+  - Revised detildification on VMS [Craig Berry]
+
+  - Fix run_test_harness for case when $Switches is an empty string
+    [Victor Efimov, Ken Williams]
+
   [ENHANCEMENTS]
 
   - Significantly sped up some tests by not forcing HTML docs to be
@@ -33,14 +71,26 @@ Revision history for Perl extension Module::Build.
     can hugely speed things up.  The main effect is speeding up the
     M::B tests themselves. [Ken Williams]
 
-  [BUG FIXES]
+  - Added continuous integration support for the Module::Build code
+    itself, through the Travis-CI project
+    (https://travis-ci.org/). [Tatsuhiko Miyagawa, Olivier Mengué]
 
-  - Fix hash argument parsing in subclasses [Graham Ollis]
+  [DOCUMENTATION]
 
-  - Revised detildification on VMS [Craig Berry]
+  - Removed suggestion in the INSTALL document to use the Makefile.PL
+    for installation.  Making the Makefile.PL lower-profile in
+    general. [Ken Williams]
 
-  - Fix run_test_harness for case when $Switches is an empty string
-    [Victor Efimov, Ken Williams]
+  - Fix link from UpperCase CPAN::META::Spec to CPAN::Meta::Spec in
+    API.pod. [Sven Dowideit]
+
+  [OTHER]
+
+  - Removed unused platform specific modules that never contained
+    anything. [Leon Timmermans]
+
+  - Lots of typo fixes in comments & documentation. [David Steinbrunner]
+
 
 0.4005 - Thu Apr 25 15:10:14 CEST 2013
 
@@ -129,7 +179,7 @@ Revision history for Perl extension Module::Build.
 
   [OTHER]
 
-    - List Perl-Toolchain-Gang repo as official repo
+  - List Perl-Toolchain-Gang repo as official repo
 
 0.39_01 - Thu Jul 21 16:48:48 EDT 2011
 
