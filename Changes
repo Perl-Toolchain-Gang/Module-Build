@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.4007 - 
 
+  [BUG FIXES]
+
+  - Removed undeclared test dependency on parent.pm [Leon Timmermans]
+
 0.4006 - Thu Jul 18 14:19:49 CEST 2013
 
   [ENHANCEMENTS]

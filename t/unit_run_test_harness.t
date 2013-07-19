@@ -23,7 +23,7 @@ use Test::Harness;
 
 {
   package MB::Subclass;
-  use parent qw(Module::Build);
+  use base qw(Module::Build);
   sub harness_switches { }
 }
 
