@@ -61,6 +61,7 @@ my $build = ModuleBuildBuilder->new(
     'Perl::OSType'          => 1, # needs 1.0 API
     'version'               => 0.87,  # No longer requires M::B
     'Module::Metadata'      => 1.000002, # uses version.pm
+    'Pod::Man'              => 2.17, # utf8 support
   },
   recommends => {
     'ExtUtils::Install'  => 0.30,
