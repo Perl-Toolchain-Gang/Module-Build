@@ -13,7 +13,7 @@ SKIP: {
    }
 }
 
-use MBTest tests => 1;
+use MBTest tests => 2;
 use File::Spec::Functions qw( catdir );
 
 use Cwd ();
@@ -43,10 +43,14 @@ my $mb = Module::Build->new(
 			    module_name      => $dist->name,
 			    install_base     => $destdir,
 
-			    # need default install paths to ensure manpages & HTML get generated
+			    # need default install paths to ensure manpages get generated
 			    installdirs => 'site',
+			    config => {
+			        installsiteman1dir  => catdir($tmp, 'site', 'man', 'man1'),
+			        installsiteman3dir  => catdir($tmp, 'site', 'man', 'man3'),
+			    },
 			    extra_manify_args => { utf8 => 1 },
-			   );
+			);
 $mb->add_to_cleanup($destdir);
 
 
@@ -55,7 +59,8 @@ my $sep = $mb->manpage_separator;
 my $ext3 = $mb->config('man3ext');
 my $to = File::Spec->catfile('blib', 'libdoc', "Simple${sep}PodWithUtf8.${ext3}");
 
-open my $pod, '<:encoding(utf-8)', $to;
+ok(-e $to, "Manpage is found at $to");
+open my $pod, '<:encoding(utf-8)', $to or diag "Could not open $to: $!";
 my $pod_content = do { local $/; <$pod> };
 close $pod;
 

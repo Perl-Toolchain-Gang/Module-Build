@@ -8,6 +8,8 @@ Revision history for Perl extension Module::Build.
 
   - Declared dependency on Pod::Man 2.17 for utf8 support [Leon Timmermans]
 
+  - Force generation of man pages in manify_with_utf8.t [Leon Timmermans]
+
 0.4006 - Thu Jul 18 14:19:49 CEST 2013
 
   [ENHANCEMENTS]
