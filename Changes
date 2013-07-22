@@ -2,6 +2,9 @@ Revision history for Perl extension Module::Build.
 
 0.4008 - 
 
+  - Fix a couple more broken links to CPAN::META::Spec that should
+    have been CPAN::Meta::Spec. [Reported by Mike Doherty]
+
 0.4007 - Fri Jul 19 13:44:39 CEST 2013
 
   [BUG FIXES]
