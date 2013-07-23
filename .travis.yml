@@ -5,11 +5,13 @@ notifications:
   irc: "irc.perl.org#toolchain"
   email: false
 perl:
+  - "5.19"
   - "5.18"
   - "5.16"
   - "5.14"
   - "5.12"
   - "5.10"
+  - "5.8"
 script:
   - perl Build.PL && ./Build test && ./Build disttest
   - perl Makefile.PL && make test
