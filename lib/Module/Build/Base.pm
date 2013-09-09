@@ -1916,29 +1916,7 @@ sub create_mymeta {
   # if we have metadata, just update it
   if ( defined $mymeta ) {
     my $prereqs = $self->_normalize_prereqs;
-    # XXX refactor this mapping somewhere
-    $mymeta->{prereqs}{runtime}{requires} = $prereqs->{requires};
-    $mymeta->{prereqs}{build}{requires} = $prereqs->{build_requires};
-    $mymeta->{prereqs}{test}{requires} = $prereqs->{test_requires};
-    $mymeta->{prereqs}{runtime}{recommends} = $prereqs->{recommends};
-    $mymeta->{prereqs}{runtime}{conflicts} = $prereqs->{conflicts};
-    # delete empty entries
-    for my $phase ( keys %{$mymeta->{prereqs}} ) {
-      if ( ref $mymeta->{prereqs}{$phase} eq 'HASH' ) {
-        for my $type ( keys %{$mymeta->{prereqs}{$phase}} ) {
-          if ( ! defined $mymeta->{prereqs}{$phase}{$type}
-            || ! keys %{$mymeta->{prereqs}{$phase}{$type}}
-          ) {
-            delete $mymeta->{prereqs}{$phase}{$type};
-          }
-        }
-      }
-      if ( ! defined $mymeta->{prereqs}{$phase}
-        || ! keys %{$mymeta->{prereqs}{$phase}}
-      ) {
-        delete $mymeta->{prereqs}{$phase};
-      }
-    }
+    $self->_merge_meta_prereqs($mymeta, $prereqs);
     $mymeta->{dynamic_config} = 0;
     $mymeta->{generated_by} = "Module::Build version $Module::Build::VERSION";
     eval { $meta_obj = CPAN::Meta->new( $mymeta, { lazy_validation => 1 } ) }
@@ -1956,6 +1934,35 @@ sub create_mymeta {
     unless @created;
 
   return 1;
+}
+
+sub _merge_meta_prereqs {
+    my ($self, $meta, $prereqs) = @_;
+
+    $meta->{prereqs}{runtime}{requires} = $prereqs->{requires};
+    $meta->{prereqs}{build}{requires} = $prereqs->{build_requires};
+    $meta->{prereqs}{test}{requires} = $prereqs->{test_requires};
+    $meta->{prereqs}{runtime}{recommends} = $prereqs->{recommends};
+    $meta->{prereqs}{runtime}{conflicts} = $prereqs->{conflicts};
+
+    # delete empty entries
+    for my $phase ( keys %{$meta->{prereqs}} ) {
+      if ( ref $meta->{prereqs}{$phase} eq 'HASH' ) {
+        for my $type ( keys %{$meta->{prereqs}{$phase}} ) {
+          if ( ! defined $meta->{prereqs}{$phase}{$type}
+            || ! keys %{$meta->{prereqs}{$phase}{$type}}
+          ) {
+            delete $meta->{prereqs}{$phase}{$type};
+          }
+        }
+      }
+      if ( ! defined $meta->{prereqs}{$phase}
+        || ! keys %{$meta->{prereqs}{$phase}}
+      ) {
+        delete $meta->{prereqs}{$phase};
+      }
+    }
+    $meta;
 }
 
 sub create_build_script {
@@ -4587,6 +4594,12 @@ sub _get_meta_object {
     );
     $data->{dynamic_config} = $args{dynamic} if defined $args{dynamic};
     $meta = CPAN::Meta->create( $data );
+    # XXX get_metadata create spec 1.4 struct. needs to version up
+    my $meta2 = $meta->as_struct({version => "2"}); 
+    delete $meta2->{'x_'.$_} for @{$self->prereq_action_types}; 
+    my $prereqs = $self->_normalize_prereqs;
+    $self->_merge_meta_prereqs($meta2, $prereqs);
+    $meta = CPAN::Meta->create( $meta2 );
   };
   if ($@ && ! $args{quiet}) {
     $self->log_warn(
