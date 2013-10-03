@@ -1904,53 +1904,27 @@ sub create_mymeta {
   if ( $self->try_require("CPAN::Meta", "2.110420") ) {
     for my $file ( @metafiles ) {
       next unless -f $file;
-      $meta_obj = eval { CPAN::Meta->load_file($file) };
+      $meta_obj = eval { CPAN::Meta->load_file($file, { lazy_validation => 0 }) };
       last if $meta_obj;
     }
   }
 
   # maybe get a copy in spec v2 format (regardless of original source)
-  $mymeta = $meta_obj->as_struct
-    if $meta_obj;
 
+  my $mymeta_obj = $self->_get_meta_object(quiet => 0, dynamic => 0, fatal => 1, auto => 0);
   # if we have metadata, just update it
-  if ( defined $mymeta ) {
-    my $prereqs = $self->_normalize_prereqs;
-    # XXX refactor this mapping somewhere
-    $mymeta->{prereqs}{runtime}{requires} = $prereqs->{requires};
-    $mymeta->{prereqs}{build}{requires} = $prereqs->{build_requires};
-    $mymeta->{prereqs}{test}{requires} = $prereqs->{test_requires};
-    $mymeta->{prereqs}{runtime}{recommends} = $prereqs->{recommends};
-    $mymeta->{prereqs}{runtime}{conflicts} = $prereqs->{conflicts};
-    # delete empty entries
-    for my $phase ( keys %{$mymeta->{prereqs}} ) {
-      if ( ref $mymeta->{prereqs}{$phase} eq 'HASH' ) {
-        for my $type ( keys %{$mymeta->{prereqs}{$phase}} ) {
-          if ( ! defined $mymeta->{prereqs}{$phase}{$type}
-            || ! keys %{$mymeta->{prereqs}{$phase}{$type}}
-          ) {
-            delete $mymeta->{prereqs}{$phase}{$type};
-          }
-        }
-      }
-      if ( ! defined $mymeta->{prereqs}{$phase}
-        || ! keys %{$mymeta->{prereqs}{$phase}}
-      ) {
-        delete $mymeta->{prereqs}{$phase};
-      }
-    }
-    $mymeta->{dynamic_config} = 0;
-    $mymeta->{generated_by} = "Module::Build version $Module::Build::VERSION";
-    eval { $meta_obj = CPAN::Meta->new( $mymeta, { lazy_validation => 1 } ) }
-  }
-  # or generate from scratch, ignoring errors if META doesn't exist
-  else {
-    $meta_obj = $self->_get_meta_object(
-      quiet => 0, dynamic => 0, fatal => 0, auto => 0
+  if ( $meta_obj ) {
+    my $prereqs = $mymeta_obj->effective_prereqs->with_merged_prereqs($meta_obj->effective_prereqs);
+    my %updated = (
+      %{ $meta_obj->as_struct({ version => 2.0 }) },
+      prereqs => $prereqs->as_string_hash,
+      dynamic_config => 0,
+      generated_by => "Module::Build version $Module::Build::VERSION",
     );
+    $mymeta_obj = CPAN::Meta->new( \%updated, { lazy_validation => 0 } );
   }
 
-  my @created = $self->_write_meta_files( $meta_obj, 'MYMETA' );
+  my @created = $self->_write_meta_files( $mymeta_obj, 'MYMETA' );
 
   $self->log_warn("Could not create MYMETA files\n")
     unless @created;
@@ -4567,7 +4541,7 @@ sub _get_meta_object {
       auto => $args{auto},
     );
     $data->{dynamic_config} = $args{dynamic} if defined $args{dynamic};
-    $meta = CPAN::Meta->create( $data );
+    $meta = CPAN::Meta->create($data);
   };
   if ($@ && ! $args{quiet}) {
     $self->log_warn(
