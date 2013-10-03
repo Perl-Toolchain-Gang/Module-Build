@@ -4643,33 +4643,11 @@ sub _normalize_prereqs {
 # wrapper around old prepare_metadata API;
 sub get_metadata {
   my ($self, %args) = @_;
-  my $metadata = {};
-  $self->prepare_metadata( $metadata, undef, \%args );
-  return $metadata;
-}
 
-# To preserve compatibility with old API, $node *must* be a hashref
-# passed in to prepare_metadata.  $keys is an arrayref holding a
-# list of keys -- it's use is optional and generally no longer needed
-# but kept for back compatibility.  $args is an optional parameter to
-# support the new 'fatal' toggle
-
-sub prepare_metadata {
-  my ($self, $node, $keys, $args) = @_;
-  unless ( ref $node eq 'HASH' ) {
-    croak "prepare_metadata() requires a hashref argument to hold output\n";
-  }
-  my $fatal = $args->{fatal} || 0;
+  my $fatal = $args{fatal} || 0;
   my $p = $self->{properties};
 
-  $self->auto_config_requires if $args->{auto};
-
-  # A little helper sub
-  my $add_node = sub {
-    my ($name, $val) = @_;
-    $node->{$name} = $val;
-    push @$keys, $name if $keys;
-  };
+  $self->auto_config_requires if $args{auto};
 
   # validate required fields
   foreach my $f (qw(dist_name dist_version dist_author dist_abstract license)) {
@@ -4686,20 +4664,22 @@ sub prepare_metadata {
   }
 
 
-  # add dist_* fields
-  foreach my $f (qw(dist_name dist_version dist_author dist_abstract)) {
-    (my $name = $f) =~ s/^dist_//;
-    $add_node->($name, $self->$f());
-  }
-
-  # normalize version
-  $node->{version} = $self->normalize_version($node->{version});
+  my %metadata = (
+    name => $self->dist_name,
+    version => $self->normalize_version($self->dist_version),
+    author => $self->dist_author,
+    abstract => $self->dist_abstract,
+    generated_by => "Module::Build version $Module::Build::VERSION",
+    'meta-spec' => {
+      version => '1.4',
+      url     => 'http://module-build.sourceforge.net/META-spec-v1.4.html',
+    },
+    dynamic_config => exists $p->{dynamic_config} ? $p->{dynamic_config} : 1,
+  );
 
   # validate license information
   my $license = $self->license;
   my ($meta_license, $meta_license_url);
-
-  # XXX this is still meta spec version 1 stuff
 
   # if Software::License::* exists, then we can use it to get normalized name
   # for META files
@@ -4720,45 +4700,46 @@ sub prepare_metadata {
     $meta_license = 'unknown';
   }
 
-  $node->{license} = $meta_license;
-  $node->{resources}{license} = $meta_license_url if defined $meta_license_url;
+  $metadata{license} = $meta_license;
+  $metadata{resources}{license} = $meta_license_url if defined $meta_license_url;
 
-  # add prerequisite data
   my $prereqs = $self->_normalize_prereqs;
-  for my $t ( keys %$prereqs ) {
-      $add_node->($t, $prereqs->{$t});
+  while (my($k, $v) = each %{$prereqs}) {
+    $metadata{$k} = $v;
   }
 
-  if (exists $p->{dynamic_config}) {
-    $add_node->('dynamic_config', $p->{dynamic_config});
-  }
-  my $pkgs = eval { $self->find_dist_packages };
-  if ($@) {
+  if (my $pkgs = eval { $self->find_dist_packages }) {
+    $metadata{provides} = $pkgs if %$pkgs;
+  } else {
     $self->log_warn("$@\nWARNING: Possible missing or corrupt 'MANIFEST' file.\n" .
                     "Nothing to enter for 'provides' field in metafile.\n");
-  } else {
-    $node->{provides} = $pkgs if %$pkgs;
   }
-;
-  if (exists $p->{no_index}) {
-    $add_node->('no_index', $p->{no_index});
-  }
-
-  $add_node->('generated_by', "Module::Build version $Module::Build::VERSION");
-
-  $add_node->('meta-spec',
-              {version => '1.4',
-               url     => 'http://module-build.sourceforge.net/META-spec-v1.4.html',
-              });
+  $metadata{no_index} = $p->{no_index} if exists $p->{no_index};
 
   while (my($k, $v) = each %{$self->meta_add}) {
-    $add_node->($k, $v);
+    $metadata{$k} = $v;
   }
 
   while (my($k, $v) = each %{$self->meta_merge}) {
-    $self->_hash_merge($node, $k, $v);
+    $self->_hash_merge(\%metadata, $k, $v);
   }
 
+  return \%metadata;
+}
+
+# To preserve compatibility with old API, $node *must* be a hashref
+# passed in to prepare_metadata.  $keys is an arrayref holding a
+# list of keys -- it's use is optional and generally no longer needed
+# but kept for back compatibility.  $args is an optional parameter to
+# support the new 'fatal' toggle
+
+sub prepare_metadata {
+  my ($self, $node, $keys, $args) = @_;
+  unless ( ref $node eq 'HASH' ) {
+    croak "prepare_metadata() requires a hashref argument to hold output\n";
+  }
+  croak 'Keys argument to prepare_metadata is no longer supported' if $keys;
+  %{$node} = %{ $self->get_meta(%{$args}) };
   return $node;
 }
 
