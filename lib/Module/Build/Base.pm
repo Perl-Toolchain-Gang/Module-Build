@@ -4614,7 +4614,7 @@ sub _normalize_prereqs {
   return \%prereq_types;
 }
 
-my %keep = map { $_ => 1 } qw/resources keywords dynamic_config provides no_index name version abstract/;
+my %keep = map { $_ => 1 } qw/keywords dynamic_config provides no_index name version abstract/;
 my %ignore = map { $_ => 1 } qw/distribution_type/;
 my %reject = map { $_ => 1 } qw/private author license requires recommends build_requires configure_requires conflicts/;
 
@@ -4632,6 +4632,14 @@ sub _upconvert_metapiece {
     }
     elsif ($reject{$key}) {
       croak "Can't $type $key, please use another mechanism";
+    }
+    elsif ($key eq 'resources') {
+      my %res;
+      for my $subkey (keys %{ $input->{$key} }) {
+        my $out_key = $subkey =~ /^\p{Lu}/ ? "x_\l$subkey" : $subkey;
+        $res{$out_key} = ($subkey eq 'repository') ? { web => $input->{$key}{$subkey} } : $input->{$key}{$subkey};
+      }
+      $ret{$key} = \%res;
     }
     else {
       warn "Unknown key $key\n";
