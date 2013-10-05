@@ -4614,6 +4614,32 @@ sub _normalize_prereqs {
   return \%prereq_types;
 }
 
+my %keep = map { $_ => 1 } qw/resources keywords dynamic_config provides no_index name version abstract/;
+my %ignore = map { $_ => 1 } qw/distribution_type/;
+my %reject = map { $_ => 1 } qw/private author license requires recommends build_requires configure_requires conflicts/;
+
+sub _upconvert_metapiece {
+  my ($input, $type) = @_;
+  return $input if exists $input->{'meta-spec'} && $input->{'meta-spec'}{version} == 2;
+
+  my %ret;
+  for my $key (keys %{$input}) {
+    if ($keep{$key}) {
+      $ret{$key} = $input->{$key};
+    }
+    elsif ($ignore{$key}) {
+      next;
+    }
+    elsif ($reject{$key}) {
+      croak "Can't $type $key, please use another mechanism";
+    }
+    else {
+      warn "Unknown key $key\n";
+    }
+  }
+  return \%ret;
+}
+
 # wrapper around old prepare_metadata API;
 sub get_metadata {
   my ($self, %args) = @_;
@@ -4645,10 +4671,11 @@ sub get_metadata {
     abstract => $self->dist_abstract,
     generated_by => "Module::Build version $Module::Build::VERSION",
     'meta-spec' => {
-      version => '1.4',
-      url     => 'http://module-build.sourceforge.net/META-spec-v1.4.html',
+      version => '2',
+      url     => 'http://search.cpan.org/perldoc?CPAN::Meta::Spec',
     },
     dynamic_config => exists $p->{dynamic_config} ? $p->{dynamic_config} : 1,
+    release_status => $self->release_status,
   );
 
   # validate license information
@@ -4659,7 +4686,7 @@ sub get_metadata {
   # for META files
 
   if ( my $sl = $self->_software_license_object ) {
-    $meta_license = $sl->meta_name;
+    $meta_license = $sl->meta2_name;
     $meta_license_url = $sl->url;
   }
   elsif ( exists $self->valid_licenses()->{$license} ) {
@@ -4674,13 +4701,28 @@ sub get_metadata {
     $meta_license = 'unknown';
   }
 
-  $metadata{license} = $meta_license;
-  $metadata{resources}{license} = $meta_license_url if defined $meta_license_url;
+  $metadata{license} = [ $meta_license ];
+  $metadata{resources}{license} = [ $meta_license_url ] if defined $meta_license_url;
 
   my $prereqs = $self->_normalize_prereqs;
-  while (my($k, $v) = each %{$prereqs}) {
-    $metadata{$k} = $v;
-  }
+  $metadata{prereqs} = {
+    configure => {
+      (requires => $prereqs->{configure_requires}) x !!($prereqs->{configure_requires}),
+    },
+    runtime => {
+      (requires => $prereqs->{requires}) x !!($prereqs->{requires}),
+      (recommends => $prereqs->{recommends}) x !!($prereqs->{recommends}),
+      (conflicts => $prereqs->{conflicts}) x !!($prereqs->{conflicts}),
+    },
+    build => {
+      (requires => $prereqs->{build_requires}) x !!($prereqs->{build_requires}),
+    },
+    test => {
+      (requires => $prereqs->{test_requires}) x !!($prereqs->{test_requires}),
+      (recommends => $prereqs->{test_recommends}) x !!($prereqs->{test_recommends}),
+    },
+  };
+  delete $metadata{prereqs}{$_} for grep { !keys %{ $metadata{prereqs}{$_} } } qw/configure runtime build test/;
 
   if (my $pkgs = eval { $self->find_dist_packages }) {
     $metadata{provides} = $pkgs if %$pkgs;
@@ -4690,11 +4732,13 @@ sub get_metadata {
   }
   $metadata{no_index} = $p->{no_index} if exists $p->{no_index};
 
-  while (my($k, $v) = each %{$self->meta_add}) {
+  my $meta_add = _upconvert_metapiece($self->meta_add, 'add');
+  while (my($k, $v) = each %{$meta_add} ) {
     $metadata{$k} = $v;
   }
 
-  while (my($k, $v) = each %{$self->meta_merge}) {
+  my $meta_merge = _upconvert_metapiece($self->meta_merge, 'merge');
+  while (my($k, $v) = each %{$meta_merge} ) {
     $self->_hash_merge(\%metadata, $k, $v);
   }
 
