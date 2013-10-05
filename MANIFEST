@@ -91,6 +91,7 @@ t/sample.t
 t/script_dist.t
 t/signature.t
 t/test_file_exts.t
+t/test_reqs.t
 t/test_type.t
 t/test_types.t
 t/tilde.t
