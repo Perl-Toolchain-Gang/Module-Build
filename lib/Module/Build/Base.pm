@@ -4604,7 +4604,7 @@ sub _normalize_prereqs {
   # copy prereq data structures so we can modify them before writing to META
   my %prereq_types;
   for my $type ( 'configure_requires', @{$self->prereq_action_types} ) {
-    if (exists $p->{$type}) {
+    if (exists $p->{$type} and keys %{ $p->{$type} }) {
       for my $mod ( keys %{ $p->{$type} } ) {
         $prereq_types{$type}{$mod} =
           $self->normalize_version($p->{$type}{$mod});
