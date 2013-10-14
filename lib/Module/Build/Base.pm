@@ -4648,7 +4648,6 @@ sub _upconvert_metapiece {
   return \%ret;
 }
 
-# wrapper around old prepare_metadata API;
 sub get_metadata {
   my ($self, %args) = @_;
 
@@ -4698,7 +4697,7 @@ sub get_metadata {
     $meta_license_url = $sl->url;
   }
   elsif ( exists $self->valid_licenses()->{$license} ) {
-    $meta_license = $license;
+    $meta_license = $self->valid_licenses()->{$license} || $license;
     $meta_license_url = $self->_license_url( $license );
   }
   else {
