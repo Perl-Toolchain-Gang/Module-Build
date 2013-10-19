@@ -7,7 +7,7 @@ blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
 
 if ( Module::Build::ConfigData->feature('manpage_support') ) {
-  plan tests => 21;
+  plan tests => 33;
 } else {
   plan skip_all => 'manpage_support feature is not enabled';
 }
@@ -53,6 +53,22 @@ Simple Man <simple@example.com>
 
 =cut
 ---
+
+
+for ([1 => ".pod"], [2 => ".pm"], [3 => ".pl"], [4 => ""]) { # array of _arrays_
+  $dist->add_file( "docs/myapp$_->[0]$_->[1]", <<"---" );
+=head1 NAME
+
+myapp$_->[0] - Pure POD
+
+=head1 AUTHOR
+
+Simple Man <simple\@example.com>
+
+=cut
+1;
+---
+}
 $dist->regen;
 
 
@@ -65,6 +81,7 @@ my $destdir = catdir($cwd, 't', 'install_test' . $$);
 my $mb = Module::Build->new(
   module_name      => $dist->name,
   install_base     => $destdir,
+  bindoc_dirs      => ['bin', 'docs'],
   scripts      => [ File::Spec->catfile( 'bin', 'nopod.pl'  ),
                     File::Spec->catfile( 'bin', 'haspod.pl' )  ],
 
@@ -97,6 +114,10 @@ my %distro = (
 	      'lib/Simple.pm'         => "Simple.$man{ext3}",
               'lib/Simple/NoPod.pm'   => '',
               'lib/Simple/AllPod.pod' => "Simple$man{sep}AllPod.$man{ext3}",
+              'docs/myapp1.pod'        => "myapp1.pod.$man{ext1}",
+              'docs/myapp2.pm'        => "myapp2.pm.$man{ext1}",
+              'docs/myapp3.pl'        => "myapp3.pl.$man{ext1}",
+              'docs/myapp4'           => "myapp4.$man{ext1}",
 	     );
 
 %distro = map {$mb->localize_file_path($_), $distro{$_}} keys %distro;
