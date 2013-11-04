@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.4008 - 
 
+  [BUG FIXES]
+
+  - Fix test failing on ancient perls <= 5.8.1 [Peter Rabbitson]
+
+  [DOCUMENTATION]
+
   - Fix a couple more broken links to CPAN::META::Spec that should
     have been CPAN::Meta::Spec. [Reported by Mike Doherty]
 
