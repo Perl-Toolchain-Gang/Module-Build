@@ -6,6 +6,8 @@ Revision history for Perl extension Module::Build.
 
   - Fix test failing on ancient perls <= 5.8.1 [Peter Rabbitson]
 
+  - Do not set default switches in Test::Harness; not even -w [Leon Timmermans]
+
   [DOCUMENTATION]
 
   - Fix a couple more broken links to CPAN::META::Spec that should
