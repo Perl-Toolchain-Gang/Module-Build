@@ -4618,6 +4618,25 @@ my %keep = map { $_ => 1 } qw/keywords dynamic_config provides no_index name ver
 my %ignore = map { $_ => 1 } qw/distribution_type/;
 my %reject = map { $_ => 1 } qw/private author license requires recommends build_requires configure_requires conflicts/;
 
+sub _upconvert_resources {
+  my ($input) = @_;
+  my %output;
+  for my $key (keys %{$input}) {
+    my $out_key = $key =~ /^\p{Lu}/ ? "x_\l$key" : $key;
+    if ($key eq 'repository') {
+      my $name = $input->{$key} =~ m{ \A http s? :// .* (<! \.git ) \z }xms ? 'web' : 'url';
+      $output{$out_key} = { $name => $input->{$key} };
+    }
+    elsif ($key eq 'bugtracker') {
+      $output{$out_key} = { web => $input->{$key} }
+    }
+    else {
+      $output{$out_key} = $input->{$key};
+    }
+  }
+  return \%output
+}
+
 sub _upconvert_metapiece {
   my ($input, $type) = @_;
   return $input if exists $input->{'meta-spec'} && $input->{'meta-spec'}{version} == 2;
@@ -4634,15 +4653,10 @@ sub _upconvert_metapiece {
       croak "Can't $type $key, please use another mechanism";
     }
     elsif ($key eq 'resources') {
-      my %res;
-      for my $subkey (keys %{ $input->{$key} }) {
-        my $out_key = $subkey =~ /^\p{Lu}/ ? "x_\l$subkey" : $subkey;
-        $res{$out_key} = ($subkey eq 'repository') ? { web => $input->{$key}{$subkey} } : $input->{$key}{$subkey};
-      }
-      $ret{$key} = \%res;
+      $ret{$key} = _upconvert_resources($input->{$key});
     }
     else {
-      warn "Unknown key $key\n";
+      warn "Unknown key $key\n" unless $key =~ / \A x_ /xi;
     }
   }
   return \%ret;
