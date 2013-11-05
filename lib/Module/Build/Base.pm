@@ -1913,7 +1913,7 @@ sub create_mymeta {
 
   my $mymeta_obj = $self->_get_meta_object(quiet => 0, dynamic => 0, fatal => 1, auto => 0);
   # if we have metadata, just update it
-  if ( $meta_obj ) {
+  if ($meta_obj && $mymeta_obj) {
     my $prereqs = $mymeta_obj->effective_prereqs->with_merged_prereqs($meta_obj->effective_prereqs);
     my %updated = (
       %{ $meta_obj->as_struct({ version => 2.0 }) },
@@ -4706,12 +4706,13 @@ sub get_metadata {
   # if Software::License::* exists, then we can use it to get normalized name
   # for META files
 
+  my $valid_licenses = $self->valid_licenses();
   if ( my $sl = $self->_software_license_object ) {
     $meta_license = $sl->meta2_name;
     $meta_license_url = $sl->url;
   }
-  elsif ( exists $self->valid_licenses()->{$license} ) {
-    $meta_license = $self->valid_licenses()->{$license} || $license;
+  elsif ( exists $valid_licenses->{$license} ) {
+    $meta_license = $valid_licenses->{$license} ? lc $valid_licenses->{$license} : $license;
     $meta_license_url = $self->_license_url( $license );
   }
   else {
