@@ -4614,6 +4614,29 @@ sub _normalize_prereqs {
   return \%prereq_types;
 }
 
+sub _get_license {
+  my $self = shift;
+
+  my $license = $self->license;
+  my ($meta_license, $meta_license_url);
+
+  my $valid_licenses = $self->valid_licenses();
+  if ( my $sl = $self->_software_license_object ) {
+    $meta_license = $sl->meta2_name;
+    $meta_license_url = $sl->url;
+  }
+  elsif ( exists $valid_licenses->{$license} ) {
+    $meta_license = $valid_licenses->{$license} ? lc $valid_licenses->{$license} : $license;
+    $meta_license_url = $self->_license_url( $license );
+  }
+  else {
+    $self->log_warn( "Can not determine license type for '" . $self->license
+      . "'\nSetting META license field to 'unknown'.\n");
+    $meta_license = 'unknown';
+  }
+  return ($meta_license, $meta_license_url);
+}
+
 my %keep = map { $_ => 1 } qw/keywords dynamic_config provides no_index name version abstract/;
 my %ignore = map { $_ => 1 } qw/distribution_type/;
 my %reject = map { $_ => 1 } qw/private author license requires recommends build_requires configure_requires conflicts/;
@@ -4684,7 +4707,6 @@ sub get_metadata {
     }
   }
 
-
   my %metadata = (
     name => $self->dist_name,
     version => $self->normalize_version($self->dist_version),
@@ -4699,30 +4721,7 @@ sub get_metadata {
     release_status => $self->release_status,
   );
 
-  # validate license information
-  my $license = $self->license;
-  my ($meta_license, $meta_license_url);
-
-  # if Software::License::* exists, then we can use it to get normalized name
-  # for META files
-
-  my $valid_licenses = $self->valid_licenses();
-  if ( my $sl = $self->_software_license_object ) {
-    $meta_license = $sl->meta2_name;
-    $meta_license_url = $sl->url;
-  }
-  elsif ( exists $valid_licenses->{$license} ) {
-    $meta_license = $valid_licenses->{$license} ? lc $valid_licenses->{$license} : $license;
-    $meta_license_url = $self->_license_url( $license );
-  }
-  else {
-  # if we didn't find a license from a Software::License class,
-  # then treat it as unknown
-    $self->log_warn( "Can not determine license type for '" . $self->license
-      . "'\nSetting META license field to 'unknown'.\n");
-    $meta_license = 'unknown';
-  }
-
+  my ($meta_license, $meta_license_url) = $self->_get_license;
   $metadata{license} = [ $meta_license ];
   $metadata{resources}{license} = [ $meta_license_url ] if defined $meta_license_url;
 
