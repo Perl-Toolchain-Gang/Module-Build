@@ -4669,6 +4669,9 @@ sub _upconvert_resources {
   }
   return \%output
 }
+my %custom = (
+	resources => \&_upconvert_resources,
+);
 
 sub _upconvert_metapiece {
   my ($input, $type) = @_;
@@ -4685,8 +4688,8 @@ sub _upconvert_metapiece {
     elsif ($reject{$key}) {
       croak "Can't $type $key, please use another mechanism";
     }
-    elsif ($key eq 'resources') {
-      $ret{$key} = _upconvert_resources($input->{$key});
+    elsif (my $converter = $custom{$key}) {
+      $ret{$key} = $converter->($input->{$key});
     }
     else {
       warn "Unknown key $key\n" unless $key =~ / \A x_ /xi;
