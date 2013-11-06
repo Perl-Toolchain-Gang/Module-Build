@@ -4597,6 +4597,16 @@ sub normalize_version {
   return $version;
 }
 
+my %prereq_map = (
+  requires => [ qw/runtime requires/],
+  configure_requires => [qw/configure requires/],
+  build_requires => [ qw/build requires/ ],
+  test_requires => [ qw/test requires/ ],
+  test_recommends => [ qw/test recommends/ ],
+  recommends => [ qw/build recommends/ ],
+  conflicts => [ qw/build conflicts/ ],
+);
+
 sub _normalize_prereqs {
   my ($self) = @_;
   my $p = $self->{properties};
@@ -4605,9 +4615,9 @@ sub _normalize_prereqs {
   my %prereq_types;
   for my $type ( 'configure_requires', @{$self->prereq_action_types} ) {
     if (exists $p->{$type} and keys %{ $p->{$type} }) {
+      my ($phase, $relation) = @{ $prereq_map{$type} };
       for my $mod ( keys %{ $p->{$type} } ) {
-        $prereq_types{$type}{$mod} =
-          $self->normalize_version($p->{$type}{$mod});
+        $prereq_types{$phase}{$relation}{$mod} = $self->normalize_version($p->{$type}{$mod});
       }
     }
   }
@@ -4725,25 +4735,7 @@ sub get_metadata {
   $metadata{license} = [ $meta_license ];
   $metadata{resources}{license} = [ $meta_license_url ] if defined $meta_license_url;
 
-  my $prereqs = $self->_normalize_prereqs;
-  $metadata{prereqs} = {
-    configure => {
-      (requires => $prereqs->{configure_requires}) x !!($prereqs->{configure_requires}),
-    },
-    runtime => {
-      (requires => $prereqs->{requires}) x !!($prereqs->{requires}),
-      (recommends => $prereqs->{recommends}) x !!($prereqs->{recommends}),
-      (conflicts => $prereqs->{conflicts}) x !!($prereqs->{conflicts}),
-    },
-    build => {
-      (requires => $prereqs->{build_requires}) x !!($prereqs->{build_requires}),
-    },
-    test => {
-      (requires => $prereqs->{test_requires}) x !!($prereqs->{test_requires}),
-      (recommends => $prereqs->{test_recommends}) x !!($prereqs->{test_recommends}),
-    },
-  };
-  delete $metadata{prereqs}{$_} for grep { !keys %{ $metadata{prereqs}{$_} } } qw/configure runtime build test/;
+  $metadata{prereqs} = $self->_normalize_prereqs;
 
   if (my $pkgs = eval { $self->find_dist_packages }) {
     $metadata{provides} = $pkgs if %$pkgs;
