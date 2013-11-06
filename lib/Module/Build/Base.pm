@@ -4737,13 +4737,14 @@ sub get_metadata {
 
   $metadata{prereqs} = $self->_normalize_prereqs;
 
-  if (my $pkgs = eval { $self->find_dist_packages }) {
+  if (exists $p->{no_index}) {
+    $metadata{no_index} = $p->{no_index};
+  } elsif (my $pkgs = eval { $self->find_dist_packages }) {
     $metadata{provides} = $pkgs if %$pkgs;
   } else {
     $self->log_warn("$@\nWARNING: Possible missing or corrupt 'MANIFEST' file.\n" .
                     "Nothing to enter for 'provides' field in metafile.\n");
   }
-  $metadata{no_index} = $p->{no_index} if exists $p->{no_index};
 
   my $meta_add = _upconvert_metapiece($self->meta_add, 'add');
   while (my($k, $v) = each %{$meta_add} ) {
