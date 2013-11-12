@@ -1890,8 +1890,8 @@ sub create_mymeta {
   my ($self) = @_;
 
   my ($meta_obj, $mymeta);
-  my @metafiles = ( $self->metafile, $self->metafile2 );
-  my @mymetafiles = ( $self->mymetafile, $self->mymetafile2 );
+  my @metafiles = ( $self->metafile2, $self->metafile,  );
+  my @mymetafiles = ( $self->mymetafile2, $self->mymetafile, );
 
   # cleanup old MYMETA
   for my $f ( @mymetafiles ) {
