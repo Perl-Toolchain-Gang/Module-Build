@@ -6,7 +6,7 @@ use strict;
 use vars qw($VERSION);
 use warnings;
 
-$VERSION = '0.4201';
+$VERSION = '0.4202';
 $VERSION = eval $VERSION;
 BEGIN { require 5.006001 }
 
