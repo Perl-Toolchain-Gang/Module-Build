@@ -95,7 +95,7 @@ sub ACTION_patch_blead {
 
   # get t, bin and Changes directly
   _copy_to_blead(
-    [ @{$self->rscan_dir('t')}, @{$self->rscan_dir('bin')}, 'Changes' ],
+    [ @{$self->rscan_dir('t')}, @{$self->rscan_dir('bin')} ],
     sub { my $f = shift; return "$git_mb_dir/$f" },
     [ qw{ t/par.t t/signature.t } ], # skip list
   );
