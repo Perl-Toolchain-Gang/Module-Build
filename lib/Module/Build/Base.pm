@@ -4399,9 +4399,9 @@ BEGIN { *scripts = \&script_files; }
     gpl3         => 'GPL_3',
     mit          => 'MIT',
     mozilla      => 'Mozilla_1_1',
+    restrictive  => 'Restricted',
     open_source  => undef,
     unrestricted => undef,
-    restrictive  => undef,
     unknown      => undef,
   );
 
@@ -4422,9 +4422,9 @@ BEGIN { *scripts = \&script_files; }
     gpl3         => 'http://opensource.org/licenses/gpl-3.0.html',
     mit          => 'http://opensource.org/licenses/mit-license.php',
     mozilla      => 'http://opensource.org/licenses/mozilla1.1.php',
+    restrictive  => undef,
     open_source  => undef,
     unrestricted => undef,
-    restrictive  => undef,
     unknown      => undef,
   );
   sub valid_licenses {

@@ -6,6 +6,8 @@ Revision history for Perl extension Module::Build.
 
   - Map recommends back to runtime recommends [Leon Timmermans]
 
+  - Map restrictive license to restricted in meta 2.0 [Leon Timmermans]
+
 0.4202 - Tue Nov 19 12:48:19 CET 2013
 
   [BUG FIXES]
