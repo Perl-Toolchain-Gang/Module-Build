@@ -4605,7 +4605,7 @@ my %prereq_map = (
   build_requires => [ qw/build requires/ ],
   test_requires => [ qw/test requires/ ],
   test_recommends => [ qw/test recommends/ ],
-  recommends => [ qw/build recommends/ ],
+  recommends => [ qw/runtime recommends/ ],
   conflicts => [ qw/build conflicts/ ],
 );
 
