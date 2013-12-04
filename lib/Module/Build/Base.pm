@@ -4606,7 +4606,7 @@ my %prereq_map = (
   test_requires => [ qw/test requires/ ],
   test_recommends => [ qw/test recommends/ ],
   recommends => [ qw/runtime recommends/ ],
-  conflicts => [ qw/build conflicts/ ],
+  conflicts => [ qw/runtime conflicts/ ],
 );
 
 sub _normalize_prereqs {

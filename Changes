@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.4204 - 
 
+  [BUG FIXES]
+
+  - Map conflicts back to runtime [Leon Timmermans]
+
 0.4203 - Wed Nov 27 19:09:05 CET 2013
 
   [BUG FIXES]
