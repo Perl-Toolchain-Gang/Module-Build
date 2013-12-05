@@ -6,6 +6,8 @@ Revision history for Perl extension Module::Build.
 
   - Map conflicts back to runtime [Leon Timmermans]
 
+  - Use mod2fname whenever it's available [Leon Timmermans, Brian Fraser]
+
 0.4203 - Wed Nov 27 19:09:05 CET 2013
 
   [BUG FIXES]

@@ -5510,16 +5510,18 @@ sub _infer_xs_spec {
   $spec{archdir} = File::Spec->catdir($self->blib, 'arch', 'auto',
                                       @d, $file_base);
 
-  $spec{bs_file} = File::Spec->catfile($spec{archdir}, "${file_base}.bs");
-
-  $spec{lib_file} = File::Spec->catfile($spec{archdir},
-                                        "${file_base}.".$cf->get('dlext'));
-
   $spec{c_file} = File::Spec->catfile( $spec{src_dir},
                                        "${file_base}.c" );
 
   $spec{obj_file} = File::Spec->catfile( $spec{src_dir},
                                          "${file_base}".$cf->get('obj_ext') );
+
+  require DynaLoader;
+  my $modfname = defined &DynaLoader::mod2fname ? DynaLoader::mod2fname([@d, $file_base]) : $file_base;
+
+  $spec{bs_file} = File::Spec->catfile($spec{archdir}, "$modfname.bs");
+
+  $spec{lib_file} = File::Spec->catfile($spec{archdir}, "$modfname.".$cf->get('dlext'));
 
   return \%spec;
 }

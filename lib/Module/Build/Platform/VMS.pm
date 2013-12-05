@@ -279,30 +279,6 @@ sub oneliner {
     return "MCR $^X $oneliner";
 }
 
-=item _infer_xs_spec
-
-Inherit the standard version but tweak the library file name to be
-something Dynaloader can find.
-
-=cut
-
-sub _infer_xs_spec {
-  my $self = shift;
-  my $file = shift;
-
-  my $spec = $self->SUPER::_infer_xs_spec($file);
-
-  # Need to create with the same name as DynaLoader will load with.
-  if (defined &DynaLoader::mod2fname) {
-    my $file = $$spec{module_name} . '.' . $self->{config}->get('dlext');
-    $file =~ tr/:/_/;
-    $file = DynaLoader::mod2fname([$file]);
-    $$spec{lib_file} = File::Spec->catfile($$spec{archdir}, $file);
-  }
-
-  return $spec;
-}
-
 =item rscan_dir
 
 Inherit the standard version but remove dots at end of name.
