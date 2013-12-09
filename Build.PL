@@ -41,6 +41,7 @@ my $build = ModuleBuildBuilder->new(
     'File::Spec'            => ($^O eq 'MSWin32' ? 3.30 : '0.82'), # rel2abs()
     'ExtUtils::CBuilder'    => 0.27, # major platform fixes
     'ExtUtils::Install'     => 0,
+    'ExtUtils::InstallPaths'=> 0.003,
     'ExtUtils::Manifest'    => 0,
     'ExtUtils::Mkbootstrap' => 0,
     'ExtUtils::ParseXS'     => 2.21, # various bug fixes
