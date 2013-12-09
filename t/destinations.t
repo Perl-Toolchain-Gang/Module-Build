@@ -24,14 +24,13 @@ use File::Spec::Functions qw( catdir splitdir splitpath );
 # We do this by setting up appropriate Config entries.
 
 my @installstyle = qw(lib perl5);
-my $mb = Module::Build->new_from_context(
+my %mb_args = (
   installdirs => 'site',
   config => {
     installstyle    => catdir(@installstyle),
 
     installprivlib  => catdir($tmp, @installstyle),
-    installarchlib  => catdir($tmp, @installstyle,
-			      @Config{qw(version archname)}),
+    installarchlib  => catdir($tmp, @installstyle, @Config{qw(version archname)}),
     installbin      => catdir($tmp, 'bin'),
     installscript   => catdir($tmp, 'bin'),
     installman1dir  => catdir($tmp, 'man', 'man1'),
@@ -40,16 +39,15 @@ my $mb = Module::Build->new_from_context(
     installhtml3dir => catdir($tmp, 'html'),
 
     installsitelib      => catdir($tmp, 'site', @installstyle, 'site_perl'),
-    installsitearch     => catdir($tmp, 'site', @installstyle, 'site_perl',
-				  @Config{qw(version archname)}),
+    installsitearch     => catdir($tmp, 'site', @installstyle, 'site_perl', @Config{qw(version archname)}),
     installsitebin      => catdir($tmp, 'site', 'bin'),
     installsitescript   => catdir($tmp, 'site', 'bin'),
     installsiteman1dir  => catdir($tmp, 'site', 'man', 'man1'),
     installsiteman3dir  => catdir($tmp, 'site', 'man', 'man3'),
     installsitehtml1dir => catdir($tmp, 'site', 'html'),
     installsitehtml3dir => catdir($tmp, 'site', 'html'),
-  }
-);
+  });
+my $mb = Module::Build->new_from_context(%mb_args);
 isa_ok( $mb, 'Module::Build::Base' );
 
 # Get us into a known state.
@@ -144,8 +142,7 @@ $mb->prefix(undef);
 
     test_install_destinations( $mb, {
       lib     => catdir($tmp, 'site', @installstyle, 'site_perl'),
-      arch    => catdir($tmp, 'site', @installstyle, 'site_perl',
-			@Config{qw(version archname)}),
+      arch    => catdir($tmp, 'site', @installstyle, 'site_perl', @Config{qw(version archname)}),
       bin     => catdir($tmp, 'site', 'bin'),
       script  => catdir($tmp, 'site', 'bin'),
       bindoc  => catdir($tmp, 'site', 'man', 'man1'),
@@ -242,20 +239,18 @@ $mb->prefix(undef);
     my %test_config;
     foreach my $type (keys %$defaults) {
         my $prefix = shift @prefixes || [qw(foo bar)];
-        $test_config{$type} = catdir(File::Spec->rootdir, @$prefix,
-                                     @{$defaults->{$type}});
+        $test_config{$type} = catdir(File::Spec->rootdir, @$prefix, @{ $defaults->{$type} });
     }
 
     # Poke at the innards of MB to change the default install locations.
-    my $old =  $mb->install_sets->{site};
-    $mb->install_sets->{site} = \%test_config;
-    $mb->config(siteprefixexp => catdir(File::Spec->rootdir,
-					'wierd', 'prefix'));
-
     my $prefix = catdir('another', 'prefix');
-    $mb->prefix($prefix);
+	my $temp = $mb;
+	$mb = Module::Build->new_from_context(%mb_args,
+		install_sets => \%test_config,
+		config => { siteprefixexp => catdir(File::Spec->rootdir, 'wierd', 'prefix')},
+		prefix => $prefix, quiet => 1);
     test_prefix($prefix, \%test_config);
-    $mb->install_sets->{site} = $old;
+	$mb = $temp;
 }
 
 
@@ -284,15 +279,15 @@ sub test_prefix {
 
     foreach my $type (qw(lib arch bin script bindoc libdoc binhtml libhtml)) {
         my $dest = $mb->install_destination( $type );
-	ok $mb->dir_contains($prefix, $dest), "$type prefixed";
+    ok $mb->dir_contains($prefix, $dest), "$type prefixed";
 
         SKIP: {
-	    skip( "'$type' not configured", 1 )
-	      unless $test_config && $test_config->{$type};
+        skip( "'$type' not configured", 1 )
+          unless $test_config && $test_config->{$type};
 
-	    have_same_ending( $dest, $test_config->{$type},
-			      "  suffix correctish " .
-			      "($test_config->{$type} + $prefix = $dest)" );
+        have_same_ending( $dest, $test_config->{$type},
+		          "  suffix correctish " .
+		          "($test_config->{$type} + $prefix = $dest)" );
         }
     }
 }
