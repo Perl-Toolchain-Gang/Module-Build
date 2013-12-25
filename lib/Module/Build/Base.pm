@@ -2578,8 +2578,8 @@ sub ACTION_help {
 
   print <<EOF;
 
- Usage: $0 <action> arg1=value arg2=value ...
- Example: $0 test verbose=1
+ Usage: $0 <action> --arg1=value --arg2=value ...
+ Example: $0 test --verbose=1
 
  Actions defined:
 EOF
