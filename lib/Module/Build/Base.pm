@@ -4694,7 +4694,8 @@ sub _upconvert_metapiece {
       $ret{$key} = $converter->($input->{$key});
     }
     else {
-      warn "Unknown key $key\n" unless $key =~ / \A x_ /xi;
+      my $out_key = $key =~ / \A x_ /xi ? $key : "x_$key";
+      $ret{$out_key} = $input->{$key};
     }
   }
   return \%ret;
