@@ -5339,7 +5339,7 @@ sub have_c_compiler {
   return $p->{_have_c_compiler} if defined $p->{_have_c_compiler};
 
   $self->log_verbose("Checking if compiler tools configured... ");
-  my $b = eval { $self->cbuilder };
+  my $b = $self->cbuilder;
   my $have = $b && eval { $b->have_compiler };
   $self->log_verbose($have ? "ok.\n" : "failed.\n");
   return $p->{_have_c_compiler} = $have;
