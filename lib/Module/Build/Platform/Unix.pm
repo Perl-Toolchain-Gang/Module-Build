@@ -43,8 +43,8 @@ sub _detildefy {
   my ($self, $value) = @_;
   $value =~ s[^~([^/]+)?(?=/|$)]   # tilde with optional username
     [$1 ?
-     ((getpwnam $1)[7] || "~$1") :
-     ($ENV{HOME} || (getpwuid $>)[7])
+     (eval{(getpwnam $1)[7]} || "~$1") :
+     ($ENV{HOME} || eval{(getpwuid $>)[7]} || glob("~"))
     ]ex;
   return $value;
 }
