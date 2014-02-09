@@ -4435,21 +4435,30 @@ BEGIN { *scripts = \&script_files; }
   }
 }
 
+sub _software_license_class {
+  my ($self, $license) = @_;
+  if ($self->valid_licenses->{$license} && eval { require Software::LicenseUtils; Software::LicenseUtils->VERSION(0.103009) }) {
+    my ($class) = Software::LicenseUtils->guess_license_from_meta_key($license, 1);
+	eval "require $class";
+	#die $class;
+	return $class;
+  }
+  LICENSE: for my $l ( $self->valid_licenses->{ $license }, $license ) {
+    next unless defined $l;
+    my $trial = "Software::License::" . $l;
+    if ( eval "require Software::License; Software::License->VERSION(0.014); require $trial; 1" ) {
+      return $trial;
+    }
+  }
+  return;
+}
+
 # use mapping or license name directly
 sub _software_license_object {
   my ($self) = @_;
   return unless defined( my $license = $self->license );
 
-  my $class;
-  LICENSE: for my $l ( $self->valid_licenses->{ $license }, $license ) {
-    next unless defined $l;
-    my $trial = "Software::License::" . $l;
-    if ( eval "require Software::License; Software::License->VERSION(0.014); require $trial; 1" ) {
-      $class = $trial;
-      last LICENSE;
-    }
-  }
-  return unless defined $class;
+  my $class = $self->_software_license_class($license) or return;
 
   # Software::License requires a 'holder' argument
   my $author = join( " & ", @{ $self->dist_author }) || 'unknown';

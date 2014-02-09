@@ -4,7 +4,7 @@ Revision history for Perl extension Module::Build.
 
   [BUG FIXES]
 
-  - FIX license code regression for artistic license [Roy Ivy III]
+  - FIX license code regression for artistic license [Roy Ivy III, Leon Timmermans]
 
   - Don't swallow ExtUtils::CBuilder loading errors [Matthew Horsfall, Leon Timmermans]
   

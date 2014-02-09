@@ -96,7 +96,7 @@ my $build = ModuleBuildBuilder->new(
     license_creation => {
       description => "Create licenses automatically in distributions",
       requires => {
-        'Software::License'  => 0,
+        'Software::License'  => 0.103009
       },
     },
     PPM_support => {
