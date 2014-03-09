@@ -6,7 +6,7 @@ use MBTest;
 use CPAN::Meta 2.110420;
 use CPAN::Meta::YAML;
 use Parse::CPAN::Meta 1.4401;
-plan tests => 39;
+plan tests => 41;
 
 blib_load('Module::Build');
 
@@ -73,12 +73,18 @@ $dist->chdir_in;
     is( delete $mymeta->{dynamic_config}, 0,
       "MYMETA$suffix 'dynamic_config' is 0"
     );
+
+    my $have_url = delete $mymeta->{'meta-spec'}->{url};
+    my $want_url = delete $meta->{'meta-spec'}->{url};
+
     is_deeply( $mymeta, $meta, "Other generated MYMETA$suffix matches generated META$suffix" )
       or do {
         require Data::Dumper;
         diag "MYMETA:\n" . Data::Dumper::Dumper($mymeta)
           .  "META:\n" . Data::Dumper::Dumper($meta);
       };
+
+    like $have_url, qr{Meta(::|-)Spec}i, "CPAN meta spec mentioned in meta-spec URL";
   }
 
   $output = stdout_stderr_of sub { $dist->run_build('realclean') };
