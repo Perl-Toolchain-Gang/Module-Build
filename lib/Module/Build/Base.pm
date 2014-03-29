@@ -4063,6 +4063,9 @@ sub ACTION_disttest {
   $self->_do_in_dir
     ( $self->dist_dir,
       sub {
+        local $ENV{AUTHOR_TESTING}  = 1;
+        local $ENV{RELEASE_TESTING} = 1;
+
         # XXX could be different names for scripts
 
         $self->run_perl_script('Build.PL') # XXX Should this be run w/ --nouse-rcfile
