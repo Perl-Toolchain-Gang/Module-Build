@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.4206 - 
 
+  [BUG FIXES]
+
+  - Formally declare 5.8 dependency [Karen Etheridge]
+
   [ENHANCEMENTS]
 
   - Enable release and author tests during disttest [Leon Timmermans, Alberto Simões]
