@@ -66,28 +66,51 @@ use Config;
 use Cwd ();
 
 # We pass everything through to Test::More
-use vars qw($VERSION @ISA @EXPORT %EXPORT_TAGS $TODO);
+use vars qw($VERSION @ISA @EXPORT $TODO);
+@ISA = ('Exporter');
 $VERSION = 0.01_01;
-@ISA = qw(Test::More); # Test::More isa Exporter
-@EXPORT = @Test::More::EXPORT;
-%EXPORT_TAGS = %Test::More::EXPORT_TAGS;
 
 # We have a few extra exports, but Test::More has a special import()
 # that won't take extra additions.
-my @extra_exports = qw(
-  stdout_of
-  stderr_of
-  stdout_stderr_of
-  slurp
-  find_in_path
-  check_compiler
-  have_module
-  blib_load
-  timed_out
+@EXPORT = (
+    qw(
+      stdout_of
+      stderr_of
+      stdout_stderr_of
+      slurp
+      find_in_path
+      check_compiler
+      have_module
+      blib_load
+      timed_out
+      $TODO
+    ),
+    @Test::More::EXPORT,
 );
-push @EXPORT, @extra_exports;
-__PACKAGE__->export(scalar caller, @extra_exports);
-# XXX ^-- that should really happen in import()
+
+sub import {
+    my $class = shift;
+    my $caller = caller;
+
+    my @imports;
+
+    while (my $item = shift @_) {
+        if ($item eq 'tests' || $item eq 'skip_all') {
+            my $arg = shift @_;
+            plan($item => $arg);
+        }
+        elsif($item eq 'no_plan') {
+            plan($item);
+        }
+        else {
+            push @imports => $item;
+        }
+    }
+
+    @imports = @EXPORT unless @imports;
+
+    $class->export($caller, @imports);
+}
 
 
 ########################################################################
