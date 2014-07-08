@@ -6,6 +6,8 @@ Revision history for Perl extension Module::Build.
 
   - Formally declare 5.8 dependency [Karen Etheridge]
 
+  - Fix MBTest to work with new and old versions of Test::Builder [Chad Granum]
+
   [ENHANCEMENTS]
 
   - Enable release and author tests during disttest [Leon Timmermans, Alberto Simões]
