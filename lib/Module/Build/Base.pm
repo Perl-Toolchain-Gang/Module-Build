@@ -2107,7 +2107,7 @@ sub _translate_option {
   return $opt;
 }
 
-my %singular_argument = map { ($_ => 1) } qw/install_base prefix destdir installdir verbose quiet uninst debug sign/;
+my %singular_argument = map { ($_ => 1) } qw/install_base prefix destdir installdirs verbose quiet uninst debug sign/;
 
 sub _read_arg {
   my ($self, $args, $key, $val) = @_;

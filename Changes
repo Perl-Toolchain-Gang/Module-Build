@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.4207 - 
 
+  [BUG FIXES]
+
+  - Fix type installdir -> installdirs [Leon Timmermans, Vitaliy Tokarev]
+
 0.4206 - Sat Jul 12 14:03:01 CEST 2014
 
   [BUG FIXES]
