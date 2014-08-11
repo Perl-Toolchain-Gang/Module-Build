@@ -39,7 +39,6 @@ die "must bump forward! ($version < $current)\n"
 
 # NEVER BUMP THESE $VERSION numbers
 my @excluded = qw(
-  lib/Module/Build/YAML.pm
   lib/Module/Build/Version.pm
 );
 

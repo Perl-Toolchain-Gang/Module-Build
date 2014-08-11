@@ -6,6 +6,10 @@ Revision history for Perl extension Module::Build.
 
   - Fix type installdir -> installdirs [Leon Timmermans, Vitaliy Tokarev]
 
+  [DEPRECATIONS]
+
+  - Module::Build::YAML has been removed
+
 0.4206 - Sat Jul 12 14:03:01 CEST 2014
 
   [BUG FIXES]
