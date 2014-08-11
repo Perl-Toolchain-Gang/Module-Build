@@ -10,6 +10,8 @@ Revision history for Perl extension Module::Build.
 
   - Module::Build::YAML has been removed
 
+  - Module::Build::ModuleInfo has been removed
+
 0.4206 - Sat Jul 12 14:03:01 CEST 2014
 
   [BUG FIXES]

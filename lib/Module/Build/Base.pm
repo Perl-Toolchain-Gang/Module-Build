@@ -21,7 +21,7 @@ use File::Compare ();
 use Module::Build::Dumper ();
 use Text::ParseWords ();
 
-use Module::Build::ModuleInfo;
+use Module::Metadata;
 use Module::Build::Notes;
 use Module::Build::Config;
 use Module::Build::Version;
@@ -1098,7 +1098,7 @@ sub _guess_module_name {
   my $p = $self->{properties};
   return if $p->{module_name};
   if ( $p->{dist_version_from} && -e $p->{dist_version_from} ) {
-    my $mi = Module::Build::ModuleInfo->new_from_file($self->dist_version_from);
+    my $mi = Module::Metadata->new_from_file($self->dist_version_from);
     $p->{module_name} = $mi->name;
   }
   else {
@@ -1193,7 +1193,7 @@ sub dist_version {
 
   if ( my $dist_version_from = $self->dist_version_from ) {
     my $version_from = File::Spec->catfile( split( qr{/}, $dist_version_from ) );
-    my $pm_info = Module::Build::ModuleInfo->new_from_file( $version_from )
+    my $pm_info = Module::Metadata->new_from_file( $version_from )
       or die "Can't find file $version_from to determine version";
     #$p->{$me} is undef here
     $p->{$me} = $self->normalize_version( $pm_info->version() );
@@ -1240,11 +1240,11 @@ sub _pod_parse {
 }
 
 sub version_from_file { # Method provided for backwards compatibility
-  return Module::Build::ModuleInfo->new_from_file($_[1])->version();
+  return Module::Metadata->new_from_file($_[1])->version();
 }
 
 sub find_module_by_name { # Method provided for backwards compatibility
-  return Module::Build::ModuleInfo->find_module_by_name(@_[1,2]);
+  return Module::Metadata->find_module_by_name(@_[1,2]);
 }
 
 {
@@ -1683,7 +1683,7 @@ sub check_installed_status {
     # Don't try to load if it's already loaded
 
   } else {
-    my $pm_info = Module::Build::ModuleInfo->new_from_module( $modname );
+    my $pm_info = Module::Metadata->new_from_module( $modname );
     unless (defined( $pm_info )) {
       @status{ qw(have message) } = ('<none>', "$modname is not installed");
       return \%status;
@@ -2783,7 +2783,7 @@ sub ACTION_testdb {
 sub ACTION_testcover {
   my ($self) = @_;
 
-  unless (Module::Build::ModuleInfo->find_module_by_name('Devel::Cover')) {
+  unless (Module::Metadata->find_module_by_name('Devel::Cover')) {
     warn("Cannot run testcover action unless Devel::Cover is installed.\n");
     return;
   }
@@ -3524,7 +3524,7 @@ sub ACTION_diff {
       my @parts = File::Spec->splitdir($file);
       @parts = @parts[@localparts .. $#parts]; # Get rid of blib/lib or similar
 
-      my $installed = Module::Build::ModuleInfo->find_module_by_name(
+      my $installed = Module::Metadata->find_module_by_name(
                         join('::', @parts), \@myINC );
       if (not $installed) {
         print "Only in lib: $file\n";
@@ -4836,7 +4836,7 @@ sub find_packages_in_files {
     my @path = split( /\//, $mapped_filename );
     (my $prime_package = join( '::', @path[1..$#path] )) =~ s/\.pm$//;
 
-    my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
+    my $pm_info = Module::Metadata->new_from_file( $file );
 
     foreach my $package ( $pm_info->packages_inside ) {
       next if $package eq 'main';  # main can appear numerous times, ignore
@@ -4847,7 +4847,7 @@ sub find_packages_in_files {
 
       if ( $package eq $prime_package ) {
         if ( exists( $prime{$package} ) ) {
-          # M::B::ModuleInfo will handle this conflict
+          # Module::Metadata will handle this conflict
           die "Unexpected conflict in '$package'; multiple versions found.\n";
         } else {
           $prime{$package}{file} = $mapped_filename;
@@ -5417,14 +5417,14 @@ sub compile_xs {
   } else {
     # Ok, I give up.  Just use backticks.
 
-    my $xsubpp = Module::Build::ModuleInfo->find_module_by_name('ExtUtils::xsubpp')
+    my $xsubpp = Module::Metadata->find_module_by_name('ExtUtils::xsubpp')
       or die "Can't find ExtUtils::xsubpp in INC (@INC)";
 
     my @typemaps;
-    push @typemaps, Module::Build::ModuleInfo->find_module_by_name(
+    push @typemaps, Module::Metadata->find_module_by_name(
         'ExtUtils::typemap', \@INC
     );
-    my $lib_typemap = Module::Build::ModuleInfo->find_module_by_name(
+    my $lib_typemap = Module::Metadata->find_module_by_name(
         'typemap', [File::Basename::dirname($file), File::Spec->rel2abs('.')]
     );
     push @typemaps, $lib_typemap if $lib_typemap;

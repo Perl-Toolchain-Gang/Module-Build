@@ -1267,7 +1267,7 @@ that were passed to the C<new()> method.
 
 [version 0.20]
 
-[Deprecated] Please see L<Module::Build::ModuleInfo> instead.
+[Deprecated] Please see L<Module::Metadata> instead.
 
 Returns true if the given file appears to contain POD documentation.
 Currently this checks whether the file has a line beginning with

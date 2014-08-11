@@ -8,7 +8,7 @@ use File::Basename ();
 use File::Spec;
 use Config;
 use Module::Build;
-use Module::Build::ModuleInfo;
+use Module::Metadata;
 use Module::Build::Version;
 use Data::Dumper;
 
@@ -259,7 +259,7 @@ sub _test_globs {
 sub subclass_dir {
   my ($self, $build) = @_;
 
-  return (Module::Build::ModuleInfo->find_module_dir_by_name(ref $build)
+  return (Module::Metadata->find_module_dir_by_name(ref $build)
 	  || File::Spec->catdir($build->config_dir, 'lib'));
 }
 
