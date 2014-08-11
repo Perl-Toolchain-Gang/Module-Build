@@ -24,7 +24,7 @@ use Text::ParseWords ();
 use Module::Metadata;
 use Module::Build::Notes;
 use Module::Build::Config;
-use Module::Build::Version;
+use version;
 
 
 #################### Constructors ###########################
@@ -1212,7 +1212,7 @@ sub dist_version {
 sub _is_dev_version {
   my ($self) = @_;
   my $dist_version = $self->dist_version;
-  my $version_obj = eval { Module::Build::Version->new( $dist_version ) };
+  my $version_obj = eval { version->new( $dist_version ) };
   # assume it's normal if the version string is fatal -- in this case
   # the author might be doing something weird so should play along and
   # assume they'll specify all necessary behavior
@@ -1720,8 +1720,8 @@ sub check_installed_status {
 sub compare_versions {
   my $self = shift;
   my ($v1, $op, $v2) = @_;
-  $v1 = Module::Build::Version->new($v1)
-    unless UNIVERSAL::isa($v1,'Module::Build::Version');
+  $v1 = version->new($v1)
+    unless UNIVERSAL::isa($v1,'version');
 
   my $eval_str = "\$v1 $op \$v2";
   my $result   = eval $eval_str;
@@ -4597,8 +4597,7 @@ sub normalize_version {
   if ( $version =~ /[=<>!,]/ ) { # logic, not just version
     # take as is without modification
   }
-  elsif ( ref $version eq 'version' ||
-          ref $version eq 'Module::Build::Version' ) { # version objects
+  elsif ( ref $version eq 'version') { # version objects
     $version = $version->is_qv ? $version->normal : $version->stringify;
   }
   elsif ( $version =~ /^[^v][^.]*\.[^.]+\./ ) { # no leading v, multiple dots

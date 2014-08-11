@@ -25,7 +25,6 @@ if ( $Config{make} && $^O ne 'VMS' ? find_in_path($Config{make}) : 1 ) {
 my $is_vms_mms = ($^O eq 'VMS') && ($Config{make} =~ /MM[SK]/i);
 
 blib_load('Module::Build');
-blib_load('Module::Build::Version');
 
 
 #########################

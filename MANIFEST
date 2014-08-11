@@ -31,7 +31,6 @@ lib/Module/Build/Platform/VOS.pm
 lib/Module/Build/Platform/Windows.pm
 lib/Module/Build/PodParser.pm
 lib/Module/Build/PPMMaker.pm
-lib/Module/Build/Version.pm
 LICENSE
 Makefile.PL
 MANIFEST

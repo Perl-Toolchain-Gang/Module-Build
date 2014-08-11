@@ -37,11 +37,6 @@ unless($version) {
 die "must bump forward! ($version < $current)\n"
   unless(eval $version >= eval $current);
 
-# NEVER BUMP THESE $VERSION numbers
-my @excluded = qw(
-  lib/Module/Build/Version.pm
-);
-
 # Get list of .pm files
 my @pmfiles = File::Find::Rule->new->or(
   File::Find::Rule->name('*.pm'),
@@ -95,7 +90,6 @@ sub {
 }->();
 
 for my $file ( @pmfiles, @scripts ) {
-  next if grep { $file eq $_ } @excluded;
   bump_version( $file, $version );
 }
 
