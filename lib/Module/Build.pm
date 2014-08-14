@@ -8,6 +8,7 @@ use if $] >= 5.019, 'deprecate';
 # OS-specific modules don't do anything either - most of the work is
 # done in Module::Build::Base.
 
+use 5.006;
 use strict;
 use File::Spec ();
 use File::Path ();
@@ -16,9 +17,8 @@ use Perl::OSType ();
 
 use Module::Build::Base;
 
-use vars qw($VERSION @ISA);
-@ISA = qw(Module::Build::Base);
-$VERSION = '0.4207';
+our @ISA = qw(Module::Build::Base);
+our $VERSION = '0.4207';
 $VERSION = eval $VERSION;
 
 # Inserts the given module into the @ISA hierarchy between

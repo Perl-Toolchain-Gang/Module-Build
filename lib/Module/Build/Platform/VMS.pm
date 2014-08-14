@@ -1,14 +1,12 @@
 package Module::Build::Platform::VMS;
 
 use strict;
-use vars qw($VERSION);
-$VERSION = '0.4207';
+our $VERSION = '0.4207';
 $VERSION = eval $VERSION;
 use Module::Build::Base;
 use Config;
 
-use vars qw(@ISA);
-@ISA = qw(Module::Build::Base);
+our @ISA = qw(Module::Build::Base);
 
 
 

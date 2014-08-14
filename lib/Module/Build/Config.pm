@@ -1,8 +1,7 @@
 package Module::Build::Config;
 
 use strict;
-use vars qw($VERSION);
-$VERSION = '0.4207';
+our $VERSION = '0.4207';
 $VERSION = eval $VERSION;
 use Config;
 

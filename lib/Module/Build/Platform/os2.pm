@@ -1,13 +1,11 @@
 package Module::Build::Platform::os2;
 
 use strict;
-use vars qw($VERSION);
-$VERSION = '0.4207';
+our $VERSION = '0.4207';
 $VERSION = eval $VERSION;
 use Module::Build::Platform::Unix;
 
-use vars qw(@ISA);
-@ISA = qw(Module::Build::Platform::Unix);
+our @ISA = qw(Module::Build::Platform::Unix);
 
 sub manpage_separator { '.' }
 

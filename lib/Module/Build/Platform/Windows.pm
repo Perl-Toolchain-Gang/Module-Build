@@ -1,8 +1,7 @@
 package Module::Build::Platform::Windows;
 
 use strict;
-use vars qw($VERSION);
-$VERSION = '0.4207';
+our $VERSION = '0.4207';
 $VERSION = eval $VERSION;
 
 use Config;
@@ -11,8 +10,7 @@ use File::Spec;
 
 use Module::Build::Base;
 
-use vars qw(@ISA);
-@ISA = qw(Module::Build::Base);
+our @ISA = qw(Module::Build::Base);
 
 
 sub manpage_separator {

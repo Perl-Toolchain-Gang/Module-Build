@@ -2,13 +2,12 @@
 # vim:ts=8:sw=2:et:sta:sts=2
 package Module::Build::Base;
 
+use 5.006;
 use strict;
-use vars qw($VERSION);
 use warnings;
 
-$VERSION = '0.4207';
+our $VERSION = '0.4207';
 $VERSION = eval $VERSION;
-BEGIN { require 5.006001 }
 
 use Carp;
 use Cwd ();

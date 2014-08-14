@@ -3,8 +3,7 @@ package Module::Build::Notes;
 # A class for persistent hashes
 
 use strict;
-use vars qw($VERSION);
-$VERSION = '0.4207';
+our $VERSION = '0.4207';
 $VERSION = eval $VERSION;
 use Data::Dumper;
 use Module::Build::Dumper;

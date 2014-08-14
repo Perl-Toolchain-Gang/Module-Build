@@ -109,7 +109,7 @@ sub bump_version {
       next if $inpod || /^\s*#/;
       next unless /(?<!\\)([\$*])(([\w\:\']*)\bVERSION)\b.*\=/;
       # TODO check that what we found matches $current?
-      $_ = "\$VERSION = '$version';"; 
+      $_ = "our \$VERSION = '$version';"; 
       warn "Updated $file\n";
       last;
   }
