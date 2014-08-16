@@ -1,6 +1,7 @@
 package Module::Build::Compat;
 
 use strict;
+use warnings;
 our $VERSION = '0.4207';
 
 use File::Basename ();

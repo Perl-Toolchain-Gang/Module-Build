@@ -1,5 +1,6 @@
 package Module::Build::Dumper;
 use strict;
+use warnings;
 our $VERSION = '0.4207';
 
 # This is just a split-out of a wrapper function to do Data::Dumper

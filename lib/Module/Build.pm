@@ -10,6 +10,7 @@ use if $] >= 5.019, 'deprecate';
 
 use 5.006;
 use strict;
+use warnings;
 use File::Spec ();
 use File::Path ();
 use File::Basename ();

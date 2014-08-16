@@ -4,6 +4,7 @@ use if $] >= 5.019, 'deprecate';
 
 use 5.006;
 use strict;
+use warnings;
 our $VERSION = '0.4207';
 $VERSION = eval $VERSION;
 

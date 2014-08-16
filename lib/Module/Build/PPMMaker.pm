@@ -1,6 +1,7 @@
 package Module::Build::PPMMaker;
 
 use strict;
+use warnings;
 use Config;
 
 our $VERSION = '0.4207';

@@ -3,6 +3,7 @@ package Module::Build::Notes;
 # A class for persistent hashes
 
 use strict;
+use warnings;
 our $VERSION = '0.4207';
 $VERSION = eval $VERSION;
 use Data::Dumper;
