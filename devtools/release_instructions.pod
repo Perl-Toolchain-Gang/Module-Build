@@ -54,12 +54,3 @@ new version number:
   $ ./devtools/bump_version.pl
   $ git commit -a -m "Changes, lib/***.pm - bump version"
 
-=head2 Patching blead
-
-If the version just released should also get added to bleadperl, see
-F<devtools/patching_blead.pod> for instructions:
-
-  $ perldoc devtools/patching_blead.pod
-
-=cut
-
