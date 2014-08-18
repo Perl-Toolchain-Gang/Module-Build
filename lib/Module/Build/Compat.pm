@@ -9,7 +9,7 @@ use File::Spec;
 use Config;
 use Module::Build;
 use Module::Metadata;
-use Module::Build::Version;
+use version;
 use Data::Dumper;
 
 my %convert_installdirs = (
@@ -74,7 +74,7 @@ sub _merge_prereq {
     for my $k (keys %$p) {
       next if $k eq 'perl';
 
-      my $v_obj = eval { Module::Build::Version->new($p->{$k}) };
+      my $v_obj = eval { version->new($p->{$k}) };
       if ( ! defined $v_obj ) {
           die "A prereq of the form '$p->{$k}' for '$k' is not supported by Module::Build::Compat ( use a simpler version like '0.05' or 'v1.4.25' )\n";
       }
@@ -131,7 +131,7 @@ HERE
   # Makefile.PL
   my $requires = $build->requires;
   if ( my $minimum_perl = $requires->{perl} ) {
-    my $min_ver = Module::Build::Version->new($minimum_perl)->numify;
+    my $min_ver = version->new($minimum_perl)->numify;
     print {$fh} "require $min_ver;\n";
   }
 

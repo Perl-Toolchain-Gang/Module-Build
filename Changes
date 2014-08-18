@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.4208 - 
 
+  [BUG FIXES]
+
+  - Removed missed references to Module::Build::Version
+
 0.4207 - Sat Aug 16 12:56:59 CEST 2014
 
   [BUG FIXES]
