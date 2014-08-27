@@ -29,6 +29,12 @@ use ModuleBuildBuilder;
 my $build = ModuleBuildBuilder->new(
   module_name => 'Module::Build',
   license     => 'perl',
+  configure_requires => {
+    'CPAN::Meta'            => '2.110420',
+    'Perl::OSType'          => 1,
+    'Module::Metadata'      => '1.000002',
+    'version'               => '0.87',
+  },
   build_requires        => {
     'File::Temp'            => 0.15,    # tmpdir() + fixes
     'Test::More'            => 0.49,

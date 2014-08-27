@@ -8,6 +8,8 @@ Revision history for Perl extension Module::Build.
 
   - Convert with CPAN::Meta::Convert in meta_add
 
+  - Add configure requirements
+
 0.4208 - Mon Aug 18 21:44:38 CEST 2014
 
   [BUG FIXES]
