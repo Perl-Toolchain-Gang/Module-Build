@@ -4659,58 +4659,6 @@ sub _get_license {
   return ($meta_license, $meta_license_url);
 }
 
-my %keep = map { $_ => 1 } qw/keywords dynamic_config provides no_index name version abstract/;
-my %ignore = map { $_ => 1 } qw/distribution_type/;
-my %reject = map { $_ => 1 } qw/private author license requires recommends build_requires configure_requires conflicts/;
-
-sub _upconvert_resources {
-  my ($input) = @_;
-  my %output;
-  for my $key (keys %{$input}) {
-    my $out_key = $key =~ /^\p{Lu}/ ? "x_\l$key" : $key;
-    if ($key eq 'repository') {
-      my $name = $input->{$key} =~ m{ \A http s? :// .* (<! \.git ) \z }xms ? 'web' : 'url';
-      $output{$out_key} = { $name => $input->{$key} };
-    }
-    elsif ($key eq 'bugtracker') {
-      $output{$out_key} = { web => $input->{$key} }
-    }
-    else {
-      $output{$out_key} = $input->{$key};
-    }
-  }
-  return \%output
-}
-my %custom = (
-	resources => \&_upconvert_resources,
-);
-
-sub _upconvert_metapiece {
-  my ($input, $type) = @_;
-  return $input if exists $input->{'meta-spec'} && $input->{'meta-spec'}{version} == 2;
-
-  my %ret;
-  for my $key (keys %{$input}) {
-    if ($keep{$key}) {
-      $ret{$key} = $input->{$key};
-    }
-    elsif ($ignore{$key}) {
-      next;
-    }
-    elsif ($reject{$key}) {
-      croak "Can't $type $key, please use another mechanism";
-    }
-    elsif (my $converter = $custom{$key}) {
-      $ret{$key} = $converter->($input->{$key});
-    }
-    else {
-      my $out_key = $key =~ / \A x_ /xi ? $key : "x_$key";
-      $ret{$out_key} = $input->{$key};
-    }
-  }
-  return \%ret;
-}
-
 sub get_metadata {
   my ($self, %args) = @_;
 
@@ -4762,9 +4710,16 @@ sub get_metadata {
                     "Nothing to enter for 'provides' field in metafile.\n");
   }
 
-  my $meta_add = _upconvert_metapiece($self->meta_add, 'add');
-  while (my($k, $v) = each %{$meta_add} ) {
-    $metadata{$k} = $v;
+  if (my $add = $self->meta_add) {
+    if (not exists $add->{'meta-spec'} or $add->{'meta-spec'}{version} != 2) {
+      require CPAN::Meta::Converter;
+      $add = CPAN::Meta::Converter->new($add)->upgrade_fragment;
+      delete $add->{prereqs}; # XXX this would now overwrite all prereqs
+    }
+
+    while (my($k, $v) = each %{$add}) {
+      $metadata{$k} = $v;
+    }
   }
 
   if (my $merge = $self->meta_merge) {
