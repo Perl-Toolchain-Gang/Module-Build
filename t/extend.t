@@ -183,28 +183,28 @@ print "Hello, World!\n";
   ok my $mb = Module::Build->new(
 				  module_name => $dist->name,
 				  license => 'perl',
-				  meta_add => {abstract => 'bar'},
+				  meta_add => {keywords => ['bar']},
 				  conflicts => {'Foo::Barxx' => 0},
 			        );
   my $data = $mb->get_metadata;
-  is_deeply $data->{abstract}, 'bar';
+  is_deeply $data->{keywords}, ['bar'];
 
-  $mb->meta_merge(abstract => 'baz');
+  $mb->meta_merge(keywords => ['baz']);
   $data = $mb->get_metadata;
-  is_deeply $data->{abstract}, 'baz';
+  is_deeply $data->{keywords}, [qw/bar baz/];
 
   $mb->meta_merge(
     'meta-spec' => { version => 2 },
     prereqs => {
       test => {
-        requirements => {
+        requires => {
           'Foo::Fooxx' => 0,
         }
       }
     }
   );
   $data = $mb->get_metadata;
-  is_deeply $data->{prereqs}{test}{requirements}, { 'Foo::Fooxx' => 0 };
+  is_deeply $data->{prereqs}{test}{requires}, { 'Foo::Fooxx' => 0 } or diag explain $mb->meta_merge;
 
 }
 

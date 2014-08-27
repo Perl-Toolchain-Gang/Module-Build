@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.4209 - 
 
+  [ENHANCEMENTS]
+
+  - Use CPAN::Meta::Merge for meta_merge
+
 0.4208 - Mon Aug 18 21:44:38 CEST 2014
 
   [BUG FIXES]

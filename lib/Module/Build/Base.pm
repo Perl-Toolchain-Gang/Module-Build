@@ -4767,9 +4767,9 @@ sub get_metadata {
     $metadata{$k} = $v;
   }
 
-  my $meta_merge = _upconvert_metapiece($self->meta_merge, 'merge');
-  while (my($k, $v) = each %{$meta_merge} ) {
-    $self->_hash_merge(\%metadata, $k, $v);
+  if (my $merge = $self->meta_merge) {
+    require CPAN::Meta::Merge;
+    %metadata = %{ CPAN::Meta::Merge->new(default_version => '1.4')->merge(\%metadata, $merge) };
   }
 
   return \%metadata;

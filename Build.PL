@@ -58,6 +58,7 @@ my $build = ModuleBuildBuilder->new(
     'Getopt::Long'          => 0,
     'Test::Harness'         => 0,
     'CPAN::Meta'            => '2.110420',
+    'CPAN::Meta::Merge'     => '2.142060',
     'Perl::OSType'          => 1, # needs 1.0 API
     'version'               => 0.87,  # No longer requires M::B
     'Module::Metadata'      => 1.000002, # uses version.pm
