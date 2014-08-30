@@ -959,10 +959,9 @@ sub stringify
 
 sub vcmp
 {
-    require UNIVERSAL;
     my ($left,$right,$swap) = @_;
     my $class = ref($left);
-    unless ( UNIVERSAL::isa($right, $class) ) {
+    unless ( eval { $right->isa($class) } ) {
 	$right = $class->new($right);
     }
 

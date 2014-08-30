@@ -85,7 +85,7 @@ sub resume {
   # Module::Build->new_from_context() and the correct class to use is
   # actually a *subclass* of Module::Build, we may need to load that
   # subclass here and re-delegate the resume() method to it.
-  unless ( UNIVERSAL::isa($package, $self->build_class) ) {
+  unless ( $package->isa($self->build_class) ) {
     my $build_class = $self->build_class;
     my $config_dir = $self->config_dir || '_build';
     my $build_lib = File::Spec->catdir( $config_dir, 'lib' );
@@ -1720,7 +1720,7 @@ sub compare_versions {
   my $self = shift;
   my ($v1, $op, $v2) = @_;
   $v1 = version->new($v1)
-    unless UNIVERSAL::isa($v1,'version');
+    unless eval { $v1->isa('version') };
 
   my $eval_str = "\$v1 $op \$v2";
   my $result   = eval $eval_str;
@@ -2061,8 +2061,8 @@ sub unparse_args {
   my ($self, $args) = @_;
   my @out;
   while (my ($k, $v) = each %$args) {
-    push @out, (UNIVERSAL::isa($v, 'HASH')  ? map {+"--$k", "$_=$v->{$_}"} keys %$v :
-                UNIVERSAL::isa($v, 'ARRAY') ? map {+"--$k", $_} @$v :
+    push @out, (ref $v eq 'HASH'  ? map {+"--$k", "$_=$v->{$_}"} keys %$v :
+                ref $v eq 'ARRAY' ? map {+"--$k", $_} @$v :
                 ("--$k", $v));
   }
   return @out;
@@ -2970,12 +2970,12 @@ sub find_PL_files {
   if (my $files = $self->{properties}{PL_files}) {
     # 'PL_files' is given as a Unix file spec, so we localize_file_path().
 
-    if (UNIVERSAL::isa($files, 'ARRAY')) {
+    if (ref $files eq 'ARRAY') {
       return { map {$_, [/^(.*)\.PL$/]}
                map $self->localize_file_path($_),
                @$files };
 
-    } elsif (UNIVERSAL::isa($files, 'HASH')) {
+    } elsif (ref $files eq 'HASH') {
       my %out;
       while (my ($file, $to) = each %$files) {
         $out{ $self->localize_file_path($file) } = [ map $self->localize_file_path($_),
@@ -3016,7 +3016,7 @@ sub find_test_files {
   my $p = $self->{properties};
 
   if (my $files = $p->{test_files}) {
-    $files = [keys %$files] if UNIVERSAL::isa($files, 'HASH');
+    $files = [keys %$files] if ref $files eq 'HASH';
     $files = [map { -d $_ ? $self->expand_test_dir($_) : $_ }
               map glob,
               $self->split_like_shell($files)];
@@ -4362,8 +4362,8 @@ sub script_files {
     next unless $_;
 
     # Always coerce into a hash
-    return $_ if UNIVERSAL::isa($_, 'HASH');
-    return $_ = { map {$_,1} @$_ } if UNIVERSAL::isa($_, 'ARRAY');
+    return $_ if ref $_ eq 'HASH';
+    return $_ = { map {$_,1} @$_ } if ref $_ eq 'ARRAY';
 
     die "'script_files' must be a hashref, arrayref, or string" if ref();
 
@@ -5400,7 +5400,7 @@ sub split_like_shell {
   my ($self, $string) = @_;
 
   return () unless defined($string);
-  return @$string if UNIVERSAL::isa($string, 'ARRAY');
+  return @$string if ref $string eq 'ARRAY';
   $string =~ s/^\s+|\s+$//g;
   return () unless length($string);
 

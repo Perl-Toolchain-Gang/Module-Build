@@ -84,7 +84,7 @@ sub new_from_module {
   my $compare_versions = sub {
     my ($v1, $op, $v2) = @_;
     $v1 = version->new($v1)
-      unless UNIVERSAL::isa($v1,'version');
+      unless eval { $v1->isa('version') };
   
     my $eval_str = "\$v1 $op \$v2";
     my $result   = eval $eval_str;
