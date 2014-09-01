@@ -6,7 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.4209';
+our $VERSION = '0.4210';
 $VERSION = eval $VERSION;
 
 use Carp;
@@ -1803,7 +1803,7 @@ sub print_build_script {
   my $config_requires;
   if ( -f $self->metafile ) {
     my $meta = eval { $self->read_metafile( $self->metafile ) };
-    $config_requires = $meta && $meta->{configure_requires}{'Module::Build'};
+    $config_requires = $meta && $meta->{prereqs}{configure}{requires}{'Module::Build'};
   }
   $config_requires ||= 0;
 
@@ -4565,28 +4565,13 @@ sub _get_meta_object {
   return $meta;
 }
 
-# We return a version 1.4 structure for backwards compatibility
 sub read_metafile {
   my $self = shift;
   my ($metafile) = @_;
 
   return unless $self->try_require("CPAN::Meta", "2.110420");
   my $meta = CPAN::Meta->load_file($metafile);
-  return $meta->as_struct( {version => "1.4"} );
-}
-
-# For legacy compatibility, we upconvert a 1.4 data structure, ensuring
-# validity, and then downconvert it back to save it.
-#
-# generally, this code should no longer be used
-sub write_metafile {
-  my $self = shift;
-  my ($metafile, $struct) = @_;
-
-  return unless $self->try_require("CPAN::Meta", "2.110420");
-
-  my $meta = CPAN::Meta->new( $struct );
-  return $meta->save( $metafile, { version => "1.4" } );
+  return $meta->as_struct( {version => "2.0"} );
 }
 
 sub normalize_version {
