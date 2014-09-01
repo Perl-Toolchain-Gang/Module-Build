@@ -4698,8 +4698,13 @@ sub get_metadata {
   if (my $add = $self->meta_add) {
     if (not exists $add->{'meta-spec'} or $add->{'meta-spec'}{version} != 2) {
       require CPAN::Meta::Converter;
-      $add = CPAN::Meta::Converter->new($add)->upgrade_fragment;
-      delete $add->{prereqs}; # XXX this would now overwrite all prereqs
+      if (CPAN::Meta::Converter->VERSION('2.141170')) {
+        $add = CPAN::Meta::Converter->new($add)->upgrade_fragment;
+        delete $add->{prereqs}; # XXX this would now overwrite all prereqs
+      }
+      else {
+        $self->log_warn("Can't meta_add without CPAN::Meta 2.141170");
+      }
     }
 
     while (my($k, $v) = each %{$add}) {
@@ -4708,8 +4713,12 @@ sub get_metadata {
   }
 
   if (my $merge = $self->meta_merge) {
-    require CPAN::Meta::Merge;
-    %metadata = %{ CPAN::Meta::Merge->new(default_version => '1.4')->merge(\%metadata, $merge) };
+    if (eval { require CPAN::Meta::Merge }) {
+      %metadata = %{ CPAN::Meta::Merge->new(default_version => '1.4')->merge(\%metadata, $merge) };
+    }
+    else {
+      $self->log_warn("Can't merge without CPAN::Meta::Merge");
+    }
   }
 
   return \%metadata;

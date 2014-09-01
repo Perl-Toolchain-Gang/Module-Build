@@ -2,7 +2,11 @@ Revision history for Perl extension Module::Build.
 
 0.4210 - Mon Sep  1 13:30:29 CEST 2014
 
+  [BUG FIXES]
+
   - Fixup CPAN::Meta dependency
+
+  - Handle old releases of CPAN::Meta more gracefully.
 
 0.4209 - Mon Sep  1 12:24:40 CEST 2014
 

@@ -4,6 +4,8 @@ notifications:
   on_failure: always
   irc: "irc.perl.org#toolchain"
   email: false
+before_install:
+  - cpanm CPAN::Meta
 perl:
   - "5.20"
   - "5.18"
