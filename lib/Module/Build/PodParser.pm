@@ -2,7 +2,7 @@ package Module::Build::PodParser;
 
 use strict;
 use warnings;
-our $VERSION = '0.4210';
+our $VERSION = '0.4211';
 $VERSION = eval $VERSION;
 
 sub new {
