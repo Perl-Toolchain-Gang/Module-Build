@@ -4032,9 +4032,17 @@ sub ACTION_distdir {
 
   my $dist_files = $self->_read_manifest('MANIFEST')
     or die "Can't create distdir without a MANIFEST file - run 'manifest' action first.\n";
+
   delete $dist_files->{SIGNATURE};  # Don't copy, create a fresh one
+
+  # Double check that we skip MYMETA.*
+  foreach my $file (keys %$dist_files) {
+    delete $dist_files->{$file} if $file =~ m{^MYMETA\.};
+  }
+
   die "No files found in MANIFEST - try running 'manifest' action?\n"
     unless ($dist_files and keys %$dist_files);
+
   my $metafile = $self->metafile;
   $self->log_warn("*** Did you forget to add $metafile to the MANIFEST?\n")
     unless exists $dist_files->{$metafile};
@@ -4044,10 +4052,8 @@ sub ACTION_distdir {
   $self->log_info("Creating $dist_dir\n");
   $self->add_to_cleanup($dist_dir);
 
-  foreach my $file (keys %$dist_files) {
-    next if $file =~ m{^MYMETA\.}; # Double check that we skip MYMETA.*
-    my $new = $self->copy_if_modified(from => $file, to_dir => $dist_dir, verbose => 0);
-  }
+  local $ExtUtils::Manifest::Quiet = 1;
+  ExtUtils::Manifest::manicopy($dist_files, $dist_dir);
 
   $self->do_create_bundle_inc if @{$self->bundle_inc};
 
