@@ -130,7 +130,8 @@ my $build = ModuleBuildBuilder->new(
   meta_merge     => {
     resources => {
       MailingList => 'mailto:module-build@perl.org',
-      repository  => 'https://github.com/Perl-Toolchain-Gang/Module-Build'
+      repository  => 'https://github.com/Perl-Toolchain-Gang/Module-Build',
+      IRC         => 'irc://irc.perl.org/#toolchain',
     }
   },
 );
