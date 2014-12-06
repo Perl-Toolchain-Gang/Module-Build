@@ -111,6 +111,7 @@ my $build = ModuleBuildBuilder->new(
     inc_bundling_support => {
       description => "Bundle Module::Build in inc/",
       requires    => {
+        'inc::latest'           => 0.500, # split out from Module::Build
         'ExtUtils::Install'     => 1.54, # also gets us ExtUtils::Installed 1.999_001
         'ExtUtils::Installed'   => 1.999, # technically 1.999_001 is what's available
       },

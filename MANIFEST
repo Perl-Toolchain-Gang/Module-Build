@@ -7,8 +7,6 @@ inc/MBVersion.pm
 inc/Module/Metadata.pm
 inc/Perl/OSType.pm
 INSTALL
-lib/inc/latest.pm
-lib/inc/latest/private.pm
 lib/Module/Build.pm
 lib/Module/Build/API.pod
 lib/Module/Build/Authoring.pod

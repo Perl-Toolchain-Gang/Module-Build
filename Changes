@@ -2,6 +2,12 @@ Revision history for Perl extension Module::Build.
 
 0.4211 - 
 
+  [DEPRECATIONS]
+
+  - inc::latest has been split out to a separate distribution on CPAN.
+    It is an optional prerequisite, only needed for the experimental
+    bundling feature.
+
 0.4210 - Mon Sep  1 13:30:29 CEST 2014
 
   [BUG FIXES]
