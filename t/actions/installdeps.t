@@ -20,14 +20,14 @@ $dist->change_build_pl(
   build_requires => {
     'Getopt::Long' => 9998,
   },
-  cpan_client => $^X . ' -le print($_)for($^X,@ARGV)',
+  cpan_client => qq{"$^X"} . ' -le print($_)for($^X,@ARGV)',
 )->regen;
 
 # get a Module::Build object and test with it
 my $mb;
 stdout_stderr_of( sub { $mb = $dist->new_from_context('verbose' => 1) } );
 isa_ok( $mb, "Module::Build" );
-like( $mb->cpan_client, qr/^\Q$^X\E/, "cpan_client is mocked with perl" );
+like( $mb->cpan_client, qr/^"\Q$^X\E"/, "cpan_client is mocked with perl" );
 
 my $retval;
 my $out = stdout_of( sub {

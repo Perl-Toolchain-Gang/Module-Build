@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.4211 - 
 
+  [BUG FIXES]
+
+  - Fix t/actions/installdeps.t to work on "perl in space" [Ed J]
+
   [DEPRECATIONS]
 
   - inc::latest has been split out to a separate distribution on CPAN.
