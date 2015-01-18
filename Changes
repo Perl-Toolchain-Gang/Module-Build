@@ -6,6 +6,8 @@ Revision history for Perl extension Module::Build.
 
   - Fix t/actions/installdeps.t to work on "perl in space" [Ed J]
 
+  - Stop using version->normal(); prefer stringify() [John Peacock]
+
   [DEPRECATIONS]
 
   - inc::latest has been split out to a separate distribution on CPAN.
