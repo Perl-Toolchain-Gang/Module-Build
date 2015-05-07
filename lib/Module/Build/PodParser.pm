@@ -25,7 +25,7 @@ sub parse_from_filehandle {
 
   local $_;
   while (<$fh>) {
-    next unless /^ =encoding \s+ (\S*)/ix;
+    next unless /^ =encoding \s+ (\S+)/ix;
     binmode $fh, ":encoding($1)";
     last;
   }
