@@ -25,6 +25,13 @@ sub parse_from_filehandle {
 
   local $_;
   while (<$fh>) {
+    next unless /=encoding \s+ (.*)/ix;
+    binmode $fh, ":encoding($1)";
+    last;
+  }
+  seek $fh, 0, 0;
+
+  while (<$fh>) {
     next unless /^=(?!cut)/ .. /^=cut/;  # in POD
     # Accept Name - abstract or C<Name> - abstract
     last if ($self->{abstract}) = /^ (?: [a-z_0-9:]+ | [BCIF] < [a-z_0-9:]+ > ) \s+ - \s+ (.*\S) /ix;
