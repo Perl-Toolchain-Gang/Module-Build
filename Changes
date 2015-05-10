@@ -7,6 +7,8 @@ Revision history for Perl extension Module::Build.
 
   - Allow Devel::Cover usage with TAP::Harness [Philipp Gortan]
 
+  - Remove "running under some shell" [Shoichi Kaji]
+
 0.4214 - Fri Jun 12 00:25:00 CEST 2015
 
   - Released 0.42_13 as 0.4214

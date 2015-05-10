@@ -3079,13 +3079,6 @@ sub fix_shebang_line { # Adapted from fixin() in ExtUtils::MM_Unix 1.35
     my $shb = '';
     $shb .= $c->get('sharpbang')."$interpreter $arg\n" if $does_shbang;
 
-    # I'm not smart enough to know the ramifications of changing the
-    # embedded newlines here to \n, so I leave 'em in.
-    $shb .= qq{
-eval 'exec $interpreter $arg -S \$0 \${1+"\$\@"}'
-    if 0; # not running under some shell
-} unless $self->is_windowsish; # this won't work on win32, so don't
-
     open(my $FIXOUT, '>', "$file.new")
       or die "Can't create new $file: $!\n";
 
