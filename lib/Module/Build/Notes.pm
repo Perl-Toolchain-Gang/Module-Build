@@ -4,7 +4,7 @@ package Module::Build::Notes;
 
 use strict;
 use warnings;
-our $VERSION = '0.4212';
+our $VERSION = '0.4213';
 $VERSION = eval $VERSION;
 use Data::Dumper;
 use Module::Build::Dumper;
