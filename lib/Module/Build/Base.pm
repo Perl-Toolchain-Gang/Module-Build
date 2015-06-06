@@ -4440,10 +4440,11 @@ BEGIN { *scripts = \&script_files; }
 sub _software_license_class {
   my ($self, $license) = @_;
   if ($self->valid_licenses->{$license} && eval { require Software::LicenseUtils; Software::LicenseUtils->VERSION(0.103009) }) {
-    my ($class) = Software::LicenseUtils->guess_license_from_meta_key($license, 1);
-	eval "require $class";
-	#die $class;
-	return $class;
+    my @classes = Software::LicenseUtils->guess_license_from_meta_key($license, 1);
+    if (@classes == 1) {
+      eval "require $classes[0]";
+      return $classes[0];
+    }
   }
   LICENSE: for my $l ( $self->valid_licenses->{ $license }, $license ) {
     next unless defined $l;

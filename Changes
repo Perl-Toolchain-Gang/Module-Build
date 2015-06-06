@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.4213 - 
 
+  [BUG FIXES]
+
+  - Handle failure to guess license from key better
+
   [ENHANCEMENTS]
 
   - Output data in a stable order [Jérémy Bobbio]
