@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.4213 - 
 
+  [ENHANCEMENTS]
+
+  - Output data in a stable order [Jérémy Bobbio]
+
 0.4212 - Sun May 17 00:33:34 CEST 2015
 
   [BUG FIXES]
