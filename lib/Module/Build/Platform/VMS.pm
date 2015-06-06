@@ -2,7 +2,7 @@ package Module::Build::Platform::VMS;
 
 use strict;
 use warnings;
-our $VERSION = '0.4213';
+our $VERSION = '0.42_13';
 $VERSION = eval $VERSION;
 use Module::Build::Base;
 use Config;
