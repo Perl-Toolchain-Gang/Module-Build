@@ -1900,7 +1900,7 @@ sub create_mymeta {
   }
 
   # Try loading META.json or META.yml
-  if ( $self->try_require("CPAN::Meta", "2.110420") ) {
+  if ( $self->try_require("CPAN::Meta", "2.142060") ) {
     for my $file ( @metafiles ) {
       next unless -f $file;
       $meta_obj = eval { CPAN::Meta->load_file($file, { lazy_validation => 0 }) };
@@ -4546,7 +4546,7 @@ sub _write_meta_files {
 sub _get_meta_object {
   my $self = shift;
   my %args = @_;
-  return unless $self->try_require("CPAN::Meta", "2.110420");
+  return unless $self->try_require("CPAN::Meta", "2.142060");
 
   my $meta;
   eval {

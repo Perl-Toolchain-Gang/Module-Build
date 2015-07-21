@@ -2,7 +2,14 @@
 
 use strict;
 use lib 't/lib';
-use MBTest tests => 18;
+use MBTest;
+
+if (eval { require CPAN::Meta; CPAN::Meta->VERSION(2.142060) }) {
+	plan(tests => 18);
+}
+else {
+	plan(skip_all => 'No or old CPAN::Meta');
+}
 
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');

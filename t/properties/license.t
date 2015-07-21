@@ -3,7 +3,14 @@ use lib 't/lib';
 use MBTest;
 use DistGen;
 
-plan 'no_plan';
+if (eval { require CPAN::Meta; CPAN::Meta->VERSION(2.142060) }) {
+	plan('no_plan');
+	require CPAN::Meta::YAML;
+	require Parse::CPAN::Meta;
+}
+else {
+	plan(skip_all => 'No or old CPAN::Meta');
+}
 
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');

@@ -6,7 +6,16 @@ use MBTest;
 use CPAN::Meta 2.110420;
 use CPAN::Meta::YAML;
 use Parse::CPAN::Meta 1.4401;
-plan tests => 4;
+
+if (eval { require CPAN::Meta; CPAN::Meta->VERSION(2.142060) }) {
+	plan(tests => 4);
+	require CPAN::Meta::YAML;
+	require Parse::CPAN::Meta;
+}
+else {
+	plan(skip_all => 'No or old CPAN::Meta');
+}
+
 
 blib_load('Module::Build');
 

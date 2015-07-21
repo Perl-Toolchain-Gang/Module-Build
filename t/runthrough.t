@@ -124,11 +124,14 @@ ok grep {$_ eq 'save_out'     } $mb->cleanup;
   # else it could get into the tarball
   ok ! -e File::Spec->catdir('Simple-0.01', 'blib');
 
-  # Make sure all of the above was done by the new version of Module::Build
-  open(my $fh, '<', File::Spec->catfile($dist->dirname, 'META.yml'));
-  my $contents = do {local $/; <$fh>};
-  $contents =~ /Module::Build version ([0-9_.]+)/m;
-  cmp_ok $1, '==', $mb->VERSION, "Check version used to create META.yml: $1 == " . $mb->VERSION;
+  SKIP: {
+    skip 'CPAN::Meta 2.142060+ not installed', 1 if not eval { require CPAN::Meta; CPAN::Meta->VERSION(2.142060) };
+    # Make sure all of the above was done by the new version of Module::Build
+    open(my $fh, '<', File::Spec->catfile($dist->dirname, 'META.yml'));
+    my $contents = do {local $/; <$fh>};
+    $contents =~ /Module::Build version ([0-9_.]+)/m;
+    cmp_ok $1, '==', $mb->VERSION, "Check version used to create META.yml: $1 == " . $mb->VERSION;
+  }
 
   SKIP: {
     skip( "Archive::Tar 1.08+ not installed", 1 )
