@@ -7,13 +7,8 @@ use lib 't/lib';
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
 
-SKIP: {
-   unless ( Module::Build::ConfigData->feature('manpage_support') ) {
-     skip 'manpage_support feature is not enabled';
-   }
-}
-
-use MBTest tests => 2;
+use MBTest;
+plan($] > 5.008 ? (tests => 2) : skip_all => 'UTF-8 manpages require perl 5.8.1');
 use File::Spec::Functions qw( catdir );
 
 use Cwd ();
