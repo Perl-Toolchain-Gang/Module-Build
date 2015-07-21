@@ -144,6 +144,7 @@ sub import {
 # Setup a temp directory
 sub tmpdir {
   my ($self, @args) = @_;
+  local $ENV{TMPDIR} = $ENV{TMPDIR} || '';
   my $dir = $ENV{PERL_CORE} ? MBTest->original_cwd : File::Spec->tmpdir;
   return File::Temp::tempdir('MB-XXXXXXXX', CLEANUP => 1, DIR => $dir, @args);
 }
