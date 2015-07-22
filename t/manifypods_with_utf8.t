@@ -6,9 +6,14 @@ use Test::More;
 use lib 't/lib';
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
-
 use MBTest;
-plan($] > 5.008 ? (tests => 2) : skip_all => 'UTF-8 manpages require perl 5.8.1');
+
+if (my $reason = Module::Build::ConfigData->feature_fails('manpage_support')) {
+  plan(skip_all => $reason);
+} else {
+  plan(tests => 2);
+}
+
 use File::Spec::Functions qw( catdir );
 
 use Cwd ();

@@ -179,7 +179,10 @@ print "Hello, World!\n";
 }
 
 SKIP: {
-  skip 'Need CPAN::Meta 2.142060 for Meta support', 4 if not eval { require CPAN::Meta; CPAN::Meta->VERSION(2.142060) };
+  if (my $reason = Module::Build::ConfigData->feature_fails('metafile_support')) {
+    skip $reason, 4;
+  }
+
   # Test the meta_add and meta_merge stuff
   ok my $mb = Module::Build->new(
 				  module_name => $dist->name,

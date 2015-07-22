@@ -1885,6 +1885,11 @@ my \$build = $build_package->resume (
 EOF
 }
 
+sub have_cpan_meta {
+  require Module::Build::ConfigData;
+  return Module::Build::ConfigData->feature('metafile_support');
+}
+
 sub create_mymeta {
   my ($self) = @_;
 
@@ -1900,7 +1905,7 @@ sub create_mymeta {
   }
 
   # Try loading META.json or META.yml
-  if ( $self->try_require("CPAN::Meta", "2.142060") ) {
+  if ( $self->have_cpan_meta ) {
     for my $file ( @metafiles ) {
       next unless -f $file;
       $meta_obj = eval { CPAN::Meta->load_file($file, { lazy_validation => 0 }) };
@@ -4546,7 +4551,7 @@ sub _write_meta_files {
 sub _get_meta_object {
   my $self = shift;
   my %args = @_;
-  return unless $self->try_require("CPAN::Meta", "2.142060");
+  return unless $self->have_cpan_meta;
 
   my $meta;
   eval {
@@ -4570,7 +4575,7 @@ sub read_metafile {
   my $self = shift;
   my ($metafile) = @_;
 
-  return unless $self->try_require("CPAN::Meta", "2.110420");
+  return unless $self->have_cpan_meta;
   my $meta = CPAN::Meta->load_file($metafile);
   return $meta->as_struct( {version => "2.0"} );
 }

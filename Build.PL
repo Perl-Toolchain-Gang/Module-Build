@@ -118,11 +118,15 @@ my $build = ModuleBuildBuilder->new(
     },
     manpage_support => {
       description => "Create Unix man pages",
-      requires    => {'Pod::Man' => 0 },
+      requires    => {'Pod::Man' => 0, 'perl' => '5.8.1'},
     },
     HTML_support => {
       description => "Create HTML documentation",
       requires    => {'Pod::Html' => 0},
+    },
+    metafile_support => {
+      description => "Create and read META.yml files",
+      requires    => {"CPAN::Meta" => "2.142060"},
     },
   },
 

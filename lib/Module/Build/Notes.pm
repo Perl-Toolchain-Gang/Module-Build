@@ -234,10 +234,31 @@ sub feature {
     while (my ($modname, $spec) = each %p) {
       my $status = Module::Build->check_installed_status($modname, $spec);
       if ((!$status->{ok}) xor ($type =~ /conflicts$/)) { return 0; }
-      if ( ! eval "require $modname; 1" ) { return 0; }
+      if ( $modname ne 'perl' && ! eval "require $modname; 1" ) { return 0; }
     }
   }
   return 1;
+}
+
+sub feature_fails {
+  my ($package, $key) = @_;
+  return if exists $features->{$key};
+
+  my $info = $auto_features->{$key} or return "No such feature '$key' defined";
+
+  require Module::Build;  # XXX should get rid of this
+  while (my ($type, $prereqs) = each %$info) {
+    next if $type eq 'description' || $type eq 'recommends';
+
+    while (my ($modname, $spec) = each %$prereqs) {
+      my $status = Module::Build->check_installed_status($modname, $spec);
+      if ($type =~ /conflicts$/ && $status->{ok}) { return "$modname $spec is incompatible with feature '$key'" }
+      if (!$status->{ok}) { return $status->{message} . " for feature '$key'"}
+      if ( $modname ne 'perl' && ! eval "require $modname; 1" ) { return "Couldn't successfully load module '$modname': $@" }
+    }
+  }
+
+  return;
 }
 
 =begin private

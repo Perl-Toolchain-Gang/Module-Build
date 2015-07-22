@@ -3,17 +3,16 @@ use lib 't/lib';
 use MBTest;
 use DistGen;
 
-if (eval { require CPAN::Meta; CPAN::Meta->VERSION(2.142060) }) {
-	plan('no_plan');
-	require CPAN::Meta::YAML;
-	require Parse::CPAN::Meta;
-}
-else {
-	plan(skip_all => 'No or old CPAN::Meta');
+blib_load('Module::Build');
+
+if (my $reason = Module::Build::ConfigData->feature_fails('metafile_support')) {
+  plan(skip_all => $reason);
+} else {
+  plan('no_plan');
+  require CPAN::Meta::YAML;
+  require Parse::CPAN::Meta;
 }
 
-# Ensure any Module::Build modules are loaded from correct directory
-blib_load('Module::Build');
 
 #--------------------------------------------------------------------------#
 # Create test distribution

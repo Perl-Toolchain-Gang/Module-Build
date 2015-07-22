@@ -4,15 +4,14 @@ use strict;
 use lib 't/lib';
 use MBTest;
 
-if (eval { require CPAN::Meta; CPAN::Meta->VERSION(2.142060) }) {
-	plan(tests => 18);
-}
-else {
-	plan(skip_all => 'No or old CPAN::Meta');
-}
-
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
+
+if (my $reason = Module::Build::ConfigData->feature_fails('metafile_support')) {
+  plan(skip_all => $reason);
+} else {
+  plan(tests => 18);
+}
 
 use DistGen;
 

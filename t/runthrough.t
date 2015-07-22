@@ -125,7 +125,9 @@ ok grep {$_ eq 'save_out'     } $mb->cleanup;
   ok ! -e File::Spec->catdir('Simple-0.01', 'blib');
 
   SKIP: {
-    skip 'CPAN::Meta 2.142060+ not installed', 1 if not eval { require CPAN::Meta; CPAN::Meta->VERSION(2.142060) };
+    if (my $reason = Module::Build::ConfigData->feature_fails('metafile_support')) {
+      skip $reason, 1;
+    }
     # Make sure all of the above was done by the new version of Module::Build
     open(my $fh, '<', File::Spec->catfile($dist->dirname, 'META.yml'));
     my $contents = do {local $/; <$fh>};

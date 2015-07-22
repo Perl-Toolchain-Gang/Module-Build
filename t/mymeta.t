@@ -4,16 +4,15 @@ use strict;
 use lib 't/lib';
 use MBTest;
 
-if (eval { require CPAN::Meta; CPAN::Meta->VERSION(2.142060) }) {
-	plan(tests => 41);
-	require CPAN::Meta::YAML;
-	require Parse::CPAN::Meta;
-}
-else {
-	plan(skip_all => 'No or old CPAN::Meta');
-}
-
 blib_load('Module::Build');
+
+if (my $reason = Module::Build::ConfigData->feature_fails('metafile_support')) {
+  plan(skip_all => $reason);
+} else {
+  plan(tests => 41);
+  require CPAN::Meta::YAML;
+  require Parse::CPAN::Meta;
+}
 
 my $tmp = MBTest->tmpdir;
 

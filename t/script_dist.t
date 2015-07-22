@@ -73,9 +73,9 @@ my $result;
 stdout_stderr_of( sub { $result = $mb->dispatch('distmeta') } );
 ok $result;
 
-if (eval { require CPAN::Meta; CPAN::Meta->VERSION(2.142060); }) {
-	my $yml = CPAN::Meta::YAML->read_string(slurp('META.yml'))->[0];
-	is_deeply($yml->{provides}, \%meta_provides);
+if ($mb->feature('metafile_support')) {
+  my $yml = CPAN::Meta::YAML->read_string(slurp('META.yml'))->[0];
+  is_deeply($yml->{provides}, \%meta_provides);
 }
 
 $dist->chdir_original if $dist->did_chdir;
