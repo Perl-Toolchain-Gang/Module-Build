@@ -5,6 +5,8 @@ Revision history for Perl extension Module::Build.
   - Reintroduce some level of perl 5.6 support [Leon Timmermans]
     Note that this comes with no guarantees or commitment
 
+  - Allow Devel::Cover usage with TAP::Harness [Philipp Gortan]
+
 0.4214 - Fri Jun 12 00:25:00 CEST 2015
 
   - Released 0.42_13 as 0.4214

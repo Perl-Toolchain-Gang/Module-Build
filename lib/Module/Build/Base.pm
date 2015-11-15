@@ -961,6 +961,7 @@ __PACKAGE__->add_property($_) for qw(
   base_dir
   bindoc_dirs
   c_source
+  cover
   create_license
   create_makefile_pl
   create_readme
@@ -2751,7 +2752,11 @@ sub run_visual_script {
 }
 
 sub harness_switches {
-    shift->{properties}{debugger} ? qw(-w -d) : ();
+    my $self = shift;
+    my @res;
+    push @res, qw(-w -d) if $self->{properties}{debugger};
+    push @res, '-MDevel::Cover' if $self->{properties}{cover};
+    return @res;
 }
 
 sub test_files {
@@ -2802,10 +2807,7 @@ sub ACTION_testcover {
           && $self->up_to_date($self->test_files, $cover_files);
   }
 
-  local $Test::Harness::switches    =
-  local $Test::Harness::Switches    =
-  local $ENV{HARNESS_PERL_SWITCHES} = "-MDevel::Cover";
-
+  local $self->{properties}{cover} = 1;
   $self->depends_on('test');
   $self->do_system('cover');
 }
