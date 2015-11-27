@@ -2718,11 +2718,11 @@ sub do_tests {
 sub run_tap_harness {
   my ($self, $tests) = @_;
 
-  require TAP::Harness;
+  require TAP::Harness::Env;
 
   # TODO allow the test @INC to be set via our API?
 
-  my $aggregate = TAP::Harness->new({
+  my $aggregate = TAP::Harness::Env->create({
     lib => [@INC],
     verbosity => $self->{properties}{verbose},
     switches  => [ $self->harness_switches ],

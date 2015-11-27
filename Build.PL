@@ -38,7 +38,7 @@ my $build = ModuleBuildBuilder->new(
   build_requires        => {
     'File::Temp'            => 0.15,    # tmpdir() + fixes
     'Test::More'            => 0.49,
-    'Test::Harness'         => 3.16,    # PERL5LIB fixes
+    'TAP::Harness'          => 3.29,    # TAP::Harness::Env
     'Parse::CPAN::Meta'     => '1.4401',
     'CPAN::Meta::YAML'      => 0.003,
   },
@@ -62,7 +62,7 @@ my $build = ModuleBuildBuilder->new(
     'Text::Abbrev'          => 0,
     'Text::ParseWords'      => 0,
     'Getopt::Long'          => 0,
-    'Test::Harness'         => 0,
+    'TAP::Harness'          => 3.29,
     'CPAN::Meta'            => '2.142060',
     'Perl::OSType'          => ( $^O eq 'bitrig' ? 1.004 : 1 ), # needs 1.0 API
     'version'               => 0.87,  # No longer requires M::B
