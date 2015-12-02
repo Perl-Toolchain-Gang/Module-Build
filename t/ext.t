@@ -54,6 +54,7 @@ my @win_splits =
    { 'a "" b'               => [ 'a', '', 'b'    ] },
    { 'a " " b'              => [ 'a', ' ', 'b'   ] },
    { 'a " b " c'            => [ 'a', ' b ', 'c' ] },
+   { 'a "0" c'              => [ 'a', '0', 'c'   ] },
 );
 
 plan tests => 9 + 4*@unix_splits + 4*@win_splits;
