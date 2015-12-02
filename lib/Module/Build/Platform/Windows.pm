@@ -220,8 +220,16 @@ sub split_like_shell {
     my $quote_mode;
     my $arg = '';
     CHARS: until ( pos == $length ) {
-      if ( m/\G\\([\\"])/gc ) {
-        $arg .= $1;
+      if ( m/\G((?:\\\\)+)(?=\\?(")?)/gc ) {
+          if (defined $2) {
+              $arg .= '\\' x (length($1) / 2);
+          }
+          else {
+              $arg .= $1;
+          }
+      }
+      elsif ( m/\G\\"/gc ) {
+        $arg .= '"';
       }
       elsif ( m/\G"/gc ) {
         if ( $quote_mode && m/\G"/gc ) {

@@ -5,6 +5,7 @@ Revision history for Perl extension Module::Build.
   - Read extra_linker_flags using its accessor [Salvador Fandino]
 
   - Convert win shell splitting to m//gc parser, fixing handling of 0
+    and handling of backslashes preceeding a double quote [Graham Knop]
 
 0.4216 - Wed Jan 20 10:39:27 CET 2016
 
