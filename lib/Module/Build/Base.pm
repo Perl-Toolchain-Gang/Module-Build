@@ -5340,7 +5340,7 @@ sub link_c {
     module_name => $module_name,
     objects     => [$spec->{obj_file}, @$objects],
     lib_file    => $spec->{lib_file},
-    extra_linker_flags => $p->{extra_linker_flags} );
+    extra_linker_flags => $self->extra_linker_flags );
 
   return $spec->{lib_file};
 }
