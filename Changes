@@ -2,6 +2,8 @@ Revision history for Perl extension Module::Build.
 
 0.42_17 - 
 
+  - Read extra_linker_flags using its accessor [Salvador Fandino]
+
 0.4216 - Wed Jan 20 10:39:27 CET 2016
 
   - Delete test that fails with new version.pm [Leon Timmermans]
