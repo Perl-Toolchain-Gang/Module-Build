@@ -65,22 +65,6 @@ blib_load('Module::Build');
 }
 
 {
-  my $dist = DistGen->new( name => 'Simple::Name', version => 'v1.2.3_1' );
-
-  $dist->change_build_pl(
-    module_name => 'Simple::Name',
-  )->regen;
-
-  $dist->chdir_in;
-
-  my $mb = $dist->new_from_context();
-  isa_ok( $mb, "Module::Build" );
-  is( $mb->release_status, "testing",
-    "dotted alpha version has release_status 'testing'"
-  );
-}
-
-{
   my $dist = DistGen->new( name => 'Simple::Name', version => q{'0.01_01'} );
 
   $dist->change_build_pl(
