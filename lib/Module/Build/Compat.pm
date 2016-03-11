@@ -363,7 +363,9 @@ sub fake_makefile {
   my $unlink = $class->oneliner('1 while unlink $ARGV[0]', [], [$args{makefile}]);
   $unlink =~ s/\$/\$\$/g unless $class->is_vmsish;
 
-  my $maketext = ($^O eq 'os2' ? "SHELL = sh\n\n" : '');
+  my $maketext = ($^O eq 'os2' ? "SHELL = sh\n\n"
+                    : $^O eq 'MSWin32' && $Config{make} =~ /gmake/
+                    ? "SHELL = $ENV{COMSPEC}\n\n" : '');
 
   $maketext .= <<"EOF";
 all : force_do_it
