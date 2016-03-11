@@ -7,6 +7,9 @@ Revision history for Perl extension Module::Build.
   - Convert win shell splitting to m//gc parser, fixing handling of 0
     and handling of backslashes preceeding a double quote [Graham Knop]
 
+  - Win32 installation of MB with gmake require SHELL env var to be set
+    [bulk88]
+
 0.4216 - Wed Jan 20 10:39:27 CET 2016
 
   - Delete test that fails with new version.pm [Leon Timmermans]
