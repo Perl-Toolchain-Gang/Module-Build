@@ -14,6 +14,8 @@ blib_load('Module::Build');
 
   if ( !$have_c_compiler ) {
     plan skip_all => 'No compiler found';
+  } elsif ( !$tmp_exec ) {
+    plan skip_all => 'Compiler is dysfunctional';
   } elsif ( $^O eq 'VMS' ) {
     plan skip_all => 'Child test output confuses harness';
   } elsif ( !$Config{usedl} ) {

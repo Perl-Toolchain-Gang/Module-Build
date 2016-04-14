@@ -2,6 +2,8 @@ Revision history for Perl extension Module::Build.
 
 0.4218 -
 
+  - Skip XS test when link_executable fails
+
 0.42_17 - Mon Mar 21 14:02:06 CET 2016
 
   - Read extra_linker_flags using its accessor [Salvador Fandino]
