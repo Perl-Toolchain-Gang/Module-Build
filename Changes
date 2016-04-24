@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.4218 -
+0.4218 - Sun Apr 24 16:39:47 BST 2016
 
   - Skip XS test when link_executable fails
 
