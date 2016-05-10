@@ -239,7 +239,7 @@ ok $mb, "Module::Build->new_from_context";
     );
 
     require ExtUtils::Install;
-    skip "Needs ExtUtils::Install 1.32 or later", 2 * @cases
+    skip "Needs ExtUtils::Install 1.32 or later", int(2 * @cases)
       if ExtUtils::Install->VERSION < 1.32;
 
     for my $c (@cases) {
@@ -486,7 +486,7 @@ sub test_makefile_pl_files {
   my $expected = shift;
 
   SKIP: {
-    skip 1, 'Makefile.PL not found' unless -e 'Makefile.PL';
+    skip 'Makefile.PL not found', 1 unless -e 'Makefile.PL';
     my $args = extract_writemakefile_args() || {};
     is_deeply $args->{PL_FILES}, $expected,
       "Makefile.PL has correct PL_FILES line";
@@ -496,7 +496,7 @@ sub test_makefile_pl_files {
 sub test_makefile_pl_requires_perl {
   my $perl_version = shift || q{};
   SKIP: {
-    skip 1, 'Makefile.PL not found' unless -e 'Makefile.PL';
+    skip 'Makefile.PL not found', 1 unless -e 'Makefile.PL';
     my $file_contents = slurp 'Makefile.PL';
     my $found_requires = $file_contents =~ m{^require $perl_version;}ms;
     if (length $perl_version) {
@@ -537,7 +537,7 @@ sub find_params_in_makefile {
 
 sub extract_writemakefile_args {
   SKIP: {
-    skip 1, 'Makefile.PL not found' unless -e 'Makefile.PL';
+    skip 'Makefile.PL not found', 1 unless -e 'Makefile.PL';
     my $file_contents = slurp 'Makefile.PL';
     my ($args) = $file_contents =~ m{^WriteMakefile\n\((.*)\).*;}ms;
     ok $args, "Found WriteMakefile arguments"
