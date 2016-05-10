@@ -8,7 +8,7 @@ blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
 
 use MBTest;
-plan($] > 5.008 ? (tests => 2) : skip_all => 'UTF-8 manpages require perl 5.8.1');
+plan ($] > 5.008 ? (tests => 2) : (skip_all => 'UTF-8 manpages require perl 5.8.1'));
 use File::Spec::Functions qw( catdir );
 
 use Cwd ();
