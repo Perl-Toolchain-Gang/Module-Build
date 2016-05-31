@@ -2,7 +2,9 @@
 
 use strict;
 use lib 't/lib';
-use MBTest tests => 29;
+use MBTest tests => 32;
+
+my $BuildPL_MTime = 1410291386;
 
 blib_load('Module::Build');
 blib_load('Module::Build::ConfigData');
@@ -37,7 +39,6 @@ print FH "Contents: $filename\n";
 close FH;
 ---
 $dist->regen;
-
 $dist->chdir_in;
 
 
@@ -53,6 +54,10 @@ $mb->add_to_cleanup('before_script');
 eval {$mb->create_build_script};
 is $@, '';
 ok -e $mb->build_script;
+
+# Set the mtime on Build.PL for use in testing later.
+ok utime $BuildPL_MTime, $BuildPL_MTime, "Build.PL", "set time on Build.PL";
+is [stat("Build.PL")]->[9], $BuildPL_MTime;
 
 my $dist_dir = 'Simple-0.01';
 
@@ -116,6 +121,9 @@ ok grep {$_ eq 'save_out'     } $mb->cleanup;
 
   stdout_stderr_of ( sub { eval {$mb->dispatch('distdir')} } );
   is $@, '';
+
+  is [stat(File::Spec->catfile("Simple-0.01", "Build.PL"))]->[9],
+     [stat("Build.PL")]->[9], "mtimes preserved by distdir";
 
   # The 'distdir' should contain a lib/ directory
   ok -e File::Spec->catdir('Simple-0.01', 'lib');
