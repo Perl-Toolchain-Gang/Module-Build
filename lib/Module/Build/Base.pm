@@ -5255,7 +5255,7 @@ sub rscan_dir {
              ref($pattern) eq 'CODE' ? sub {push @result, $File::Find::name if $pattern->()} :
              die "Unknown pattern type";
 
-  File::Find::find({wanted => $subr, no_chdir => 1}, $dir);
+  File::Find::find({wanted => $subr, no_chdir => 1, preprocess => sub { sort @_ } }, $dir);
   return \@result;
 }
 
