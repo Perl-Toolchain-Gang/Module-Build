@@ -363,9 +363,11 @@ sub fake_makefile {
   my $unlink = $class->oneliner('1 while unlink $ARGV[0]', [], [$args{makefile}]);
   $unlink =~ s/\$/\$\$/g unless $class->is_vmsish;
 
-  my $maketext = ($^O eq 'os2' ? "SHELL = sh\n\n"
+  my $maketext = join '', map { "$_=\n" } sort keys %macro_to_build;
+
+  $maketext .= ($^O eq 'os2' ? "SHELL = sh\n\n"
                     : $^O eq 'MSWin32' && $Config{make} =~ /gmake/
-                    ? "SHELL = $ENV{COMSPEC}\n\n" : '');
+                    ? "SHELL = $ENV{COMSPEC}\n\n" : "\n\n");
 
   $maketext .= <<"EOF";
 all : force_do_it
@@ -393,13 +395,13 @@ EOF
   if ($self->_is_vms_mms) {
     # Roll our own .EXPORT as MMS/MMK don't honor that directive.
     $maketext .= "\n.FIRST\n\t\@ $noop\n";
-    for my $macro (keys %macro_to_build) {
+    for my $macro (sort keys %macro_to_build) {
       $maketext .= ".IFDEF $macro\n\tDEFINE $macro \"\$($macro)\"\n.ENDIF\n";
     }
     $maketext .= "\n";
   }
   else {
-    $maketext .= "\n.EXPORT : " . join(' ', keys %macro_to_build) . "\n\n";
+    $maketext .= "\n.EXPORT : " . join(' ', sort keys %macro_to_build) . "\n\n";
   }
 
   return $maketext;
