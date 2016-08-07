@@ -33,7 +33,7 @@ my %makefile_to_build =
            installarchlib  => "$lib/$Config{archname}",
            installsitearch => "$lib/$Config{archname}"
        );
-       return map { (config => "$_=$config{$_}") } keys %config;
+       return map { (config => "$_=$config{$_}") } sort keys %config;
    },
 
    # Convert INSTALLVENDORLIB and friends.
@@ -71,7 +71,7 @@ sub _merge_prereq {
 
   # validate formats
   for my $p ( $req, $breq ) {
-    for my $k (keys %$p) {
+    for my $k (sort keys %$p) {
       next if $k eq 'perl';
 
       my $v_obj = eval { version->new($p->{$k}) };
@@ -306,7 +306,8 @@ sub _argvify {
 sub makefile_to_build_macros {
   my @out;
   my %config; # must accumulate and return as a hashref
-  while (my ($macro, $trans) = each %macro_to_build) {
+  foreach my $macro (sort keys %macro_to_build) {
+    my $trans = $macro_to_build{$macro};
     # On some platforms (e.g. Cygwin with 'make'), the mere presence
     # of "EXPORT: FOO" in the Makefile will make $ENV{FOO} defined.
     # Therefore we check length() too.
