@@ -17,6 +17,8 @@ my $tmp;
   my ($have_c_compiler, $tmp_exec) = check_compiler();
   if ( ! $have_c_compiler ) {
     plan skip_all => 'No compiler found';
+  } elsif ( ! $tmp_exec ) {
+    plan skip_all => 'Dysfunctional compiler detected';
   } elsif ( ! $PPM_support ) {
     plan skip_all => 'PPM support modules not installed';
   } elsif ( !$Config{usedl} ) {

@@ -2,6 +2,8 @@ Revision history for Perl extension Module::Build.
 
 0.42_19 - 
 
+  - Skip PPM test when link_executable fails [Leon Timmermans]
+
 0.4218 - Sun Apr 24 16:39:47 BST 2016
 
   - Skip XS test when link_executable fails
