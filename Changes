@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.42_19 - 
+0.42_19 - Sun Aug  7 17:07:38 CEST 2016
 
   - Initialize MM Compat environmental variables to empty strings [Leon Timmermans]
 
