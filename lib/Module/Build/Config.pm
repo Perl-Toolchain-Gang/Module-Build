@@ -2,7 +2,7 @@ package Module::Build::Config;
 
 use strict;
 use warnings;
-our $VERSION = '0.42_19';
+our $VERSION = '0.4220';
 $VERSION = eval $VERSION;
 use Config;
 
