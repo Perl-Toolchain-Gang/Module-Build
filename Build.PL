@@ -15,7 +15,7 @@ use lib File::Spec->catdir('t', 'bundled'); # use bundled modules
 use lib File::Spec->catdir('t', 'lib');     # our utilities
 
 # bootstrap configure_requires prereqs
-BEGIN { do 'inc/bootstrap.pl' }
+BEGIN { do './inc/bootstrap.pl' }
 
 # We use Module::Build to test & install itself.
 use Module::Build;
