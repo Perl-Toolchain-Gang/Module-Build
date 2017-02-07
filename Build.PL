@@ -65,6 +65,7 @@ my $build = ModuleBuildBuilder->new(
     'version'               => 0.87,  # No longer requires M::B
     'Module::Metadata'      => 1.000002, # uses version.pm
     'Pod::Man'              => 2.17, # utf8 support
+    ($^O eq 'MSWin32' ? ('ExtUtils::PL2Bat' => 0) : ())
   },
   test_requires         => {
     'File::Temp'            => 0.15,    # tmpdir() + fixes

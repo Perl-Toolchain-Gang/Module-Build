@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+  - Add dependency on ExtUtils::PL2Bat
+
 0.4229 - Tue Apr 16 00:49:45 CEST 2019
   - Released 0.42_28 without changes
 
