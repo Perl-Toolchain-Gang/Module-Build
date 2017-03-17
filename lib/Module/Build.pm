@@ -97,7 +97,7 @@ module through subclassing.  It also does not require a C<make> on your
 system - most of the C<Module::Build> code is pure-perl and written in a
 very cross-platform way.
 
-See L<"COMPARISON"> for more comparisons between C<Module::Build> and
+See L</"COMPARISON"> for more comparisons between C<Module::Build> and
 other installer tools.
 
 To install C<Module::Build>, and any other module that uses
@@ -370,7 +370,7 @@ waste a lot of time if there aren't any links to generate anyway:
 [version 0.01]
 
 This action will use C<ExtUtils::Install> to install the files from
-C<blib/> into the system.  See L<"INSTALL PATHS">
+C<blib/> into the system.  See L</"INSTALL PATHS">
 for details about how Module::Build determines where to install
 things, and how to influence this process.
 
@@ -587,7 +587,7 @@ or use a C<glob()>-style pattern:
 
 [Note: the 'testall' action and the code snippets below are currently
 in alpha stage, see
-L<"http://www.nntp.perl.org/group/perl.module.build/2007/03/msg584.html"> ]
+L<http://www.nntp.perl.org/group/perl.module.build/2007/03/msg584.html> ]
 
 Runs the C<test> action plus each of the C<test$type> actions defined by
 the keys of the C<test_types> parameter.
@@ -989,9 +989,9 @@ A comparison between C<Module::Build> and other CPAN distribution installers.
 
 =item *
 
-L<ExtUtils::MakeMaker> requires C<make> and use of a C<Makefile>.
+L<ExtUtils::MakeMaker> requires C<make> and use of a F<Makefile>.
 C<Module::Build> does not, nor do other pure-perl installers following the
-C<Build.PL> spec such as L<Module::Build::Tiny>. In practice, this is usually
+F<Build.PL> spec such as L<Module::Build::Tiny>. In practice, this is usually
 not an issue for the end user, as C<make> is already required to install most
 CPAN modules, even on Windows.
 
@@ -1009,8 +1009,8 @@ place of L<ExtUtils::MakeMaker>.
 =item *
 
 Customizing the build process with L<ExtUtils::MakeMaker> involves overriding
-certain methods that form the C<Makefile> by defining the subs in the C<MY::>
-namespace, requiring in-depth knowledge of C<Makefile>s, but allowing targeted
+certain methods that form the F<Makefile> by defining the subs in the C<MY::>
+namespace, requiring in-depth knowledge of F<Makefile>, but allowing targeted
 customization of the entire build. Customizing C<Module::Build> involves
 subclassing C<Module::Build> itself, adding or overriding pure-perl methods
 that represent build actions, which are invoked as arguments passed to the
@@ -1025,10 +1025,10 @@ C<Module::Build> provides more features and a better experience for distribution
 authors than L<ExtUtils::MakeMaker>. However, tools designed specifically for
 authoring, such as L<Dist::Zilla> and its spinoffs L<Dist::Milla> and
 L<Minilla>, provide these features and more, and generate a configure script
-(C<Makefile.PL>/C<Build.PL>) that will use any of the various installers
+(F<Makefile.PL>/F<Build.PL>) that will use any of the various installers
 separately on the end user side. L<App::ModuleBuildTiny> is an alternative
 standalone authoring tool for distributions using L<Module::Build::Tiny>, which
-requires only a simple two-line C<Build.PL>.
+requires only a simple two-line F<Build.PL>.
 
 =back
 
