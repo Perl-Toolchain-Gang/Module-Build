@@ -253,7 +253,7 @@ C<tar> (and optional C<gzip>) parameter:
 [version 0.05]
 
 Reports which files are in the build directory but not in the
-F<MANIFEST> file, and vice versa.  (See L<manifest> for details.)
+F<MANIFEST> file, and vice versa.  (See L</manifest> for details.)
 
 =item distclean
 
@@ -425,7 +425,7 @@ add your own stuff to it:
   ^MANIFEST\.SKIP$
   CVS
 
-See the L<distcheck> and L<skipcheck> actions if you want to find out
+See the L</distcheck> and L</skipcheck> actions if you want to find out
 what the C<manifest> action would do, without actually doing anything.
 
 =item manifest_skip
@@ -534,7 +534,7 @@ distribution still pass the old regression tests, and so on.
 [version 0.05]
 
 Reports which files are skipped due to the entries in the
-F<MANIFEST.SKIP> file (See L<manifest> for details)
+F<MANIFEST.SKIP> file (See L</manifest> for details)
 
 =item test
 
