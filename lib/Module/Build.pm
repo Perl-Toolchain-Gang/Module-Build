@@ -91,13 +91,12 @@ the "./" notation, you can do this:
 C<Module::Build> is a system for building, testing, and installing
 Perl modules.  It is meant to be an alternative to
 C<ExtUtils::MakeMaker>.  Developers may alter the behavior of the
-module through subclassing in a much more straightforward way than
-with C<MakeMaker>.  It also does not require a C<make> on your system
-- most of the C<Module::Build> code is pure-perl and written in a very
-cross-platform way.
+module through subclassing.  It also does not require a C<make> on your
+system - most of the C<Module::Build> code is pure-perl and written in a
+very cross-platform way.
 
-See L<"MOTIVATIONS"> for more comparisons between C<ExtUtils::MakeMaker>
-and C<Module::Build>.
+See L<"COMPARISON"> for more comparisons between C<Module::Build> and
+other installer tools.
 
 To install C<Module::Build>, and any other module that uses
 C<Module::Build> for its installation process, do the following:
@@ -980,71 +979,54 @@ ExtUtils::MakeMaker> for further information.
 =back
 
 
-=head1 MOTIVATIONS
+=head1 COMPARISON
 
-There are several reasons I wanted to start over, and not just fix
-what I didn't like about C<MakeMaker>:
+A comparison between C<Module::Build> and other CPAN distribution installers.
 
-=over 4
-
-=item *
-
-I don't like the core idea of C<MakeMaker>, namely that C<make> should be
-involved in the build process.  Here are my reasons:
-
-=over 4
-
-=item +
-
-When a person is installing a Perl module, what can you assume about
-their environment?  Can you assume they have C<make>?  No, but you can
-assume they have some version of Perl.
-
-=item +
-
-When a person is writing a Perl module for intended distribution, can
-you assume that they know how to build a Makefile, so they can
-customize their build process?  No, but you can assume they know Perl,
-and could customize that way.
-
-=back
-
-For years, these things have been a barrier to people getting the
-build/install process to do what they want.
+=over
 
 =item *
 
-There are several architectural decisions in C<MakeMaker> that make it
-very difficult to customize its behavior.  For instance, when using
-C<MakeMaker> you do C<use ExtUtils::MakeMaker>, but the object created in
-C<WriteMakefile()> is actually blessed into a package name that's
-created on the fly, so you can't simply subclass
-C<ExtUtils::MakeMaker>.  There is a workaround C<MY> package that lets
-you override certain C<MakeMaker> methods, but only certain explicitly
-preselected (by C<MakeMaker>) methods can be overridden.  Also, the method
-of customization is very crude: you have to modify a string containing
-the Makefile text for the particular target.  Since these strings
-aren't documented, and I<can't> be documented (they take on different
-values depending on the platform, version of perl, version of
-C<MakeMaker>, etc.), you have no guarantee that your modifications will
-work on someone else's machine or after an upgrade of C<MakeMaker> or
-perl.
+L<ExtUtils::MakeMaker> requires C<make> and use of a C<Makefile>.
+C<Module::Build> does not, nor do other pure-perl installers following the
+C<Build.PL> spec such as L<Module::Build::Tiny>. In practice, this is usually
+not an issue for the end user, as C<make> is already required to install most
+CPAN modules, even on Windows.
 
 =item *
 
-It is risky to make major changes to C<MakeMaker>, since it does so many
-things, is so important, and generally works.  C<Module::Build> is an
-entirely separate package so that I can work on it all I want, without
-worrying about backward compatibility with C<MakeMaker>.
+L<ExtUtils::MakeMaker> has been a core module in every version of Perl 5, and
+must maintain compatibility to install the majority of CPAN modules.
+C<Module::Build> was added to core in Perl 5.10 and removed from core in Perl
+5.20, and (like L<ExtUtils::MakeMaker>) is only updated to fix critical issues
+and maintain compatibility. C<Module::Build> and other non-core installers like
+L<Module::Build::Tiny> are installed from CPAN by declaring themselves as a
+C<configure> phase prerequisite, and in this way any installer can be used in
+place of L<ExtUtils::MakeMaker>.
 
 =item *
 
-Finally, Perl is said to be a language for system administration.
-Could it really be the case that Perl isn't up to the task of building
-and installing software?  Even if that software is a bunch of
-C<.pm> files that just need to be copied from one place to
-another?  My sense was that we could design a system to accomplish
-this in a flexible, extensible, and friendly manner.  Or die trying.
+Customizing the build process with L<ExtUtils::MakeMaker> involves overriding
+certain methods that form the C<Makefile> by defining the subs in the C<MY::>
+namespace, requiring in-depth knowledge of C<Makefile>s, but allowing targeted
+customization of the entire build. Customizing C<Module::Build> involves
+subclassing C<Module::Build> itself, adding or overriding pure-perl methods
+that represent build actions, which are invoked as arguments passed to the
+generated C<./Build> script. This is a simpler concept but requires redefining
+the standard build actions to invoke your customizations, and makes it more
+difficult to combine different customizations for the same action.
+L<Module::Build::Tiny> does not allow for customization.
+
+=item *
+
+C<Module::Build> provides more features and a better experience for distribution
+authors than L<ExtUtils::MakeMaker>. However, tools designed specifically for
+authoring, such as L<Dist::Zilla> and its spinoffs L<Dist::Milla> and
+L<Minilla>, provide these features and more, and generate a configure script
+(C<Makefile.PL>/C<Build.PL>) that will use any of the various installers
+separately on the end user side. L<App::ModuleBuildTiny> is an alternative
+standalone authoring tool for distributions using L<Module::Build::Tiny>, which
+requires only a simple two-line C<Build.PL>.
 
 =back
 
