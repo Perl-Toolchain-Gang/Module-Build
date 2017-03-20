@@ -2,7 +2,7 @@ package Module::Build::Platform::cygwin;
 
 use strict;
 use warnings;
-our $VERSION = '0.4220';
+our $VERSION = '0.42_21';
 $VERSION = eval $VERSION;
 use Module::Build::Platform::Unix;
 

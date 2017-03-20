@@ -2,7 +2,7 @@ package Module::Build::Compat;
 
 use strict;
 use warnings;
-our $VERSION = '0.4220';
+our $VERSION = '0.42_21';
 
 use File::Basename ();
 use File::Spec;
