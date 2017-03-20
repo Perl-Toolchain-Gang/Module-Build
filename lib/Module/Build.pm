@@ -1013,8 +1013,7 @@ customization of the entire build. Customizing C<Module::Build> involves
 subclassing C<Module::Build> itself, adding or overriding pure-perl methods
 that represent build actions, which are invoked as arguments passed to the
 generated C<./Build> script. This is a simpler concept but requires redefining
-the standard build actions to invoke your customizations, and makes it more
-difficult to combine different customizations for the same action.
+the standard build actions to invoke your customizations.
 L<Module::Build::Tiny> does not allow for customization.
 
 =item *
