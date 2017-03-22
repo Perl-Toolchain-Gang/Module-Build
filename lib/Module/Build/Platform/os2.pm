@@ -2,7 +2,7 @@ package Module::Build::Platform::os2;
 
 use strict;
 use warnings;
-our $VERSION = '0.42_21';
+our $VERSION = '0.4222';
 $VERSION = eval $VERSION;
 use Module::Build::Platform::Unix;
 
