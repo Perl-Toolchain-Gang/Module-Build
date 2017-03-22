@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.42_21 - 
+0.42_21 - Wed Mar 22 19:04:02 CET 2017
 
    - Include relative path for do in Build/Makefile.PL will function without . in @INC [Todd Rinaldo]
 
