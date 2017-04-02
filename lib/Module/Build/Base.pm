@@ -1824,6 +1824,12 @@ sub print_build_script {
   my $shebang = $self->_startperl;
   my $magic_number = $self->magic_number;
 
+  my $dot_in_inc = "";
+  if(!exists $ENV{PERL_USE_UNSAFE_INC}) {
+    $dot_in_inc  = q{push @INC, "." unless grep { $_ eq "." } @INC; # Force my process to include . in @INC.} . "\n";
+    $dot_in_inc .= q{    $ENV{"PERL_USE_UNSAFE_INC"} = 1; # Force all child processes to include . in @INC.};
+  }
+
   print $fh <<EOF;
 $shebang
 
@@ -1860,6 +1866,7 @@ BEGIN {
     (
 $quoted_INC
     );
+    $dot_in_inc
 }
 
 close(*DATA) unless eof(*DATA); # ensure no open handles to this script
