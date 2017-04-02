@@ -45,7 +45,7 @@ my $build = ModuleBuildBuilder->new(
   # KEEP 'requires' as low as possible and target Build/test/install
   # Requirements for authors should be implemented as optional features
   requires    => {
-    'perl'                  => '5.006001',
+    'perl'                  => '5.008000',
     'Data::Dumper'          => 0,
     'File::Basename'        => 0,
     'File::Compare'         => 0,
