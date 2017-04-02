@@ -4676,7 +4676,7 @@ sub get_metadata {
     generated_by => "Module::Build version $Module::Build::VERSION",
     'meta-spec' => {
       version => '2',
-      url     => 'http://search.cpan.org/perldoc?CPAN::Meta::Spec',
+      url     => 'https://metacpan.org/pod/CPAN::Meta::Spec',
     },
     dynamic_config => exists $p->{dynamic_config} ? $p->{dynamic_config} : 1,
     release_status => $self->release_status,
