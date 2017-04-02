@@ -239,7 +239,7 @@ ok $mb, "Module::Build->new_from_context";
     );
 
     require ExtUtils::Install;
-    skip "Needs ExtUtils::Install 1.32 or later", 2 * @cases
+    skip "Needs ExtUtils::Install 1.32 or later", int(2 * @cases)
       if ExtUtils::Install->VERSION < 1.32;
 
     for my $c (@cases) {
