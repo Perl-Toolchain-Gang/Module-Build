@@ -4072,6 +4072,8 @@ sub ACTION_disttest {
           or die "Error executing 'Build.PL' in dist directory: $!";
         $self->run_perl_script($self->build_script)
           or die "Error executing $self->build_script in dist directory: $!";
+
+        $ENV{RELEASE_TESTING} = 1;
         $self->run_perl_script($self->build_script, [], ['test'])
           or die "Error executing 'Build test' in dist directory";
       });
