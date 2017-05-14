@@ -1,5 +1,7 @@
 Revision history for Perl extension Module::Build.
 
+0.42_23 - Sun May 14 13:17:45 CEST 2017
+
    - Add code to special case dot-in-inc in Build
 
 0.4222 - Thu Mar 30 15:40:10 CEST 2017

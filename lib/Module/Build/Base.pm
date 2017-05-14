@@ -6,7 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.4222';
+our $VERSION = '0.42_23';
 $VERSION = eval $VERSION;
 
 use Carp;
