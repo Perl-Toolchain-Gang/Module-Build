@@ -1824,6 +1824,11 @@ sub print_build_script {
   my $shebang = $self->_startperl;
   my $magic_number = $self->magic_number;
 
+my $dot_in_inc_code = $INC[-1] eq '.' ? <<'END' : '';
+    if ($INC[-1] ne '.') {
+        push @INC, '.';
+    }
+END
   print $fh <<EOF;
 $shebang
 
@@ -1860,6 +1865,7 @@ BEGIN {
     (
 $quoted_INC
     );
+$dot_in_inc_code
 }
 
 close(*DATA) unless eof(*DATA); # ensure no open handles to this script
