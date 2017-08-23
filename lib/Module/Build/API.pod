@@ -356,17 +356,16 @@ L</module_name>.
 [version 0.07]
 
 A boolean flag indicating whether the F<Build.PL> file must be
-executed, or whether this module can be built, tested and installed
+executed to determine prerequisites, or whether they can be determined
 solely from consulting its metadata file.  The main reason to set this
-to a true value is that your module performs some dynamic
-configuration as part of its build/install process.  If the flag is
-omitted, the F<META.yml> spec says that installation tools should
-treat it as 1 (true), because this is a safer way to behave.
+to a true value is that your module adds or removes prerequisites
+dynamically in F<Build.PL>.  If the flag is omitted, it will be treated
+as 1 (true), because this is a safer way to behave.
 
 Currently C<Module::Build> doesn't actually do anything with this flag
 - it's up to higher-level tools like C<CPAN.pm> to do something useful
-with it.  It can potentially bring lots of security, packaging, and
-convenience improvements.
+with it.  It can also be very helpful for static analysis.  See
+L<CPAN::Meta::Spec/dynamic_config> for details on the metadata field.
 
 =item extra_compiler_flags
 
