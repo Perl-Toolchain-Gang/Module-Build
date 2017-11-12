@@ -2865,6 +2865,7 @@ sub process_support_files {
   my $self = shift;
   my $p = $self->{properties};
   return unless $p->{c_source};
+  return if $self->pureperl_only && $self->allow_pureperl;
 
   my $files;
   if (ref($p->{c_source}) eq "ARRAY") {
