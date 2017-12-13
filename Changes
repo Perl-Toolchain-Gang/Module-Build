@@ -1,6 +1,6 @@
 Revision history for Perl extension Module::Build.
 
-0.42_26 - 
+0.42_26 - Wed Dec 13 10:52:39 CET 2017
 
   - Improve pureperl-only support (#119914) [Shoichi Kaji]
 
