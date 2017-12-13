@@ -2,6 +2,10 @@ Revision history for Perl extension Module::Build.
 
 0.42_26 - 
 
+  - Improve pureperl-only support (#119914) [Shoichi Kaji]
+
+  - Improve the documentation of Module::Build::Compat and dynamic_config [Dan Brook]
+
 0.4224 - Tue May 30 19:50:07 CEST 2017
 
   - Released 0.42_23 without changes
