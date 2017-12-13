@@ -17,7 +17,7 @@ use Perl::OSType ();
 use Module::Build::Base;
 
 our @ISA = qw(Module::Build::Base);
-our $VERSION = '0.4224';
+our $VERSION = '0.42_26';
 $VERSION = eval $VERSION;
 
 # Inserts the given module into the @ISA hierarchy between
