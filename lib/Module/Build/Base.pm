@@ -1517,7 +1517,11 @@ sub auto_require {
   # If set, we need ExtUtils::CBuilder (and a compiler)
   my $xs_files = $self->find_xs_files;
   if ( ! defined $p->{needs_compiler} ) {
-    $self->needs_compiler( keys %$xs_files || defined $self->c_source );
+    if ( $self->pureperl_only && $self->allow_pureperl ) {
+      $self->needs_compiler( 0 );
+    } else {
+      $self->needs_compiler( keys %$xs_files || defined $self->c_source );
+    }
   }
   if ($self->needs_compiler) {
     $self->_add_prereq('build_requires', 'ExtUtils::CBuilder', 0);
