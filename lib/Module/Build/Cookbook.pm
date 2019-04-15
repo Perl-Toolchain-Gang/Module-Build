@@ -1,7 +1,7 @@
 package Module::Build::Cookbook;
 use strict;
 use warnings;
-our $VERSION = '0.42_28';
+our $VERSION = '0.4229';
 
 
 =head1 NAME

@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+0.4229 - Tue Apr 16 00:49:45 CEST 2019
+  - Released 0.42_28 without changes
+
 0.42_28 - Thu Apr 19 16:34:32 CEST 2018
 
   - Replace "MOTIVATIONS" section with "COMPARISON" [Dan Brook]
