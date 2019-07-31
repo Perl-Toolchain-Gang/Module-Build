@@ -2,7 +2,7 @@ package Module::Build::Platform::Windows;
 
 use strict;
 use warnings;
-our $VERSION = '0.4229';
+our $VERSION = '0.42_30';
 $VERSION = eval $VERSION;
 
 use Config;
