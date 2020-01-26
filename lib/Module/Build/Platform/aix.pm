@@ -2,7 +2,7 @@ package Module::Build::Platform::aix;
 
 use strict;
 use warnings;
-our $VERSION = '0.42_30';
+our $VERSION = '0.4231';
 $VERSION = eval $VERSION;
 use Module::Build::Platform::Unix;
 
