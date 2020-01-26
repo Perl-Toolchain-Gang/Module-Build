@@ -252,6 +252,8 @@ for compatibility with C<ExtUtils::MakeMaker>.  The parameter's value
 should be one of the styles named in the L<Module::Build::Compat>
 documentation.
 
+Use of this parameter is L<discouraged|Module::Build::Compat/"WARNING">.
+
 =item create_readme
 
 [version 0.22]
