@@ -6,14 +6,22 @@ notifications:
   email: false
 before_install:
   - cpanm CPAN::Meta
-perl:
-  - "5.20"
-  - "5.18"
-  - "5.16"
-  - "5.14"
-  - "5.12"
-  - "5.10"
-  - "5.8"
+matrix:
+  include:
+    - perl: "5.20"
+      dist: trusty
+    - perl: "5.18"
+      dist: trusty
+    - perl: "5.16"
+      dist: trusty
+    - perl: "5.14"
+      dist: trusty
+    - perl: "5.12"
+      dist: trusty
+    - perl: "5.10"
+      dist: trusty
+    - perl: "5.8"
+      dist: trusty
 script:
   - perl Build.PL && ./Build test && ./Build disttest
   - perl Makefile.PL && make test
