@@ -166,13 +166,16 @@ okay()
 $dist->add_file( 'Simple.pm', <<"---" );
 package Simple;
 
-\$VERSION = '0.01';
+use strict;
+use warnings;
+
+our \$VERSION = '0.01';
 
 require Exporter;
 require DynaLoader;
 
-\@ISA = qw( Exporter DynaLoader );
-\@EXPORT_OK = qw( okay );
+our \@ISA = qw( Exporter DynaLoader );
+our \@EXPORT_OK = qw( okay );
 
 bootstrap Simple \$VERSION;
 

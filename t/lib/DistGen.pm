@@ -214,14 +214,16 @@ sub _gen_default_filedata {
   } else {
     $self->$add_unless($module_filename, undent(<<"      ---"));
       package $self->{name};
+      use strict;
+      use warnings;
 
-      \$VERSION = $self->{version};
+      our \$VERSION = $self->{version};
 
       require Exporter;
       require DynaLoader;
 
-      \@ISA = qw(Exporter DynaLoader);
-      \@EXPORT_OK = qw( okay );
+      our \@ISA = qw(Exporter DynaLoader);
+      our \@EXPORT_OK = qw( okay );
 
       bootstrap $self->{name} \$VERSION;
 
