@@ -17,9 +17,12 @@ $dist->chdir_in;
 
 ###################################
 $dist->change_file( 'Build.PL', <<"---" );
+use strict;
+use warnings;
 use Module::Build;
+
 my \$build = Module::Build->new(
-  module_name => @{[$dist->name]},
+  module_name => '@{[$dist->name]}',
   license     => 'perl'
 );
 \$build->create_build_script;
