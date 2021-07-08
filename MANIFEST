@@ -3,6 +3,7 @@ Build.PL
 Changes
 contrib/bash_completion.module-build
 inc/bootstrap.pl
+inc/ExtUtils/Config.pm
 inc/MBVersion.pm
 inc/Module/Metadata.pm
 inc/Perl/OSType.pm

@@ -2,7 +2,7 @@
 
 use strict;
 use lib 't/lib';
-use MBTest tests => 27;
+use MBTest tests => 25;
 #use MBTest 'no_plan';
 use DistGen;
 
@@ -81,14 +81,9 @@ is $build->installdirs, 'site', 'Property "installdirs" should be default';
 ok $build->installdirs('core'), 'Set "installdirst" to "core"';
 is $build->installdirs, 'core', 'Now "installdirs" should be "core"';
 
-eval { $build->installdirs('perl') };
-ok $err = $@, 'Should have caught exception setting "installdirs" to "perl"';
-like $err, qr/^ERROR: Perhaps you meant installdirs to be "core" rather than "perl"\?/,
-  'And it should suggest "core" in the error message';
-
 eval { $build->installdirs('foo') };
 ok $err = $@, 'Should catch exception for invalid "installdirs" value';
-like $err, qr/ERROR: installdirs must be one of "core", "site", or "vendor"/,
+like $err, qr/installdirs must be one of "core", "site", or "vendor"/,
   'And it should suggest the proper values in the error message';
 
 $dist->chdir_original if $dist->did_chdir;

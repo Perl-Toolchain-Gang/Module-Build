@@ -41,6 +41,15 @@ BEGIN {
     eval "require Module::Metadata; 1"
       or die "BOOSTRAP FAIL: $@";
   }
+  if ( ! eval "use ExtUtils::Config 0.006 (); 1" ) {
+    print "*** BOOTSTRAPPING ExtUtils::Config ***\n";
+    push @exit_warn, [ 'ExtUtils::Config', '0.006' ];
+    delete $INC{'ExtUtils/Config.pm'};
+    local @INC = @INC;
+    push @INC, 'inc';
+    eval "require ExtUtils::Config; 1"
+      or die "BOOSTRAP FAIL: $@";
+  }
 }
 
 1;

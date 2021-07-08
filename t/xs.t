@@ -91,10 +91,10 @@ SKIP: {
   skip( "skipping a Unixish-only tests", 1 )
       unless $mb->is_unixish;
 
-  $mb->{config}->push(ld => "FOO=BAR ".$mb->config('ld'));
+  local $mb->{config} = $mb->{config}->clone;
+  $mb->{config}->set(ld => "FOO=BAR " . $mb->config('ld'));
   eval {$mb->dispatch('build')};
   is $@, '';
-  $mb->{config}->pop('ld');
 }
 
 eval {$mb->dispatch('realclean')};
