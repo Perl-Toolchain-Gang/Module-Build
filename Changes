@@ -1,5 +1,9 @@
 Revision history for Perl extension Module::Build.
 
+0.4232 -
+
+  - Drop Pod::Man dependency for 5.8 compatibility
+
 0.4231 - Wed Jan 29 08:47:56 CET 2020
 
   - Released 0.42_30 without code changes

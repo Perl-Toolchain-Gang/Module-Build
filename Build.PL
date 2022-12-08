@@ -64,7 +64,6 @@ my $build = ModuleBuildBuilder->new(
     'Perl::OSType'          => ( $^O eq 'bitrig' ? 1.004 : 1 ), # needs 1.0 API
     'version'               => 0.87,  # No longer requires M::B
     'Module::Metadata'      => 1.000002, # uses version.pm
-    'Pod::Man'              => 2.17, # utf8 support
     ($^O eq 'MSWin32' ? ('ExtUtils::PL2Bat' => 0) : ())
   },
   test_requires         => {
