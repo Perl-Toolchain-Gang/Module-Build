@@ -6,8 +6,8 @@
 use strict;
 use warnings;
 
-use lib 'lib';
-use inc::ModuleBuildBuilder;
+use lib 'lib', 'inc';
+use ModuleBuildBuilder;
 
 use Tie::File;
 
