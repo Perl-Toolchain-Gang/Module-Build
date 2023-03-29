@@ -1,5 +1,17 @@
 Revision history for Perl extension Module::Build.
 
+0.42_33 - Wed Mar 29 10:38:56 PM CEST 2023
+
+  - PodParser now respects =encoding directives
+
+  - Don't use libraries in t/bundled for Build.PL
+
+  - make_tarball: workaround for broken tar on Darwin
+
+  - Respect $Config{man1ext}/$Config{man3ext}
+
+  - Do not require a compiler if c_source is an empty list
+
 0.4232 - Thu Dec  8 10:27:44 PM CET 2022
 
   - Drop Pod::Man dependency for 5.8 compatibility
