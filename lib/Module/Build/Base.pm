@@ -1520,7 +1520,11 @@ sub auto_require {
     if ( $self->pureperl_only && $self->allow_pureperl ) {
       $self->needs_compiler( 0 );
     } else {
-      $self->needs_compiler( keys %$xs_files || defined $self->c_source );
+      $self->needs_compiler( keys %$xs_files ||
+        ( defined $self->c_source &&
+          ( ref($self->c_source) ne 'ARRAY' || @{$self->c_source} )
+        )
+      );
     }
   }
   if ($self->needs_compiler) {

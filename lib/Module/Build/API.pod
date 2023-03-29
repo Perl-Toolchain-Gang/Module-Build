@@ -209,10 +209,10 @@ created by Module::Build.
 
 [version 0.04]
 
-An optional C<c_source> argument specifies a directory which contains
-C source files that the rest of the build may depend on.  Any C<.c>
-files in the directory will be compiled to object files.  The
-directory will be added to the search path during the compilation and
+An optional C<c_source> argument specifies a directory or a reference to array
+of directories which contain C source files that the rest of the build may
+depend on.  Any C<.c> files in the directory will be compiled to object files.
+The directory will be added to the search path during the compilation and
 linking phases of any C or XS files.
 
 [version 0.3604]

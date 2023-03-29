@@ -5,7 +5,7 @@ use lib 't/lib';
 use MBTest;
 use DistGen;
 
-plan tests => 19;
+plan tests => 27;
 
 # Ensure any Module::Build modules are loaded from correct directory
 blib_load('Module::Build');
@@ -24,7 +24,7 @@ ok( ! exists $mb->{properties}{build_requires}{'ExtUtils::CBuilder'},
 );
 
 #--------------------------------------------------------------------------#
-# try with c_source
+# try with c_source as a string
 #--------------------------------------------------------------------------#
 $dist->change_build_pl({
     module_name => $dist->name,
@@ -34,13 +34,53 @@ $dist->change_build_pl({
 $dist->regen;
 stderr_of(sub {
   ok( $mb = $dist->new_from_context,
-    "Build.PL with c_source"
+    "Build.PL with string c_source"
   );
 });
 is( $mb->c_source, 'src', "c_source is set" );
 ok( $mb->needs_compiler, "needs_compiler is true" );
 ok( exists $mb->{properties}{build_requires}{'ExtUtils::CBuilder'},
   "ExtUtils::CBuilder was added to build_requires"
+);
+
+#--------------------------------------------------------------------------#
+# try with c_source as an array
+#--------------------------------------------------------------------------#
+$dist->change_build_pl({
+    module_name => $dist->name,
+    license => 'perl',
+    c_source => ['src'],
+});
+$dist->regen;
+stderr_of(sub {
+  ok( $mb = $dist->new_from_context,
+    "Build.PL with non-empty array c_source"
+  );
+});
+is_deeply( $mb->c_source, ['src'], "c_source is set" );
+ok( $mb->needs_compiler, "needs_compiler is true" );
+ok( exists $mb->{properties}{build_requires}{'ExtUtils::CBuilder'},
+  "ExtUtils::CBuilder was added to build_requires"
+);
+
+#--------------------------------------------------------------------------#
+# try with c_source as an empty array
+#--------------------------------------------------------------------------#
+$dist->change_build_pl({
+    module_name => $dist->name,
+    license => 'perl',
+    c_source => [],
+});
+$dist->regen;
+stderr_of(sub {
+  ok( $mb = $dist->new_from_context,
+    "Build.PL with empty array c_source"
+  );
+});
+is_deeply( $mb->c_source, [], "c_source is set" );
+ok( ! $mb->needs_compiler, "needs_compiler is false" );
+ok( ! exists $mb->{properties}{build_requires}{'ExtUtils::CBuilder'},
+  "ExtUtils::CBuilder is not in build_requires"
 );
 
 #--------------------------------------------------------------------------#
