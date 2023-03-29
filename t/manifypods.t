@@ -114,8 +114,8 @@ my %distro = (
 	      'lib/Simple.pm'         => "Simple.$man{ext3}",
               'lib/Simple/NoPod.pm'   => '',
               'lib/Simple/AllPod.pod' => "Simple$man{sep}AllPod.$man{ext3}",
-              'docs/myapp1.pod'        => "myapp1.$man{ext1}",
-              'docs/myapp2.pm'        => "myapp2.$man{ext1}",
+              'docs/myapp1.pod'        => "myapp1.pod.$man{ext1}",
+              'docs/myapp2.pm'        => "myapp2.pm.$man{ext1}",
               'docs/myapp3.pl'        => "myapp3.pl.$man{ext1}",
               'docs/myapp4'           => "myapp4.$man{ext1}",
 	     );
