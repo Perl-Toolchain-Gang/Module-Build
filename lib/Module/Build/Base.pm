@@ -233,119 +233,6 @@ sub log_warn {
 
 # install paths must be generated when requested to be sure all changes
 # to config (from various sources) are included
-sub _default_install_paths {
-  my $self = shift;
-  my $c = $self->{config};
-  my $p = {};
-
-  my @libstyle = $c->get('installstyle') ?
-      File::Spec->splitdir($c->get('installstyle')) : qw(lib perl5);
-  my $arch     = $c->get('archname');
-  my $version  = $c->get('version');
-
-  my $bindoc  = $c->get('installman1dir') || undef;
-  my $libdoc  = $c->get('installman3dir') || undef;
-
-  my $binhtml = $c->get('installhtml1dir') || $c->get('installhtmldir') || undef;
-  my $libhtml = $c->get('installhtml3dir') || $c->get('installhtmldir') || undef;
-
-  $p->{install_sets} =
-    {
-     core   => {
-       lib     => $c->get('installprivlib'),
-       arch    => $c->get('installarchlib'),
-       bin     => $c->get('installbin'),
-       script  => $c->get('installscript'),
-       bindoc  => $bindoc,
-       libdoc  => $libdoc,
-       binhtml => $binhtml,
-       libhtml => $libhtml,
-     },
-     site   => {
-       lib     => $c->get('installsitelib'),
-       arch    => $c->get('installsitearch'),
-       bin     => $c->get('installsitebin')      || $c->get('installbin'),
-       script  => $c->get('installsitescript')   ||
-         $c->get('installsitebin') || $c->get('installscript'),
-       bindoc  => $c->get('installsiteman1dir')  || $bindoc,
-       libdoc  => $c->get('installsiteman3dir')  || $libdoc,
-       binhtml => $c->get('installsitehtml1dir') || $binhtml,
-       libhtml => $c->get('installsitehtml3dir') || $libhtml,
-     },
-     vendor => {
-       lib     => $c->get('installvendorlib'),
-       arch    => $c->get('installvendorarch'),
-       bin     => $c->get('installvendorbin')      || $c->get('installbin'),
-       script  => $c->get('installvendorscript')   ||
-         $c->get('installvendorbin') || $c->get('installscript'),
-       bindoc  => $c->get('installvendorman1dir')  || $bindoc,
-       libdoc  => $c->get('installvendorman3dir')  || $libdoc,
-       binhtml => $c->get('installvendorhtml1dir') || $binhtml,
-       libhtml => $c->get('installvendorhtml3dir') || $libhtml,
-     },
-    };
-
-  $p->{original_prefix} =
-    {
-     core   => $c->get('installprefixexp') || $c->get('installprefix') ||
-               $c->get('prefixexp')        || $c->get('prefix') || '',
-     site   => $c->get('siteprefixexp'),
-     vendor => $c->get('usevendorprefix') ? $c->get('vendorprefixexp') : '',
-    };
-  $p->{original_prefix}{site} ||= $p->{original_prefix}{core};
-
-  # Note: you might be tempted to use $Config{installstyle} here
-  # instead of hard-coding lib/perl5, but that's been considered and
-  # (at least for now) rejected.  `perldoc Config` has some wisdom
-  # about it.
-  $p->{install_base_relpaths} =
-    {
-     lib     => ['lib', 'perl5'],
-     arch    => ['lib', 'perl5', $arch],
-     bin     => ['bin'],
-     script  => ['bin'],
-     bindoc  => ['man', 'man1'],
-     libdoc  => ['man', 'man3'],
-     binhtml => ['html'],
-     libhtml => ['html'],
-    };
-
-  $p->{prefix_relpaths} =
-    {
-     core => {
-       lib        => [@libstyle],
-       arch       => [@libstyle, $version, $arch],
-       bin        => ['bin'],
-       script     => ['bin'],
-       bindoc     => ['man', 'man1'],
-       libdoc     => ['man', 'man3'],
-       binhtml    => ['html'],
-       libhtml    => ['html'],
-     },
-     vendor => {
-       lib        => [@libstyle],
-       arch       => [@libstyle, $version, $arch],
-       bin        => ['bin'],
-       script     => ['bin'],
-       bindoc     => ['man', 'man1'],
-       libdoc     => ['man', 'man3'],
-       binhtml    => ['html'],
-       libhtml    => ['html'],
-     },
-     site => {
-       lib        => [@libstyle, 'site_perl'],
-       arch       => [@libstyle, 'site_perl', $version, $arch],
-       bin        => ['bin'],
-       script     => ['bin'],
-       bindoc     => ['man', 'man1'],
-       libdoc     => ['man', 'man3'],
-       binhtml    => ['html'],
-       libhtml    => ['html'],
-     },
-    };
-    return $p
-}
-
 sub _find_nested_builds {
   my $self = shift;
   my $r = $self->recurse_into or return;
@@ -3174,19 +3061,6 @@ sub ACTION_docs {
   $self->depends_on('manpages', 'html');
 }
 
-# Given a file type, will return true if the file type would normally
-# be installed when neither install-base nor prefix has been set.
-# I.e. it will be true only if the path is set from Config.pm or
-# set explicitly by the user via install-path.
-sub _is_default_installable {
-  my $self = shift;
-  my $type = shift;
-  return ( $self->install_destination($type) &&
-           ( $self->install_path($type) ||
-             $self->install_sets($self->installdirs)->{$type} )
-         ) ? 1 : 0;
-}
-
 sub _is_ActivePerl {
 #  return 0;
   my $self = shift;
@@ -3342,13 +3216,12 @@ sub htmlify_pods {
       or die "Couldn't mkdir $htmldir: $!";
   }
 
-  my @rootdirs = ($type eq 'bin') ? qw(bin) :
-      $self->installdirs eq 'core' ? qw(lib) : qw(site lib);
+  my @rootdirs = ($type eq 'bin') ? qw(bin) : $self->installdirs eq 'core' ? qw(lib) : qw(site lib);
   my $podroot = $ENV{PERL_CORE}
               ? File::Basename::dirname($ENV{PERL_CORE})
               : $self->original_prefix('core');
 
-  my $htmlroot = $self->install_sets('core')->{libhtml};
+  my $htmlroot = $self->install_sets('core', 'libhtml');
   my $podpath;
   unless (defined $self->args('html_links') and !$self->args('html_links')) {
     my @podpath = ( (map { File::Spec->abs2rel($_ ,$podroot) } grep { -d  }
@@ -4988,29 +4861,24 @@ sub make_tarball {
 }
 
 sub install_path {
-  my $self = shift;
-  my( $type, $value ) = ( @_, '<empty>' );
+  my ($self, $type, $value) = @_;
 
-  Carp::croak( 'Type argument missing' )
-    unless defined( $type );
-
-  my $map = $self->{properties}{install_path};
-  return $map unless @_;
-
-  # delete existing value if $value is literal undef()
-  unless ( defined( $value ) ) {
-    delete( $map->{$type} );
-    return undef;
+  if (@_ == 3) {
+    my $map = $self->{properties}{install_path};
+    if (defined $value) {
+      return $map->{$type} = $value;
+    } else {
+      delete $map->{$type};
+      return;
+    }
   }
-
-  # return existing value if no new $value is given
-  if ( $value eq '<empty>' ) {
-    return undef unless exists $map->{$type};
-    return $map->{$type};
+  my $ei = $self->_installpaths;
+  if (@_ == 2) {
+    return $ei->install_path($type);
   }
-
-  # set value if $value is a valid relative path
-  return $map->{$type} = $value;
+  else {
+    return { map { ( $_ => $ei->install_path($_) ) } grep { defined $ei->install_path($_) } $ei->install_types };
+  }
 }
 
 sub install_sets {
@@ -5023,18 +4891,12 @@ sub install_sets {
     # $value can be undef; will mask default
     $self->{properties}{install_sets}{$dirs}{$key} = $value;
   }
-  my $map = { $self->_merge_arglist(
-    $self->{properties}{install_sets},
-    $self->_default_install_paths->{install_sets}
-  )};
+  my $ei = $self->_installpaths;
   if ( defined $dirs && defined $key ) {
-    return $map->{$dirs}{$key};
+    return $ei->install_sets($dirs, $key);
   }
   elsif ( defined $dirs ) {
-    return $map->{$dirs};
-  }
-  else {
-    croak "Can't determine installdirs for install_sets()";
+    return { map { $_ => $ei->install_sets($dirs, $_) } $ei->install_types };
   }
 }
 
@@ -5047,28 +4909,27 @@ sub original_prefix {
     # $value can be undef; will mask default
     $self->{properties}{original_prefix}{$key} = $value;
   }
-  my $map = { $self->_merge_arglist(
-    $self->{properties}{original_prefix},
-    $self->_default_install_paths->{original_prefix}
-  )};
-  return $map unless defined $key;
-  return $map->{$key}
+  my $ei = $self->_installpaths;
+  return $ei->original_prefix($key) if @_ >= 2;
+
+  return { map { $_ => $ei->original_prefix($_) } qw/site vendor core/ };
 }
 
 sub install_base_relpaths {
   # Usage: install_base_relpaths(), install_base_relpaths('lib'),
   #   or install_base_relpaths('lib' => $value);
   my $self = shift;
-  if ( @_ > 1 ) { # change values before merge
+  if ( @_ >= 2 ) { # change values before merge
     $self->_set_relpaths($self->{properties}{install_base_relpaths}, @_);
   }
-  my $map = { $self->_merge_arglist(
-    $self->{properties}{install_base_relpaths},
-    $self->_default_install_paths->{install_base_relpaths}
-  )};
-  return $map unless @_;
-  my $relpath = $map->{$_[0]};
-  return defined $relpath ? File::Spec->catdir( @$relpath ) : undef;
+  my $ei = $self->_installpaths;
+  if (@_) {
+    my $list = $ei->install_base_relpaths($_[0]);
+    return $list ? File::Spec->catdir(@{$list}) : undef;
+  }
+  else {
+    return { map { $_ => $ei->install_base_relpaths($_) } $ei->install_types };
+  }
 }
 
 # Defaults to use in case the config install paths cannot be prefixified.
@@ -5076,21 +4937,23 @@ sub prefix_relpaths {
   # Usage: prefix_relpaths('site'), prefix_relpaths('site', 'lib'),
   #   or prefix_relpaths('site', 'lib' => $value);
   my $self = shift;
-  my $installdirs = shift || $self->installdirs
-    or croak "Can't determine installdirs for prefix_relpaths()";
+  my $installdirs = shift || $self->installdirs;
   if ( @_ > 1 ) { # change values before merge
     $self->{properties}{prefix_relpaths}{$installdirs} ||= {};
     $self->_set_relpaths($self->{properties}{prefix_relpaths}{$installdirs}, @_);
   }
-  my $map = {$self->_merge_arglist(
-    $self->{properties}{prefix_relpaths}{$installdirs},
-    $self->_default_install_paths->{prefix_relpaths}{$installdirs}
-  )};
-  return $map unless @_;
-  my $relpath = $map->{$_[0]};
-  return defined $relpath ? File::Spec->catdir( @$relpath ) : undef;
+  my $ei = $self->_installpaths;
+  if (@_) {
+    my $key = shift;
+    my $list = $ei->prefix_relpaths($installdirs, $key);
+    return $list ? File::Spec->catdir(@{$list}) : undef;
+  }
+  else {
+    return { map { $_ => $ei->prefix_relpaths($installdirs, $_) } $ei->install_types };
+  }
 }
 
+my %predefined = map { $_ => 1 } qw/lib arch bin script bindoc libdoc binhtml libhtml/;
 sub _set_relpaths {
   my $self = shift;
   my( $map, $type, $value ) = @_;
@@ -5100,7 +4963,7 @@ sub _set_relpaths {
 
   # set undef if $value is literal undef()
   if ( ! defined( $value ) ) {
-    $map->{$type} = undef;
+	delete $map->{$type};
     return;
   }
   # set value if $value is a valid relative path
@@ -5113,155 +4976,33 @@ sub _set_relpaths {
   }
 }
 
-# Translated from ExtUtils::MM_Any::init_INSTALL_from_PREFIX
+sub _installpaths {
+  my $self = shift;
+  require ExtUtils::InstallPaths;
+  return ExtUtils::InstallPaths->new(
+    %{ $self->{properties} },
+    config => $self->{config},
+	@_,
+  );
+}
+BEGIN {
+  my %method_for = (
+    (_is_default_installable => 'is_default_installable'),
+    map { $_ => $_ } qw/install_destination install_map install_types/, map { "_default_$_" } qw//,
+  );
+  for my $local (keys %method_for) {
+    my $remote = $method_for{$local};
+    no strict 'refs';
+    *{$local} = sub {
+      my $self = shift;
+      return $self->_installpaths->$remote(@_);
+    };
+  }
+}
+
 sub prefix_relative {
-  my ($self, $type) = @_;
-  my $installdirs = $self->installdirs;
-
-  my $relpath = $self->install_sets($installdirs)->{$type};
-
-  return $self->_prefixify($relpath,
-                           $self->original_prefix($installdirs),
-                           $type,
-                          );
-}
-
-# Translated from ExtUtils::MM_Unix::prefixify()
-sub _prefixify {
-  my($self, $path, $sprefix, $type) = @_;
-
-  my $rprefix = $self->prefix;
-  $rprefix .= '/' if $sprefix =~ m|/$|;
-
-  $self->log_verbose("  prefixify $path from $sprefix to $rprefix\n")
-    if defined( $path ) && length( $path );
-
-  if( !defined( $path ) || ( length( $path ) == 0 ) ) {
-    $self->log_verbose("  no path to prefixify, falling back to default.\n");
-    return $self->_prefixify_default( $type, $rprefix );
-  } elsif( !File::Spec->file_name_is_absolute($path) ) {
-    $self->log_verbose("    path is relative, not prefixifying.\n");
-  } elsif( $path !~ s{^\Q$sprefix\E\b}{}s ) {
-    $self->log_verbose("    cannot prefixify, falling back to default.\n");
-    return $self->_prefixify_default( $type, $rprefix );
-  }
-
-  $self->log_verbose("    now $path in $rprefix\n");
-
-  return $path;
-}
-
-sub _prefixify_default {
-  my $self = shift;
-  my $type = shift;
-  my $rprefix = shift;
-
-  my $default = $self->prefix_relpaths($self->installdirs, $type);
-  if( !$default ) {
-    $self->log_verbose("    no default install location for type '$type', using prefix '$rprefix'.\n");
-    return $rprefix;
-  } else {
-    return $default;
-  }
-}
-
-sub install_destination {
-  my ($self, $type) = @_;
-
-  return $self->install_path($type) if $self->install_path($type);
-
-  if ( $self->install_base ) {
-    my $relpath = $self->install_base_relpaths($type);
-    return $relpath ? File::Spec->catdir($self->install_base, $relpath) : undef;
-  }
-
-  if ( $self->prefix ) {
-    my $relpath = $self->prefix_relative($type);
-    return $relpath ? File::Spec->catdir($self->prefix, $relpath) : undef;
-  }
-
-  return $self->install_sets($self->installdirs)->{$type};
-}
-
-sub install_types {
-  my $self = shift;
-
-  my %types;
-  if ( $self->install_base ) {
-    %types = %{$self->install_base_relpaths};
-  } elsif ( $self->prefix ) {
-    %types = %{$self->prefix_relpaths};
-  } else {
-    %types = %{$self->install_sets($self->installdirs)};
-  }
-
-  %types = (%types, %{$self->install_path});
-
-  return sort keys %types;
-}
-
-sub install_map {
-  my ($self, $blib) = @_;
-  $blib ||= $self->blib;
-
-  my( %map, @skipping );
-  foreach my $type ($self->install_types) {
-    my $localdir = File::Spec->catdir( $blib, $type );
-    next unless -e $localdir;
-
-    # the line "...next if (($type eq 'bindoc'..." was one of many changes introduced for
-    # improving HTML generation on ActivePerl, see https://rt.cpan.org/Public/Bug/Display.html?id=53478
-    # Most changes were ok, but this particular line caused test failures in t/manifypods.t on windows,
-    # therefore it is commented out.
-
-    # ********* next if (($type eq 'bindoc' || $type eq 'libdoc') && not $self->is_unixish);
-
-    if (my $dest = $self->install_destination($type)) {
-      $map{$localdir} = $dest;
-    } else {
-      push( @skipping, $type );
-    }
-  }
-
-  $self->log_warn(
-    "WARNING: Can't figure out install path for types: @skipping\n" .
-    "Files will not be installed.\n"
-  ) if @skipping;
-
-  # Write the packlist into the same place as ExtUtils::MakeMaker.
-  if ($self->create_packlist and my $module_name = $self->module_name) {
-    my $archdir = $self->install_destination('arch');
-    my @ext = split /::/, $module_name;
-    $map{write} = File::Spec->catfile($archdir, 'auto', @ext, '.packlist');
-  }
-
-  # Handle destdir
-  if (length(my $destdir = $self->destdir || '')) {
-    foreach (keys %map) {
-      # Need to remove volume from $map{$_} using splitpath, or else
-      # we'll create something crazy like C:\Foo\Bar\E:\Baz\Quux
-      # VMS will always have the file separate than the path.
-      my ($volume, $path, $file) = File::Spec->splitpath( $map{$_}, 0 );
-
-      # catdir needs a list of directories, or it will create something
-      # crazy like volume:[Foo.Bar.volume.Baz.Quux]
-      my @dirs = File::Spec->splitdir($path);
-
-      # First merge the directories
-      $path = File::Spec->catdir($destdir, @dirs);
-
-      # Then put the file back on if there is one.
-      if ($file ne '') {
-          $map{$_} = File::Spec->catfile($path, $file)
-      } else {
-          $map{$_} = $path;
-      }
-    }
-  }
-
-  $map{read} = '';  # To keep ExtUtils::Install quiet
-
-  return \%map;
+	my $self = shift;
+	return $self->_installpaths->prefix_relative($self->installdirs, @_);
 }
 
 sub depends_on {
