@@ -1,5 +1,8 @@
 Revision history for Perl extension Module::Build.
 
+0.42_35 - Sun 30 Apr 2023 15:11:13 CEST
+  - Refactor install path logic to ExtUtils::InstallPaths
+
 0.4234 - Fri 28 Apr 2023 10:46:26 CEST
   - PodParser now respects =encoding directives
 
