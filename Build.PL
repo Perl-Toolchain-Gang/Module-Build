@@ -127,6 +127,9 @@ my $build = ModuleBuildBuilder->new(
       MailingList => 'mailto:module-build@perl.org',
       repository  => 'https://github.com/Perl-Toolchain-Gang/Module-Build',
       IRC         => 'irc://irc.perl.org/#toolchain',
+      bugtracker  => {
+                      web => 'https://github.com/Perl-Toolchain-Gang/Module-Build/issues',
+                     },
     }
   },
 );
