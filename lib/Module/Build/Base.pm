@@ -1927,14 +1927,18 @@ sub create_mymeta {
 
   my $mymeta_obj;
   if ($meta_obj) {
-    # if we have metadata, just update it
-    my %updated = (
-      %{ $meta_obj->as_struct({ version => 2.0 }) },
-      prereqs => $self->_normalize_prereqs,
-      dynamic_config => 0,
-      generated_by => "Module::Build version $Module::Build::VERSION",
-    );
-    $mymeta_obj = CPAN::Meta->new( \%updated, { lazy_validation => 0 } );
+    if ($meta_obj->dynamic_config == 0) {
+      $mymeta_obj = $meta_obj;
+    } else {
+      # if we have metadata, just update it
+      my %updated = (
+        %{ $meta_obj->as_struct({ version => 2.0 }) },
+        prereqs => $self->_normalize_prereqs,
+        dynamic_config => 0,
+        generated_by => "Module::Build version $Module::Build::VERSION",
+      );
+      $mymeta_obj = CPAN::Meta->new( \%updated, { lazy_validation => 0 } );
+    }
   }
   else {
     $mymeta_obj = $self->_get_meta_object(quiet => 0, dynamic => 0, fatal => 1, auto => 0);
