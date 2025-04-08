@@ -1931,9 +1931,22 @@ sub create_mymeta {
       $mymeta_obj = $meta_obj;
     } else {
       # if we have metadata, just update it
+      my $prereqs = $self->_normalize_prereqs;
+      if (my $merge = $self->meta_merge) {
+        unless ($merge->{'meta-spec'} && ($merge->{'meta-spec'}{version} // '1.4') eq '2') {
+          require CPAN::Meta::Converter;
+          $merge = CPAN::Meta::Converter->new($merge)->upgrade_fragment;
+        }
+        if ($merge->{prereqs}) {
+          my $left = CPAN::Meta::Prereqs->new($prereqs);
+          my $right = CPAN::Meta::Prereqs->new($merge->{prereqs});
+          $prereqs = $left->with_merged_prereqs($right)->as_string_hash;
+        }
+      }
+
       my %updated = (
         %{ $meta_obj->as_struct({ version => 2.0 }) },
-        prereqs => $self->_normalize_prereqs,
+        prereqs => $prereqs,
         dynamic_config => 0,
         generated_by => "Module::Build version $Module::Build::VERSION",
       );
