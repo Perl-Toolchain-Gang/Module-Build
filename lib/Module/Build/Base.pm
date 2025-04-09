@@ -1814,14 +1814,31 @@ sub create_mymeta {
 
   my $mymeta_obj;
   if ($meta_obj) {
-    # if we have metadata, just update it
-    my %updated = (
-      %{ $meta_obj->as_struct({ version => 2.0 }) },
-      prereqs => $self->_normalize_prereqs,
-      dynamic_config => 0,
-      generated_by => "Module::Build version $Module::Build::VERSION",
-    );
-    $mymeta_obj = CPAN::Meta->new( \%updated, { lazy_validation => 0 } );
+    if ($meta_obj->dynamic_config == 0) {
+      $mymeta_obj = $meta_obj;
+    } else {
+      # if we have metadata, just update it
+      my $prereqs = $self->_normalize_prereqs;
+      if (my $merge = $self->meta_merge) {
+        unless ($merge->{'meta-spec'} && ($merge->{'meta-spec'}{version} // '1.4') eq '2') {
+          require CPAN::Meta::Converter;
+          $merge = CPAN::Meta::Converter->new($merge)->upgrade_fragment;
+        }
+        if ($merge->{prereqs}) {
+          my $left = CPAN::Meta::Prereqs->new($prereqs);
+          my $right = CPAN::Meta::Prereqs->new($merge->{prereqs});
+          $prereqs = $left->with_merged_prereqs($right)->as_string_hash;
+        }
+      }
+
+      my %updated = (
+        %{ $meta_obj->as_struct({ version => 2.0 }) },
+        prereqs => $prereqs,
+        dynamic_config => 0,
+        generated_by => "Module::Build version $Module::Build::VERSION",
+      );
+      $mymeta_obj = CPAN::Meta->new( \%updated, { lazy_validation => 0 } );
+    }
   }
   else {
     $mymeta_obj = $self->_get_meta_object(quiet => 0, dynamic => 0, fatal => 1, auto => 0);
