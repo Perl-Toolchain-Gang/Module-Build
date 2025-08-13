@@ -3284,7 +3284,7 @@ sub htmlify_pods {
       my %opts = ( infile => $infile,
         outfile => $tmpfile,
         ( defined($podpath) ? (podpath => $podpath) : ()),
-        podroot => $podroot,
+        ( length($podroot) ? (podroot => $podroot) : ()),
         index => 1,
         depth => $depth,
       );
@@ -3306,7 +3306,7 @@ sub htmlify_pods {
         ( defined($podpath) ? "--podpath=$podpath" : ()),
         "--infile=$infile",
         "--outfile=$tmpfile",
-        "--podroot=$podroot",
+        ( length($podroot) ? "--podroot=$podroot" : ()),
         ($path2root ? "--htmlroot=$path2root" : ()),
       );
 
