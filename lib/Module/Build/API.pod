@@ -1950,6 +1950,12 @@ L<CPAN::Meta::Spec> but for convenience - here are a few of the more useful ones
 
 =over 4
 
+=item meta-spec
+
+This is required to specify that the metadata in C<meta_add> or C<meta_merge> should
+be interpreted in L<meta-spec version 2|CPAN::Meta::Spec>, otherwise it will be
+interpreted in the L<legacy meta-spec version 1.4|CPAN::Meta::History::Meta_1_4>.
+
 =item keywords
 
 For describing the distribution using keyword (or "tags") in order to
